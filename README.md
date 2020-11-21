@@ -1,24 +1,29 @@
-# Project14-A-Web-Audio-Editor
+# 🔊 AUDI(AUdio eDItor)
+> ✨클라이언트 기반 웹 음성 편집기✨
 
-## 프로젝트 기본 설명
+<div style="width:100%; display:flex; flex-direction: column; justify-content:center; align-items: center;">
+  <img src="https://ifh.cc/g/PIGVGZ.png" width=900/>
+   <p align-"center">
+    <img src="https://img.shields.io/badge/javascript-ES6+-yellow?logo=javascript"/>
+    <img src="https://img.shields.io/badge/typescript-v4.0.2-blue?logo=typescript&logoColor=007ACC" />
+    <img src="https://img.shields.io/badge/react-v17.0.1-1cf?style=flat&logo=React&logoColor=#61DAFB" />
+    <img src="https://img.shields.io/badge/redux-v4.0.5-purple?logo=redux"/>  
+    <img src="https://img.shields.io/badge/node.js-v15.2.1-green?logo=node.js"/>
+    <img src="https://img.shields.io/badge/mysql-v5.7.32-blue?logo=mysql"/>
+    <img src="https://img.shields.io/badge/SQLite-v3.33.0-003B57?logo=SQLite&logoColor=003B57"/>
+   </p>
+</div>
 
-### 1. 프로젝트명
-클라이언트 기반 웹 음성 편집기 개발.
+## 👩‍💻Members👨‍💻
 
-### 2. 프로젝트 주제 설명
-웹 기술을 활용하여 음성을 녹화하고 변조한다.
+|           류남광(J064)<br/>[@pieisland](https://github.com/pieisland)          | 송원석(J098)<br/>[@Songwonseok](https://github.com/Songwonseok) | 신우진(J104)<br/> [@wooojini](https://github.com/wooojini) | 최정은(J206)<br/> [@Jeongeun-Choi](https://github.com/Jeongeun-Choi)          |
+| :----------------------------------------------------------: | :---------------------------------------------: | :-------------------------------------------------: | ----------------------------------------------------------- | 
+| <img src="https://avatars2.githubusercontent.com/u/35261724?s=460&u=514bbf937b4638c75c39ea1c89b13f42241001da&v=4" width=200> | <img src="https://avatars3.githubusercontent.com/u/7006837?s=460&u=5b6e7c433169c0c7b4ca093bfd1dbae6dc998c0b&v=4" width=200>           | <img src="https://user-images.githubusercontent.com/32856129/99794600-bd29e080-2b6d-11eb-9761-210af2023f39.jpg" width=200>          |<img src="https://avatars0.githubusercontent.com/u/55783203?s=460&u=20b5c88d7b77a6c81c1272e066ec34943daf0c92&v=4" width=200>  |
 
-### 3. 개발 요구사항(결과물 구현 시 필수)
-녹음이나 음성파일 -> 음악편집(자르기, 효과 적용, 음성파형 노출)-> 음악 파일 생성
+## [🎨UI Prototype](https://ovenapp.io/view/q5bGJWiAvVedUkqksVhGGjf8NpimvrDb/)
 
-### 4. 개발 요구사항(결과물 구현 시 선택)
-테스트 코드를 통해 코드의 품질을 확인한다.
+## [🎼Project URL](https://github.com/boostcamp-2020/Project14-A-Web-Audio-Editor)
 
-### 5. 기술 스택
-web audio api
+## [🥝WIKI](https://github.com/boostcamp-2020/Project14-A-Web-Audio-Editor/wiki)
 
-### 6. 개발 언어
-typescript, react
 
-### 7. 기타 사항
-음성 편집에 대한 외부라이브러리 사용 금지
