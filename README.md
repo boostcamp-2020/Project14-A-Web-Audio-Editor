@@ -18,7 +18,7 @@
 
 |           류남광(J064)<br/>[@pieisland](https://github.com/pieisland)          | 송원석(J098)<br/>[@Songwonseok](https://github.com/Songwonseok) | 신우진(J104)<br/> [@wooojini](https://github.com/wooojini) | 최정은(J206)<br/> [@Jeongeun-Choi](https://github.com/Jeongeun-Choi)          |
 | :----------------------------------------------------------: | :---------------------------------------------: | :-------------------------------------------------: | ----------------------------------------------------------- | 
-| <img src="https://avatars2.githubusercontent.com/u/35261724?s=460&u=514bbf937b4638c75c39ea1c89b13f42241001da&v=4" width=200> | <img src="https://avatars3.githubusercontent.com/u/7006837?s=460&u=5b6e7c433169c0c7b4ca093bfd1dbae6dc998c0b&v=4" width=200>           | <img src="https://user-images.githubusercontent.com/32856129/99794600-bd29e080-2b6d-11eb-9761-210af2023f39.jpg" width=200>          |<img src="https://avatars0.githubusercontent.com/u/55783203?s=460&u=20b5c88d7b77a6c81c1272e066ec34943daf0c92&v=4" width=200>  |
+| <img src="https://avatars2.githubusercontent.com/u/35261724?s=460&u=514bbf937b4638c75c39ea1c89b13f42241001da&v=4" width=200> | <img src="https://avatars3.githubusercontent.com/u/7006837?s=460&u=5b6e7c433169c0c7b4ca093bfd1dbae6dc998c0b&v=4" width=200>           | <img src="https://user-images.githubusercontent.com/32856129/99922657-0bf59700-2d75-11eb-94c0-50df40daffa0.jpg" width=200>          |<img src="https://avatars0.githubusercontent.com/u/55783203?s=460&u=20b5c88d7b77a6c81c1272e066ec34943daf0c92&v=4" width=200>  |
 
 ## [🎨UI Prototype](https://ovenapp.io/view/q5bGJWiAvVedUkqksVhGGjf8NpimvrDb/)
 
