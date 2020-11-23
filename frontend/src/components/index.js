@@ -1,1 +1,2 @@
-export { default as GlobalStyle } from './GlobalStyle';
+import './audio-editor-app';
+import './sample-component';
