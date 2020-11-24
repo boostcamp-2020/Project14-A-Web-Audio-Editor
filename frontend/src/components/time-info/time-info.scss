@@ -1,0 +1,47 @@
+$green-color:rgb(22, 185, 22);
+
+@mixin my-flex($f-dir:row) {
+    display:flex;
+    flex-direction:$f-dir;
+    align-items:center;
+    justify-content: space-between;
+}
+
+.time-info-outer-wrap {
+    height:100%;
+    margin:5px;
+
+    @include my-flex(column);
+}
+
+.time-info-wrap {
+    border:1px solid white;
+    height:80%;
+    width:95%;
+    margin-top:10px;
+
+    @include my-flex();
+
+    > div {
+        color: white;
+    }
+
+    .play-time {
+        flex-basis:50%;
+        font-size: 29px;
+        color: $green-color;
+        margin-left:3px;
+    }
+    .other-time {
+        flex-basis:50%;
+        .total-time, .cursor-time {
+            font-size: 13px;
+            left:0px;
+
+            @include my-flex();
+            margin:0 4px;
+        }
+    }
+
+    color:white;
+}
