@@ -14,7 +14,8 @@ import "./sidebar.scss"
     render() {
       this.innerHTML = `
                   <div id="sidebar">
-                    <source-list class="sidebar-child"></source-list>
+                    <time-info class="sidebar-child sidebar-time-info"></time-info>
+                    <source-list class="sidebar-child sidebar-source-list"></source-list>
                   </div>
               `;
     }
