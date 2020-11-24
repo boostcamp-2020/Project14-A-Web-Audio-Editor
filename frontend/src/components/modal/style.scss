@@ -1,0 +1,28 @@
+$baseColor: #212121;
+$borderColor: #e0e0e0;
+$greenColor: #03c75a;
+
+.modal {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.modal-content {
+  width: 50%;
+  height: 60%;
+  text-align: center;
+  border: 1px solid #000000;
+  background-color: $baseColor;
+  border: 2px solid $borderColor;
+  border-radius: 5px;
+  color: #ffffff;
+}
