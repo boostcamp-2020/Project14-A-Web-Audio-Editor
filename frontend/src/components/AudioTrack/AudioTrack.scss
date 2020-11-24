@@ -1,0 +1,46 @@
+*{
+    margin: 0;
+    padding: 0;
+}
+
+html,body{
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+body{
+    background-color: rgb(40,40,40);
+}
+
+#root{
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.audio-track-container{
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    padding: 10px;
+    background-color: #000000;
+    box-sizing: border-box;
+
+    .audio-track{
+        display: flex;
+        margin-bottom: 10px;
+        border-top: 1px solid #ffffff;
+        border-bottom: 1px solid #ffffff;
+        box-sizing: border-box;
+        height: 100px;
+        padding:2px;
+        box-sizing: border-box;
+    }
+
+    &:last-of-type{
+        margin-bottom: 0;
+    }
+}
