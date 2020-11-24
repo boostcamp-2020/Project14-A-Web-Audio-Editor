@@ -8,6 +8,7 @@ const iconSet = {
   fast_rewind: (color: string) => `<path fillRule="evenodd" fill="${color}" d="M11 18V6l-8.5 6 8.5 6zm.5-6l8.5 6V6l-8.5 6z"></path>`,
   repeat: (color: string) => `<path fillRule="evenodd" fill="${color}" d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"></path>`,
   record: (color: string) => `<path fillRule="evenodd" fill="${color}" d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"></path>`,
+  record_on: (color: string) => `<circle xmlns="http://www.w3.org/2000/svg" cx="12" cy="12" r="8" fill=${color}></circle>`,
   user: (color: string) => `<path fillRule="evenodd" fill="${color}" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"></path>`,
   menu: (color: string) => `<path fillRule="evenodd" fill="${color}" d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"></path>`,
   list_add: (color: string) => `<path fillRule="evenodd" fill="${color}" d="M14 10H2v2h12v-2zm0-4H2v2h12V6zm4 8v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zM2 16h8v-2H2v2z"></path>`,
