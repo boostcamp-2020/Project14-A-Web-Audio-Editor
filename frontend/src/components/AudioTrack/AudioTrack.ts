@@ -6,6 +6,7 @@ import "./AudioTrack.scss"
       private sampleRate: number;
       private length: number;
       private trackWidth: number;
+      private trackHeight: number;
       private trackCanvasEls: NodeListOf<HTMLCanvasElement> | null;
 
       constructor() {
@@ -14,11 +15,12 @@ import "./AudioTrack.scss"
         this.sampleRate = 0;
         this.length = 0;
         this.trackWidth = 0;
+        this.trackHeight = 0;
         this.trackCanvasEls = null;
       }
       
       static get observedAttributes() {
-        return ['width'];
+        return ['width', 'height'];
       }
 
       attributeChangedCallback(attrName, oldVal, newVal) {
@@ -26,6 +28,9 @@ import "./AudioTrack.scss"
           switch(attrName){
             case 'width':
               this.trackWidth = Number(newVal);
+              break;
+            case 'height':
+              this.trackHeight = Number(newVal);
               break;
           }
           this[attrName] = newVal;
@@ -80,8 +85,8 @@ import "./AudioTrack.scss"
         this.innerHTML = `
                     <input type="file" id="audio-file-loader"/>
                     <div class="audio-track-container">
-                      <canvas class="audio-track" width="${this.trackWidth}px" height="100px"></canvas>
-                      <canvas class="audio-track" width="${this.trackWidth}px" height="100px"></canvas>
+                      <canvas class="audio-track" width="${this.trackWidth}px" height="${this.trackHeight}px"></canvas>
+                      <canvas class="audio-track" width="${this.trackWidth}px" height="${this.trackHeight}px"></canvas>
                     </div>
                 `;
       }
@@ -127,20 +132,22 @@ import "./AudioTrack.scss"
         const canvasCtx = canvas.getContext('2d');
         if(!canvasCtx) return;
 
-        const height = canvas.height / 2
-        const lineWidth = 1 / (this.sampleRate / this.trackWidth);        
+        const middleHeight = this.trackHeight / 2
+        const defaultLineWidth = 1;  
 
         canvasCtx.strokeStyle = '#2196f3';
-        canvasCtx.lineWidth = lineWidth;        
+        canvasCtx.lineWidth = defaultLineWidth / (this.sampleRate / this.trackWidth);        
         canvasCtx.beginPath();
 
-        let offset = 0;
+        let offsetX = 0;
+        let offsetY;
         for(let i = 0; i < peaks.length; i++){
+          offsetY = middleHeight + Math.floor(peaks[i]*this.trackHeight);
           if(i % 2 == 0)
-            canvasCtx.moveTo(offset,height + Math.floor(peaks[i]*height));
+            canvasCtx.moveTo(offsetX, offsetY);
           else{
-            canvasCtx.lineTo(offset,height + Math.floor(peaks[i]*height));
-            offset += lineWidth;
+            canvasCtx.lineTo(offsetX, offsetY);
+            offsetX += canvasCtx.lineWidth;
           }
         }
         canvasCtx.stroke();
