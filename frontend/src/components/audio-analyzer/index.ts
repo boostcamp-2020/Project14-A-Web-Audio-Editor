@@ -9,7 +9,6 @@ class Analyzer {
   setAudio(audioFile) {
     this.audioContext.decodeAudioData(audioFile).then((buffer: AudioBuffer) => {
       this.audioBuffer = buffer;
-      console.log(this.audioBuffer);
     });
   }
 }
