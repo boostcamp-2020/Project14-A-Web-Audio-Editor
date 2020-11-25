@@ -22,9 +22,9 @@ import Analyzer from '../audio-analyzer';
     }
 
     initEvent() {
-      this.addEventListener('dragover', this.dragOver.bind(this));
-      this.addEventListener('drop', this.uploadFile.bind(this));
-      this.addEventListener('change', this.uploadFile.bind(this));
+      addEventListener('dragover', this.dragOver.bind(this));
+      addEventListener('drop', this.uploadFile.bind(this));
+      addEventListener('change', this.uploadFile.bind(this));
     }
 
     dragOver(e) {
