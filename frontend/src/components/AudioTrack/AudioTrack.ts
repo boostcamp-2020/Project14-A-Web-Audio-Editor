@@ -8,6 +8,7 @@ import "./AudioTrack.scss"
       private trackWidth: number;
       private trackHeight: number;
       private trackCanvasEls: NodeListOf<HTMLCanvasElement> | null;
+      private trackMessage: HTMLDivElement | null;
 
       constructor() {
         super();
@@ -17,6 +18,7 @@ import "./AudioTrack.scss"
         this.trackWidth = 0;
         this.trackHeight = 0;
         this.trackCanvasEls = null;
+        this.trackMessage = null;
       }
       
       static get observedAttributes() {
@@ -47,26 +49,8 @@ import "./AudioTrack.scss"
       }
 
       init(){
-        const inputEl = document.querySelector('#audio-file-loader');
-        inputEl?.addEventListener('change', async (e)=>{
-          const file = e.currentTarget.files[0];
-  
-          if(file){
-            const arrayBuffer = await this.readFileAsync(file);
-    
-            const audioCtx = new AudioContext();
-            const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
-            
-            for(let i = 0; i < audioBuffer.numberOfChannels; i++)
-              this.channels.push(audioBuffer.getChannelData(i));
-            this.sampleRate = audioBuffer.sampleRate;
-            this.length = audioBuffer.length;
-
-            this.drawGraph();
-          }
-        }); 
-
         this.trackCanvasEls = document.querySelectorAll('.audio-track');
+        this.trackMessage = document.querySelector('.audio-track-massage');
       }
 
       readFileAsync(file): Promise<ArrayBuffer> {
@@ -83,28 +67,37 @@ import "./AudioTrack.scss"
   
       render() {
         this.innerHTML = `
-                    <input type="file" id="audio-file-loader"/>
                     <div class="audio-track-container">
-                      <canvas class="audio-track" width="${this.trackWidth}px" height="${this.trackHeight}px"></canvas>
-                      <canvas class="audio-track" width="${this.trackWidth}px" height="${this.trackHeight}px"></canvas>
+                      <div class="audio-track-area">
+                        <div class="audio-track-channel" style="height:${this.trackHeight}px"><span>L</span></div> 
+                        <canvas class="audio-track" width="${this.trackWidth}px" height="${this.trackHeight}px"></canvas>
+                      </div>
+                      <div class="audio-track-massage"><span>Drag & Drop</span></div>
+                      <div class="audio-track-area">
+                        <div class="audio-track-channel" style="height:${this.trackHeight}px"><span>R</span></div> 
+                        <canvas class="audio-track" width="${this.trackWidth}px" height="${this.trackHeight}px"></canvas>
+                      </div>
                     </div>
                 `;
       }
 
-      parsePeeks(channel: Float32Array): number[]{
+      hideMessage(){
+          this.trackMessage?.classList.add('hide');
+      }
+
+      parsePeeks(channelPeaks: Float32Array): number[]{
         const sampleSize = this.length / this.sampleRate;
         const sampleStep = Math.floor(sampleSize / 10) || 1;
         const resultPeaks: number[] = []; 
-        const peaks = channel;
 
         Array(this.sampleRate).fill(0).forEach((v, newPeakIndex) => {
           const start = Math.floor(newPeakIndex * sampleSize);
           const end = Math.floor(start + sampleSize);
-          let min = peaks[0];
-          let max = peaks[0];
+          let min = channelPeaks[0];
+          let max = channelPeaks[0];
     
           for (let sampleIndex = start; sampleIndex < end; sampleIndex += sampleStep) {
-            const v = peaks[sampleIndex];
+            const v = channelPeaks[sampleIndex];
     
             if (v > max) max = v;
             else if (v < min) min = v;
@@ -117,7 +110,7 @@ import "./AudioTrack.scss"
         return resultPeaks;
       }
 
-      drawGraph(){
+      draw(){
         if(this.channels.length === 0 || !this.trackCanvasEls) return;
         
         Object.values(this.trackCanvasEls).forEach((trackCavasElement, idx) =>{
@@ -142,7 +135,7 @@ import "./AudioTrack.scss"
         let offsetX = 0;
         let offsetY;
         for(let i = 0; i < peaks.length; i++){
-          offsetY = middleHeight + Math.floor(peaks[i]*this.trackHeight);
+          offsetY = middleHeight + Math.floor((peaks[i]*this.trackHeight)/2);
           if(i % 2 == 0)
             canvasCtx.moveTo(offsetX, offsetY);
           else{

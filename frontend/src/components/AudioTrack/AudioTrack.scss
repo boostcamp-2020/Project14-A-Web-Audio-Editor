@@ -21,25 +21,73 @@ body{
     padding: 0;
 }
 
+.hide{
+    display: none;
+}
+
 .audio-track-container{
     display: flex;
     flex-direction: column;
+    position: relative;
     width: 100%;
     padding: 10px;
     background-color: #000000;
     box-sizing: border-box;
 
-    .audio-track{
+    .audio-track-area{
         display: flex;
-        margin-bottom: 10px;
-        border-top: 1px solid #ffffff;
-        border-bottom: 1px solid #ffffff;
-        box-sizing: border-box;
-        padding:2px;
-        box-sizing: border-box;
-    }
 
+        .audio-track-channel{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 20px;
+            padding: 30px 5px;
+            margin-top: 10px;
+            margin-right: 10px;
+            border: 1px solid #ffffff;
+            border-radius: 3px;
+            box-sizing: border-box;
+
+            span{
+                color:rgb(46, 204, 113);
+            }
+        }
+
+        .audio-track{
+            display: flex;
+            box-sizing: border-box;
+            padding:10px 0;
+            overflow: visible;
+            box-sizing: border-box;
+        }
+
+        &:first-of-type{
+            .audio-track{
+                border-top: 1px solid #ffffff;
+            }
+        }
+
+        &:last-of-type{
+            .audio-track{
+                border-bottom: 1px solid #ffffff;
+            }
+        }
+    }
+    
     &:last-of-type{
         margin-bottom: 0;
+    }
+
+    .audio-track-massage{
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate3d(-50%, -50%, 0);
+        text-align:center;
+
+        span{
+            color:rgb(158, 158, 158)
+        }
     }
 }
