@@ -22,9 +22,9 @@ import Analyzer from '../audio-analyzer';
     }
 
     initEvent() {
-      addEventListener('dragover', this.dragOver.bind(this));
-      addEventListener('drop', this.uploadFile.bind(this));
-      addEventListener('change', this.uploadFile.bind(this));
+      this.addEventListener('dragover', this.dragOver.bind(this));
+      this.addEventListener('drop', this.uploadFile.bind(this));
+      this.addEventListener('change', this.uploadFile.bind(this));
     }
 
     dragOver(e) {
@@ -49,7 +49,7 @@ import Analyzer from '../audio-analyzer';
       if (file) {
         this.setFilename(file.name);
         const reader = new FileReader();
-        reader.onload = (e) => Analyzer.setAudio(e?.target.result);
+        reader.onload = (e) => Analyzer.setAudio(e?.target.result, this.filename);
         reader.readAsArrayBuffer(file);
       }
     }
