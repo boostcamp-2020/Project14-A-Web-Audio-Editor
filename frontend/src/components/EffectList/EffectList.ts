@@ -13,7 +13,7 @@ import "./EffectList.scss";
       this.render();
     }
 
-    render() {
+    render(): void {
       this.innerHTML = `
                   <ul class="effect-list-container">
                     ${this.getEffectList()}
