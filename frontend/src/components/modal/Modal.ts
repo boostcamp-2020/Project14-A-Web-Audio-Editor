@@ -1,13 +1,19 @@
-import { ModalContentType } from './modalContentType';
+import { modalContents } from './modalContents';
+import { ModalType, ModalTitleType }  from "./modalType/modalType";
 import './Modal.scss';
+
 (() => {
   const Modal = class extends HTMLElement {
-    public type: string;
+    public type: ModalType;
+    private modalElement: HTMLDivElement | null;
+    private modalCloseButton: HTMLButtonElement | null;
 
     constructor() {
       super();
-      this.type = 'source';
-      this.title = '소스 불러오기';
+      this.type = ModalType.none;
+      this.title = '';
+      this.modalElement = null;
+      this.modalCloseButton = null;
     }
 
     static get observedAttributes() {
@@ -16,22 +22,20 @@ import './Modal.scss';
 
     connectedCallback() {
       this.render();
-      addEventListener('click', this.closeModal.bind(this));
+      this.initElement();
+      this.initEvent();
     }
 
     attributeChangedCallback(attrName, oldVal, newVal) {
       if (oldVal !== newVal) {
+        switch(attrName){
+          case 'type':
+            this.title = ModalTitleType[`${newVal}`];
+            break;
+        }
+        this.type = newVal;  
         this[attrName] = newVal;
-      }
-    }
-
-    closeModal(e): void {
-      const { target } = e;
-      const modalElement: HTMLElement | null = document.querySelector('.modal');
-      const modalCloseButton: HTMLElement | null = document.querySelector('.modal-close-button');
-
-      if (modalElement && (target === modalElement || target === modalCloseButton)) {
-        modalElement.style.display = 'none';
+        this.render();
       }
     }
 
@@ -40,10 +44,27 @@ import './Modal.scss';
         <div id='modal' class='modal'>
           <div class='modal-content'>
               <span class="modal-title">${this.title}</span>
-              ${ModalContentType[this.type]}
+              ${modalContents[this.type]}
               <modal-buttons type=${this.type}></modal-buttons>
           </div>
         </div>`;
+    }
+
+    initElement(){
+      this.modalElement = this.querySelector('.modal');
+      this.modalCloseButton = this.querySelector('.modal-close-button');
+    }
+
+    initEvent(){
+      this.addEventListener('click', this.modalClickListener.bind(this));
+    }
+
+    modalClickListener(e): void {
+      this.hideModal();
+    }
+
+    hideModal(){
+      this.modalElement?.classList.add('hide');
     }
   };
   customElements.define('editor-modal', Modal);
