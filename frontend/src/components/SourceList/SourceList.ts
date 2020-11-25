@@ -6,8 +6,8 @@ import "./SourceList.scss";
   }
 
   const SourceList = class extends HTMLElement {
-    public sources:Array<AudioSourceObj>;
-    public sourceList:string;
+    private sources:Array<AudioSourceObj>;
+    private sourceList:string;
     
     constructor() {
       super();

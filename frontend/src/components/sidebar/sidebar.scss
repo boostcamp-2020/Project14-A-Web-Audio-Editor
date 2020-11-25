@@ -8,8 +8,8 @@ side-bar:not(:defined) {
     align-items:center;
     padding:1px;
     height:100%;
+    width:270px;
 
-    border:1px solid white;
     border-radius: 5px;
     background-color: black;
 }
@@ -19,8 +19,10 @@ side-bar:not(:defined) {
 }
 
 .sidebar-source-list {
-    height:50%;
+    height:85%;
 }
 .sidebar-time-info {
-    height:20%;
+    height:15%;
+
+    margin-bottom: 10px;
 }

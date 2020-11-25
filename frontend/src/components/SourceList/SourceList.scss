@@ -3,25 +3,27 @@
     flex-direction:column;
     align-items: center;
     height:100%;
-    margin:5px;
+
+    border:1px solid white;
+    border-radius:5px;
 }
 
 .source-list-title {
     width:98%;
-    height:10%;
+    margin:5px;
     
     div {
         color:white;
-        margin:3px;
+        margin:8px 0 3px 3px;
     }
 }
 
 .source-list-wrap {
-    height:80%;
+    height:50%;
     width:95%;
-    margin-top:10px;
 
     border:1px solid white;
+    border-radius:5px;
 }
 
 .audio-source {
@@ -31,6 +33,7 @@
     background-color:black;
     color:white;
     border:1px solid white;
+    border-radius:5px;
 
     &:hover {
         background-color:rgb(60, 60, 60);
@@ -43,8 +46,7 @@
 .source-info {
     display:none;
     position:absolute;
-    width:60%;
-    left:30%;
+    width:240px;
     height:60px;
 
     background-color:grey;

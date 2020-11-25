@@ -2,9 +2,16 @@ import "./TimeInfo.scss";
 
 (() => {
   const TimeInfo = class extends HTMLElement {
+    private playTime:string;
+    private totalTime:string;
+    private cursorTime:string;
 
     constructor() {
       super();
+
+      this.playTime = "00:00:000";
+      this.totalTime = "00:00:000";
+      this.cursorTime = "00:00:000";
     }
 
     connectedCallback() {
@@ -12,22 +19,22 @@ import "./TimeInfo.scss";
     }
 
     render() {
-        const playTime:string = "00:00:000";
-        const totalTime:string = "00:00:000";
-        const cursorTime:string = "00:00:000";
-    
+      this.playTime = "00:00:000";
+      this.totalTime = "00:00:000";
+      this.cursorTime = "00:00:000";
+
       this.innerHTML = `
                   <div class="time-info-outer-wrap">
                     <div class="time-info-wrap">
-                        <div class="play-time">${playTime}</div>
+                        <div class="play-time">${this.playTime}</div>
                         <div class="other-time">
                             <div class="total-time">
                                 <div>Total</div>    
-                                <div>${totalTime}</div>
+                                <div>${this.totalTime}</div>
                             </div>
                             <div class="cursor-time">
                                 <div>Cursor</div>
-                                <div>${cursorTime}</div>
+                                <div>${this.cursorTime}</div>
                             </div>
                         </div>
                     </div>
