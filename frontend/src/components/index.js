@@ -1,9 +1,9 @@
 import './audio-editor-app';
 import './sample-component';
+import './AudioTrack';
 import './IconButton';
 import './Logo';
 import './EditorMenu';
 import './Header';
 import './EditTools';
 import './PlaybackTools';
-

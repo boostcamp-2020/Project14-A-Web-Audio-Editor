@@ -53,7 +53,7 @@ module.exports = (env) => {
               ],
               ['@babel/preset-typescript']
             ],
-            plugins: ['@babel/plugin-proposal-class-properties', '@babel/proposal-object-rest-spread']
+            plugins: ['@babel/plugin-transform-runtime','@babel/plugin-proposal-class-properties', '@babel/proposal-object-rest-spread']
           }
         },
         {
