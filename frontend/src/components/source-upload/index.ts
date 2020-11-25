@@ -1,4 +1,3 @@
-import '../modal/style.scss';
 import './style.scss';
 import Analyzer from '../audio-analyzer';
 
