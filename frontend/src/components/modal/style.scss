@@ -2,6 +2,23 @@ $baseColor: #212121;
 $borderColor: #e0e0e0;
 $greenColor: #03c75a;
 
+%modal-buttons {
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem;
+
+  width: 90%;
+}
+
+%modal-button {
+  width: 25%;
+  height: 2rem;
+
+  color: #ffffff;
+  border: 1px solid $borderColor;
+  border-radius: 3px;
+}
+
 .modal {
   display: flex;
   justify-content: center;
@@ -17,12 +34,40 @@ $greenColor: #03c75a;
 }
 
 .modal-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
   width: 50%;
   height: 60%;
-  text-align: center;
-  border: 1px solid #000000;
+
+  color: #ffffff;
   background-color: $baseColor;
   border: 2px solid $borderColor;
   border-radius: 5px;
-  color: #ffffff;
+
+  text-align: center;
+}
+
+.modal-component {
+  width: 100%;
+}
+modal-buttons {
+  width: 100%;
+}
+
+.source-upload-buttons {
+  @extend %modal-buttons;
+
+  .modal-green-button {
+    @extend %modal-button;
+    margin-right: 0.5rem;
+    background-color: $greenColor;
+  }
+
+  .modal-close-button {
+    @extend %modal-button;
+    margin-left: 0.5rem;
+    background-color: $baseColor;
+  }
 }

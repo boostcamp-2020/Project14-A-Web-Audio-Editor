@@ -71,6 +71,7 @@ class Application {
     this.httpServer.use(express.json());
     this.httpServer.use(express.urlencoded({ extended: false }));
     this.httpServer.use(router);
+    this.httpServer.use(express.static(`${process.cwd()}/public`));
     this.httpServer.use(errorHandler);
   }
 }

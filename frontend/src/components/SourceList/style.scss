@@ -1,0 +1,51 @@
+.source-list-outer-wrap {
+    display:flex;
+    flex-direction:column;
+    align-items: center;
+    height:100%;
+    margin:5px;
+}
+
+.source-list-title {
+    width:98%;
+    height:10%;
+    
+    div {
+        color:white;
+        margin:3px;
+    }
+}
+
+.source-list-wrap {
+    height:80%;
+    width:95%;
+    margin-top:10px;
+
+    border:1px solid white;
+}
+
+.audio-source {
+    margin:5px;
+    height:30px;
+
+    background-color:black;
+    color:white;
+    border:1px solid white;
+
+    &:hover {
+        background-color:rgb(60, 60, 60);
+        .source-info {
+            display:block;
+        };
+    }
+}
+
+.source-info {
+    display:none;
+    position:absolute;
+    width:60%;
+    left:30%;
+    height:60px;
+
+    background-color:grey;
+}
