@@ -1,4 +1,4 @@
-import { modalButtons } from './modalButtons';
+import { modalButtonType } from './modalButtonType';
 
 (() => {
   const ModalButtons = class extends HTMLElement {
@@ -26,7 +26,7 @@ import { modalButtons } from './modalButtons';
     render() {
       this.innerHTML = `
         <section class='source-upload-buttons'>
-            ${modalButtons[this.type]}
+            ${modalButtonType[this.type]}
         </section>
         `;
     }
