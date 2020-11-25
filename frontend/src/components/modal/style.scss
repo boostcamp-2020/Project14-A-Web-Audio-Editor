@@ -49,6 +49,13 @@ $greenColor: #03c75a;
   text-align: center;
 }
 
+.modal-component {
+  width: 100%;
+}
+modal-buttons {
+  width: 100%;
+}
+
 .source-upload-buttons {
   @extend %modal-buttons;
 
