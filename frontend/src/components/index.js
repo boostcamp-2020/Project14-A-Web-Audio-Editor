@@ -10,6 +10,5 @@ import './Sidebar/Sidebar';
 import './SourceList/SourceList';
 import './TimeInfo/TimeInfo';
 import './Main/Main';
-import './modal';
-import './modal/modal-buttons';
-import './source-upload';
+import './Modal';
+import './SourceUploadForm/SourceUploadForm';
