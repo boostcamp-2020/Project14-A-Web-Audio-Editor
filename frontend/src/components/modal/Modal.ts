@@ -1,5 +1,7 @@
 import { modalContents } from './modalContents';
 import { ModalType, ModalTitleType }  from "./modalType/modalType";
+import { registerEventToRoot } from "@util";
+import { EventType } from "@types";
 import './Modal.scss';
 
 (() => {
@@ -36,12 +38,13 @@ import './Modal.scss';
         this.type = newVal;  
         this[attrName] = newVal;
         this.render();
+        this.initElement();
       }
     }
 
     render() {
       this.innerHTML = `
-        <div id=${this.type} class='modal'>
+        <div id=${this.type} class='modal' event-key='modal'>
           <div class='modal-content'>
               <span class="modal-title">${this.title}</span>
               ${modalContents[this.type]}
@@ -56,7 +59,12 @@ import './Modal.scss';
     }
 
     initEvent(){
-      this.addEventListener('click', this.modalClickListener.bind(this));
+      registerEventToRoot({
+        eventTypes:[EventType.click], 
+        eventKey: 'modal', 
+        listeners:[this.modalClickListener], 
+        bindObj: this 
+      });
     }
 
     modalClickListener(e): void {
