@@ -3,12 +3,14 @@ $borderColor: #e0e0e0;
 $greenColor: #03c75a;
 
 .source-upload-content {
-  border: 1px solid $borderColor;
-  width: 90%;
-  height: 40vh;
   display: flex;
   flex-direction: column;
   justify-content: center;
+
+  width: 90%;
+  height: 40vh;
+
+  border: 1px solid $borderColor;
 }
 
 .hide-source-upload-content {
