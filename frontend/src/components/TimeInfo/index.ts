@@ -1,9 +1,10 @@
-import "./time-info.scss";
+import "./style.scss";
 
 export {};
 
 (() => {
   const TimeInfo = class extends HTMLElement {
+
     constructor() {
       super();
     }
@@ -13,9 +14,9 @@ export {};
     }
 
     render() {
-        const playTime = "00:00:000";
-        const totalTime = "00:00:000";
-        const cursorTime = "00:00:000";
+        const playTime:string = "00:00:000";
+        const totalTime:string = "00:00:000";
+        const cursorTime:string = "00:00:000";
     
       this.innerHTML = `
                   <div class="time-info-outer-wrap">
