@@ -19,6 +19,14 @@
     "isolatedModules": false,
     "noEmit": true,
     "noImplicitAny": false,
+    "baseUrl": ".",
+    "paths": {
+      "@components": ["src/components"],
+      "@style": ["src/common/style"],
+      "@util": ["src/common/util"],
+      "@types": ["src/common/types"]
+    }
+
   },
   "include": [
     "src"
