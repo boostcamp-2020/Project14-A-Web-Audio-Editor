@@ -2,6 +2,21 @@ $baseColor: #212121;
 $borderColor: #e0e0e0;
 $greenColor: #03c75a;
 
+%modal-buttons {
+  width: 90%;
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+%modal-button {
+  width: 25%;
+  height: 2rem;
+  border: 1px solid $borderColor;
+  border-radius: 3px;
+  color: #ffffff;
+}
+
 .modal {
   display: flex;
   justify-content: center;
@@ -28,4 +43,20 @@ $greenColor: #03c75a;
   border: 2px solid $borderColor;
   border-radius: 5px;
   color: #ffffff;
+}
+
+.source-upload-buttons {
+  @extend %modal-buttons;
+
+  .modal-green-button {
+    @extend %modal-button;
+    background-color: $greenColor;
+    margin-right: 0.5rem;
+  }
+
+  .modal-close-button {
+    @extend %modal-button;
+    background-color: $baseColor;
+    margin-left: 0.5rem;
+  }
 }
