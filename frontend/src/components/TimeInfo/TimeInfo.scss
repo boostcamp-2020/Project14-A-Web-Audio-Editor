@@ -8,19 +8,17 @@ $green-color:rgb(22, 185, 22);
 }
 
 .time-info-outer-wrap {
-    height:100%;
-    margin:5px;
-
     @include my-flex(column);
+    height:100%;
+
+    border:1px solid white;
+    border-radius:5px;
 }
 
 .time-info-wrap {
     @include my-flex();
-    height:80%;
+    height:100%;
     width:95%;
-    margin-top:10px;
-
-    border:1px solid white;
 
     > div {
         color: white;
