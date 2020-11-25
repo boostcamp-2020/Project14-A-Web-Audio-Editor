@@ -1,4 +1,5 @@
-import icons from './icons'
+import icons from './icons';
+import './IconButton.scss';
 
 (() => {
   const IconButton = class extends HTMLElement {
@@ -21,6 +22,7 @@ import icons from './icons'
     }
     attributeChangedCallback(attrName, oldVal, newVal) {
       this[attrName] = newVal;
+      this.render();
     }
 
 
@@ -28,6 +30,7 @@ import icons from './icons'
       this.innerHTML = `
               <div>
                   <svg
+                  class="icon"
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="${this.icontype === 'blade' ? '0 0 244 245' : '0 0 24 24'}"
                   role="img"
