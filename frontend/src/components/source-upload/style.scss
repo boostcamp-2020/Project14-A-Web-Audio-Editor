@@ -1,0 +1,18 @@
+$baseColor: #212121;
+$borderColor: #e0e0e0;
+$greenColor: #03c75a;
+
+.source-upload-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  width: 90%;
+  height: 40vh;
+
+  border: 1px solid $borderColor;
+}
+
+.hide-source-upload-content {
+  display: none;
+}
