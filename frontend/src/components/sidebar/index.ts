@@ -1,8 +1,10 @@
 export {};
-import "./sidebar.scss"
+
+import "./style.scss"
 
 (() => {
-  const SideBar = class extends HTMLElement {
+  const Sidebar = class extends HTMLElement {
+
     constructor() {
       super();
     }
@@ -13,11 +15,13 @@ import "./sidebar.scss"
 
     render() {
       this.innerHTML = `
-                  <div id="sidebar">
-                    <source-list class="sidebar-child"></source-list>
-                  </div>
-              `;
+
+        <div id="sidebar">
+          <time-info class="sidebar-child sidebar-time-info"></time-info>
+          <source-list class="sidebar-child sidebar-source-list"></source-list>
+        </div>
+      `;
     }
   };
-  customElements.define('side-bar', SideBar);
+  customElements.define('side-bar', Sidebar);
 })();
