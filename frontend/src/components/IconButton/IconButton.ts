@@ -1,6 +1,4 @@
 import icons from './icons'
-export { };
-
 
 (() => {
   const IconButton = class extends HTMLElement {
@@ -44,3 +42,5 @@ export { };
   };
   customElements.define('icon-button', IconButton);
 })();
+
+export { };

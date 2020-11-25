@@ -1,5 +1,3 @@
-export { };
-
 (() => {
   const Logo = class extends HTMLElement {
     public color: string;
@@ -50,3 +48,5 @@ export { };
   };
   customElements.define('logo-component', Logo);
 })();
+
+export { };

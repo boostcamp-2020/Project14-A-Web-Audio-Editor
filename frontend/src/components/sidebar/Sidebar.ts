@@ -1,6 +1,4 @@
-export {};
-
-import "./style.scss"
+import "./Sidebar.scss"
 
 (() => {
   const Sidebar = class extends HTMLElement {
@@ -25,3 +23,5 @@ import "./style.scss"
   };
   customElements.define('side-bar', Sidebar);
 })();
+
+export {};
