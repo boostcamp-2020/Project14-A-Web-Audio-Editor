@@ -12,3 +12,4 @@ import './TimeInfo/TimeInfo';
 import './Main/Main';
 import './Modal';
 import './SourceUploadForm/SourceUploadForm';
+import './EffectList/EffectList';
