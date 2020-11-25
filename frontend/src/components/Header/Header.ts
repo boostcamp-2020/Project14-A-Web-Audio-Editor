@@ -1,5 +1,4 @@
-export { };
-import './style.scss'
+import './Header.scss'
 
 (() => {
   const HeaderComponent = class extends HTMLElement {
@@ -24,3 +23,5 @@ import './style.scss'
   };
   customElements.define('header-component', HeaderComponent);
 })()
+
+export {};

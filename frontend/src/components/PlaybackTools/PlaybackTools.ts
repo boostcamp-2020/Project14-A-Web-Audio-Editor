@@ -1,5 +1,4 @@
-import './style.scss'
-export { };
+import './PlaybackTools.scss'
 
 (() => {
   const PlaybackTools = class extends HTMLElement {
@@ -25,3 +24,5 @@ export { };
   };
   customElements.define('playback-tools', PlaybackTools);
 })()
+
+export { };

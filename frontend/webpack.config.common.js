@@ -28,7 +28,9 @@ module.exports = (env) => {
     resolve: {
       extensions: ['.js', '.ts'],
       alias: {
-        '@components': path.resolve(__dirname, 'src/components')
+        '@components': path.resolve(__dirname, 'src/components'),
+        '@style': path.resolve(__dirname, 'src/common/style'),
+        '@util': path.resolve(__dirname, 'src/common/util')
       }
     },
     entry: {

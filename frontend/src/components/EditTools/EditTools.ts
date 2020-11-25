@@ -1,5 +1,4 @@
-import './style.scss'
-export { };
+import './EditTools.scss'
 
 (() => {
   const EditTools = class extends HTMLElement {
@@ -25,3 +24,5 @@ export { };
   };
   customElements.define('edit-tools', EditTools);
 })()
+
+export {};

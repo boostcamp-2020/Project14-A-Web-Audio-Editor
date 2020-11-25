@@ -1,6 +1,4 @@
-import "./style.scss";
-
-export {};
+import "./SourceList.scss";
 
 (() => {
   interface AudioSourceObj {
@@ -49,3 +47,5 @@ export {};
   };
   customElements.define('source-list', SourceList);
 })();
+
+export {};

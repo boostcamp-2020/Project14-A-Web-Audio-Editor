@@ -1,6 +1,4 @@
-import "./style.scss";
-
-export {};
+import "./TimeInfo.scss";
 
 (() => {
   const TimeInfo = class extends HTMLElement {
@@ -39,3 +37,5 @@ export {};
   };
   customElements.define('time-info', TimeInfo);
 })();
+
+export {};

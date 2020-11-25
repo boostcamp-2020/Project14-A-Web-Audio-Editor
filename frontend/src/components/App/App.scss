@@ -1,0 +1,12 @@
+@use '@style/variables.scss'as variables;
+
+audi-app:not(:defined) {
+    display: hidden;
+}
+
+.audi-app-container{
+    width: 100%;
+    height: 100%;
+    background-color: variables.$theme-color;
+    overflow: hidden;
+}

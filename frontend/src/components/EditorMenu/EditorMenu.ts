@@ -1,5 +1,4 @@
-import './style.scss'
-export { };
+import './EditorMenu.scss'
 
 (() => {
   const EditorMenu = class extends HTMLElement {
@@ -36,3 +35,5 @@ export { };
   };
   customElements.define('editor-menu', EditorMenu);
 })()
+
+export {};

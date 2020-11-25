@@ -1,7 +1,7 @@
-export { };
+import "./App.scss";
 
 (() => {
-  const AudioEditorApp = class extends HTMLElement {
+  const App = class extends HTMLElement {
     constructor() {
       super();
     }
@@ -12,12 +12,15 @@ export { };
 
     render() {
       this.innerHTML = `
-                  <div>
+                  <div class="audi-app-container">
                     <header-component></header-component>
-                    <sample-component></sample-component>
+                    <audi-main></audi-main>
                   </div>
               `;
     }
   };
-  customElements.define('audio-editor-app', AudioEditorApp);
+  customElements.define('audi-app', App);
 })();
+
+export { };
+
