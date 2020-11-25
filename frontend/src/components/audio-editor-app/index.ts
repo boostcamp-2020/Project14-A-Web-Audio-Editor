@@ -1,4 +1,4 @@
-export {};
+export { };
 
 (() => {
   const AudioEditorApp = class extends HTMLElement {
@@ -13,6 +13,7 @@ export {};
     render() {
       this.innerHTML = `
                   <div>
+                    <header-component></header-component>
                     <sample-component></sample-component>
                   </div>
               `;
