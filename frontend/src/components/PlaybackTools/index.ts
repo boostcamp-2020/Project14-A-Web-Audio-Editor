@@ -7,7 +7,7 @@ export { };
 
     constructor() {
       super();
-      this.iconlist = ['play', 'stop', 'repeat', 'fast_rewind', 'fast_forward', 'skip_prev', 'skip_next'];
+      this.iconlist = ['play', 'stop', 'repeat', 'fastRewind', 'fastForward', 'skipPrev', 'skipNext'];
 
     }
 
