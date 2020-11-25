@@ -42,7 +42,7 @@ import './Modal.scss';
       }
     }
 
-    render() {
+    render(): void {
       this.innerHTML = `
         <div id='modal' class='modal' event-key='modal'>
           <div class='modal-content'>
@@ -53,12 +53,12 @@ import './Modal.scss';
         </div>`;
     }
 
-    initElement(){
+    initElement(): void{
       this.modalElement = this.querySelector('.modal');
       this.modalCloseButton = this.querySelector('.modal-close-button');
     }
 
-    initEvent(){
+    initEvent(): void{
       registerEventToRoot({
         eventTypes:[EventType.click], 
         eventKey: 'modal', 
@@ -71,7 +71,7 @@ import './Modal.scss';
       this.hideModal();
     }
 
-    hideModal(){
+    hideModal(): void{
       this.modalElement?.classList.add('hide');
     }
   };

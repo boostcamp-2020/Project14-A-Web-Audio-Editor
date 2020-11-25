@@ -33,7 +33,7 @@ import { modalButtonContents } from './modalButtonContents';
       this.changeBtnStyle();
     }
 
-    render() {
+    render(): void {
       this.innerHTML = `
         <section class='source-upload-buttons'>
             ${modalButtonContents[this.type]}
@@ -41,11 +41,11 @@ import { modalButtonContents } from './modalButtonContents';
         `;
     }
 
-    initElement(){
+    initElement(): void{
       this.closeButtonElement = this.querySelector('.modal-close-button');
     }
 
-    changeBtnStyle(){
+    changeBtnStyle(): void{
       if (this.type === 'effect' && this.closeButtonElement) {
         this.closeButtonElement.style.marginLeft = '0rem';
       }

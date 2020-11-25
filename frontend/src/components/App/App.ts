@@ -39,10 +39,10 @@ import { EventDataType, eventTypes, EventTargetDataType } from "@types";
       );
     }
 
-    eventListenerForRegistrant(e) {
+    eventListenerForRegistrant(e): void {
       const { target } = e;
       
-      if (!this.isEventTarget(target) || !this.eventListenerCollectors) return;
+      if (!target || !this.isEventTarget(target) || !this.eventListenerCollectors) return;
       
       const eventType = e.type;
       const eventKey = target.getAttribute('event-key');
@@ -55,7 +55,7 @@ import { EventDataType, eventTypes, EventTargetDataType } from "@types";
       return (eventKey)? true : false;
     }
 
-    excuteEventListenerForTarget(eventType: string, eventKey: string, e:Event){
+    excuteEventListenerForTarget(eventType: string, eventKey: string, e:Event): void{
       if(!this.eventListenerCollectors) return;
 
       const eventListenerCollector = this.eventListenerCollectors.get(eventType);
@@ -65,7 +65,7 @@ import { EventDataType, eventTypes, EventTargetDataType } from "@types";
       }
     }
 
-    registerEventListener(eventData: EventDataType){
+    registerEventListener(eventData: EventDataType): void{
       const { eventTypes, eventKey, listeners, bindObj } = eventData;
 
       eventTypes.forEach((eventType, idx)=>{
