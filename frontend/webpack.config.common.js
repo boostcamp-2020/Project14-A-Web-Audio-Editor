@@ -87,7 +87,7 @@ module.exports = (env) => {
       })
     ],
     output: {
-      path: path.join(__dirname, 'dist'),
+      path: path.join(__dirname, '../backend/public'),
       publicPath: '/',
       filename: '[name].js'
     }
