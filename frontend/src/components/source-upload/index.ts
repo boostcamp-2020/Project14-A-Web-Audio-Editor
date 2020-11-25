@@ -9,14 +9,23 @@ import Analyzer from '../audio-analyzer';
     constructor() {
       super();
       this.filename = '';
-      this.sourceUploadElement = document.querySelector('.source-upload-content');
-      this.addEventListener('dragover', this.dragOver.bind(this));
-      this.addEventListener('drop', this.uploadFile.bind(this));
-      this.addEventListener('change', this.uploadFile.bind(this));
+      this.sourceUploadElement = null;
     }
 
     connectedCallback() {
       this.render();
+      this.initDOM();
+      this.initEvent();
+    }
+
+    initDOM() {
+      this.sourceUploadElement = document.querySelector('.source-upload-content');
+    }
+
+    initEvent() {
+      this.addEventListener('dragover', this.dragOver.bind(this));
+      this.addEventListener('drop', this.uploadFile.bind(this));
+      this.addEventListener('change', this.uploadFile.bind(this));
     }
 
     dragOver(e) {
@@ -58,23 +67,14 @@ import Analyzer from '../audio-analyzer';
 
     render() {
       this.innerHTML = `
-            <div id='modal' class='modal'>
-                <div class='modal-content'>
-                    <h2>소스 불러오기</h2>
-                    <section class='source-upload-content' draggable='true'>
-                        <div class='source-fill'>${this.filename}</div>
-                        <label for='source-upload' class='source-empty'>
-                            <div>+</div>
-                            <input type='file' id='source-upload' hidden accept='audio/*'/>
-                            <div>Click or Drag and Drop</div>
-                        </label>
-                    </section>
-                    <section class='source-upload-buttons'>
-                        <button class='modal-green-button' type='button'>불러오기</button>
-                        <button class='modal-close-button' type='button'>취소</button>
-                    </section>
-                </div>
-            </div>
+            <section class='source-upload-content' draggable='true'>
+                <div class='source-fill'>${this.filename}</div>
+                <label for='source-upload' class='source-empty'>
+                    <div>+</div>
+                    <input type='file' id='source-upload' hidden accept='audio/*'/>
+                    <div>Click or Drag and Drop</div>
+                </label>
+            </section>
             `;
     }
   };
