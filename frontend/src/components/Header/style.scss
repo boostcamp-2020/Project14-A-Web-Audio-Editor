@@ -1,11 +1,10 @@
 #header {
   display: flex;
+  justify-content: space-around;
   height: 80px;
   
   border-bottom: 1px solid white;
   background-color: rgb(40,40,40);
-  
-  justify-content: space-around;
 }
 
 logo-component {

@@ -1,13 +1,12 @@
 .edit-tools {
   display:flex;
+  justify-content: space-around;
   height: 50px;
   margin: auto 10px;
   padding: 0 5px;
   
   border: 1px solid white;
   border-radius: 6px;
-  
-  justify-content: space-around;
 }
 
 .edit-tools > icon-button {
