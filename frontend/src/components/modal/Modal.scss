@@ -39,7 +39,7 @@ $greenColor: #03c75a;
   align-items: center;
 
   width: 50%;
-  height: 60%;
+  padding: 2% 5%;
 
   color: #ffffff;
   background-color: $baseColor;
@@ -47,6 +47,12 @@ $greenColor: #03c75a;
   border-radius: 5px;
 
   text-align: center;
+
+  .modal-title{
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 20px;
+  }
 }
 
 .modal-component {
@@ -58,6 +64,7 @@ modal-buttons {
 
 .source-upload-buttons {
   @extend %modal-buttons;
+  width: 100%;
 
   .modal-green-button {
     @extend %modal-button;

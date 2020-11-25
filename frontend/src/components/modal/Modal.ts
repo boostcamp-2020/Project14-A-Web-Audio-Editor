@@ -1,5 +1,5 @@
-import { modalContents } from './modalContents';
-import './style.scss';
+import { ModalContentType } from './modalContentType';
+import './Modal.scss';
 (() => {
   const Modal = class extends HTMLElement {
     public type: string;
@@ -39,8 +39,8 @@ import './style.scss';
       this.innerHTML = `
         <div id='modal' class='modal'>
           <div class='modal-content'>
-              <h2>${this.title}</h2>
-              ${modalContents[this.type]}
+              <span class="modal-title">${this.title}</span>
+              ${ModalContentType[this.type]}
               <modal-buttons type=${this.type}></modal-buttons>
           </div>
         </div>`;
