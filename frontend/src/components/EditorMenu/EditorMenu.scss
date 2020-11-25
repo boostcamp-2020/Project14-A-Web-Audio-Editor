@@ -24,4 +24,10 @@
   cursor:pointer;
 }
 
+#user-menu:hover {
+  svg > path {
+    fill: #ffffff
+  }
+}
+
 

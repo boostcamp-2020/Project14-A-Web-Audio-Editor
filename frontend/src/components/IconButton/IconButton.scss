@@ -1,0 +1,7 @@
+@use '@style/variables.scss' as variables;
+
+.icon:hover {
+  path {
+    fill: variables.$green-color;
+  }
+}
