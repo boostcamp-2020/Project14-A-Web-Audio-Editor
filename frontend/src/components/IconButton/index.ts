@@ -1,4 +1,4 @@
-import iconSet from './iconSet'
+import icons from './icons'
 export { };
 
 
@@ -10,20 +10,18 @@ export { };
 
     constructor() {
       super();
-      this.icontype = 'CURSOR';
-      this.color = 'black';
-      this.size = "15px";
+      this.icontype = '';
+      this.color = 'white';
+      this.size = '20px';
     }
 
     static get observedAttributes() {
-      // 모니터링 할 속성 이름
       return ['icontype', 'color', 'size'];
     }
     connectedCallback() {
       this.render();
     }
     attributeChangedCallback(attrName, oldVal, newVal) {
-      // 속성이 추가/제거/변경되었다.
       this[attrName] = newVal;
     }
 
@@ -38,7 +36,7 @@ export { };
                   width="${this.size}"
                   height="${this.size}"
                 >
-                  ${iconSet[this.icontype](this.color)}
+                  ${icons[this.icontype](this.color)}
                 </svg>
               </div>
             `;
