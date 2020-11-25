@@ -19,6 +19,12 @@ import './style.scss';
       addEventListener('click', this.closeModal.bind(this));
     }
 
+    attributeChangedCallback(attrName, oldVal, newVal) {
+      if (oldVal !== newVal) {
+        this[attrName] = newVal;
+      }
+    }
+
     closeModal(e): void {
       const { target } = e;
       const modalElement: HTMLElement | null = document.querySelector('.modal');
