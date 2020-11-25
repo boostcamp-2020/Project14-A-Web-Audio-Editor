@@ -52,18 +52,6 @@ import "./AudioTrack.scss"
         this.trackCanvasEls = document.querySelectorAll('.audio-track');
         this.trackMessage = document.querySelector('.audio-track-massage');
       }
-
-      readFileAsync(file): Promise<ArrayBuffer> {
-        return new Promise((resolve, reject) => {
-          let reader = new FileReader();
-          reader.onload = () => {
-            resolve(reader.result);
-          };
-      
-          reader.onerror = reject;
-          reader.readAsArrayBuffer(file);
-        })
-      }
   
       render() {
         this.innerHTML = `
