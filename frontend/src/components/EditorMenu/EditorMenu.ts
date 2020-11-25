@@ -1,15 +1,25 @@
-import './EditorMenu.scss'
+import './EditorMenu.scss';
 
 (() => {
   const EditorMenu = class extends HTMLElement {
-
-
     constructor() {
       super();
     }
 
     connectedCallback() {
       this.render();
+      addEventListener('click', this.openSourceUploadForm.bind(this));
+    }
+
+    openSourceUploadForm(e) {
+      const { target } = e;
+      const targetElement = target.closest('#upload');
+      const uploadElement = document.getElementById('upload');
+      const sourceUploadModalElement: HTMLElement | null = document.getElementById('source');
+
+      if (sourceUploadModalElement && targetElement === uploadElement) {
+        sourceUploadModalElement.style.display = 'flex';
+      }
     }
 
     render() {
@@ -34,6 +44,6 @@ import './EditorMenu.scss'
     }
   };
   customElements.define('editor-menu', EditorMenu);
-})()
+})();
 
 export {};
