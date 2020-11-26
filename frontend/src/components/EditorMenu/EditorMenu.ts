@@ -9,6 +9,7 @@ import './EditorMenu.scss';
     connectedCallback() {
       this.render();
       addEventListener('click', this.openSourceUploadForm.bind(this));
+      this.addEventListener('click', this.openSourceDownloadForm.bind(this));
     }
 
     openSourceUploadForm(e) {
@@ -19,6 +20,18 @@ import './EditorMenu.scss';
 
       if (sourceUploadModalElement && targetElement === uploadElement) {
         sourceUploadModalElement.style.display = 'flex';
+      }
+    }
+
+    openSourceDownloadForm(e) {
+      const { target } = e;
+      const targetElement = target.closest('#save');
+      if (!targetElement) return;
+      const downloadModal = document.getElementById('save');
+      const sourceDownloadModalElement: HTMLElement | null = document.getElementById('download');
+
+      if (sourceDownloadModalElement && targetElement === downloadModal) {
+        sourceDownloadModalElement.style.display = 'flex';
       }
     }
 
@@ -46,4 +59,4 @@ import './EditorMenu.scss';
   customElements.define('editor-menu', EditorMenu);
 })();
 
-export {};
+export { };

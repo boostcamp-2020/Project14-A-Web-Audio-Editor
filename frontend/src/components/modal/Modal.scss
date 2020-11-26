@@ -78,3 +78,21 @@ modal-buttons {
     background-color: $baseColor;
   }
 }
+
+.compress-button {
+  width: 25%;
+  height: 100%;
+  margin-right: 0.5rem;
+
+  & > .save-button{
+    height: 2rem;
+    width:100%;
+
+    border: 1px solid $borderColor;
+    border-radius: 3px;
+    background-color: $baseColor;
+    color: #ffffff;
+
+  }
+}
+
