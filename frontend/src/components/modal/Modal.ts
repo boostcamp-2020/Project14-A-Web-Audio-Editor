@@ -1,7 +1,7 @@
 import { modalContents } from './modalContents';
-import { ModalType, ModalTitleType }  from "./modalType/modalType";
-import { EventUtil } from "@util";
-import { EventType } from "@types";
+import { ModalType, ModalTitleType } from './modalType/modalType';
+import { EventUtil } from '@util';
+import { EventType } from '@types';
 import './Modal.scss';
 
 (() => {
@@ -17,7 +17,7 @@ import './Modal.scss';
     }
 
     static get observedAttributes() {
-      return ['type', 'title'];
+      return ['type'];
     }
 
     connectedCallback() {
@@ -28,9 +28,9 @@ import './Modal.scss';
 
     attributeChangedCallback(attrName, oldVal, newVal) {
       if (oldVal !== newVal) {
-        switch(attrName){
+        switch (attrName) {
           case 'type':
-            this.type = newVal;  
+            this.type = newVal;
             break;
         }
         this[attrName] = newVal;
@@ -45,49 +45,36 @@ import './Modal.scss';
           <div class='modal-content'>
               <span class="modal-title">${this.title}</span>
               ${modalContents[this.type]}
-              <modal-buttons type=${this.type}></modal-buttons>
           </div>
         </div>`;
     }
 
-    initElement(): void{
+    initElement(): void {
       this.modalElement = this.querySelector('.modal');
     }
 
-    initEvent(): void{
+    initEvent(): void {
       EventUtil.registerEventToRoot({
-        eventTypes:[EventType.click], 
-        eventKey: this.type, 
-        listeners:[this.modalClickListener], 
-        bindObj: this 
+        eventTypes: [EventType.click],
+        eventKey: this.type,
+        listeners: [this.modalClickListener],
+        bindObj: this
       });
-
-      EventUtil.registerEventToRoot({
-        eventTypes:[EventType.click], 
-        eventKey: 'modal-close', 
-        listeners:[this.modalCloseBtnClickListener], 
-        bindObj: this 
-      });
-    }
-
-    modalCloseBtnClickListener(e): void{
-      this.hideModal();
     }
 
     modalClickListener(e): void {
       this.hideModal();
     }
 
-    showModal(): void{
+    showModal(): void {
       this.modalElement?.classList.remove('hide');
     }
 
-    hideModal(): void{
+    hideModal(): void {
       this.modalElement?.classList.add('hide');
     }
-  }
+  };
   customElements.define('editor-modal', Modal);
 })();
 
 export {};
-
