@@ -1,10 +1,10 @@
 import './SourceUploadForm.scss';
 import { FileUtil, AudioUtil } from '@util';
-import { Source } from "@model";
+import { Source } from '@model';
 import { Controller } from '@controllers';
-import { EventUtil } from "@util";
-import { EventType } from "@types";
- 
+import { EventUtil } from '@util';
+import { EventType } from '@types';
+
 (() => {
   const SourceUploadForm = class extends HTMLElement {
     private filename: string;
@@ -24,7 +24,7 @@ import { EventType } from "@types";
       this.initEvent();
     }
 
-    reset(){
+    reset() {
       this.filename = '';
       this.source = null;
       this.render();
@@ -41,6 +41,7 @@ import { EventType } from "@types";
                     <div>Click or Drag and Drop</div>
                 </label>
             </section>
+            <modal-buttons type=source></modal-buttons>
             `;
     }
 
@@ -54,18 +55,32 @@ import { EventType } from "@types";
       this.addEventListener('change', this.uploadFileListener.bind(this));
 
       EventUtil.registerEventToRoot({
-        eventTypes:[EventType.click], 
-        eventKey: 'source-upload', 
-        listeners:[this.uploadBtnClickListener], 
-        bindObj: this 
+        eventTypes: [EventType.click],
+        eventKey: 'source-upload',
+        listeners: [this.uploadBtnClickListener],
+        bindObj: this
+      });
+
+      EventUtil.registerEventToRoot({
+        eventTypes: [EventType.click],
+        eventKey: 'source-modal-close',
+        listeners: [this.modalCloseBtnClickListener],
+        bindObj: this
       });
     }
 
-    uploadBtnClickListener(e){
-      if(!this.source){ 
+    modalCloseBtnClickListener(): void {
+      const typeModalElement = document.getElementById('source');
+      const modalElement = typeModalElement.closest('editor-modal');
+
+      modalElement?.hideModal();
+    }
+
+    uploadBtnClickListener(e) {
+      if (!this.source) {
         alert('소스를 등록해주세요.');
         return;
-      };
+      }
 
       //로드중입니다....
       Controller.addSource(this.source);
@@ -74,7 +89,7 @@ import { EventType } from "@types";
       this.reset();
     }
 
-    uploadFormDragOverListener(e){
+    uploadFormDragOverListener(e) {
       e.preventDefault();
       const { target } = e;
       if (this.sourceUploadElement && e.type === 'dragover' && target === this.sourceUploadElement) {
@@ -105,7 +120,7 @@ import { EventType } from "@types";
       const audioBuffer = await AudioUtil.decodeArrayBufferToAudio(arrayBuffer);
       this.source = new Source(file, audioBuffer);
     }
-    
+
     setFilename(filename) {
       this.filename = filename;
       this.render();
