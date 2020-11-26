@@ -1,0 +1,1 @@
+export { registerEventToRoot } from "./EventUtil";

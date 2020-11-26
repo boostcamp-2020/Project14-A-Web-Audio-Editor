@@ -7,10 +7,17 @@ $greenColor: #03c75a;
   flex-direction: column;
   justify-content: center;
 
-  width: 90%;
+  width: 100%;
   height: 40vh;
 
   border: 1px solid $borderColor;
+
+  .source-empty:hover{
+    *{
+      cursor: pointer;
+      color: $greenColor;
+    }
+  }
 }
 
 .hide-source-upload-content {

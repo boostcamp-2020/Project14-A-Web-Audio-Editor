@@ -1,4 +1,4 @@
-import './style.scss';
+import './SourceUploadForm.scss';
 import Analyzer from '../audio-analyzer';
 
 (() => {
