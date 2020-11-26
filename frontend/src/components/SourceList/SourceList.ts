@@ -1,48 +1,77 @@
 import "./SourceList.scss";
+import { StoreChannelType } from "@types";
+import { storeChannel } from '@store';
+import { Source } from '@model';
 
 (() => {
-  interface AudioSourceObj {
-    title:string;
-  }
-
   const SourceList = class extends HTMLElement {
-    private sources:Array<AudioSourceObj>;
-    private sourceList:string;
-    
+    private sourceList: Source[];
+
     constructor() {
       super();
-
-      this.sources = [];
-      this.sourceList="";
+      this.sourceList = [];
     }
 
     connectedCallback() {
       this.render();
+      this.subscribe();
     }
 
     getSources() {
-      this.sources = [{title:"sample1.mp4"}, {title:"sample2.mp4"}];
+      return this.sourceList.reduce((acc, source) =>
+        acc + `<li class="audio-source">
+                        <span>${source.fileName}</span>
+                        <ul class="source-info">
+                          <li><span>FileName: ${source.fileName}</span></li>
+                          <li><span>FileSize: ${this.parseFileSize(source.fileSize)}</span></li>
+                          <li><span>SampleRate: ${source.sampleRate}</span></li>
+                          <li><span>Channel: ${source.numberOfChannels}</span></li>
+                          <li><span>PlayTime: ${this.parsePlayTime(source.duration)}</span></li>
+                        </ul>
+                      </li>`
+        , "")
+    }
+    
+    parseFileSize(fileSize: number){
+      let parsedFileSize = fileSize / 1024 /1024
+      parsedFileSize = parsedFileSize * 100;
+      parsedFileSize = Math.floor(parsedFileSize);
+      parsedFileSize = parsedFileSize / 100;
 
-      this.sourceList = this.sources.reduce((acc, source)=>{
-        return acc + `<div class="audio-source">${source.title}
-                        <div class="source-info">정보...</div>
-                      </div>`
-        }, "")
+      return `${parsedFileSize}MB`;
+    }
+
+    parsePlayTime(playTime: number) {
+      if(playTime < 60){
+        const seconds = Math.round(playTime);
+        return `${seconds}초`;
+      }
+
+      const minute = Math.floor(playTime / 60);
+      const seconds = Math.round(playTime % 60);
+      return `${minute}분 ${seconds}초`;
     }
 
     render() {
-      this.getSources();
-
       this.innerHTML = `
           <div class="source-list-outer-wrap">
             <div class="source-list-title">
                 <div> Source </div>        
             </div>
-            <div class="source-list-wrap">
-                ${this.sourceList}
-            </div>
+            <ul class="source-list-wrap">
+                ${this.getSources()}
+            </ul>
           </div>
       `;
+    }
+
+    subscribe(){
+      storeChannel.subscribe(StoreChannelType.SOURCE_LIST_CHANNEL,this.updateSourceList,this);
+    }
+
+    updateSourceList(sourceList){
+      this.sourceList = sourceList;
+      this.render();
     }
   };
   customElements.define('source-list', SourceList);

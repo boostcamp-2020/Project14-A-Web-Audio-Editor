@@ -24,7 +24,10 @@
       "@components": ["src/components"],
       "@style": ["src/common/style"],
       "@util": ["src/common/util"],
-      "@types": ["src/common/types"]
+      "@types": ["src/common/types"],
+      "@store": ["src/store"],
+      "@model": ["src/model"],
+      "@controllers": ["src/controllers"]
     }
 
   },

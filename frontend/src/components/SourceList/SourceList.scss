@@ -27,13 +27,20 @@
 }
 
 .audio-source {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
     margin:5px;
     height:30px;
+    padding: 0 8px;
 
     background-color:black;
     color:white;
     border:1px solid white;
     border-radius:5px;
+
+    cursor: pointer;
 
     &:hover {
         background-color:rgb(60, 60, 60);
@@ -41,13 +48,26 @@
             display:block;
         };
     }
+
+    & span{
+        display: block;
+        font-size: 12px;
+
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+    }
 }
 
 .source-info {
     display:none;
     position:absolute;
-    width:240px;
-    height:60px;
+    top: 0;
+    left: 101%;
+    padding: 3px;
+    
+    border-radius: 3px;
 
     background-color:grey;
+    z-index: 1000;
 }

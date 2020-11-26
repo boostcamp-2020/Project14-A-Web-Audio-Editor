@@ -1,6 +1,5 @@
 import "./App.scss";
-import { EventDataType, eventTypes, EventTargetDataType } from "@types";
-
+import { EventDataType, eventTypes, EventTargetDataType, StoreChannelType } from "@types";
 
 (() => {
   const App = class extends HTMLElement {
@@ -26,7 +25,6 @@ import { EventDataType, eventTypes, EventTargetDataType } from "@types";
                     <editor-modal type='source' title='소스 불러오기'></editor-modal>
                     <editor-modal type='download'></editor-modal>
                     <audi-main></audi-main>
-                    <editor-modal type="effect"></editor-modal>
                   </div>
               `;
     }

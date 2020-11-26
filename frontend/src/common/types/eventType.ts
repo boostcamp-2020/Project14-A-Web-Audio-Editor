@@ -1,9 +1,9 @@
 enum EventType {
     click = 'click',
-    mouseover = 'mouseover',
     keyup = 'keyup'
 }
-const eventTypes = ['click', 'mouseover', 'keyup'];
+
+const eventTypes = ['click', 'keyup'];
 
 export {
     EventType,
