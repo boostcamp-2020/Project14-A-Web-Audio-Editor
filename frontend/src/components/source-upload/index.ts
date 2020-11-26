@@ -49,7 +49,7 @@ import Analyzer from '../audio-analyzer';
       if (file) {
         this.setFilename(file.name);
         const reader = new FileReader();
-        reader.onload = (e) => Analyzer.setAudio(e?.target.result);
+        reader.onload = (e) => Analyzer.setAudio(e?.target.result, this.filename);
         reader.readAsArrayBuffer(file);
       }
     }

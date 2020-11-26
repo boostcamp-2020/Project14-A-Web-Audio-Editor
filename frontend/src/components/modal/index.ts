@@ -37,7 +37,7 @@ import './style.scss';
 
     render() {
       this.innerHTML = `
-        <div id='modal' class='modal'>
+        <div id=${this.type} class='modal'>
           <div class='modal-content'>
               <h2>${this.title}</h2>
               ${modalContents[this.type]}
