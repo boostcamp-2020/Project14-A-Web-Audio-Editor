@@ -1,10 +1,11 @@
-enum EventType{
+enum EventType {
     click = 'click',
-    mouseover = 'mouseover'
+    mouseover = 'mouseover',
+    keyup = 'keyup'
 }
-const eventTypes = ['click', 'mouseover'];
+const eventTypes = ['click', 'mouseover', 'keyup'];
 
-export{
+export {
     EventType,
     eventTypes
 }
