@@ -10,11 +10,12 @@ import { EventUtil } from "@util";
     connectedCallback() {
       this.render();
       this.initEvent();
-      
     }
 
     initEvent(){
       this.addEventListener('click', this.openSourceUploadForm.bind(this));
+      this.addEventListener('click', this.openSourceDownloadForm.bind(this));
+
     }
 
     openSourceUploadForm(e) {
@@ -25,6 +26,18 @@ import { EventUtil } from "@util";
       
       if (modalElement && targetElement === uploadElement) {
         modalElement.showModal();
+      }
+    }
+
+    openSourceDownloadForm(e) {
+      const { target } = e;
+      const targetElement = target.closest('#save');
+      if (!targetElement) return;
+      const downloadModal = document.getElementById('save');
+      const sourceDownloadModalElement: HTMLElement | null = document.getElementById('download');
+
+      if (sourceDownloadModalElement && targetElement === downloadModal) {
+        sourceDownloadModalElement.style.display = 'flex';
       }
     }
 
@@ -52,4 +65,4 @@ import { EventUtil } from "@util";
   customElements.define('editor-menu', EditorMenu);
 })();
 
-export {};
+export { };
