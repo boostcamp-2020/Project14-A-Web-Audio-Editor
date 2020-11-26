@@ -31,7 +31,10 @@ module.exports = (env) => {
         '@components': path.resolve(__dirname, 'src/components'),
         '@style': path.resolve(__dirname, 'src/common/style'),
         '@util': path.resolve(__dirname, 'src/common/util'),
-        '@types': path.resolve(__dirname, 'src/common/types')
+        '@types': path.resolve(__dirname, 'src/common/types'),
+        '@store': path.resolve(__dirname, 'src/store'),
+        '@model': path.resolve(__dirname, 'src/model'),
+        '@controllers': path.resolve(__dirname, 'src/controllers')
       }
     },
     entry: {
