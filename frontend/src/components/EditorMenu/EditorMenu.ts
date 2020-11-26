@@ -1,4 +1,5 @@
 import './EditorMenu.scss';
+import { EventUtil } from "@util";
 
 (() => {
   const EditorMenu = class extends HTMLElement {
@@ -8,17 +9,22 @@ import './EditorMenu.scss';
 
     connectedCallback() {
       this.render();
-      addEventListener('click', this.openSourceUploadForm.bind(this));
+      this.initEvent();
+      
+    }
+
+    initEvent(){
+      this.addEventListener('click', this.openSourceUploadForm.bind(this));
     }
 
     openSourceUploadForm(e) {
       const { target } = e;
       const targetElement = target.closest('#upload');
       const uploadElement = document.getElementById('upload');
-      const sourceUploadModalElement: HTMLElement | null = document.getElementById('source');
-
-      if (sourceUploadModalElement && targetElement === uploadElement) {
-        sourceUploadModalElement.style.display = 'flex';
+      const modalElement = document.querySelector('editor-modal');
+      
+      if (modalElement && targetElement === uploadElement) {
+        modalElement.showModal();
       }
     }
 
