@@ -28,7 +28,13 @@ module.exports = (env) => {
     resolve: {
       extensions: ['.js', '.ts'],
       alias: {
-        '@components': path.resolve(__dirname, 'src/components')
+        '@components': path.resolve(__dirname, 'src/components'),
+        '@style': path.resolve(__dirname, 'src/common/style'),
+        '@util': path.resolve(__dirname, 'src/common/util'),
+        '@types': path.resolve(__dirname, 'src/common/types'),
+        '@store': path.resolve(__dirname, 'src/store'),
+        '@model': path.resolve(__dirname, 'src/model'),
+        '@controllers': path.resolve(__dirname, 'src/controllers')
       }
     },
     entry: {
@@ -53,7 +59,7 @@ module.exports = (env) => {
               ],
               ['@babel/preset-typescript']
             ],
-            plugins: ['@babel/plugin-proposal-class-properties', '@babel/proposal-object-rest-spread']
+            plugins: ['@babel/plugin-transform-runtime','@babel/plugin-proposal-class-properties', '@babel/proposal-object-rest-spread']
           }
         },
         {
@@ -87,7 +93,7 @@ module.exports = (env) => {
       })
     ],
     output: {
-      path: path.join(__dirname, 'dist'),
+      path: path.join(__dirname, '../backend/public'),
       publicPath: '/',
       filename: '[name].js'
     }
