@@ -1,34 +1,43 @@
-const storeChannel = new(class {
+interface ObserverData{
+    callback: Function;
+    bindObj: Object;
+}
+
+class StoreChannel{
     private channels: Map<string, any>
-    private observers: Map<string, Function[]>
+    private observers: Map<string, ObserverData[]>
 
     constructor(){
-        this.channels = new Map();  //Channel(Key)-Data(Value)
-        this.observers = new Map(); //Channel(Key)-Observer[](Value)
+        this.channels = new Map();
+        this.observers = new Map();
     }
 
     publish(channel, data) {
-        this.channels.set(channel, data);
+        this.channels.set(channel, data);        
         this.notify(channel);
     }
 
-    subscribe(channel, callback) {
-        let callbacks: Function[] | undefined = this.observers.get(channel);
-        if(!callbacks) callbacks = []
+    subscribe(channel, callback, bindObj) {
+        let observerDatas: ObserverData[] | undefined = this.observers.get(channel);
 
-        let newCallbacks = callbacks.concat(callback);
-        this.observers.set(channel, newCallbacks);
+        if(!observerDatas) observerDatas = [{callback, bindObj}];
+
+        const newObserverDatas = observerDatas.concat({callback, bindObj});
+        this.observers.set(channel, newObserverDatas);
     }
 
     notify(channel) {
-        const callbacks: Function[] | undefined = this.observers.get(channel);
-        if (!callbacks) return;
-
+        const observerDatas: ObserverData[] | undefined =  this.observers.get(channel);
+        if (!observerDatas) return;
+        
         const data = this.channels.get(channel);
-        callbacks.forEach((callback) => callback(data));
+        observerDatas.forEach((observerData) => observerData.callback.call(observerData.bindObj,data));
     }
-})();
+}
+
+const storeChannel = new StoreChannel();
 
 export{
-    storeChannel
+    storeChannel,
+    StoreChannel
 }

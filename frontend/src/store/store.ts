@@ -1,5 +1,7 @@
 import { StateType } from "./storeType";
 import { Source } from "../model"
+import { StoreChannelType } from "@types"
+import { storeChannel } from "@store";
 
 const store = new (class Store{
     private state: StateType;
@@ -14,7 +16,9 @@ const store = new (class Store{
         const { sourceList } = this.state;
         source.id = sourceList.length;
 
-        this.state = {...this.state, sourceList: sourceList.concat(source)};
+        const newSourceList = sourceList.concat(source);
+        this.state = {...this.state, sourceList: newSourceList};
+        storeChannel.publish(StoreChannelType.SOURCE_LIST_CHANNEL, newSourceList);
     }
 })();
 
