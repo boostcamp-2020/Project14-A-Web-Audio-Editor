@@ -74,7 +74,7 @@ import { Source } from '@model';
       this.render();
     }
   };
-  customElements.define('source-list', SourceList);
+  customElements.define('audi-source-list', SourceList);
 })();
 
 export {};

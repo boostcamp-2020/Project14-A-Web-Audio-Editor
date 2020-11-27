@@ -15,10 +15,10 @@ import './Main.scss'
                   <main class="audi-main-container">
                     <div class="audi-main-content">
                         <aside>
-                            <side-bar></side-bar>
+                            <audi-side-bar></audi-side-bar>
                         </aside>
                         <section>
-                            <audio-track width="700" height="150"></audio-track>
+                            <audi-audio-track width="700" height="150"></audi-audio-track>
                         </section>
                     </div>
                   </main>

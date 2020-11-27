@@ -134,5 +134,5 @@ import "./AudioTrack.scss"
         canvasCtx.stroke();
       }
     };
-    customElements.define('audio-track', AudioTrack);
+    customElements.define('audi-audio-track', AudioTrack);
   })();

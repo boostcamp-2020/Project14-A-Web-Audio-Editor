@@ -51,5 +51,5 @@ import { modalButtonContents } from './modalButtonContents';
       }
     }
   };
-  customElements.define('modal-buttons', ModalButtons);
+  customElements.define('audi-modal-buttons', ModalButtons);
 })();

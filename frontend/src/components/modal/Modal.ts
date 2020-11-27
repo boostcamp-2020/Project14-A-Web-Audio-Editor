@@ -1,7 +1,5 @@
 import { modalContents } from './modalContents';
 import { ModalType, ModalTitleType } from './modalType/modalType';
-import { EventUtil } from '@util';
-import { EventType } from '@types';
 import './Modal.scss';
 
 (() => {
@@ -12,7 +10,6 @@ import './Modal.scss';
     constructor() {
       super();
       this.type = ModalType.none;
-      this.title = '';
       this.modalElement = null;
     }
 
@@ -23,7 +20,6 @@ import './Modal.scss';
     connectedCallback() {
       this.render();
       this.initElement();
-      this.initEvent();
     }
 
     attributeChangedCallback(attrName, oldVal, newVal) {
@@ -43,7 +39,7 @@ import './Modal.scss';
       this.innerHTML = `
         <div id=${this.type} class='modal hide' event-key=${this.type}>
           <div class='modal-content'>
-              <span class="modal-title">${this.title}</span>
+              <span class="modal-title">${ModalTitleType[this.type]}</span>
               ${modalContents[this.type]}
           </div>
         </div>`;
@@ -51,19 +47,6 @@ import './Modal.scss';
 
     initElement(): void {
       this.modalElement = this.querySelector('.modal');
-    }
-
-    initEvent(): void {
-      EventUtil.registerEventToRoot({
-        eventTypes: [EventType.click],
-        eventKey: this.type,
-        listeners: [this.modalClickListener],
-        bindObj: this
-      });
-    }
-
-    modalClickListener(e): void {
-      this.hideModal();
     }
 
     showModal(): void {
@@ -74,7 +57,8 @@ import './Modal.scss';
       this.modalElement?.classList.add('hide');
     }
   };
-  customElements.define('editor-modal', Modal);
+
+  customElements.define('audi-modal', Modal);
 })();
 
 export {};

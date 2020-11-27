@@ -23,9 +23,9 @@ import './EditorMenu.scss';
 
       if (targetElement === uploadElement) {
         const uploadModalElement = document.getElementById('source');
-        const modalElement = uploadModalElement.closest('editor-modal');
+        const modalElement = uploadModalElement?.closest('audi-modal');
 
-        modalElement.showModal();
+        modalElement?.showModal();
       }
     }
 
@@ -37,9 +37,9 @@ import './EditorMenu.scss';
 
       if (targetElement === downloadModal) {
         const downloadModalElement = document.getElementById('download');
-        const modalElement = downloadModalElement.closest('editor-modal');
+        const modalElement = downloadModalElement?.closest('audi-modal');
 
-        modalElement.showModal();
+        modalElement?.showModal();
       }
     }
 
@@ -47,24 +47,25 @@ import './EditorMenu.scss';
       this.innerHTML = `
               <div id="editor-menu">
                 <div class="icon-wrap">
-                  <icon-button id="upload" color="white" icontype="upload" size="32px"></icon-button>
-                  <icon-button id="save" color="white" icontype="save" size="32px"></icon-button>
+                  <audi-icon-button id="upload" color="white" icontype="upload" size="32px"></audi-icon-button>
+                  <audi-icon-button id="save" color="white" icontype="save" size="32px"></audi-icon-button>
                 </div>
-                <edit-tools></edit-tools>
-                <playback-tools></playback-tools>
+                <audi-edit-tools></audi-edit-tools>
+                <audi-playback-tools></audi-playback-tools>
                 <div class="icon-wrap">
-                  <icon-button id="record" color="white" icontype="record" size="32px"></icon-button>
+                  <audi-icon-button id="record" color="white" icontype="record" size="32px"></audi-icon-button>
                 </div>
 
                 <div id="user-menu" class="icon-wrap">
-                  <icon-button color="white" icontype="user" size="32px"></icon-button>
-                  <icon-button color="white" icontype="menu" size="32px"></icon-button>
+                  <audi-icon-button color="white" icontype="user" size="32px"></audi-icon-button>
+                  <audi-icon-button color="white" icontype="menu" size="32px"></audi-icon-button>
                 </div>
               </div>
             `;
     }
   };
-  customElements.define('editor-menu', EditorMenu);
+
+  customElements.define('audi-editor-menu', EditorMenu);
 })();
 
 export {};
