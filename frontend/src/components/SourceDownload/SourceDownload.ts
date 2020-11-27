@@ -1,7 +1,7 @@
-import { registerEventToRoot } from "@util";
-import { EventType } from "@types";
-import { saveFile } from '@util'
-import './SourceDownload.scss'
+import { EventUtil } from '@util';
+import { EventType } from '@types';
+import { saveFile } from '@util';
+import './SourceDownload.scss';
 
 (() => {
   const SourceDownload = class extends HTMLElement {
@@ -10,19 +10,18 @@ import './SourceDownload.scss'
     constructor() {
       super();
       this.downloadModal = null;
-      this.formElement = null
+      this.formElement = null;
       this.saveButton = null;
     }
 
     connectedCallback() {
       this.render();
       this.initElement();
-      // this.initEvent();
+      this.initEvent();
       console.log('click');
 
       this.saveButton?.addEventListener('click', this.onSubmitHandler);
       this.formElement?.addEventListener('keyup', this.onChangeHandler);
-
     }
 
     initElement(): void {
@@ -31,20 +30,34 @@ import './SourceDownload.scss'
     }
 
     initEvent(): void {
-      registerEventToRoot({
+      EventUtil.registerEventToRoot({
         eventTypes: [EventType.click, EventType.keyup],
         eventKey: 'save',
         listeners: [this.onSubmitHandler, this.onChangeHandler],
         bindObj: this
       });
+
+      EventUtil.registerEventToRoot({
+        eventTypes: [EventType.click],
+        eventKey: 'download-modal-close',
+        listeners: [this.modalCloseBtnClickListener],
+        bindObj: this
+      });
+    }
+
+    modalCloseBtnClickListener(): void {
+      const typeModalElement = document.getElementById('download');
+      const modalElement = typeModalElement.closest('editor-modal');
+
+      modalElement?.hideModal();
     }
 
     onSubmitHandler = async (e) => {
       const fileNmae = `${this.formElement?.fileName.value}.${this.formElement?.extention.value}`;
       const quality = this.formElement?.quality.value;
       if (this.saveButton) {
-        this.saveButton.innerText = '압축 중'
-        this.disabeldButton(this.saveButton)
+        this.saveButton.innerText = '압축 중';
+        this.disabeldButton(this.saveButton);
 
         // test용 음원파일
         const URL = 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/123941/Yodel_Sound_Effect.mp3';
@@ -52,36 +65,36 @@ import './SourceDownload.scss'
         const arrayBuffer = await response.arrayBuffer();
 
         // arrayBuffer만 있으면 됨
-        await saveFile(arrayBuffer, quality, fileNmae)
+        await saveFile(arrayBuffer, quality, fileNmae);
 
-        this.saveButton.innerText = '저장하기'
+        this.saveButton.innerText = '저장하기';
         this.abeldButton(this.saveButton);
       }
-    }
+    };
 
     onChangeHandler = (e) => {
       if (this.saveButton) {
         if (this.formElement?.fileName.value.length > 0) {
-          this.abeldButton(this.saveButton)
+          this.abeldButton(this.saveButton);
           this.saveButton.addEventListener('click', this.onSubmitHandler);
         } else {
           console.log(this.formElement?.fileName.value.length);
 
           this.disabeldButton(this.saveButton);
-          this.saveButton.removeEventListener('click', this.onSubmitHandler)
+          this.saveButton.removeEventListener('click', this.onSubmitHandler);
         }
       }
-    }
+    };
 
     abeldButton = (button) => {
-      button.style.backgroundColor = "#03c75a";
+      button.style.backgroundColor = '#03c75a';
       button.disabled = false;
-    }
+    };
 
     disabeldButton = (button) => {
-      button.style.backgroundColor = "#212121";
+      button.style.backgroundColor = '#212121';
       button.disabled = true;
-    }
+    };
 
     render() {
       this.innerHTML = `
@@ -118,10 +131,11 @@ import './SourceDownload.scss'
                   </label>
                 </div>
               </form>
+              <modal-buttons type='download'></modal-buttons>
             `;
     }
   };
   customElements.define('audi-source-download', SourceDownload);
-})()
+})();
 
-export { };
+export {};
