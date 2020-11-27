@@ -1,9 +1,7 @@
 import './Header.scss'
 
 (() => {
-  const HeaderComponent = class extends HTMLElement {
-
-
+  const Header = class extends HTMLElement {
     constructor() {
       super();
     }
@@ -15,13 +13,13 @@ import './Header.scss'
     render() {
       this.innerHTML = `
               <div id="header">
-                <logo-component color="white"></logo-component>
-                <editor-menu></editor-menu>
+                <audi-logo color="white"></audi-logo>
+                <audi-editor-menu></audi-editor-menu>
               </div>
             `;
     }
   };
-  customElements.define('header-component', HeaderComponent);
+  customElements.define('audi-header', Header);
 })()
 
 export {};

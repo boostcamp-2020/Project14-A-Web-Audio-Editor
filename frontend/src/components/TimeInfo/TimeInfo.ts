@@ -42,7 +42,7 @@ import "./TimeInfo.scss";
               `;
     }
   };
-  customElements.define('time-info', TimeInfo);
+  customElements.define('audi-time-info', TimeInfo);
 })();
 
 export {};

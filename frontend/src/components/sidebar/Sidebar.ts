@@ -15,13 +15,13 @@ import "./Sidebar.scss"
       this.innerHTML = `
 
         <div id="sidebar">
-          <time-info class="sidebar-child sidebar-time-info"></time-info>
-          <source-list class="sidebar-child sidebar-source-list"></source-list>
+          <audi-time-info class="sidebar-child sidebar-time-info"></audi-time-info>
+          <audi-source-list class="sidebar-child sidebar-source-list"></audi-source-list>
         </div>
       `;
     }
   };
-  customElements.define('side-bar', Sidebar);
+  customElements.define('audi-side-bar', Sidebar);
 })();
 
 export {};

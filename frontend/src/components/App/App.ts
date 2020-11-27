@@ -1,5 +1,5 @@
-import "./App.scss";
-import { EventDataType, eventTypes, EventTargetDataType, StoreChannelType } from "@types";
+import './App.scss';
+import { EventDataType, eventTypes, EventTargetDataType, StoreChannelType } from '@types';
 
 (() => {
   const App = class extends HTMLElement {
@@ -21,28 +21,24 @@ import { EventDataType, eventTypes, EventTargetDataType, StoreChannelType } from
     render(): void {
       this.innerHTML = `
                   <div class="audi-app-container">
-                    <header-component></header-component>
-                    <editor-modal type='source' title='소스 불러오기'></editor-modal>
-                    <editor-modal type='download'></editor-modal>
+                    <audi-header></audi-header>
+                    <audi-modal type='source'></audi-modal>
+                    <audi-modal type='download'></audi-modal>
                     <audi-main></audi-main>
                   </div>
               `;
     }
 
     init(): void {
-      this.eventListenerCollectors = this.eventsForListener
-        .reduce((acc, cur) => acc.set(cur, new Map()), new Map());
+      this.eventListenerCollectors = this.eventsForListener.reduce((acc, cur) => acc.set(cur, new Map()), new Map());
     }
 
     initEvent(): void {
-      this.eventsForListener.forEach((eventName) =>
-        this.addEventListener(eventName, this.eventListenerForRegistrant.bind(this))
-      );
+      this.eventsForListener.forEach((eventName) => this.addEventListener(eventName, this.eventListenerForRegistrant.bind(this)));
     }
 
     eventListenerForRegistrant(e): void {
       const { target } = e;
-
       if (!target || !this.isEventTarget(target) || !this.eventListenerCollectors) return;
 
       const eventType = e.type;
@@ -53,7 +49,7 @@ import { EventDataType, eventTypes, EventTargetDataType, StoreChannelType } from
 
     isEventTarget(eventTarget: HTMLElement): Boolean {
       const eventKey = eventTarget.getAttribute('event-key');
-      return (eventKey) ? true : false;
+      return eventKey ? true : false;
     }
 
     excuteEventListenerForTarget(eventType: string, eventKey: string, e: Event): void {
@@ -84,4 +80,4 @@ import { EventDataType, eventTypes, EventTargetDataType, StoreChannelType } from
   customElements.define('audi-app', App);
 })();
 
-export { };
+export {};

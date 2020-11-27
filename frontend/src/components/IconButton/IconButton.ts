@@ -17,14 +17,15 @@ import './IconButton.scss';
     static get observedAttributes() {
       return ['icontype', 'color', 'size'];
     }
+
     connectedCallback() {
       this.render();
     }
+
     attributeChangedCallback(attrName, oldVal, newVal) {
       this[attrName] = newVal;
       this.render();
     }
-
 
     render() {
       this.innerHTML = `
@@ -43,7 +44,7 @@ import './IconButton.scss';
             `;
     }
   };
-  customElements.define('icon-button', IconButton);
+  customElements.define('audi-icon-button', IconButton);
 })();
 
 export { };
