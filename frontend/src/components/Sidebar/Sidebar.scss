@@ -1,0 +1,28 @@
+side-bar:not(:defined) {
+    display: hidden;
+}
+
+#sidebar {
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding:1px;
+    height:100%;
+    width:270px;
+
+    border-radius: 5px;
+    background-color: black;
+}
+
+.sidebar-child {
+    width:100%;
+}
+
+.sidebar-source-list {
+    height:85%;
+}
+.sidebar-time-info {
+    height:15%;
+
+    margin-bottom: 10px;
+}
