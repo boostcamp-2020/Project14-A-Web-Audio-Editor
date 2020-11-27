@@ -8,12 +8,13 @@
     }
 
     static get observedAttributes() {
-      // 모니터링 할 속성 이름
       return ['color'];
     }
+
     connectedCallback() {
       this.render();
     }
+
     attributeChangedCallback(attrName, oldVal, newVal) {
       this[attrName] = newVal;
     }
@@ -46,7 +47,7 @@
             `;
     }
   };
-  customElements.define('logo-component', Logo);
+  customElements.define('audi-logo', Logo);
 })();
 
 export { };

@@ -41,7 +41,7 @@ import { EventType } from '@types';
                     <div>Click or Drag and Drop</div>
                 </label>
             </section>
-            <modal-buttons type=source></modal-buttons>
+            <audi-modal-buttons type=source></audi-modal-buttons>
             `;
     }
 
@@ -71,7 +71,7 @@ import { EventType } from '@types';
 
     modalCloseBtnClickListener(): void {
       const typeModalElement = document.getElementById('source');
-      const modalElement = typeModalElement.closest('editor-modal');
+      const modalElement = typeModalElement.closest('audi-modal');
 
       modalElement?.hideModal();
     }
@@ -84,7 +84,7 @@ import { EventType } from '@types';
 
       //로드중입니다....
       Controller.addSource(this.source);
-      const modalElement = document.querySelector('editor-modal');
+      const modalElement = document.querySelector('audi-modal');
       modalElement?.hideModal();
       this.reset();
     }
@@ -132,5 +132,5 @@ import { EventType } from '@types';
     }
   };
 
-  customElements.define('source-upload-form', SourceUploadForm);
+  customElements.define('audi-source-upload-form', SourceUploadForm);
 })();

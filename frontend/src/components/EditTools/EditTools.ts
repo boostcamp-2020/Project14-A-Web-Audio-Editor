@@ -17,12 +17,12 @@ import './EditTools.scss'
     render() {
       this.innerHTML = `
               <div class="edit-tools">
-                ${this.iconlist.reduce((acc, icon) => acc + `<icon-button id="${icon}" color="white" icontype="${icon}" size="32px"></icon-button>`, '')}
+                ${this.iconlist.reduce((acc, icon) => acc + `<audi-icon-button id="${icon}" color="white" icontype="${icon}" size="32px"></audi-icon-button>`, '')}
               </div>
             `;
     }
   };
-  customElements.define('edit-tools', EditTools);
+  customElements.define('audi-edit-tools', EditTools);
 })()
 
 export {};

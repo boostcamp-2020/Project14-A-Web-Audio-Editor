@@ -17,12 +17,12 @@ import './PlaybackTools.scss'
     render() {
       this.innerHTML = `
                 <div class="playback-tools">
-                  ${this.iconlist.reduce((acc, icon) => acc + `<icon-button id="${icon}" color="white" icontype="${icon}" size="32px"></icon-button>`, '')}
+                  ${this.iconlist.reduce((acc, icon) => acc + `<audi-icon-button id="${icon}" color="white" icontype="${icon}" size="32px"></audi-icon-button>`, '')}
                 </div>
             `;
     }
   };
-  customElements.define('playback-tools', PlaybackTools);
+  customElements.define('audi-playback-tools', PlaybackTools);
 })()
 
 export { };

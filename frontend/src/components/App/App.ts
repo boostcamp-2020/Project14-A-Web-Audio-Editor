@@ -21,9 +21,9 @@ import { EventDataType, eventTypes, EventTargetDataType, StoreChannelType } from
     render(): void {
       this.innerHTML = `
                   <div class="audi-app-container">
-                    <header-component></header-component>
-                    <editor-modal type='source'></editor-modal>
-                    <editor-modal type='download'></editor-modal>
+                    <audi-header></audi-header>
+                    <audi-modal type='source'></audi-modal>
+                    <audi-modal type='download'></audi-modal>
                     <audi-main></audi-main>
                   </div>
               `;
@@ -39,7 +39,6 @@ import { EventDataType, eventTypes, EventTargetDataType, StoreChannelType } from
 
     eventListenerForRegistrant(e): void {
       const { target } = e;
-
       if (!target || !this.isEventTarget(target) || !this.eventListenerCollectors) return;
 
       const eventType = e.type;
