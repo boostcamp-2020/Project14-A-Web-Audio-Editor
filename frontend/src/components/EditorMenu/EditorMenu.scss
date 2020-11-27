@@ -1,0 +1,33 @@
+#editor-menu {
+  display: flex;
+}
+
+.icon-wrap {
+  display:flex;
+  justify-content: space-around;
+  height: 50px;
+  margin: auto 10px;
+  padding: 0 5px;
+  
+  border: 1px solid white;
+  border-radius: 6px;
+}
+
+.icon-wrap > icon-button {
+  margin: auto 5px;
+
+  cursor: pointer;
+}
+
+
+#user-menu{
+  cursor:pointer;
+}
+
+#user-menu:hover {
+  svg > path {
+    fill: #ffffff
+  }
+}
+
+
