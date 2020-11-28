@@ -1,23 +1,4 @@
-$baseColor: #212121;
-$borderColor: #e0e0e0;
-$greenColor: #03c75a;
-
-%modal-buttons {
-  display: flex;
-  justify-content: center;
-  margin-top: 1rem;
-
-  width: 90%;
-}
-
-%modal-button {
-  width: 25%;
-  height: 2rem;
-
-  color: #ffffff;
-  border: 1px solid $borderColor;
-  border-radius: 3px;
-}
+@use '@style/variables' as variables;
 
 .modal {
   display: flex;
@@ -42,9 +23,9 @@ $greenColor: #03c75a;
   max-width: 700px;
   padding: 30px;
 
-  color: #ffffff;
-  background-color: $baseColor;
-  border: 2px solid $borderColor;
+  color: variables.$white-color;
+  background-color: variables.$theme-color;
+  border: 2px solid variables.$white-color;
   border-radius: 5px;
 
   text-align: center;
@@ -59,41 +40,3 @@ $greenColor: #03c75a;
 .modal-component {
   width: 100%;
 }
-modal-buttons {
-  width: 100%;
-}
-
-.source-upload-buttons {
-  @extend %modal-buttons;
-  width: 100%;
-
-  .modal-green-button {
-    @extend %modal-button;
-    margin-right: 0.5rem;
-    background-color: $greenColor;
-  }
-
-  .modal-close-button {
-    @extend %modal-button;
-    margin-left: 0.5rem;
-    background-color: $baseColor;
-  }
-}
-
-.compress-button {
-  width: 25%;
-  height: 100%;
-  margin-right: 0.5rem;
-
-  & > .save-button{
-    height: 2rem;
-    width:100%;
-
-    border: 1px solid $borderColor;
-    border-radius: 3px;
-    background-color: $baseColor;
-    color: #ffffff;
-
-  }
-}
-

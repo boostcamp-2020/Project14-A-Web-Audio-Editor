@@ -1,38 +1,59 @@
-import { modalContents } from './modalContents';
-import { ModalType, ModalTitleType } from './modalType/modalType';
+import { ModalType, ModalTitleType, ModalContentType } from '@types';
 import './Modal.scss';
 
 (() => {
   const Modal = class extends HTMLElement {
-    public type: ModalType;
+    private isDoneInit: Boolean;
+    private type: ModalType;
+    private isHidden: Boolean;
     private modalElement: HTMLDivElement | null;
 
     constructor() {
       super();
-      this.type = ModalType.none;
+      this.isDoneInit = false;
+      this.type = ModalType.upload
+      this.isHidden = true;
       this.modalElement = null;
     }
 
-    static get observedAttributes() {
-      return ['type'];
+    static SELECTORS = {
+      MODAL_SELECTOR : '.modal'
     }
 
-    connectedCallback() {
-      this.render();
-      this.initElement();
+    static get observedAttributes(): string[] {
+      return ['type', 'aria-hidden'];
     }
 
-    attributeChangedCallback(attrName, oldVal, newVal) {
+    connectedCallback(): void {      
+      try{
+        this.init();
+        this.isDoneInit = true;
+      }catch(e){
+        console.log(e);
+      }
+    }
+
+    attributeChangedCallback(attrName: string, oldVal: string, newVal: string): void {  
+      if(!newVal) return;
+      
       if (oldVal !== newVal) {
         switch (attrName) {
           case 'type':
-            this.type = newVal;
+            this.type = ModalType[newVal];
+            if(this.isDoneInit) this.init();
+            break;
+          case 'aria-hidden':
+            this.isHidden = (newVal === 'true');
+            this.modalDisplayHandler();
             break;
         }
         this[attrName] = newVal;
-        this.render();
-        this.initElement();
       }
+    }
+
+    init(): void{
+      this.render();
+      this.initElement();
     }
 
     render(): void {
@@ -40,13 +61,21 @@ import './Modal.scss';
         <div id=${this.type} class='modal hide' event-key=${this.type}>
           <div class='modal-content'>
               <span class="modal-title">${ModalTitleType[this.type]}</span>
-              ${modalContents[this.type]}
+              ${ModalContentType[`${this.type}`]}
           </div>
         </div>`;
     }
 
     initElement(): void {
-      this.modalElement = this.querySelector('.modal');
+      this.modalElement = this.querySelector(Modal.SELECTORS.MODAL_SELECTOR);     
+    }
+
+    modalDisplayHandler(): void {     
+      if(this.isHidden){
+        this.hideModal();
+        return;
+      }
+      this.showModal();
     }
 
     showModal(): void {

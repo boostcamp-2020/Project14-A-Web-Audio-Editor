@@ -1,2 +1,2 @@
-import './ModalButtons/ModalButtons';
 import './Modal';
+import './ModalContents/index';
