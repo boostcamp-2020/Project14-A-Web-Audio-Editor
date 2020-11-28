@@ -1,4 +1,4 @@
 export { EventType, eventTypes, EventDataType, EventTargetDataType, EventKeyType } from './eventTypes';
-export { StoreChannelType, StoreStateType } from "./storeTypes";
+export { StoreChannelType, StoreStateType, StoreObserverData } from "./storeTypes";
 export { ModalStateType, ModalType, ModalTitleType, ModalContentType, ModalButtonContentType } from "./modalTypes";
 export { ButtonType } from './buttonType';
