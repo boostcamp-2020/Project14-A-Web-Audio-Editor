@@ -11,7 +11,7 @@ interface StoreStateType {
     modalState: ModalStateType;
 }
 
-interface StoreObserverData{
+interface StoreObserverData {
     callback: Function;
     bindObj: Object;
 }
