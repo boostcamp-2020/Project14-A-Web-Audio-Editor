@@ -1,0 +1,38 @@
+@use '@style/variables' as variables;
+
+@keyframes spinCircle {
+  from {
+    transform: translate(-50%, -50%) rotate(0);
+  }
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+audi-loading {
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+}
+
+.loading-box {
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0);
+}
+
+.circle {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 50px;
+  height: 50px;
+  border: 10px solid #ffffff;
+  border-top: 10px solid variables.$green-color;
+  border-radius: 50em;
+  background-color: variables.$theme-color;
+  animation-name: spinCircle;
+  animation-duration: 0.8s;
+  animation-iteration-count: infinite;
+}
