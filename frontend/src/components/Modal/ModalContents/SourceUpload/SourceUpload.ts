@@ -3,6 +3,7 @@ import { FileUtil, AudioUtil } from '@util';
 import { Source } from '@model';
 import { Controller } from '@controllers';
 import { EventUtil } from '@util';
+import { LoadingUtil } from '@util';
 import { EventType, ButtonType, EventKeyType, ModalType } from '@types';
 
 (() => {
@@ -10,18 +11,20 @@ import { EventType, ButtonType, EventKeyType, ModalType } from '@types';
     private filename: string;
     private source: Source | null;
     private sourceUploadElement: HTMLElement | null;
+    private loadingElement: HTMLElement | null;
 
     constructor() {
       super();
       this.filename = '';
       this.source = null;
       this.sourceUploadElement = null;
+      this.loadingElement = null;
     }
 
     connectedCallback(): void {
-      try{
+      try {
         this.init();
-      }catch(e){
+      } catch (e) {
         console.log(e);
       }
     }
@@ -42,6 +45,7 @@ import { EventType, ButtonType, EventKeyType, ModalType } from '@types';
     render(): void {
       this.innerHTML = `
             <div class='source-upload-content' draggable='true' event-key=${EventKeyType.SOURCE_UPLOAD_CONTENT_MULTIPLE}>
+                <audi-loading class='hide' type='source'></audi-loading>
                 <div class='source-fill'>${this.filename}</div>
                 <label for='source-upload' class='source-empty'>
                     <div>+</div>
@@ -58,6 +62,7 @@ import { EventType, ButtonType, EventKeyType, ModalType } from '@types';
 
     initElement(): void {
       this.sourceUploadElement = document.querySelector('.source-upload-content');
+      this.loadingElement = document.querySelector('audi-loading');
     }
 
     initEvent(): void {
@@ -85,6 +90,7 @@ import { EventType, ButtonType, EventKeyType, ModalType } from '@types';
 
     modalCloseBtnClickListener(): void {
       Controller.changeModalState(ModalType.upload, true);
+      this.reset();
     }
 
     uploadBtnClickListener(): void {
@@ -119,21 +125,30 @@ import { EventType, ButtonType, EventKeyType, ModalType } from '@types';
 
       if (file) {
         const { name } = file;
-        this.setFilename(name);
+        this.hideClickDiv();
+
+        LoadingUtil.startLoading(this.loadingElement);
         await this.setSource(file);
+        LoadingUtil.endLoading(this.loadingElement);
+
+        this.setFilename(name);
       }
     }
 
-    async setSource(file: File){
+    async setSource(file: File) {
       const arrayBuffer = await FileUtil.readFileAsync(file);
       const audioBuffer = await AudioUtil.decodeArrayBufferToAudio(arrayBuffer);
       this.source = new Source(file, audioBuffer);
     }
 
-    setFilename(filename: string): void{
+    setFilename(filename: string): void {
       this.filename = filename;
       this.render();
 
+      this.hideClickDiv();
+    }
+
+    hideClickDiv() {
       const sourceEmpty: HTMLElement | null = document.querySelector('.source-empty');
       if (sourceEmpty) {
         sourceEmpty.className = 'hide-source-upload-content';
