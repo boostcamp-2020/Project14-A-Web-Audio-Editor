@@ -45,7 +45,7 @@ import { EventType, ButtonType, EventKeyType, ModalType } from '@types';
                 <div class='source-fill'>${this.filename}</div>
                 <label for='source-upload' class='source-empty'>
                     <div>+</div>
-                    <input type='file' id='source-upload' hidden accept='audio/*'/>
+                    <input type='file' id='source-upload' hidden accept='audio/*' event-key=${EventKeyType.SOURCE_UPLOAD_CONTENT_MULTIPLE} />
                     <div>Click or Drag and Drop</div>
                 </label>
             </div>
