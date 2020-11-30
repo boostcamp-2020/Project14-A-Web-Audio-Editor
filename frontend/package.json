@@ -5,6 +5,7 @@
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^1.2.32",
     "@fortawesome/free-solid-svg-icons": "^5.15.1",
+    "lamejs": "^1.2.0",
     "typescript": "^4.0.5"
   },
   "devDependencies": {
