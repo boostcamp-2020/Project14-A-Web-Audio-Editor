@@ -44,7 +44,7 @@ audi-source-download:not(:defined) {
 }
 
 .radios{
-
+  display:block;
   label {
     margin-right: 2rem;
   }
@@ -68,4 +68,8 @@ audi-source-download:not(:defined) {
       background-color: variables.$green-color;
     }
   }
+}
+
+.visible-hidden {
+  visibility: hidden;
 }
