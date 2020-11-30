@@ -11,6 +11,5 @@ import './SourceList/SourceList';
 import './TimeInfo/TimeInfo';
 import './Main/Main';
 import './Modal';
-import './EffectList/EffectList';
 import './Pages';
 import './Button';

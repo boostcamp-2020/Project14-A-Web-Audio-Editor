@@ -33,8 +33,6 @@ const store = new (class Store{
 
         const newModalState: ModalStateType = {modalType: newModalType, isHidden: newIsHiiden};
         this.state = {...this.state, modalState: newModalState };
-        console.log(newModalState);
-        
         storeChannel.publish(StoreChannelType.MODAL_STATE_CHANNEL, newModalState);
     }
 })();
