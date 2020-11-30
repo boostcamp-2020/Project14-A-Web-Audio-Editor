@@ -24,4 +24,20 @@
 
 ## [🥝WIKI](https://github.com/boostcamp-2020/Project14-A-Web-Audio-Editor/wiki)
 
+## 실행방법
 
+frontend/env 폴더에 .env.development에 밑의 코드를 적은 파일을 생성합니다.
+```
+ENVIRONMENT=development
+```
+그 후 다음과 같은 명령어들을 실행합니다.
+```
+cd backend
+npm install
+
+cd ../frontend
+npm install
+npm run dev
+
+localhost:5500으로 접속
+```
