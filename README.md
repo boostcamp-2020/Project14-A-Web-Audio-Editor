@@ -24,7 +24,7 @@
 
 ## [🥝WIKI](https://github.com/boostcamp-2020/Project14-A-Web-Audio-Editor/wiki)
 
-## 실행방법
+## 💻실행방법
 
 frontend/env 폴더에 .env.development에 밑의 코드를 적은 파일을 생성합니다.
 ```
