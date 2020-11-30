@@ -20,6 +20,16 @@ $greenColor: #03c75a;
   }
 }
 
+.source-upload-btn-container{
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
+
+  .upload-btn{
+    margin-right: 10px;
+  }
+}
+
 .hide-source-upload-content {
   display: none;
 }

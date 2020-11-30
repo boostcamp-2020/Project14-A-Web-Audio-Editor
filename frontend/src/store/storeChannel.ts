@@ -1,24 +1,21 @@
-interface ObserverData{
-    callback: Function;
-    bindObj: Object;
-}
+import { StoreObserverData, StoreChannelType } from "@types";
 
 class StoreChannel{
     private channels: Map<string, any>
-    private observers: Map<string, ObserverData[]>
+    private observers: Map<string, StoreObserverData[]>
 
     constructor(){
         this.channels = new Map();
         this.observers = new Map();
     }
 
-    publish(channel, data) {
+    publish(channel: StoreChannelType, data: any): void {
         this.channels.set(channel, data);        
         this.notify(channel);
     }
 
-    subscribe(channel, callback, bindObj) {
-        let observerDatas: ObserverData[] | undefined = this.observers.get(channel);
+    subscribe(channel: StoreChannelType, callback: Function, bindObj: Object): void {
+        let observerDatas: StoreObserverData[] | undefined = this.observers.get(channel);
 
         if(!observerDatas) observerDatas = [{callback, bindObj}];
 
@@ -26,8 +23,8 @@ class StoreChannel{
         this.observers.set(channel, newObserverDatas);
     }
 
-    notify(channel) {
-        const observerDatas: ObserverData[] | undefined =  this.observers.get(channel);
+    notify(channel: StoreChannelType):void {
+        const observerDatas: StoreObserverData[] | undefined =  this.observers.get(channel);
         if (!observerDatas) return;
         
         const data = this.channels.get(channel);

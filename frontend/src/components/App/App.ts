@@ -1,5 +1,5 @@
 import './App.scss';
-import { EventDataType, eventTypes, EventTargetDataType, StoreChannelType } from '@types';
+import { EventDataType, eventTypes, EventTargetDataType } from '@types';
 
 (() => {
   const App = class extends HTMLElement {
@@ -21,10 +21,7 @@ import { EventDataType, eventTypes, EventTargetDataType, StoreChannelType } from
     render(): void {
       this.innerHTML = `
                   <div class="audi-app-container">
-                    <audi-header></audi-header>
-                    <audi-modal type='source'></audi-modal>
-                    <audi-modal type='download'></audi-modal>
-                    <audi-main></audi-main>
+                    <audi-main-page></audi-main-page>
                   </div>
               `;
     }
@@ -38,7 +35,7 @@ import { EventDataType, eventTypes, EventTargetDataType, StoreChannelType } from
     }
 
     eventListenerForRegistrant(e): void {
-      const { target } = e;
+      const { target } = e;           
       if (!target || !this.isEventTarget(target) || !this.eventListenerCollectors) return;
 
       const eventType = e.type;

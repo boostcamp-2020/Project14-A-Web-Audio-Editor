@@ -50,3 +50,22 @@ audi-source-download:not(:defined) {
   }
 }
 
+.source-download-btn-container{
+  .save-button{
+    .audi-button--modal{
+      color: variables.$inactive-color;
+      border-color: variables.$inactive-color;
+
+      &:hover{
+        background-color: transparent;
+      }
+    }
+  }
+  .save-button.active{
+    .audi-button--modal{
+      color: variables.$white-color;
+      border-color: variables.$white-color;
+      background-color: variables.$green-color;
+    }
+  }
+}
