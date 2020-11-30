@@ -5,6 +5,7 @@ enum EventKeyType {
     SOURCE_DOWNLOAD_FILE_NAME_KEYUP = 'SOURCE_DOWNLOAD_FILE_NAME_KEYUP',
     SOURCE_DOWNLOAD_SAVE_BTN_CLICK = 'SOURCE_DOWNLOAD_SAVE_BTN_CLICK',
     SOURCE_DOWNLOAD_CLOSE_BTN_CLICK = 'SOURCE_DOWNLOAD_CLOSE_BTN_CLICK',
+    SOURCE_DOWNLOAD_EXTENTION_CHANGE = 'SOURCE_DOWNLOAD_EXTENTION_CHANGE',
     EDITOR_MENU_OPEN_UPLOAD_BTN_CLICK = 'EDITOR_MENU_OPEN_UPLOAD_BTN_CLICK',
     EDITOR_MENU_OPEN_DOWNLOAD_BTN_CLICK = 'EDITOR_MENU_OPEN_DOWNLOAD_BTN_CLICK',
     EFFECT_LIST_CLOSE_BTN_CLICK = 'EFFECT_LIST_CLOSE_BTN_CLICK'
@@ -20,12 +21,12 @@ enum EventType {
 
 const eventTypes = ['click', 'keyup', 'dragover', 'drop', 'change'];
 
-interface EventTargetDataType{
+interface EventTargetDataType {
     listener: EventListener;
     bindObj: Object;
 }
 
-interface EventDataType{
+interface EventDataType {
     eventTypes: EventType[];
     eventKey: string;
     listeners: EventListener[];
