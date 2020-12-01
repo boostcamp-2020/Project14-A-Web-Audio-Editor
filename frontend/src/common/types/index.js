@@ -3,3 +3,4 @@ export { StoreChannelType, StoreStateType, StoreObserverData } from "./storeType
 export { ModalStateType, ModalType, ModalTitleType, ModalContentType, ModalButtonContentType } from "./modalTypes";
 export { ButtonType } from './buttonType';
 export { IconType } from './iconType';
+export { CompressorOption } from './CompressorOption';
