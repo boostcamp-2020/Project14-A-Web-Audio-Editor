@@ -10,6 +10,7 @@ import './Sidebar/Sidebar';
 import './SourceList/SourceList';
 import './TimeInfo/TimeInfo';
 import './Main/Main';
+import './Loading/Loading';
 import './Modal';
 import './Pages';
 import './Button';

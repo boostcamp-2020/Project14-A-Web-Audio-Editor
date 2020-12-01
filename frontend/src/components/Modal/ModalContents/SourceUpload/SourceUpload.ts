@@ -19,9 +19,9 @@ import { EventType, ButtonType, EventKeyType, ModalType } from '@types';
     }
 
     connectedCallback(): void {
-      try{
+      try {
         this.init();
-      }catch(e){
+      } catch (e) {
         console.log(e);
       }
     }
@@ -42,6 +42,7 @@ import { EventType, ButtonType, EventKeyType, ModalType } from '@types';
     render(): void {
       this.innerHTML = `
             <div class='source-upload-content' draggable='true' event-key=${EventKeyType.SOURCE_UPLOAD_CONTENT_MULTIPLE}>
+                <audi-loading class='hide' type='source'></audi-loading>
                 <div class='source-fill'>${this.filename}</div>
                 <label for='source-upload' class='source-empty'>
                     <div>+</div>
@@ -85,6 +86,7 @@ import { EventType, ButtonType, EventKeyType, ModalType } from '@types';
 
     modalCloseBtnClickListener(): void {
       Controller.changeModalState(ModalType.upload, true);
+      this.reset();
     }
 
     uploadBtnClickListener(): void {
@@ -119,21 +121,31 @@ import { EventType, ButtonType, EventKeyType, ModalType } from '@types';
 
       if (file) {
         const { name } = file;
-        this.setFilename(name);
+        const loadingElement = document.querySelector('audi-loading');
+        this.hideClickDiv();
+
+        loadingElement?.startLoading();
         await this.setSource(file);
+        loadingElement?.endLoading();
+
+        this.setFilename(name);
       }
     }
 
-    async setSource(file: File){
+    async setSource(file: File) {
       const arrayBuffer = await FileUtil.readFileAsync(file);
       const audioBuffer = await AudioUtil.decodeArrayBufferToAudio(arrayBuffer);
       this.source = new Source(file, audioBuffer);
     }
 
-    setFilename(filename: string): void{
+    setFilename(filename: string): void {
       this.filename = filename;
       this.render();
 
+      this.hideClickDiv();
+    }
+
+    hideClickDiv() {
       const sourceEmpty: HTMLElement | null = document.querySelector('.source-empty');
       if (sourceEmpty) {
         sourceEmpty.className = 'hide-source-upload-content';
