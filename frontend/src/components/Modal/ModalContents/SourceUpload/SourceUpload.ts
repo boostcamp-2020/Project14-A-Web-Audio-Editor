@@ -3,7 +3,6 @@ import { FileUtil, AudioUtil } from '@util';
 import { Source } from '@model';
 import { Controller } from '@controllers';
 import { EventUtil } from '@util';
-import { LoadingUtil } from '@util';
 import { EventType, ButtonType, EventKeyType, ModalType } from '@types';
 
 (() => {
@@ -11,14 +10,12 @@ import { EventType, ButtonType, EventKeyType, ModalType } from '@types';
     private filename: string;
     private source: Source | null;
     private sourceUploadElement: HTMLElement | null;
-    private loadingElement: HTMLElement | null;
 
     constructor() {
       super();
       this.filename = '';
       this.source = null;
       this.sourceUploadElement = null;
-      this.loadingElement = null;
     }
 
     connectedCallback(): void {
@@ -62,7 +59,6 @@ import { EventType, ButtonType, EventKeyType, ModalType } from '@types';
 
     initElement(): void {
       this.sourceUploadElement = document.querySelector('.source-upload-content');
-      this.loadingElement = document.querySelector('audi-loading');
     }
 
     initEvent(): void {
@@ -125,11 +121,12 @@ import { EventType, ButtonType, EventKeyType, ModalType } from '@types';
 
       if (file) {
         const { name } = file;
+        const loadingElement = document.querySelector('audi-loading');
         this.hideClickDiv();
 
-        LoadingUtil.startLoading(this.loadingElement);
+        loadingElement?.startLoading();
         await this.setSource(file);
-        LoadingUtil.endLoading(this.loadingElement);
+        loadingElement?.endLoading();
 
         this.setFilename(name);
       }
