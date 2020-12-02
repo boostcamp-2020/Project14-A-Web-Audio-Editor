@@ -4,3 +4,4 @@ export { ModalStateType, ModalType, ModalTitleType, ModalContentType, ModalButto
 export { ButtonType } from './buttonType';
 export { IconType } from './iconType';
 export { CompressorOption } from './CompressorOption';
+export { EffectStateType, EffectType, EffectTitleType, EffectContentType, EffectButtonContentType } from './effectTypes'

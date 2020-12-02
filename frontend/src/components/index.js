@@ -14,3 +14,4 @@ import './Loading/Loading';
 import './Modal';
 import './Pages';
 import './Button';
+import './EffectController'
