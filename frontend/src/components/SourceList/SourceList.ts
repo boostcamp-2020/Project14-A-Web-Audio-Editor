@@ -22,8 +22,8 @@ import "./SourceList.scss";
 
     getSources(): string {
       return this.sourceList.reduce((acc, source) =>
-        acc + `<li class="audio-source" draggable="true" data-id=${source.id} event-key=${EventKeyType.SOURCE_LIST_DRAGSTART}>
-                        <span event-key=${EventKeyType.SOURCE_LIST_DRAGSTART}>${source.fileName}</span>
+        acc + `<li class="audio-source" draggable="true" data-id=${source.id} event-key=${EventKeyType.SOURCE_LIST_MULTIPLE}>
+                        <span event-key=${EventKeyType.SOURCE_LIST_MULTIPLE}>${source.fileName}</span>
                         <ul class="source-info">
                           <li><span>FileName: ${source.fileName}</span></li>
                           <li><span>FileSize: ${this.parseFileSize(source.fileSize)}</span></li>
@@ -70,9 +70,9 @@ import "./SourceList.scss";
 
     initEvent(): void{
       EventUtil.registerEventToRoot({
-        eventTypes: [EventType.dragstart],
-        eventKey: EventKeyType.SOURCE_LIST_DRAGSTART,
-        listeners: [this.sourceListDragstartListener],
+        eventTypes: [EventType.dragstart, EventType.dragend],
+        eventKey: EventKeyType.SOURCE_LIST_MULTIPLE,
+        listeners: [this.sourceListDragstartListener, this.sourceListDragendListener],
         bindObj: this
       })
     }
@@ -80,7 +80,12 @@ import "./SourceList.scss";
     sourceListDragstartListener(e): void{
       e.dataTransfer.setData("text/plain", e.target.dataset.id);
       e.dataTransfer.dropEffect = "link";
+
       Controller.changeTrackDragState(true);
+    }
+
+    sourceListDragendListener(e): void{
+      Controller.changeTrackDragState(false);
     }
 
     subscribe(): void{

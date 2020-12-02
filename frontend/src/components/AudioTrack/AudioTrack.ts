@@ -100,7 +100,6 @@ import "./AudioTrack.scss";
           trackStartTime : 0
         });
 
-        Controller.changeTrackDragState(false);
         Controller.addTrackSection(this.trackId, trackSection);
         this.hideMessage();
       }
