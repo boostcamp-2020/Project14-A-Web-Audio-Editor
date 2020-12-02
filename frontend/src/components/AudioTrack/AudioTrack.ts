@@ -51,7 +51,7 @@ import "./AudioTrack.scss";
                     <div class="audio-track-container">
                       <div class="audio-track-area">
                         ${this.getTrackSectionList()}
-                        <div class="audio-track-massage"><span>Drag & Drop</span></div>
+                        <div class="audio-track-message"><span>Drag & Drop</span></div>
                         <div class="audio-track-dropzone hide" event-key=${EventKeyType.AUDIO_TRACK_DRAGOVER_DROP + this.trackId}></div>
                       </div>      
                     </div>
@@ -119,11 +119,11 @@ import "./AudioTrack.scss";
       }
 
       subscribe(): void {
-        storeChannel.subscribe(StoreChannelType.TRACK_DRAG_STATE_CHANNEL, this.trackDragStateObesever, this);
-        storeChannel.subscribe(StoreChannelType.TRACK_SECTION_LIST_CHANNEL, this.trackSectionListObserver, this);
+        storeChannel.subscribe(StoreChannelType.TRACK_DRAG_STATE_CHANNEL, this.trackDragStateObserverCallback, this);
+        storeChannel.subscribe(StoreChannelType.TRACK_SECTION_LIST_CHANNEL, this.trackSectionListObserverCallback, this);
       }
 
-      trackDragStateObesever(isTrackDraggable): void {
+      trackDragStateObserverCallback(isTrackDraggable): void {
         if(isTrackDraggable){
           this.activeTrackDropzone();
           return;
@@ -139,7 +139,7 @@ import "./AudioTrack.scss";
         this.trackDropzoneElement?.classList.add('hide');
       }
 
-      trackSectionListObserver({trackId, trackSectionList}): void {
+      trackSectionListObserverCallback({trackId, trackSectionList}): void {
         if(trackId !== this.trackId) return;
 
         this.trackSectionList = trackSectionList;
