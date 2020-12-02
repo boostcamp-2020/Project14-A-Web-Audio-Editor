@@ -40,8 +40,8 @@ import { Controller } from '@controllers';
     render(): void {
       this.innerHTML = `
                 <div class='playbar' event-key=${EventKeyType.PLAYBAR_MULTIPLE}>
-                  <audi-marker type='left'></audi-marker>
-                  <audi-marker type='right'></audi-marker>
+                  <audi-playbar-marker type='left'></audi-playbar-marker>
+                  <audi-playbar-marker type='right'></audi-playbar-marker>
                   ${this.setStringTime()}
                 </div>
             `;

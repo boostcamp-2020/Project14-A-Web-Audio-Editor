@@ -1,7 +1,7 @@
 import './PlayBarMarker.scss';
 
 (() => {
-  const Marker = class extends HTMLElement {
+  const PlayBarMarker = class extends HTMLElement {
     private type: string;
 
     constructor() {
@@ -37,7 +37,7 @@ import './PlayBarMarker.scss';
     }
   };
 
-  customElements.define('audi-marker', Marker);
+  customElements.define('audi-playbar-marker', PlayBarMarker);
 })();
 
 export {};
