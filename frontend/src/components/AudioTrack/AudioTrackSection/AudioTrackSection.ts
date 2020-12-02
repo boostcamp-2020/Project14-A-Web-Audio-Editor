@@ -1,23 +1,28 @@
 import { Controller } from "@controllers";
 import "./AudioTrackSection.scss";
 
+interface SectionData{
+  sectionChannelData: number[];
+  duration: number; 
+}
+
 (() => {
    const AudioTrackSection = class extends HTMLElement {
         private trackId: number;
         private sectionId: number;
-        private sectionChannelData: number[] | undefined;
+        private sectionData: SectionData | undefined;
         private trackCanvasElement: HTMLCanvasElement | undefined | null;
 
         constructor(){
             super();
             this.trackId = 0;
             this.sectionId = 0;
-            this.sectionChannelData;
+            this.sectionData;
             this.trackCanvasElement;
         }
 
         static get observedAttributes(): string[] {
-          return ['data-id'];
+          return ['data-id', 'data-track-id'];
         }
   
         attributeChangedCallback(attrName: string, oldVal: string, newVal: string): void {
@@ -52,30 +57,33 @@ import "./AudioTrackSection.scss";
 
         init(): void {
           this.trackCanvasElement = this.querySelector<HTMLCanvasElement>('.audio-track-section');
-          this.sectionChannelData = Controller.getSectionChannelData(this.trackId, this.sectionId);
+          this.sectionData = Controller.getSectionChannelData(this.trackId, this.sectionId);
         }
 
-        draw(): void {         
-          if(!this.sectionChannelData || !this.trackCanvasElement) return;
+        draw(): void {        
+          if(!this.sectionData || !this.trackCanvasElement) return;
 
+          const { sectionChannelData, duration } = this.sectionData;
+          
           const canvasWidth = this.trackCanvasElement.clientWidth;
           this.trackCanvasElement.width = canvasWidth;
-
+          this.trackCanvasElement.style.width = `${canvasWidth / (300/duration)}px`;
+    
           const canvasHeight = this.trackCanvasElement.clientHeight;
           const canvasCtx = this.trackCanvasElement.getContext('2d');
           if(!canvasCtx) return;
 
           const middleHeight = canvasHeight / 2;
-          const defaultLineWidth = 1;  
+          const defaultLineWidth =1;
 
           canvasCtx.strokeStyle = '#2196f3';
-          canvasCtx.lineWidth = defaultLineWidth / (48000 / canvasWidth);
+          canvasCtx.lineWidth = defaultLineWidth / (37500 / canvasWidth);
           canvasCtx.beginPath();
 
           let offsetX = 0;
           let offsetY;
-          for(let i = 0; i < this.sectionChannelData.length; i++){
-            offsetY = middleHeight + Math.floor((this.sectionChannelData[i]*canvasHeight)/2);
+          for(let i = 0; i < sectionChannelData.length; i++){
+            offsetY = middleHeight + Math.floor((sectionChannelData[i]*canvasHeight)/2);
             if(i % 2 == 0)
               canvasCtx.moveTo(offsetX, offsetY);
             else{

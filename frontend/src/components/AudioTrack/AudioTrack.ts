@@ -60,7 +60,7 @@ import "./AudioTrack.scss";
 
       getTrackSectionList(): string {
         return this.trackSectionList.reduce((acc, trackSection, idx) => 
-          acc += `<audi-track-section data-id=${trackSection.sourceId} data-track-id=${trackSection.trackId}></audi-track-section>`, 
+          acc += `<audi-track-section data-id=${trackSection.id} data-track-id=${trackSection.trackId}></audi-track-section>`, 
         "");
       }
 
@@ -98,7 +98,8 @@ import "./AudioTrack.scss";
           parsedChannelStartTime : 0,
           parsedChannelEndTime: 10,
           trackStartTime : 0
-       });
+        });
+
         Controller.changeTrackDragState(false);
         Controller.addTrackSection(this.trackId, trackSection);
         this.hideMessage();
