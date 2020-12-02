@@ -1,4 +1,4 @@
-import './Main.scss'
+import './Main.scss';
 
 (() => {
   const Main = class extends HTMLElement {
@@ -18,6 +18,7 @@ import './Main.scss'
                             <audi-side-bar></audi-side-bar>
                         </aside>
                         <section>
+                            <audi-playbar></audi-playbar>
                             <audi-audio-track width="700" height="150"></audi-audio-track>
                         </section>
                     </div>
