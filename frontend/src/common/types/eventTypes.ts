@@ -8,18 +8,23 @@ enum EventKeyType {
     SOURCE_DOWNLOAD_EXTENTION_CHANGE = 'SOURCE_DOWNLOAD_EXTENTION_CHANGE',
     EDITOR_MENU_OPEN_UPLOAD_BTN_CLICK = 'EDITOR_MENU_OPEN_UPLOAD_BTN_CLICK',
     EDITOR_MENU_OPEN_DOWNLOAD_BTN_CLICK = 'EDITOR_MENU_OPEN_DOWNLOAD_BTN_CLICK',
-    EFFECT_LIST_CLOSE_BTN_CLICK = 'EFFECT_LIST_CLOSE_BTN_CLICK'
+    EFFECT_LIST_CLOSE_BTN_CLICK = 'EFFECT_LIST_CLOSE_BTN_CLICK',
+    SOURCE_LIST_DRAGSTART = 'SOURCE_LIST_DRAGSTART',
+    AUDIO_TRACK_DRAGOVER_DROP = 'AUDIO_TRACK_DRAGOVER_DROP'
 }
 
 enum EventType {
     click = 'click',
     keyup = 'keyup',
+    dragstart = 'dragstart',
     dragover = 'dragover',
+    dragenter = 'dragenter',
+    dragleave = 'dragleave',
     drop = 'drop',
     change = 'change'
 }
 
-const eventTypes = ['click', 'keyup', 'dragover', 'drop', 'change'];
+const eventTypes = ['click', 'keyup', 'dragstart', 'dragover', 'dragenter','dragleave','drop', 'change'];
 
 interface EventTargetDataType {
     listener: EventListener;

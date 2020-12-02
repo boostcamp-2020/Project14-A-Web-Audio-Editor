@@ -1,6 +1,6 @@
 import { StoreStateType } from "@types";
-import { Source } from "../model"
-import { StoreChannelType, ModalType, ModalStateType } from "@types"
+import { Track, Source, TrackSection } from "@model";
+import { StoreChannelType, ModalType, ModalStateType } from "@types";
 import { storeChannel } from "@store";
 
 const store = new (class Store{
@@ -12,8 +12,21 @@ const store = new (class Store{
             modalState: {
                 modalType: ModalType.upload,
                 isHidden: true
-            }
+            },
+            isTrackDraggable: false,
+            trackList: this.initTrackList(3)
         }
+    }
+
+    initTrackList(numOfTracks: number): Track[]{
+        return Array(numOfTracks).fill(0).reduce((acc, cur, idx) => {
+              const track = new Track({id:idx, trackSectionList: []});
+              return acc.concat(track);
+          },[]);
+      }
+
+    getState(): StoreStateType {
+        return this.state;
     }
 
     setSource(source: Source): void{
@@ -34,6 +47,47 @@ const store = new (class Store{
         const newModalState: ModalStateType = {modalType: newModalType, isHidden: newIsHiiden};
         this.state = {...this.state, modalState: newModalState };
         storeChannel.publish(StoreChannelType.MODAL_STATE_CHANNEL, newModalState);
+    }
+
+    setTrackDragState(newIsTrackDraggable: Boolean): void{
+        const { isTrackDraggable } = this.state;
+        if(isTrackDraggable === newIsTrackDraggable) return;
+
+        this.state = { ...this.state, isTrackDraggable: newIsTrackDraggable };
+        storeChannel.publish(StoreChannelType.TRACK_DRAG_STATE_CHANNEL, newIsTrackDraggable);
+    }
+
+    setTrack(newTrack: Track): void{
+        const { trackList } = this.state;
+
+        newTrack.id = trackList.length;
+        const newAudioTrackList = trackList.concat(newTrack);
+        
+        this.state = {...this.state, trackList: newAudioTrackList};
+        console.log(this.state);
+    }
+
+    setTrackSection(trackId: number, newTrackSection: TrackSection): void{
+        const { trackList } = this.state;
+        if(trackId < 0 || trackId >= trackList.length) return;
+
+        const track = trackList[trackId];
+        const { trackSectionList } = track;
+        newTrackSection.id = trackSectionList.length;
+
+        const newTrackSectionList = trackSectionList
+            .concat(newTrackSection).sort((a, b)=> a.trackStartTime - b.trackStartTime);
+
+        const newTrack = new Track({...track, trackSectionList: newTrackSectionList});
+        const newTrackList: Array<Track> = trackList.reduce<Track[]>((acc, track)=>
+            (track.id === trackId)? acc.concat(newTrack) : acc.concat(track), 
+        []);
+
+        this.state = {...this.state, trackList: newTrackList};
+        storeChannel.publish(StoreChannelType.TRACK_SECTION_LIST_CHANNEL, {
+            trackId:trackId,
+            trackSectionList: newTrackSectionList
+        });
     }
 })();
 

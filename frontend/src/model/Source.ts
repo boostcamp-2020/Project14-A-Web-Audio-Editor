@@ -5,10 +5,11 @@ class Source{
     public length: number;
     public duration: number;
     public numberOfChannels: number;
-    public channelData: Float32Array[];
+    public parsedChannelData: number[];
+    public channelData: Float32Array;
     public fileSize: number;
 
-    constructor(file: File, audioBuffer: AudioBuffer){
+    constructor(file: File, audioBuffer: AudioBuffer, parsedChannelData: number[], channelData: Float32Array){
         this.id = 0;
         this.fileName = file.name;
         this.fileSize = file.size;
@@ -16,15 +17,8 @@ class Source{
         this.length = audioBuffer.length;
         this.duration = audioBuffer.duration;
         this.numberOfChannels = audioBuffer.numberOfChannels;
-        this.channelData = [];
-        
-        this.setChannelData(audioBuffer);
-    }
-
-    setChannelData(audioBuffer: AudioBuffer){
-        for(let i = 0; i < this.numberOfChannels; i++){
-            this.channelData[i] = audioBuffer.getChannelData(i);
-        }
+        this.channelData = channelData;
+        this.parsedChannelData = parsedChannelData;
     }
 }
 
