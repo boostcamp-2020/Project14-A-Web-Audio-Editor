@@ -1,9 +1,9 @@
-import './SourceUpload.scss';
 import { FileUtil, AudioUtil } from '@util';
 import { Source } from '@model';
 import { Controller } from '@controllers';
 import { EventUtil } from '@util';
 import { EventType, ButtonType, EventKeyType, ModalType } from '@types';
+import './SourceUpload.scss';
 
 (() => {
   const SourceUpload = class extends HTMLElement {
@@ -135,7 +135,11 @@ import { EventType, ButtonType, EventKeyType, ModalType } from '@types';
     async setSource(file: File) {
       const arrayBuffer = await FileUtil.readFileAsync(file);
       const audioBuffer = await AudioUtil.decodeArrayBufferToAudio(arrayBuffer);
-      this.source = new Source(file, audioBuffer);
+      const mergedBuffer = await AudioUtil.mergeChannels(audioBuffer);
+      const channelData = mergedBuffer.getChannelData(0);
+      const parsedChannelData = await AudioUtil.parsePeaks(mergedBuffer);
+
+      this.source = new Source(file, audioBuffer, parsedChannelData, channelData);
     }
 
     setFilename(filename: string): void {
