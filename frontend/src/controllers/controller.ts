@@ -2,20 +2,20 @@ import { Source, Track, TrackSection } from '@model';
 import { store } from "@store";
 import { ModalType } from "@types";
 
-const getSectionChannelData = (trackId: number, trackSectionId: number): number[] | undefined => { 
+const getSectionChannelData = (trackId: number, trackSectionId: number): number[] | undefined => {
     const { trackList, sourceList } = store.getState();
     const track = trackList.find((track) => (track.id === trackId));
     // console.log(track);
-    if(!track) return;
-    
+    if (!track) return;
+
     const { trackSectionList } = track;
     const trackSection = trackSectionList.find((trackSection) => (trackSection.id === trackSectionId));
     // console.log(trackSection);
-    if(!trackSection) return;
+    if (!trackSection) return;
 
     const source = sourceList.find((source) => (source.id === trackSection.sourceId));
     // console.log(source);
-    if(!source) return;
+    if (!source) return;
 
     const { channelData, parsedChannelData, duration, length, sampleRate } = source;
     const { parsedChannelStartTime, parsedChannelEndTime } = trackSection;
@@ -35,23 +35,23 @@ const getSourceBySourceId = (sourceId: number): Source | undefined => {
     return source;
 }
 
-const addSource = (source: Source): void =>{
+const addSource = (source: Source): void => {
     store.setSource(source);
 }
 
 const changeModalState = (modalType: ModalType, isHidden: Boolean): void => {
-  store.setModalState(modalType, isHidden);
+    store.setModalState(modalType, isHidden);
 };
 
 const changeCursorTime = (minute: string, second: string, milsecond: string): void => {
-  store.setCursorTime(minute, second, milsecond);
+    store.setCursorTime(minute, second, milsecond);
 };
 
-const changeTrackDragState = (isTrackDraggable: Boolean): void =>{
+const changeTrackDragState = (isTrackDraggable: Boolean): void => {
     store.setTrackDragState(isTrackDraggable);
 }
 
-const getTrackList = (): Track[] =>{
+const getTrackList = (): Track[] => {
     const { trackList } = store.getState();
     return trackList;
 }
@@ -64,6 +64,15 @@ const addTrackSection = (trackId: number, trackSection: TrackSection): void => {
     store.setTrackSection(trackId, trackSection);
 }
 
+const getCtrlIsPressed = (): boolean => {
+    const { ctrlIsPressed } = store.getState();
+    return ctrlIsPressed;
+}
+
+const setCtrlIsPressed = (isPressed: boolean): void => {
+    store.setCtrlIsPressed(isPressed);
+}
+
 export default {
     getSourceBySourceId,
     getSectionChannelData,
@@ -73,5 +82,7 @@ export default {
     getTrackList,
     addTrack,
     addTrackSection,
-    changeCursorTime
+    changeCursorTime,
+    getCtrlIsPressed,
+    setCtrlIsPressed
 }
