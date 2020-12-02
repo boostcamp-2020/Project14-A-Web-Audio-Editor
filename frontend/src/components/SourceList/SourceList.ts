@@ -1,7 +1,9 @@
-import "./SourceList.scss";
-import { StoreChannelType } from "@types";
+import { EventKeyType, EventType, StoreChannelType } from "@types";
 import { storeChannel } from '@store';
 import { Source } from '@model';
+import { EventUtil } from "@util";
+import { Controller } from "@controllers";
+import "./SourceList.scss";
 
 (() => {
   const SourceList = class extends HTMLElement {
@@ -12,15 +14,16 @@ import { Source } from '@model';
       this.sourceList = [];
     }
 
-    connectedCallback() {
+    connectedCallback(): void {
       this.render();
+      this.initEvent();
       this.subscribe();
     }
 
-    getSources() {
+    getSources(): string {
       return this.sourceList.reduce((acc, source) =>
-        acc + `<li class="audio-source">
-                        <span>${source.fileName}</span>
+        acc + `<li class="audio-source" draggable="true" data-id=${source.id} event-key=${EventKeyType.SOURCE_LIST_DRAGSTART}>
+                        <span event-key=${EventKeyType.SOURCE_LIST_DRAGSTART}>${source.fileName}</span>
                         <ul class="source-info">
                           <li><span>FileName: ${source.fileName}</span></li>
                           <li><span>FileSize: ${this.parseFileSize(source.fileSize)}</span></li>
@@ -32,7 +35,7 @@ import { Source } from '@model';
         , "")
     }
     
-    parseFileSize(fileSize: number){
+    parseFileSize(fileSize: number): string{
       let parsedFileSize = fileSize / 1024 /1024
       parsedFileSize = parsedFileSize * 100;
       parsedFileSize = Math.floor(parsedFileSize);
@@ -41,7 +44,7 @@ import { Source } from '@model';
       return `${parsedFileSize}MB`;
     }
 
-    parsePlayTime(playTime: number) {
+    parsePlayTime(playTime: number): string {
       if(playTime < 60){
         const seconds = Math.round(playTime);
         return `${seconds}초`;
@@ -52,7 +55,7 @@ import { Source } from '@model';
       return `${minute}분 ${seconds}초`;
     }
 
-    render() {
+    render(): void {
       this.innerHTML = `
           <div class="source-list-outer-wrap">
             <div class="source-list-title">
@@ -65,15 +68,31 @@ import { Source } from '@model';
       `;
     }
 
-    subscribe(){
+    initEvent(): void{
+      EventUtil.registerEventToRoot({
+        eventTypes: [EventType.dragstart],
+        eventKey: EventKeyType.SOURCE_LIST_DRAGSTART,
+        listeners: [this.sourceListDragstartListener],
+        bindObj: this
+      })
+    }
+
+    sourceListDragstartListener(e): void{
+      e.dataTransfer.setData("text/plain", e.target.dataset.id);
+      e.dataTransfer.dropEffect = "link";
+      Controller.changeTrackDragState(true);
+    }
+
+    subscribe(): void{
       storeChannel.subscribe(StoreChannelType.SOURCE_LIST_CHANNEL,this.updateSourceList,this);
     }
 
-    updateSourceList(sourceList){
+    updateSourceList(sourceList: Source[]): void{
       this.sourceList = sourceList;
       this.render();
     }
   };
+
   customElements.define('audi-source-list', SourceList);
 })();
 

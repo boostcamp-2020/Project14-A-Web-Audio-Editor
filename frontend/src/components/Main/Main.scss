@@ -3,6 +3,7 @@
     height: 90%;
     padding: 30px 20px;
     box-sizing: border-box;
+
     .audi-main-content{
         display: flex;
         justify-content: space-between;
@@ -15,6 +16,10 @@
 
         aside{
             width: 20%;
+        }
+
+        .audi-main-audio-track-container{
+            width: 80%;
         }
     }
 }

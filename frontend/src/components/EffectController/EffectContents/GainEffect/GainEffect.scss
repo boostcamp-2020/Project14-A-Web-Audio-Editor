@@ -1,0 +1,37 @@
+@import '@style/variables';
+
+audi-effect-gain {
+  width:100%
+}
+
+.effect-input {
+  color: white;
+  width: 100%;
+  padding: 10px;
+
+  input {
+    width: 100%;
+    cursor: pointer;
+  }
+}
+
+.gain-percentage-input{
+  display: flex;
+
+  & .gain-percentage-value {
+    @extend %noselect-font;
+    height: 30px;
+    width: 70px;
+    border: 1px solid white ;
+    border-radius: 6px;
+
+    text-align: center;
+    line-height: 30px;
+    color: $green-color;
+  }
+}
+
+.effect-option-name {
+  @extend %noselect-font;
+  margin: 10px 0;
+}

@@ -1,138 +1,152 @@
-import "./AudioTrack.scss"
+import { Controller } from '@controllers';
+import { EventKeyType, EventType, StoreChannelType } from "@types";
+import { EventUtil } from "@util";
+import { storeChannel } from "@store";
+import { TrackSection } from "@model";
+import "./AudioTrack.scss";
 
 (() => {
     const AudioTrack = class extends HTMLElement {
-      private channels: Float32Array[];
-      private sampleRate: number;
-      private length: number;
-      private trackWidth: number;
-      private trackHeight: number;
-      private trackCanvasEls: NodeListOf<HTMLCanvasElement> | null;
+      private trackId: number;
       private trackMessage: HTMLDivElement | null;
+      private trackDropzoneElement: HTMLDivElement | null;
+      private trackSectionList : TrackSection[];
 
       constructor() {
         super();
-        this.channels = [];
-        this.sampleRate = 0;
-        this.length = 0;
-        this.trackWidth = 0;
-        this.trackHeight = 0;
-        this.trackCanvasEls = null;
+        this.trackId = 0;
         this.trackMessage = null;
+        this.trackDropzoneElement = null;
+        this.trackSectionList = [];
       }
       
-      static get observedAttributes() {
-        return ['width', 'height'];
+      static get observedAttributes(): string[] {
+        return ['data-id'];
       }
 
-      attributeChangedCallback(attrName, oldVal, newVal) {
+      attributeChangedCallback(attrName: string, oldVal: string, newVal: string): void {
         if(oldVal !== newVal){
           switch(attrName){
-            case 'width':
-              this.trackWidth = Number(newVal);
-              break;
-            case 'height':
-              this.trackHeight = Number(newVal);
+            case 'data-id':
+              this.trackId = Number(newVal);
               break;
           }
           this[attrName] = newVal;
         }
       }
 
-      connectedCallback() {
+      connectedCallback(): void {
         try{
           this.render();
-          this.init();
+          this.initElement();
+          this.initEvent();
+          this.subscribe();
         }catch(e){
           console.log(e); 
         }
       }
-
-      init(){
-        this.trackCanvasEls = document.querySelectorAll('.audio-track');
-        this.trackMessage = document.querySelector('.audio-track-massage');
-      }
   
-      render() {
+      render(): void {
         this.innerHTML = `
                     <div class="audio-track-container">
                       <div class="audio-track-area">
-                        <div class="audio-track-channel" style="height:${this.trackHeight}px"><span>L</span></div> 
-                        <canvas class="audio-track" width="${this.trackWidth}px" height="${this.trackHeight}px"></canvas>
-                      </div>
-                      <div class="audio-track-massage"><span>Drag & Drop</span></div>
-                      <div class="audio-track-area">
-                        <div class="audio-track-channel" style="height:${this.trackHeight}px"><span>R</span></div> 
-                        <canvas class="audio-track" width="${this.trackWidth}px" height="${this.trackHeight}px"></canvas>
-                      </div>
+                        ${this.getTrackSectionList()}
+                        <div class="audio-track-massage"><span>Drag & Drop</span></div>
+                        <div class="audio-track-dropzone hide" event-key=${EventKeyType.AUDIO_TRACK_DRAGOVER_DROP + this.trackId}></div>
+                      </div>      
                     </div>
                 `;
       }
 
-      hideMessage(){
+      getTrackSectionList(): string {
+        return this.trackSectionList.reduce((acc, trackSection, idx) => 
+          acc += `<audi-track-section data-id=${trackSection.sourceId} data-track-id=${trackSection.trackId}></audi-track-section>`, 
+        "");
+      }
+
+      initElement(): void {
+        this.trackMessage = this.querySelector('.audio-track-massage');
+        this.trackDropzoneElement = this.querySelector('.audio-track-dropzone');
+      }
+
+      initEvent(): void {
+        EventUtil.registerEventToRoot({
+          eventTypes: [EventType.dragover, EventType.drop, EventType.dragenter, EventType.dragleave],
+          eventKey: EventKeyType.AUDIO_TRACK_DRAGOVER_DROP + this.trackId,
+          listeners: [this.trackDragoverListener, this.trackDropListener, this.trackDragenterListener, this.trackDragleaveListener],
+          bindObj: this
+        });
+      }
+
+      trackDragoverListener(e): void {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = "link";
+      }
+
+      trackDropListener(e): void {
+        e.preventDefault();
+        e.stopPropagation();
+        const sourceId = e.dataTransfer.getData("text/plain");
+        const source = Controller.getSourceBySourceId(Number(sourceId));
+        if(!source) return;
+
+        const trackSection = new TrackSection({ 
+          sourceId : source.id, 
+          trackId: this.trackId,
+          channelStartTime : 0, 
+          channelEndTime : 0, 
+          parsedChannelStartTime : 0,
+          parsedChannelEndTime: 10,
+          trackStartTime : 0
+       });
+        Controller.changeTrackDragState(false);
+        Controller.addTrackSection(this.trackId, trackSection);
+        this.hideMessage();
+      }
+      
+      trackDragenterListener(e): void {
+        e.preventDefault()
+        this.trackDropzoneElement?.classList.add('focus');
+      }
+
+      trackDragleaveListener(e): void {
+        e.preventDefault()
+        this.trackDropzoneElement?.classList.remove('focus');
+      }
+
+      hideMessage(): void {
           this.trackMessage?.classList.add('hide');
       }
 
-      parsePeeks(channelPeaks: Float32Array): number[]{
-        const sampleSize = this.length / this.sampleRate;
-        const sampleStep = Math.floor(sampleSize / 10) || 1;
-        const resultPeaks: number[] = []; 
-
-        Array(this.sampleRate).fill(0).forEach((v, newPeakIndex) => {
-          const start = Math.floor(newPeakIndex * sampleSize);
-          const end = Math.floor(start + sampleSize);
-          let min = channelPeaks[0];
-          let max = channelPeaks[0];
-    
-          for (let sampleIndex = start; sampleIndex < end; sampleIndex += sampleStep) {
-            const v = channelPeaks[sampleIndex];
-    
-            if (v > max) max = v;
-            else if (v < min) min = v;
-          }
-    
-          resultPeaks[2 * newPeakIndex] = max;
-          resultPeaks[2 * newPeakIndex + 1] = min;
-        });
- 
-        return resultPeaks;
+      subscribe(): void {
+        storeChannel.subscribe(StoreChannelType.TRACK_DRAG_STATE_CHANNEL, this.trackDragStateObesever, this);
+        storeChannel.subscribe(StoreChannelType.TRACK_SECTION_LIST_CHANNEL, this.trackSectionListObserver, this);
       }
 
-      draw(){
-        if(this.channels.length === 0 || !this.trackCanvasEls) return;
-        
-        Object.values(this.trackCanvasEls).forEach((trackCavasElement, idx) =>{
-            const peaks: number[] = this.parsePeeks(this.channels[idx]);
-            this.drawPath(trackCavasElement, peaks);
-        });
-      }
-      
-      drawPath(canvas: HTMLCanvasElement, peaks: number[]){
-        if(!this.trackWidth) return;
-        
-        const canvasCtx = canvas.getContext('2d');
-        if(!canvasCtx) return;
-
-        const middleHeight = this.trackHeight / 2
-        const defaultLineWidth = 1;  
-
-        canvasCtx.strokeStyle = '#2196f3';
-        canvasCtx.lineWidth = defaultLineWidth / (this.sampleRate / this.trackWidth);        
-        canvasCtx.beginPath();
-
-        let offsetX = 0;
-        let offsetY;
-        for(let i = 0; i < peaks.length; i++){
-          offsetY = middleHeight + Math.floor((peaks[i]*this.trackHeight)/2);
-          if(i % 2 == 0)
-            canvasCtx.moveTo(offsetX, offsetY);
-          else{
-            canvasCtx.lineTo(offsetX, offsetY);
-            offsetX += canvasCtx.lineWidth;
-          }
+      trackDragStateObesever(isTrackDraggable): void {
+        if(isTrackDraggable){
+          this.activeTrackDropzone();
+          return;
         }
-        canvasCtx.stroke();
+        this.inactiveTrackDropzone();
+      }
+
+      activeTrackDropzone(): void {
+        this.trackDropzoneElement?.classList.remove('hide');
+      }
+
+      inactiveTrackDropzone(): void {
+        this.trackDropzoneElement?.classList.add('hide');
+      }
+
+      trackSectionListObserver({trackId, trackSectionList}): void {
+        if(trackId !== this.trackId) return;
+
+        this.trackSectionList = trackSectionList;
+        this.render();
+        this.initElement();
       }
     };
+
     customElements.define('audi-audio-track', AudioTrack);
   })();
