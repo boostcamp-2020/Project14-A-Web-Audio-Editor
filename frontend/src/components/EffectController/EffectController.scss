@@ -1,0 +1,42 @@
+@import '@style/variables';
+
+audi-effect-controller {
+  width: 100%;
+  height: 100%;
+  border:1px solid white;
+  
+}
+
+.effect-controller-wrap{
+  display:flex;
+    flex-direction:column;
+    align-items: center;
+    height:100%;
+
+    border:1px solid white;
+    border-radius:5px;
+}
+
+.effect-controller-title {
+    @extend %noselect-font;
+
+    width:100%;
+    padding:5px 10px;
+    
+    color:white;
+    margin:8px 0 3px 3px;
+
+    font-weight: bold;
+    font-size: large;
+}
+
+.effect-controller-btn-container{
+  display: flex;
+  justify-content: center;
+  margin-top: auto;
+  margin-bottom: 20px;
+
+  .submit-btn{
+    margin-right: 10px;
+  }
+}
