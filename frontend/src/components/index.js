@@ -1,5 +1,5 @@
 import './App/App';
-import './AudioTrack/AudioTrack';
+import './AudioTrack';
 import './IconButton/IconButton';
 import './Logo/Logo';
 import './EditorMenu/EditorMenu';
