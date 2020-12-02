@@ -58,8 +58,8 @@ import { Controller } from '@controllers';
 
     initElement(): void {
       this.playBarElement = document.querySelector('audi-playbar');
-      this.markerElementLeft = document.getElementById('marker-left');
-      this.markerElementRight = document.getElementById('marker-right');
+      this.markerElementLeft = document.getElementById('playbar-marker-left');
+      this.markerElementRight = document.getElementById('playbar-marker-right');
     }
 
     mousemovePlayBarListener(e: Event): void {

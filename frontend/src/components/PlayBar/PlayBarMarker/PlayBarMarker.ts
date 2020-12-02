@@ -32,7 +32,7 @@ import './PlayBarMarker.scss';
 
     render(): void {
       this.innerHTML = `
-            <div id='marker-${this.type}' class='marker' draggable='true'></div>
+            <div id='playbar-marker-${this.type}' class='playbar-marker' draggable='true'></div>
         `;
     }
   };
