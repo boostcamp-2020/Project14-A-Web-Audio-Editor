@@ -46,21 +46,6 @@ module.exports = (env) => {
           test: /\.(js|ts)/,
           loader: 'babel-loader',
           exclude: /node_modules/,
-          options: {
-            presets: [
-              [
-                '@babel/preset-env',
-                {
-                  modules: false,
-                  targets: {
-                    browsers: ['> 1% in KR']
-                  }
-                }
-              ],
-              ['@babel/preset-typescript']
-            ],
-            plugins: ['@babel/plugin-transform-runtime','@babel/plugin-proposal-class-properties', '@babel/proposal-object-rest-spread']
-          }
         },
         {
           test: /\.scss$/,

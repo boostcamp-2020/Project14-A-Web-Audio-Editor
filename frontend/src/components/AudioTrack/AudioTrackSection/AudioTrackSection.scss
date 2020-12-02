@@ -1,0 +1,17 @@
+audi-track-section{
+    width: 100%;
+}
+
+.audio-track-section{
+    width: 100%;
+    height: 150px;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    cursor: pointer;
+
+    &:hover {
+        border: 1px solid aqua;
+        border-radius: 5px;
+    }
+}
