@@ -1,0 +1,12 @@
+@use '@style/variables' as variables;
+
+.playbar-marker {
+  width: 8px;
+  height: 2rem;
+  position: absolute;
+  background-color: variables.$green-color;
+  border-radius: 2px;
+
+  top: -0.2rem;
+  left: 0px;
+}

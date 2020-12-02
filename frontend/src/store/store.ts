@@ -8,6 +8,7 @@ const store = new (class Store{
 
     constructor(){
         this.state = {
+            cursorTime: '00:00:000',
             sourceList:[],
             modalState: {
                 modalType: ModalType.upload,
@@ -47,6 +48,17 @@ const store = new (class Store{
         const newModalState: ModalStateType = {modalType: newModalType, isHidden: newIsHiiden};
         this.state = {...this.state, modalState: newModalState };
         storeChannel.publish(StoreChannelType.MODAL_STATE_CHANNEL, newModalState);
+    }
+    
+    setCursorTime(newMinute: string, newSecond: string, newMilsecond): void {
+        const { cursorTime } = this.state;
+        const [minute, second, milsecond] = cursorTime.split(':');
+
+        if (minute === newMinute && second === newSecond && milsecond === newMilsecond) return;
+
+        const newCursorTime: string = `${newMinute.padStart(2, '0')}:${newSecond.padStart(2, '0')}:${newMilsecond.padStart(3, '0')}`;
+        this.state = { ...this.state, cursorTime: newCursorTime };
+        storeChannel.publish(StoreChannelType.CURSOR_TIME_CHANNEL, newCursorTime);
     }
 
     setTrackDragState(newIsTrackDraggable: Boolean): void{
@@ -91,6 +103,4 @@ const store = new (class Store{
     }
 })();
 
-export {
-    store
-}
+export { store };

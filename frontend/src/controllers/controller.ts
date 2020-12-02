@@ -40,8 +40,12 @@ const addSource = (source: Source): void =>{
 }
 
 const changeModalState = (modalType: ModalType, isHidden: Boolean): void => {
-    store.setModalState(modalType, isHidden);
-}
+  store.setModalState(modalType, isHidden);
+};
+
+const changeCursorTime = (minute: string, second: string, milsecond: string): void => {
+  store.setCursorTime(minute, second, milsecond);
+};
 
 const changeTrackDragState = (isTrackDraggable: Boolean): void =>{
     store.setTrackDragState(isTrackDraggable);
@@ -68,5 +72,6 @@ export default {
     changeTrackDragState,
     getTrackList,
     addTrack,
-    addTrackSection
+    addTrackSection,
+    changeCursorTime
 }

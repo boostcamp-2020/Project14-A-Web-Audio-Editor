@@ -23,6 +23,7 @@ import './Main.scss';
                             <audi-side-bar></audi-side-bar>
                         </aside>
                         <section class="audi-main-audio-track-container">
+                            <audi-playbar></audi-playbar>
                             ${this.getTrackList()}
                         </section>
                     </div>

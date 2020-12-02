@@ -11,11 +11,13 @@ enum EventKeyType {
     EFFECT_LIST_CLOSE_BTN_CLICK = 'EFFECT_LIST_CLOSE_BTN_CLICK',
     EFFECT_GAIN_INPUT_PERCENTAGE = 'EFFECT_GAIN_INPUT_PERCENTAGE',
     SOURCE_LIST_DRAGSTART = 'SOURCE_LIST_DRAGSTART',
-    AUDIO_TRACK_DRAGOVER_DROP = 'AUDIO_TRACK_DRAGOVER_DROP'
+    AUDIO_TRACK_DRAGOVER_DROP = 'AUDIO_TRACK_DRAGOVER_DROP',
+    PLAYBAR_MULTIPLE = 'PLAYBAR_MULTIPLE'
 }
 
 enum EventType {
     click = 'click',
+    dblclick = 'dblclick',
     keyup = 'keyup',
     dragstart = 'dragstart',
     dragover = 'dragover',
@@ -23,27 +25,22 @@ enum EventType {
     dragleave = 'dragleave',
     drop = 'drop',
     change = 'change',
-    input = 'input'
+    input = 'input',
+    mousemove = 'mousemove'
 }
 
-const eventTypes = ['click', 'keyup', 'dragstart', 'dragover', 'dragenter','dragleave','drop', 'change', 'input'];
+const eventTypes = ['click', 'dblclick', 'keyup', 'dragstart', 'dragover', 'dragenter','dragleave','drop', 'change', 'input', 'mousemove'];
 
 interface EventTargetDataType {
-    listener: EventListener;
-    bindObj: Object;
+  listener: EventListener;
+  bindObj: Object;
 }
 
 interface EventDataType {
-    eventTypes: EventType[];
-    eventKey: string;
-    listeners: EventListener[];
-    bindObj: Object;
+  eventTypes: EventType[];
+  eventKey: string;
+  listeners: EventListener[];
+  bindObj: Object;
 }
 
-export {
-    EventKeyType,
-    EventType,
-    eventTypes,
-    EventTargetDataType,
-    EventDataType
-}
+export { EventKeyType, EventType, eventTypes, EventTargetDataType, EventDataType };
