@@ -65,24 +65,26 @@ interface SectionData{
 
           const { sectionChannelData, duration } = this.sectionData;
           
-          const canvasWidth = this.trackCanvasElement.clientWidth;
+          const trackWidth = this.trackCanvasElement.clientWidth;
+          const canvasWidth = trackWidth / (300/duration);
           this.trackCanvasElement.width = canvasWidth;
-          this.trackCanvasElement.style.width = `${canvasWidth / (300/duration)}px`;
+          this.trackCanvasElement.style.width = `${canvasWidth}px`;
     
           const canvasHeight = this.trackCanvasElement.clientHeight;
           const canvasCtx = this.trackCanvasElement.getContext('2d');
           if(!canvasCtx) return;
 
+          const numOfPeaks = sectionChannelData.length;
           const middleHeight = canvasHeight / 2;
           const defaultLineWidth =1;
 
           canvasCtx.strokeStyle = '#2196f3';
-          canvasCtx.lineWidth = defaultLineWidth / (37500 / canvasWidth);
+          canvasCtx.lineWidth = defaultLineWidth / ((numOfPeaks/2) / canvasWidth);
           canvasCtx.beginPath();
 
           let offsetX = 0;
           let offsetY;
-          for(let i = 0; i < sectionChannelData.length; i++){
+          for(let i = 0; i < numOfPeaks; i++){
             offsetY = middleHeight + Math.floor((sectionChannelData[i]*canvasHeight)/2);
             if(i % 2 == 0)
               canvasCtx.moveTo(offsetX, offsetY);
