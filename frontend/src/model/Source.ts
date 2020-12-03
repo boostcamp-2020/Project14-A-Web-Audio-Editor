@@ -8,6 +8,7 @@ class Source{
     public parsedChannelData: number[];
     public channelData: Float32Array;
     public fileSize: number;
+    public buffer: AudioBuffer
 
     constructor(file: File, audioBuffer: AudioBuffer, parsedChannelData: number[], channelData: Float32Array){
         this.id = 0;
@@ -19,6 +20,7 @@ class Source{
         this.numberOfChannels = audioBuffer.numberOfChannels;
         this.channelData = channelData;
         this.parsedChannelData = parsedChannelData;
+        this.buffer = audioBuffer;
     }
 }
 
