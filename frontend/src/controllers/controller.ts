@@ -1,32 +1,37 @@
 import { Source, Track, TrackSection } from '@model';
-import { store } from '@store';
-import { ModalType } from '@types';
+import { store } from "@store";
+import { ModalType } from "@types";
 
-const getSectionChannelData = (trackId: number, trackSectionId: number): number[] | undefined => {
-  const { trackList, sourceList } = store.getState();
-  const track = trackList.find((track) => track.id === trackId);
-  // console.log(track);
-  if (!track) return;
+interface SectionData{
+    sectionChannelData: number[];
+    duration: number; 
+}
 
-  const { trackSectionList } = track;
-  const trackSection = trackSectionList.find((trackSection) => trackSection.id === trackSectionId);
-  // console.log(trackSection);
-  if (!trackSection) return;
+const getSectionChannelData = (trackId: number, trackSectionId: number): SectionData | undefined => { 
+    const { trackList, sourceList } = store.getState();
+    const track = trackList.find((track) => (track.id === trackId));
+    if(!track) return;
+    
+    const { trackSectionList } = track;
+    const trackSection = trackSectionList.find((trackSection) => (trackSection.id === trackSectionId));
+    if(!trackSection) return;
 
-  const source = sourceList.find((source) => source.id === trackSection.sourceId);
-  // console.log(source);
-  if (!source) return;
+    const source = sourceList.find((source) => (source.id === trackSection.sourceId));
+    if(!source) return;
 
-  const { channelData, parsedChannelData, duration, length, sampleRate } = source;
-  const { parsedChannelStartTime, parsedChannelEndTime } = trackSection;
-  console.log('channelData', channelData);
-  console.log('parsedChannelData', parsedChannelData);
-  console.log('duration', duration);
-  console.log('length', length);
-  console.log('sampleRate', sampleRate);
+    const { parsedChannelData, duration } = source;
+    const { parsedChannelStartTime, parsedChannelEndTime } = trackSection;
+    const numOfPeakPerSecond = parsedChannelData.length / duration;
+    
+    const sectionChannelStartTime = numOfPeakPerSecond * parsedChannelStartTime;
+    const sectionChannelEndTime = numOfPeakPerSecond * parsedChannelEndTime;
+    const sectionChannelData = parsedChannelData.slice(sectionChannelStartTime, sectionChannelEndTime);
 
-  return parsedChannelData;
-};
+    return {
+        sectionChannelData: sectionChannelData,
+        duration: parsedChannelEndTime - parsedChannelStartTime
+    };
+}
 
 const getSourceBySourceId = (sourceId: number): Source | undefined => {
   const { sourceList } = store.getState();

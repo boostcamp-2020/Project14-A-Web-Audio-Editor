@@ -13,24 +13,26 @@ enum EventKeyType {
   SOURCE_LIST_DRAGSTART = 'SOURCE_LIST_DRAGSTART',
   AUDIO_TRACK_DRAGOVER_DROP = 'AUDIO_TRACK_DRAGOVER_DROP',
   PLAYBAR_MULTIPLE = 'PLAYBAR_MULTIPLE',
-  AUDIO_TRACK_CONTAINER_MULTIPLE = 'AUDIO_TRACK_CONTAINER_MULTIPLE'
+  AUDIO_TRACK_CONTAINER_MULTIPLE = 'AUDIO_TRACK_CONTAINER_MULTIPLE',
+  SOURCE_LIST_MULTIPLE = 'SOURCE_LIST_MULTIPLE'
 }
 
 enum EventType {
-  click = 'click',
-  dblclick = 'dblclick',
-  keyup = 'keyup',
-  dragstart = 'dragstart',
-  dragover = 'dragover',
-  dragenter = 'dragenter',
-  dragleave = 'dragleave',
-  drop = 'drop',
-  change = 'change',
-  input = 'input',
-  mousemove = 'mousemove'
+    click = 'click',
+    dblclick = 'dblclick',
+    keyup = 'keyup',
+    dragstart = 'dragstart',
+    dragover = 'dragover',
+    dragenter = 'dragenter',
+    dragleave = 'dragleave',
+    dragend = 'dragend',
+    drop = 'drop',
+    change = 'change',
+    input = 'input',
+    mousemove = 'mousemove'
 }
 
-const eventTypes = ['click', 'dblclick', 'keyup', 'dragstart', 'dragover', 'dragenter', 'dragleave', 'drop', 'change', 'input', 'mousemove'];
+const eventTypes = ['click', 'dblclick', 'keyup', 'dragstart', 'dragover', 'dragenter', 'dragleave','drop', 'change', 'input', 'mousemove', 'dragend'];
 
 interface EventTargetDataType {
   listener: EventListener;
