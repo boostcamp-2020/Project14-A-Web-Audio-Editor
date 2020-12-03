@@ -1,7 +1,8 @@
-import CommandManager from '../../command/CommandManager';
-import { CursorType, StoreChannelType } from "@types";
+import CommandManager from '@command/CommandManager';
+import { CursorType, StoreChannelType, EventKeyType, EventType, IconType } from "@types";
 import { storeChannel } from '@store';
 import { Controller } from '@controllers'
+import { EventUtil } from '@util';
 import './EditTools.scss'
 
 (() => {
@@ -33,13 +34,14 @@ import './EditTools.scss'
       this.render();
       this.init()
       this.initState();
+      this.initEvent();
       this.subscribe();
     }
 
     render() {
       this.innerHTML = `
               <div class="edit-tools">
-                ${this.iconlist.reduce((acc, icon) => acc + `<audi-icon-button id="${icon}" color="white" icontype="${icon}" size="32px"></audi-icon-button>`, '')}
+                ${this.iconlist.reduce((acc, icon) => acc + `<audi-icon-button id="${icon}" color="white" icontype="${icon}" size="32px" data-event-key=${EventKeyType.EDIT_TOOLS_CLICK + icon}></audi-icon-button>`, '')}
               </div>
             `;
     }
@@ -56,14 +58,36 @@ import './EditTools.scss'
     }
 
     initState() {
-      this.cursotState();
+      this.cursorState();
       this.focusState();
       this.clipBoardState();
       this.commandState();
     }
 
+    initEvent() {
+      EventUtil.registerEventToRoot({
+        eventTypes: [EventType.click],
+        eventKey: EventKeyType.EDIT_TOOLS_CLICK + IconType.delete,
+        listeners: [this.deleteListener],
+        bindObj: this
+      });
 
-    cursotState() {
+      EventUtil.registerEventToRoot({
+        eventTypes: [EventType.click],
+        eventKey: EventKeyType.EDIT_TOOLS_CLICK + IconType.undo,
+        listeners: [this.undoListener],
+        bindObj: this
+      });
+
+      EventUtil.registerEventToRoot({
+        eventTypes: [EventType.click],
+        eventKey: EventKeyType.EDIT_TOOLS_CLICK + IconType.redo,
+        listeners: [this.redoListener],
+        bindObj: this
+      });
+    }
+
+    cursorState() {
       const cursorMode = Controller.getCursorMode();
       if (cursorMode === CursorType.SELECT_MODE) {
         this.cursorElement?.classList.add('selected');
@@ -109,8 +133,21 @@ import './EditTools.scss'
 
     updateEditTools(): void {
       this.render();
-      this.init()
+      this.init();
       this.initState();
+      this.initEvent();
+    }
+
+    deleteListener(): void {
+      Controller.deleteCommand();
+    }
+
+    undoListener(): void {
+      Controller.undoCommand();
+    }
+
+    redoListener(): void {
+      Controller.redoCommand();
     }
 
   };
