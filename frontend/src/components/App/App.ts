@@ -33,11 +33,12 @@ import { Controller } from "@controllers";
 
     initEvent(): void {
       this.eventsForListener.forEach((eventName) => this.addEventListener(eventName, this.eventListenerForRegistrant.bind(this)));
-      addEventListener('keydown', this.KeyDownListener)
-      addEventListener('keyup', this.ctrlKeyUpListener)
+      window.addEventListener('keydown', this.KeyDownListener)
+      window.addEventListener('keyup', this.ctrlKeyUpListener)
     }
 
     KeyDownListener(e): void {
+      const { } = Controller
       const isCtrl = Controller.getCtrlIsPressed();
       console.log(e.which);
 
