@@ -5,17 +5,20 @@ const mousemoveMarkerListener: Function = (element: HTMLElement, defaultStartX: 
   if (!element) return;
   const cursorPosition = e.pageX;
 
-  const [minute, second, milsecond, location] = getCursorPosition(defaultStartX, cursorPosition, mainWidth);
+  const [minute, second, milsecond, location, totalCursorTime] = getCursorPosition(defaultStartX, cursorPosition, mainWidth);
 
   if (minute < 0 && second < 0) return;
   Controller.changeCurrentPosition(location);
   Controller.changeCursorTime(minute.toString(), second.toString(), milsecond.toString());
+  Controller.changeTotalCursorTime(totalCursorTime);
 };
 
 const clickMarkerListener = (element: HTMLElement) => (e: Event): void => {
   if (!element) return;
-  const currentPosition = Controller.getCurrentPosition();
+  const [currentPosition, totalCursorTime] = Controller.getCurrentPosition();
 
+  Controller.cursorChangeMarkerTime(totalCursorTime);
+  Controller.resetPlayTime(totalCursorTime);
   if (currentPosition < 0) return;
   element.style.left = `${currentPosition}px`;
 };
