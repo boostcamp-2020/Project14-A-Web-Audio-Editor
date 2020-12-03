@@ -17,7 +17,13 @@ class StoreChannel{
     subscribe(channel: StoreChannelType, callback: Function, bindObj: Object): void {
         let observerDatas: StoreObserverData[] | undefined = this.observers.get(channel);
 
-        if(!observerDatas) observerDatas = [{callback, bindObj}];
+        // if(!observerDatas) observerDatas = [{callback, bindObj}];
+
+        if(!observerDatas) { 
+            observerDatas = [{callback, bindObj}]
+            this.observers.set(channel, observerDatas);
+            return;
+        };
 
         const newObserverDatas = observerDatas.concat({callback, bindObj});
         this.observers.set(channel, newObserverDatas);
