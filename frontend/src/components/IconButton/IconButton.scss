@@ -5,3 +5,17 @@
     fill: variables.$green-color;
   }
 }
+
+.disabled {
+    pointer-events: none !important;
+
+    path {
+      fill: gray
+    }
+}
+
+.selected {
+  path {
+      fill: variables.$green-color
+    }
+}
