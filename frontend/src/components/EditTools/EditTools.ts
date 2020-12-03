@@ -78,6 +78,13 @@ import './EditTools.scss'
         listeners: [this.cutCursorListener],
         bindObj: this
       });
+
+      EventUtil.registerEventToRoot({
+        eventTypes: [EventType.click],
+        eventKey: EventKeyType.EDIT_TOOLS_CLICK + IconType.copy,
+        listeners: [this.copyListener],
+        bindObj: this
+      });
     }
 
 
@@ -127,6 +134,10 @@ import './EditTools.scss'
 
     cutCursorListener(e) {
       Controller.setCursorMode(CursorType.CUT_MODE);
+    }
+
+    copyListener(e) {
+      Controller.setClipBoard();
     }
 
     subscribe(): void {
