@@ -22,7 +22,7 @@ const store = new (class Store {
             trackIndex: 3,
             sectionIndex: 0,
             clipBoard: null,
-            audioSourceInfoInTrackList:[],
+            audioSourceInfoInTrackList: [],
             currentPosition: 0
         }
     }
@@ -83,7 +83,7 @@ const store = new (class Store {
         newTrack.id = trackList.length;
         const newAudioTrackList = trackList.concat(newTrack);
 
-        this.state = {...this.state, trackList: newAudioTrackList};
+        this.state = { ...this.state, trackList: newAudioTrackList };
     }
 
     setTrackSection(trackId: number, newTrackSection: TrackSection): void {
@@ -112,12 +112,12 @@ const store = new (class Store {
         storeChannel.publish(StoreChannelType.TRACK_CHANNEL, newTrackList);
     }
 
-    setCurrentPosition(newCurrentPosition: number): void{
-        const {currentPosition} = this.state;
+    setCurrentPosition(newCurrentPosition: number): void {
+        const { currentPosition } = this.state;
 
         if (currentPosition === newCurrentPosition) return;
 
-        this.state = {...this.state, currentPosition: newCurrentPosition};
+        this.state = { ...this.state, currentPosition: newCurrentPosition };
         storeChannel.publish(StoreChannelType.CURRENT_POSITION_CHANNEL, newCurrentPosition);
     }
 
@@ -149,6 +149,33 @@ const store = new (class Store {
     setClipBoard(newSection: TrackSection): void {
         this.state.clipBoard = newSection;
         storeChannel.publish(StoreChannelType.EDIT_TOOLS_CHANNEL, '');
+    }
+
+    removeSection(trackId: number, sectionIndex: number): void {
+        const { trackList } = this.state;
+
+        const track = trackList.find(track => track.id === trackId)
+        if (!track) return;
+
+        const { trackSectionList } = track;
+
+        const newTrackSectionList = [...trackSectionList];
+
+        newTrackSectionList.splice(sectionIndex, 1);
+
+        const newTrack = new Track({ ...track, trackSectionList: newTrackSectionList });
+        const newTrackList: Array<Track> = trackList.reduce<Track[]>((acc, track) =>
+            (track.id === trackId) ? acc.concat(newTrack) : acc.concat(track),
+            []);
+
+        this.state = { ...this.state, trackList: newTrackList };
+
+        storeChannel.publish(StoreChannelType.TRACK_SECTION_LIST_CHANNEL, {
+            trackId: trackId,
+            trackSectionList: newTrackSectionList
+        });
+
+        storeChannel.publish(StoreChannelType.TRACK_CHANNEL, newTrackList);
     }
 })();
 
