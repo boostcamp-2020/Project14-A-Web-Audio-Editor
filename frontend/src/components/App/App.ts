@@ -64,7 +64,7 @@ import { Controller } from "@controllers";
         // console.log('스페이스바');
       }
       else if (e.which === KeyBoard.C && isCtrl) {
-        // console.log('복사');
+        Controller.setClipBoard();
       }
       else if (e.which === KeyBoard.X && isCtrl) {
         // console.log('잘라내기');
