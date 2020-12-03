@@ -1,16 +1,6 @@
 import './App.scss';
-import { EventDataType, eventTypes, EventTargetDataType } from '@types';
+import { EventDataType, eventTypes, EventTargetDataType, KeyBoard } from '@types';
 import { Controller } from "@controllers";
-
-enum KeyBoard {
-  Z = 90,
-  Y = 89,
-  X = 88,
-  C = 67,
-  V = 86,
-  DELETE = 46,
-  CTRL = 17
-}
 
 (() => {
   const App = class extends HTMLElement {
@@ -49,6 +39,7 @@ enum KeyBoard {
 
     KeyDownListener(e): void {
       const isCtrl = Controller.getCtrlIsPressed();
+      console.log(e.which);
 
       if (e.which === KeyBoard.CTRL) {
         Controller.setCtrlIsPressed(true);
@@ -62,6 +53,15 @@ enum KeyBoard {
       }
       else if (e.which === KeyBoard.DELETE && !isCtrl) {
         // console.log('삭제');
+      }
+      else if (e.which === KeyBoard.LEFT && !isCtrl) {
+        // console.log('왼쪽');
+      }
+      else if (e.which === KeyBoard.RIGHT && !isCtrl) {
+        // console.log('오른쪽');
+      }
+      else if (e.which === KeyBoard.SPACE && !isCtrl) {
+        // console.log('스페이스바');
       }
       else if (e.which === KeyBoard.C && isCtrl) {
         // console.log('복사');
