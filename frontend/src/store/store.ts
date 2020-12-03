@@ -15,7 +15,8 @@ const store = new (class Store{
                 isHidden: true
             },
             isTrackDraggable: false,
-            trackList: this.initTrackList(3)
+            trackList: this.initTrackList(3),
+            currentPosition: 0
         }
     }
 
@@ -100,6 +101,15 @@ const store = new (class Store{
             trackId:trackId,
             trackSectionList: newTrackSectionList
         });
+    }
+
+    setCurrentPosition(newCurrentPosition: number): void{
+        const {currentPosition} = this.state;
+
+        if (currentPosition === newCurrentPosition) return;
+
+        this.state = {...this.state, currentPosition: newCurrentPosition};
+        storeChannel.publish(StoreChannelType.CURRENT_POSITION_CHANNEL, newCurrentPosition);
     }
 })();
 
