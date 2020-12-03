@@ -1,5 +1,5 @@
-import { Source, Track, AudioSourceInfoInTrack, TrackSection } from "@model"
-import { ModalStateType } from "@types"
+import { Source, Track, AudioSourceInfoInTrack, TrackSection } from '@model';
+import { ModalStateType } from '@types';
 
 enum CursorType {
   SELECT_MODE = 'SELECT_MODE',
@@ -7,35 +7,42 @@ enum CursorType {
 }
 
 interface FocusInfo {
-  trackSection: TrackSection,
-  element: HTMLElement
+  trackSection: TrackSection;
+  element: HTMLElement;
 }
 
 enum StoreChannelType {
-    SOURCE_LIST_CHANNEL = 'SOURCE_LIST_CHANNEL',
-    MODAL_STATE_CHANNEL = 'MODAL_STATE_CHANNEL',
-    TRACK_DRAG_STATE_CHANNEL = 'TRACK_DRAG_STATE_CHANNEL',
-    TRACK_SECTION_LIST_CHANNEL = 'TRACK_SECTION_LIST_CHANNEL',
-    CURSOR_TIME_CHANNEL = 'CURSOR_TIME_CHANNEL',
-    TRACK_CHANNEL = 'TRACK_CHANNEL',
-    CURRENT_POSITION_CHANNEL = 'CURRENT_POSITION_CHANNEL',
-    EDIT_TOOLS_CHANNEL = 'EDIT_TOOLS_CHANNEL'
+  SOURCE_LIST_CHANNEL = 'SOURCE_LIST_CHANNEL',
+  MODAL_STATE_CHANNEL = 'MODAL_STATE_CHANNEL',
+  TRACK_DRAG_STATE_CHANNEL = 'TRACK_DRAG_STATE_CHANNEL',
+  TRACK_SECTION_LIST_CHANNEL = 'TRACK_SECTION_LIST_CHANNEL',
+  CURSOR_TIME_CHANNEL = 'CURSOR_TIME_CHANNEL',
+  TRACK_CHANNEL = 'TRACK_CHANNEL',
+  CURRENT_POSITION_CHANNEL = 'CURRENT_POSITION_CHANNEL',
+  EDIT_TOOLS_CHANNEL = 'EDIT_TOOLS_CHANNEL',
+  MARKER_TIME_CHANNEL = 'MARKER_TIME_CHANNEL',
+  IS_PAUSE_CHANNEL = 'IS_PAUSE_CHANNEL',
+  PLAY_TIME_CHANNEL = 'PLAY_TIME_CHANNEL'
 }
 
 interface StoreStateType {
-    cursorTime: string;
-    sourceList: Source[];
-    modalState: ModalStateType;
-    isTrackDraggable: Boolean;
-    trackList : Track[];
-    audioSourceInfoInTrackList: AudioSourceInfoInTrack[];
-    currentPosition: number;
-    focusList: FocusInfo[];
-    ctrlIsPressed: boolean;
-    cursorMode: CursorType;
-    trackIndex: number;
-    sectionIndex: number;
-    clipBoard: TrackSection | null;
+  cursorTime: string;
+  playTime: string;
+  sourceList: Source[];
+  modalState: ModalStateType;
+  isTrackDraggable: Boolean;
+  trackList: Track[];
+  audioSourceInfoInTrackList: AudioSourceInfoInTrack[];
+  currentPosition: number;
+  focusList: FocusInfo[];
+  ctrlIsPressed: boolean;
+  cursorMode: CursorType;
+  trackIndex: number;
+  sectionIndex: number;
+  clipBoard: TrackSection | null;
+  markerTime: number;
+  totalCursorTime: number;
+  isPause: boolean;
 }
 
 interface StoreObserverData {
