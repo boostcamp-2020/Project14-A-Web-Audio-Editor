@@ -15,7 +15,8 @@ const store = new (class Store{
                 isHidden: true
             },
             isTrackDraggable: false,
-            trackList: this.initTrackList(3)
+            trackList: this.initTrackList(3),
+            audioSourceInfoInTrackList:[]
         }
     }
 
@@ -77,6 +78,9 @@ const store = new (class Store{
         
         this.state = {...this.state, trackList: newAudioTrackList};
         console.log(this.state);
+
+        //추가. 내꺼에서 쓸 수 있게... 여기가 아니었다..
+        // storeChannel.publish(StoreChannelType.TRACK_CHANNEL, newAudioTrackList);
     }
 
     setTrackSection(trackId: number, newTrackSection: TrackSection): void{
@@ -96,10 +100,13 @@ const store = new (class Store{
         []);
 
         this.state = {...this.state, trackList: newTrackList};
+
         storeChannel.publish(StoreChannelType.TRACK_SECTION_LIST_CHANNEL, {
             trackId:trackId,
             trackSectionList: newTrackSectionList
         });
+
+        storeChannel.publish(StoreChannelType.TRACK_CHANNEL, newTrackList);
     }
 })();
 
