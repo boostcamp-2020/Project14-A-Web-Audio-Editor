@@ -1,5 +1,15 @@
-import { Source, Track, AudioSourceInfoInTrack } from "@model"
+import { Source, Track, AudioSourceInfoInTrack, TrackSection } from "@model"
 import { ModalStateType } from "@types"
+
+enum CursorType {
+  SELECT_MODE = 'SELECT_MODE',
+  CUT_MODE = 'CUT_MODE'
+}
+
+interface FocusInfo {
+  trackSection: TrackSection,
+  element: HTMLElement
+}
 
 enum StoreChannelType {
     SOURCE_LIST_CHANNEL = 'SOURCE_LIST_CHANNEL',
@@ -8,7 +18,8 @@ enum StoreChannelType {
     TRACK_SECTION_LIST_CHANNEL = 'TRACK_SECTION_LIST_CHANNEL',
     CURSOR_TIME_CHANNEL = 'CURSOR_TIME_CHANNEL',
     TRACK_CHANNEL = 'TRACK_CHANNEL',
-    CURRENT_POSITION_CHANNEL = 'CURRENT_POSITION_CHANNEL'
+    CURRENT_POSITION_CHANNEL = 'CURRENT_POSITION_CHANNEL',
+    EDIT_TOOLS_CHANNEL = 'EDIT_TOOLS_CHANNEL'
 }
 
 interface StoreStateType {
@@ -19,6 +30,12 @@ interface StoreStateType {
     trackList : Track[];
     audioSourceInfoInTrackList: AudioSourceInfoInTrack[];
     currentPosition: number;
+    focusList: FocusInfo[];
+    ctrlIsPressed: boolean;
+    cursorMode: CursorType;
+    trackIndex: number;
+    sectionIndex: number;
+    clipBoard: TrackSection | null;
 }
 
 interface StoreObserverData {
@@ -26,4 +43,4 @@ interface StoreObserverData {
   bindObj: Object;
 }
 
-export { StoreStateType, StoreChannelType, StoreObserverData };
+export { StoreStateType, StoreChannelType, StoreObserverData, CursorType, FocusInfo };

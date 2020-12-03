@@ -2,7 +2,6 @@ import { Track } from '@model';
 import { Controller } from '@controllers';
 import { EventUtil, MarkerEventUtil } from '@util';
 import { EventType, EventKeyType } from '@types';
-
 import './Main.scss';
 
 (() => {
@@ -39,7 +38,7 @@ import './Main.scss';
                         <aside>
                             <audi-side-bar></audi-side-bar>
                         </aside>
-                        <section class="audi-main-audio-track-container">
+                        <section class="audi-main-audio-track-container" event-key=${EventKeyType.FOCUS_RESET_CLICK}>
                             <audi-marker></audi-marker>
                             <audi-playbar></audi-playbar>
                             ${this.getTrackList()}
@@ -61,6 +60,13 @@ import './Main.scss';
     }
 
     initEvent(): void {
+       EventUtil.registerEventToRoot({
+        eventTypes: [EventType.click],
+        eventKey: EventKeyType.FOCUS_RESET_CLICK,
+        listeners: [this.focusResetListener],
+        bindObj: this
+      });
+      
       if (!this.markerElement) return;
 
       EventUtil.registerEventToRoot({
@@ -71,11 +77,19 @@ import './Main.scss';
           MarkerEventUtil.clickMarkerListener(this.markerElement)
         ],
         bindObj: this.mainAudioTrackContainerEventZone
-      });
+      }); 
+    }
+  
+    focusResetListener(e): void {
+      const ctrlIsPressed = Controller.getCtrlIsPressed();
+      if (!ctrlIsPressed) {
+        Controller.resetFocus();
+      }
     }
 
     getTrackList(): string {
-      return this.trackList.reduce((acc, cur, idx) => (acc += `<audi-audio-track data-id=${idx}></audi-audio-track>`), '');
+      return this.trackList.reduce((acc, cur, idx) =>
+        acc += `<audi-audio-track data-id=${cur.id}></audi-audio-track>`, "");
     }
   };
 

@@ -1,5 +1,6 @@
 import './App.scss';
-import { EventDataType, eventTypes, EventTargetDataType } from '@types';
+import { EventDataType, eventTypes, EventTargetDataType, KeyBoard } from '@types';
+import { Controller } from "@controllers";
 
 (() => {
   const App = class extends HTMLElement {
@@ -32,10 +33,62 @@ import { EventDataType, eventTypes, EventTargetDataType } from '@types';
 
     initEvent(): void {
       this.eventsForListener.forEach((eventName) => this.addEventListener(eventName, this.eventListenerForRegistrant.bind(this)));
+      window.addEventListener('keydown', this.KeyDownListener)
+      window.addEventListener('keyup', this.ctrlKeyUpListener)
+    }
+
+    KeyDownListener(e): void {
+      const { } = Controller
+      const isCtrl = Controller.getCtrlIsPressed();
+      console.log(e.which);
+
+      if (e.which === KeyBoard.CTRL) {
+        Controller.setCtrlIsPressed(true);
+      }
+
+      if (e.which === KeyBoard.C && !isCtrl) {
+        // console.log('Select Mode');
+      }
+      else if (e.which === KeyBoard.V && !isCtrl) {
+        // console.log('Cut Mode');
+      }
+      else if (e.which === KeyBoard.DELETE && !isCtrl) {
+        // console.log('삭제');
+      }
+      else if (e.which === KeyBoard.LEFT && !isCtrl) {
+        // console.log('왼쪽');
+      }
+      else if (e.which === KeyBoard.RIGHT && !isCtrl) {
+        // console.log('오른쪽');
+      }
+      else if (e.which === KeyBoard.SPACE && !isCtrl) {
+        // console.log('스페이스바');
+      }
+      else if (e.which === KeyBoard.C && isCtrl) {
+        // console.log('복사');
+      }
+      else if (e.which === KeyBoard.X && isCtrl) {
+        // console.log('잘라내기');
+      }
+      else if (e.which === KeyBoard.V && isCtrl) {
+        // console.log('붙여넣기');
+      }
+      else if (e.which === KeyBoard.Z && isCtrl) {
+        // console.log('undo');
+      }
+      else if (e.which === KeyBoard.Y && isCtrl) {
+        // console.log('redo');
+      }
+    }
+
+    ctrlKeyUpListener(e): void {
+      if (e.which === KeyBoard.CTRL) {
+        Controller.setCtrlIsPressed(false);
+      }
     }
 
     eventListenerForRegistrant(e): void {
-      const { target } = e;           
+      const { target } = e;
       if (!target || !this.isEventTarget(target) || !this.eventListenerCollectors) return;
 
       const eventType = e.type;
@@ -77,4 +130,4 @@ import { EventDataType, eventTypes, EventTargetDataType } from '@types';
   customElements.define('audi-app', App);
 })();
 
-export {};
+export { };
