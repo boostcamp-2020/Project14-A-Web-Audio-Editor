@@ -1,6 +1,7 @@
 import { Source, Track, TrackSection } from '@model';
 import { store } from "@store";
 import { ModalType, FocusInfo, CursorType } from "@types";
+import { CopyUtil } from '@util'
 
 interface SectionData {
   sectionChannelData: number[];
@@ -164,9 +165,16 @@ const getClipBoard = (): TrackSection | null => {
   return clipBoard;
 }
 
-const setClipBoard = (newSection: TrackSection) => {
+const setClipBoard = () => {
+  const { focusList } = store.getState();
+
+  if (focusList.length !== 1) return;
+
+  const newSection: TrackSection = CopyUtil.copySection(focusList[0].trackSection);
+
   store.setClipBoard(newSection);
 }
+
 
 export default {
   getSourceBySourceId,
