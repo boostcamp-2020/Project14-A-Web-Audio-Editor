@@ -99,9 +99,10 @@ import "./AudioTrack.scss";
           channelEndTime : duration, 
           parsedChannelStartTime : 0,
           parsedChannelEndTime: duration,
-          trackStartTime : 0
-        });
-
+          trackStartTime : 0,
+          audioStartTime : 0
+       });
+        
         Controller.addTrackSection(this.trackId, trackSection);
         this.hideMessage();
       }

@@ -16,6 +16,7 @@ const store = new (class Store{
             },
             isTrackDraggable: false,
             trackList: this.initTrackList(3),
+            audioSourceInfoInTrackList:[],
             currentPosition: 0
         }
     }
@@ -77,7 +78,6 @@ const store = new (class Store{
         const newAudioTrackList = trackList.concat(newTrack);
         
         this.state = {...this.state, trackList: newAudioTrackList};
-        console.log(this.state);
     }
 
     setTrackSection(trackId: number, newTrackSection: TrackSection): void{
@@ -97,10 +97,13 @@ const store = new (class Store{
         []);
 
         this.state = {...this.state, trackList: newTrackList};
+
         storeChannel.publish(StoreChannelType.TRACK_SECTION_LIST_CHANNEL, {
             trackId:trackId,
             trackSectionList: newTrackSectionList
         });
+
+        storeChannel.publish(StoreChannelType.TRACK_CHANNEL, newTrackList);
     }
 
     setCurrentPosition(newCurrentPosition: number): void{
