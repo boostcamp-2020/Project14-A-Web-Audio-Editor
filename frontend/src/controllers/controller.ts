@@ -2,62 +2,83 @@ import { Source, Track, TrackSection } from '@model';
 import { store } from "@store";
 import { ModalType, FocusInfo, CursorType } from "@types";
 
-const getSectionChannelData = (trackId: number, trackSectionId: number): number[] | undefined => {
-    const { trackList, sourceList } = store.getState();
+interface SectionData{
+  sectionChannelData: number[];
+  duration: number; 
+}
 
-    const track = trackList.find((track) => (track.id === trackId));
-    if (!track) return;
+const getSectionChannelData = (trackId: number, trackSectionId: number): SectionData | undefined => { 
+  const { trackList, sourceList } = store.getState();
+  const track = trackList.find((track) => (track.id === trackId));
 
-    const { trackSectionList } = track;
-    const trackSection = trackSectionList.find(trackSection => (trackSection.id === trackSectionId));
+  if(!track) return;
+    
+  const { trackSectionList } = track;
+  const trackSection = trackSectionList.find((trackSection) => (trackSection.id === trackSectionId));
+  if(!trackSection) return;
 
-    if (!trackSection) return;
+  const source = sourceList.find((source) => (source.id === trackSection.sourceId));
+  if(!source) return;
 
-    const source = sourceList.find((source) => (source.id === trackSection.sourceId));
+  const { parsedChannelData, duration } = source;
+  const { parsedChannelStartTime, parsedChannelEndTime } = trackSection;
 
-    if (!source) return;
+  const numOfPeakPerSecond = parsedChannelData.length / duration;
+    
+  const sectionChannelStartTime = numOfPeakPerSecond * parsedChannelStartTime;
+  const sectionChannelEndTime = numOfPeakPerSecond * parsedChannelEndTime;
+  const sectionChannelData = parsedChannelData.slice(sectionChannelStartTime, sectionChannelEndTime);
 
-    const { channelData, parsedChannelData, duration, length, sampleRate } = source;
-    const { parsedChannelStartTime, parsedChannelEndTime } = trackSection;
-
-    return parsedChannelData;
+  return {
+      sectionChannelData: sectionChannelData,
+      duration: parsedChannelEndTime - parsedChannelStartTime
+  };
 }
 
 const getSourceBySourceId = (sourceId: number): Source | undefined => {
-    const { sourceList } = store.getState();
-    const source = sourceList.find((source) => (source.id === sourceId));
+  const { sourceList } = store.getState();
+  const source = sourceList.find((source) => source.id === sourceId);
 
-    return source;
-}
+  return source;
+};
 
 const addSource = (source: Source): void => {
-    store.setSource(source);
-}
+  store.setSource(source);
+};
 
 const changeModalState = (modalType: ModalType, isHidden: Boolean): void => {
-    store.setModalState(modalType, isHidden);
+  store.setModalState(modalType, isHidden);
 };
 
 const changeCursorTime = (minute: string, second: string, milsecond: string): void => {
-    store.setCursorTime(minute, second, milsecond);
+  store.setCursorTime(minute, second, milsecond);
 };
 
 const changeTrackDragState = (isTrackDraggable: Boolean): void => {
-    store.setTrackDragState(isTrackDraggable);
-}
+  store.setTrackDragState(isTrackDraggable);
+};
 
 const getTrackList = (): Track[] => {
-    const { trackList } = store.getState();
-    return trackList;
-}
+  const { trackList } = store.getState();
+  return trackList;
+};
 
 const addTrack = (track: Track): void => {
-    store.setTrack(track);
-}
+  store.setTrack(track);
+};
 
 const addTrackSection = (trackId: number, trackSection: TrackSection): void => {
-    store.setTrackSection(trackId, trackSection);
-}
+  store.setTrackSection(trackId, trackSection);
+};
+
+const changeCurrentPosition = (currentPosition: number): void => {
+  store.setCurrentPosition(currentPosition);
+};
+
+const getCurrentPosition = (): number => {
+  const { currentPosition } = store.getState();
+  return currentPosition;
+};
 
 const getCtrlIsPressed = (): boolean => {
     const { ctrlIsPressed } = store.getState();
@@ -133,25 +154,26 @@ const setClipBoard = (newSection: TrackSection) => {
     store.setClipBoard(newSection);
 }
 
-
 export default {
-    getSourceBySourceId,
-    getSectionChannelData,
-    addSource,
-    changeModalState,
-    changeTrackDragState,
-    getTrackList,
-    addTrack,
-    addTrackSection,
-    changeCursorTime,
-    getCtrlIsPressed,
-    setCtrlIsPressed,
-    getFocusList,
-    toggleFocus,
-    addFocus,
-    removeFocus,
-    resetFocus,
-    getCursorMode,
-    getClipBoard,
-    setClipBoard
-}
+  getSourceBySourceId,
+  getSectionChannelData,
+  addSource,
+  changeModalState,
+  changeTrackDragState,
+  getTrackList,
+  addTrack,
+  addTrackSection,
+  changeCursorTime,
+  changeCurrentPosition,
+  getCurrentPosition,
+  getCtrlIsPressed,
+  setCtrlIsPressed,
+  getFocusList,
+  toggleFocus,
+  addFocus,
+  removeFocus,
+  resetFocus,
+  getCursorMode,
+  getClipBoard,
+  setClipBoard
+};

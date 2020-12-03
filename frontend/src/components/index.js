@@ -13,7 +13,8 @@ import './Main/Main';
 import './Loading/Loading';
 import './PlayBar/PlayBarMarker/PlayBarMarker';
 import './PlayBar/PlayBar';
+import './Marker/Marker';
 import './Modal';
 import './Pages';
 import './Button';
-import './EffectController'
+import './EffectController';

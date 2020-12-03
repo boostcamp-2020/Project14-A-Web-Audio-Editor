@@ -21,7 +21,9 @@ const store = new (class Store {
             cursorMode: CursorType.SELECT_MODE,
             trackIndex: 3,
             sectionIndex: 0,
-            clipBoard: null
+            clipBoard: null,
+            audioSourceInfoInTrackList:[],
+            currentPosition: 0
         }
     }
 
@@ -81,8 +83,7 @@ const store = new (class Store {
         newTrack.id = trackList.length;
         const newAudioTrackList = trackList.concat(newTrack);
 
-        this.state = { ...this.state, trackList: newAudioTrackList };
-        console.log(this.state);
+        this.state = {...this.state, trackList: newAudioTrackList};
     }
 
     setTrackSection(trackId: number, newTrackSection: TrackSection): void {
@@ -107,6 +108,17 @@ const store = new (class Store {
             trackId: trackId,
             trackSectionList: newTrackSectionList
         });
+
+        storeChannel.publish(StoreChannelType.TRACK_CHANNEL, newTrackList);
+    }
+
+    setCurrentPosition(newCurrentPosition: number): void{
+        const {currentPosition} = this.state;
+
+        if (currentPosition === newCurrentPosition) return;
+
+        this.state = {...this.state, currentPosition: newCurrentPosition};
+        storeChannel.publish(StoreChannelType.CURRENT_POSITION_CHANNEL, newCurrentPosition);
     }
 
     setCtrlIsPressed(isPressed: boolean): void {

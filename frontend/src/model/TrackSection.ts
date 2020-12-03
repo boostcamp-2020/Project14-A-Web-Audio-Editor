@@ -9,6 +9,7 @@ class TrackSection{
     public trackStartTime  : number;
     public length: number;
     public effectList: object[];
+    public audioStartTime: number;
 
     constructor({
         id=0, 
@@ -18,7 +19,8 @@ class TrackSection{
         channelEndTime, 
         parsedChannelStartTime,
         parsedChannelEndTime,
-        trackStartTime
+        trackStartTime,
+        audioStartTime
      }){
         this.id = id;
         this.trackId = trackId;
@@ -30,6 +32,7 @@ class TrackSection{
         this.trackStartTime = trackStartTime; 
         this.length = this.channelEndTime - this.channelStartTime;
         this.effectList = [];
+        this.audioStartTime = 0;
     }
 }
 

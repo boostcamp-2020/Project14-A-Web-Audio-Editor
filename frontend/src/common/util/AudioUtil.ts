@@ -19,31 +19,32 @@ const mergeChannels = async (audioBuffer) => {
   return renderBuffer;
 }
 
-const parsePeaks = (audioBuffer: AudioBuffer): Promise<number[]> => new Promise((resolve, reject)=> {
-    const {duration, numberOfChannels, sampleRate, length } = audioBuffer;
-    const sampleSize = length / sampleRate;
+const parsePeaks = (audioBuffer: AudioBuffer, parsedBufferSize: number): Promise<number[]> => new Promise((resolve, reject)=> {
+    const {length } = audioBuffer;
+    const sampleSize = length / parsedBufferSize;
     const sampleStep = Math.floor(sampleSize / 10) || 1;
-    const channelPeaks :Float32Array = audioBuffer.getChannelData(0);
-    let resultPeaks: number[] = []; 
+    
+    const channelData :Float32Array = audioBuffer.getChannelData(0);
+    let parsedData: number[] = []; 
 
-    Array(sampleRate).fill(0).forEach((v, newPeakIndex) => {
+    Array(parsedBufferSize).fill(0).forEach((v, newPeakIndex) => {
       const start = Math.floor(newPeakIndex * sampleSize);
       const end = Math.floor(start + sampleSize);
-      let min = channelPeaks[0];
-      let max = channelPeaks[0];
+      let min = channelData[0];
+      let max = channelData[0];
 
-      for (let sampleIndex = start; sampleIndex < end; sampleIndex += sampleStep) { //480
-        const v = channelPeaks[sampleIndex];
+      for (let sampleIndex = start; sampleIndex < end; sampleIndex += sampleStep) {
+        const v = channelData[sampleIndex];
 
         if (v > max) max = v;
         else if (v < min) min = v;
       }
 
-      resultPeaks[2 * newPeakIndex] = max;
-      resultPeaks[2 * newPeakIndex + 1] = min;
+      parsedData[2 * newPeakIndex] = max;
+      parsedData[2 * newPeakIndex + 1] = min;
     });
     
-    resolve(resultPeaks);
+    resolve(parsedData);
   });
 
 export {

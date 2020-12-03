@@ -51,13 +51,13 @@ import "./AudioTrack.scss";
                     <div class="audio-track-container" event-key=${EventKeyType.FOCUS_RESET_CLICK}>
                       <div class="audio-track-area" event-key=${EventKeyType.FOCUS_RESET_CLICK}>
                         ${this.getTrackSectionList()}
-                        <div class="audio-track-massage"><span>Drag & Drop</span></div>
+                        <div class="audio-track-message"><span>Drag & Drop</span></div>
                         <div class="audio-track-dropzone hide" event-key=${EventKeyType.AUDIO_TRACK_DRAGOVER_DROP + this.trackId}></div>
                       </div>      
                     </div>
                 `;
     }
-
+    
     getTrackSectionList(): string {
       return this.trackSectionList.reduce((acc, trackSection, idx) =>
         acc += `<audi-track-section data-id=${trackSection.id} data-track-id=${trackSection.trackId}></audi-track-section>`
@@ -65,7 +65,7 @@ import "./AudioTrack.scss";
     }
 
     initElement(): void {
-      this.trackMessage = this.querySelector('.audio-track-massage');
+      this.trackMessage = this.querySelector('.audio-track-message');
       this.trackDropzoneElement = this.querySelector('.audio-track-dropzone');
     }
 
@@ -84,7 +84,7 @@ import "./AudioTrack.scss";
         bindObj: this
       });
     }
-
+      
     focusResetListener(e): void {
       const ctrlIsPressed = Controller.getCtrlIsPressed();
       if (!ctrlIsPressed) {
@@ -102,24 +102,25 @@ import "./AudioTrack.scss";
       e.stopPropagation();
       const sourceId = e.dataTransfer.getData("text/plain");
       const source = Controller.getSourceBySourceId(Number(sourceId));
+      if(!source) return;
 
-      if (!source) return;
+      const { duration } = source;
 
-      const trackSection = new TrackSection({
-        sourceId: source.id,
+      const trackSection = new TrackSection({ 
+        sourceId : source.id, 
         trackId: this.trackId,
-        channelStartTime: 0,
-        channelEndTime: 0,
-        parsedChannelStartTime: 0,
-        parsedChannelEndTime: 10,
-        trackStartTime: 0
-      });
-      Controller.changeTrackDragState(false);
-
+        channelStartTime : 0, 
+        channelEndTime : duration, 
+        parsedChannelStartTime : 0,
+        parsedChannelEndTime: duration,
+        trackStartTime : 0,
+        audioStartTime : 0
+     });
+        
       Controller.addTrackSection(this.trackId, trackSection);
       this.hideMessage();
     }
-
+      
     trackDragenterListener(e): void {
       e.preventDefault()
       this.trackDropzoneElement?.classList.add('focus');
@@ -131,16 +132,16 @@ import "./AudioTrack.scss";
     }
 
     hideMessage(): void {
-      this.trackMessage?.classList.add('hide');
+        this.trackMessage?.classList.add('hide');
     }
 
     subscribe(): void {
-      storeChannel.subscribe(StoreChannelType.TRACK_DRAG_STATE_CHANNEL, this.trackDragStateObesever, this);
-      storeChannel.subscribe(StoreChannelType.TRACK_SECTION_LIST_CHANNEL, this.trackSectionListObserver, this);
+      storeChannel.subscribe(StoreChannelType.TRACK_DRAG_STATE_CHANNEL, this.trackDragStateObserverCallback, this);
+      storeChannel.subscribe(StoreChannelType.TRACK_SECTION_LIST_CHANNEL, this.trackSectionListObserverCallback, this);
     }
 
-    trackDragStateObesever(isTrackDraggable): void {
-      if (isTrackDraggable) {
+    trackDragStateObserverCallback(isTrackDraggable): void {
+      if(isTrackDraggable){
         this.activeTrackDropzone();
         return;
       }
@@ -155,8 +156,8 @@ import "./AudioTrack.scss";
       this.trackDropzoneElement?.classList.add('hide');
     }
 
-    trackSectionListObserver({ trackId, trackSectionList }): void {
-      if (trackId !== this.trackId) return;
+    trackSectionListObserverCallback({trackId, trackSectionList}): void {
+      if(trackId !== this.trackId) return;
 
       this.trackSectionList = trackSectionList;
       this.render();
@@ -166,3 +167,4 @@ import "./AudioTrack.scss";
 
   customElements.define('audi-audio-track', AudioTrack);
 })();
+
