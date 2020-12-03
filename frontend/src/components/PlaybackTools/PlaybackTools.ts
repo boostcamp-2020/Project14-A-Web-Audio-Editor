@@ -96,6 +96,52 @@ import { storeChannel } from '@store';
       });
     }
 
+    audioPlayOrPauseListener() {
+      if(this.trackList.length == 0) return;
+
+      //TODO: 마커 타임 받아오기 
+      //this.markerTime = 마커 타임 받아오기
+      //아예 this.markerTime을 없애고 매개변수로만 계속 전달해도 될 듯함.
+
+      if(this.isPause) {
+        this.isPause = false;
+        this.iconlist[0] = 'pause';
+
+        this.play(this.markerTime);
+      }
+      else {
+        this.isPause = true;
+        this.iconlist[0] = 'play';
+
+        this.pause(this.markerTime);
+      }
+      this.render();
+    }
+
+    audioStopListener() {
+      if(this.trackList.length == 0) return;
+    }
+
+    audioRepeatListener() {
+      if(this.trackList.length == 0) return;
+    }
+
+    audioFastRewindListener() {
+      if(this.trackList.length == 0) return;
+    }
+
+    audioFastForwardListener() {
+      if(this.trackList.length == 0) return;
+    }
+
+    audioSkipPrevListener() {
+      if(this.trackList.length == 0) return;
+    }
+
+    audioSkipNextListener() {
+      if(this.trackList.length == 0) return;
+    }
+
     subscribe():void {
       storeChannel.subscribe(StoreChannelType.TRACK_CHANNEL, this.trackListObserver, this);
       storeChannel.subscribe(StoreChannelType.SOURCE_LIST_CHANNEL, this.sourceListObserver, this)
@@ -183,52 +229,6 @@ import { storeChannel } from '@store';
 
       this.markerTime = markerTime;
       this.audioContext.suspend();
-    }
-
-    audioPlayOrPauseListener() {
-      if(this.trackList.length == 0) return;
-
-      //TODO: 마커 타임 받아오기 
-      //this.markerTime = 마커 타임 받아오기
-      //아예 this.markerTime을 없애고 매개변수로만 계속 전달해도 될 듯함.
-
-      if(this.isPause) {
-        this.isPause = false;
-        this.iconlist[0] = 'pause';
-
-        this.play(this.markerTime);
-      }
-      else {
-        this.isPause = true;
-        this.iconlist[0] = 'play';
-
-        this.pause(this.markerTime);
-      }
-      this.render();
-    }
-
-    audioStopListener() {
-      if(this.trackList.length == 0) return;
-    }
-
-    audioRepeatListener() {
-      if(this.trackList.length == 0) return;
-    }
-
-    audioFastRewindListener() {
-      if(this.trackList.length == 0) return;
-    }
-
-    audioFastForwardListener() {
-      if(this.trackList.length == 0) return;
-    }
-
-    audioSkipPrevListener() {
-      if(this.trackList.length == 0) return;
-    }
-
-    audioSkipNextListener() {
-      if(this.trackList.length == 0) return;
     }
     
   };
