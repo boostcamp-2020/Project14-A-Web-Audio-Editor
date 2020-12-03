@@ -1,39 +1,39 @@
 import { Source, Track, TrackSection } from '@model';
-import { store } from "@store";
-import { ModalType, FocusInfo, CursorType } from "@types";
-
-interface SectionData{
+import { store } from '@store';
+import { ModalType, FocusInfo, CursorType } from '@types';
+import { PlayBarUtil } from '@util';
+interface SectionData {
   sectionChannelData: number[];
-  duration: number; 
+  duration: number;
 }
 
-const getSectionChannelData = (trackId: number, trackSectionId: number): SectionData | undefined => { 
+const getSectionChannelData = (trackId: number, trackSectionId: number): SectionData | undefined => {
   const { trackList, sourceList } = store.getState();
-  const track = trackList.find((track) => (track.id === trackId));
+  const track = trackList.find((track) => track.id === trackId);
 
-  if(!track) return;
-    
+  if (!track) return;
+
   const { trackSectionList } = track;
-  const trackSection = trackSectionList.find((trackSection) => (trackSection.id === trackSectionId));
-  if(!trackSection) return;
+  const trackSection = trackSectionList.find((trackSection) => trackSection.id === trackSectionId);
+  if (!trackSection) return;
 
-  const source = sourceList.find((source) => (source.id === trackSection.sourceId));
-  if(!source) return;
+  const source = sourceList.find((source) => source.id === trackSection.sourceId);
+  if (!source) return;
 
   const { parsedChannelData, duration } = source;
   const { parsedChannelStartTime, parsedChannelEndTime } = trackSection;
 
   const numOfPeakPerSecond = parsedChannelData.length / duration;
-    
+
   const sectionChannelStartTime = numOfPeakPerSecond * parsedChannelStartTime;
   const sectionChannelEndTime = numOfPeakPerSecond * parsedChannelEndTime;
   const sectionChannelData = parsedChannelData.slice(sectionChannelStartTime, sectionChannelEndTime);
 
   return {
-      sectionChannelData: sectionChannelData,
-      duration: parsedChannelEndTime - parsedChannelStartTime
+    sectionChannelData: sectionChannelData,
+    duration: parsedChannelEndTime - parsedChannelStartTime
   };
-}
+};
 
 const getSourceBySourceId = (sourceId: number): Source | undefined => {
   const { sourceList } = store.getState();
@@ -75,84 +75,152 @@ const changeCurrentPosition = (currentPosition: number): void => {
   store.setCurrentPosition(currentPosition);
 };
 
-const getCurrentPosition = (): number => {
-  const { currentPosition } = store.getState();
-  return currentPosition;
+const getCurrentPosition = (): number[] => {
+  const { currentPosition, totalCursorTime } = store.getState();
+
+  return [currentPosition, totalCursorTime];
 };
 
 const getCtrlIsPressed = (): boolean => {
-    const { ctrlIsPressed } = store.getState();
-    return ctrlIsPressed;
-}
+  const { ctrlIsPressed } = store.getState();
+  return ctrlIsPressed;
+};
 
 const setCtrlIsPressed = (isPressed: boolean): void => {
-    store.setCtrlIsPressed(isPressed);
-}
+  store.setCtrlIsPressed(isPressed);
+};
 
 const getFocusList = () => {
-    const { focusList } = store.getState();
-    return focusList;
-}
+  const { focusList } = store.getState();
+  return focusList;
+};
 
 const toggleFocus = (trackId: number, sectionId: number, selectedElement: HTMLElement): void => {
-    const { trackList, focusList, ctrlIsPressed, cursorMode } = store.getState();
+  const { trackList, focusList, ctrlIsPressed, cursorMode } = store.getState();
 
-    if (cursorMode !== CursorType.SELECT_MODE) return;
+  if (cursorMode !== CursorType.SELECT_MODE) return;
 
-    const track = trackList.find(track => track.id === trackId);
-    const trackSection = track?.trackSectionList.find(section => section.id === sectionId);
+  const track = trackList.find((track) => track.id === trackId);
+  const trackSection = track?.trackSectionList.find((section) => section.id === sectionId);
 
-    if (!trackSection) return;
+  if (!trackSection) return;
 
-    const existFocus = focusList.find(info => info.trackSection.id === sectionId);
+  const existFocus = focusList.find((info) => info.trackSection.id === sectionId);
 
-    if (ctrlIsPressed) {
-        if (existFocus) {
-            removeFocus(sectionId, selectedElement);
-        } else {
-            addFocus(trackSection, selectedElement);
-        }
+  if (ctrlIsPressed) {
+    if (existFocus) {
+      removeFocus(sectionId, selectedElement);
     } else {
-        resetFocus();
-        addFocus(trackSection, selectedElement);
+      addFocus(trackSection, selectedElement);
     }
-}
+  } else {
+    resetFocus();
+    addFocus(trackSection, selectedElement);
+  }
+};
 
 const addFocus = (trackSection: TrackSection, selectedElement: HTMLElement): void => {
-    selectedElement.classList.add('focused-section')
-    const newFocusInfo: FocusInfo = {
-        trackSection: trackSection,
-        element: selectedElement
-    }
-    store.addFocus(newFocusInfo);
-}
+  selectedElement.classList.add('focused-section');
+  const newFocusInfo: FocusInfo = {
+    trackSection: trackSection,
+    element: selectedElement
+  };
+  store.addFocus(newFocusInfo);
+};
 
 const removeFocus = (sectionId: number, selectedElement: HTMLElement): void => {
-    const { focusList } = store.getState();
-    const index = focusList.findIndex(focus => focus.trackSection.id === sectionId);
-    selectedElement.classList.remove('focused-section')
-    store.removeFocus(index);
-}
+  const { focusList } = store.getState();
+  const index = focusList.findIndex((focus) => focus.trackSection.id === sectionId);
+  selectedElement.classList.remove('focused-section');
+  store.removeFocus(index);
+};
 
 const resetFocus = (): void => {
-    const { focusList } = store.getState();
-    focusList.forEach(focus => focus.element.classList.remove('focused-section'));
-    store.resetFocus();
-}
+  const { focusList } = store.getState();
+  focusList.forEach((focus) => focus.element.classList.remove('focused-section'));
+  store.resetFocus();
+};
 
 const getCursorMode = (): CursorType => {
-    const { cursorMode } = store.getState();
-    return cursorMode;
-}
+  const { cursorMode } = store.getState();
+  return cursorMode;
+};
 
 const getClipBoard = (): TrackSection | null => {
-    const { clipBoard } = store.getState();
-    return clipBoard;
-}
+  const { clipBoard } = store.getState();
+  return clipBoard;
+};
 
 const setClipBoard = (newSection: TrackSection) => {
-    store.setClipBoard(newSection);
-}
+  store.setClipBoard(newSection);
+};
+
+//일시정지용
+const pauseChangeMarkerTime = (playingTime: number): void => {
+  const { markerTime } = store.getState();
+  const newMarkerTime = markerTime + playingTime;
+
+  store.setMarkerTime(newMarkerTime);
+};
+
+//재생바를 눌렀을때
+const cursorChangeMarkerTime = (newMarkerTime): void => {
+  store.setMarkerTime(newMarkerTime);
+};
+
+//재생했을 때
+const getMarkerTime = (): number => {
+  const { markerTime } = store.getState();
+  return markerTime;
+};
+
+const changeTotalCursorTime = (totalCursorTime: number): void => {
+  store.setTotalCursorTime(totalCursorTime);
+};
+
+const changeIsPauseState = (isPauseState: boolean): void => {
+  store.setIsPauseState(isPauseState);
+};
+
+const getIsPauseState = (): boolean => {
+  const { isPause } = store.getState();
+  return isPause;
+};
+
+const setMarkerWidth = (markerWidth: number): void => {
+  store.setMarkerWidth(markerWidth);
+};
+
+const changePlayTime = (passedTime: number): void => {
+  const { playTime } = store.getState();
+
+  const [minute, second, milsecond] = playTime.split(':');
+  let newMinute = Number(minute);
+  let newSecond = Number(second);
+  let newMilsecond = Number(milsecond) + Math.floor(passedTime);
+
+  if (newMilsecond >= 1000) {
+    newMilsecond -= 1000;
+    newSecond += 1;
+  }
+
+  if (newSecond >= 60) {
+    newSecond -= 60;
+    newMinute += 1;
+  }
+
+  const newPlayTime = `${newMinute.toString().padStart(2, '0')}:${newSecond.toString().padStart(2, '0')}:${newMilsecond.toString().padStart(3, '0')}`;
+
+  store.setPlayTime(newPlayTime);
+};
+
+const resetPlayTime = (cursorTime: number): void => {
+  const [minute, second, milsecond] = PlayBarUtil.setTime(cursorTime);
+
+  const newPlayTime = `${minute.toString().padStart(2, '0')}:${second.toString().padStart(2, '0')}:${milsecond.toString().padStart(3, '0')}`;
+
+  store.setPlayTime(newPlayTime);
+};
 
 export default {
   getSourceBySourceId,
@@ -175,5 +243,14 @@ export default {
   resetFocus,
   getCursorMode,
   getClipBoard,
-  setClipBoard
+  setClipBoard,
+  pauseChangeMarkerTime,
+  getMarkerTime,
+  changeTotalCursorTime,
+  cursorChangeMarkerTime,
+  setMarkerWidth,
+  getIsPauseState,
+  changeIsPauseState,
+  changePlayTime,
+  resetPlayTime
 };
