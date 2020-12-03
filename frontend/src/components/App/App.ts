@@ -1,5 +1,5 @@
 import './App.scss';
-import { EventDataType, eventTypes, EventTargetDataType, KeyBoard } from '@types';
+import { EventDataType, eventTypes, EventTargetDataType, KeyBoard, CursorType } from '@types';
 import { Controller } from "@controllers";
 
 (() => {
@@ -40,17 +40,16 @@ import { Controller } from "@controllers";
     KeyDownListener(e): void {
       const { } = Controller
       const isCtrl = Controller.getCtrlIsPressed();
-      console.log(e.which);
 
       if (e.which === KeyBoard.CTRL) {
         Controller.setCtrlIsPressed(true);
       }
 
       if (e.which === KeyBoard.C && !isCtrl) {
-        // console.log('Select Mode');
+        Controller.setCursorMode(CursorType.CUT_MODE);
       }
       else if (e.which === KeyBoard.V && !isCtrl) {
-        // console.log('Cut Mode');
+        Controller.setCursorMode(CursorType.SELECT_MODE);
       }
       else if (e.which === KeyBoard.DELETE && !isCtrl) {
         // console.log('삭제');
