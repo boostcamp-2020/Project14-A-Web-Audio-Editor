@@ -77,10 +77,6 @@ const store = new (class Store{
         const newAudioTrackList = trackList.concat(newTrack);
         
         this.state = {...this.state, trackList: newAudioTrackList};
-        console.log(this.state);
-
-        //추가. 내꺼에서 쓸 수 있게... 여기가 아니었다..
-        // storeChannel.publish(StoreChannelType.TRACK_CHANNEL, newAudioTrackList);
     }
 
     setTrackSection(trackId: number, newTrackSection: TrackSection): void{
