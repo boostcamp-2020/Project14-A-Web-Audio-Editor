@@ -1,4 +1,4 @@
-import { Source, Track } from "@model"
+import { Source, Track, AudioSourceInfoInTrack } from "@model"
 import { ModalStateType } from "@types"
 
 enum StoreChannelType {
@@ -6,7 +6,8 @@ enum StoreChannelType {
     MODAL_STATE_CHANNEL = 'MODAL_STATE_CHANNEL',
     TRACK_DRAG_STATE_CHANNEL = 'TRACK_DRAG_STATE_CHANNEL',
     TRACK_SECTION_LIST_CHANNEL = 'TRACK_SECTION_LIST_CHANNEL',
-    CURSOR_TIME_CHANNEL = 'CURSOR_TIME_CHANNEL'
+    CURSOR_TIME_CHANNEL = 'CURSOR_TIME_CHANNEL',
+    TRACK_CHANNEL = 'TRACK_CHANNEL'
 }
 
 interface StoreStateType {
@@ -15,6 +16,7 @@ interface StoreStateType {
     modalState: ModalStateType;
     isTrackDraggable: Boolean;
     trackList : Track[];
+    audioSourceInfoInTrackList: AudioSourceInfoInTrack[];
 }
 
 interface StoreObserverData {
