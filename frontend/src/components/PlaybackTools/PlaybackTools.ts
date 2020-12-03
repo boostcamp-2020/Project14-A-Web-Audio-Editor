@@ -241,7 +241,7 @@ const TIMER_TIME = 34;
 
       let playTimer = setInterval(() => {
         if (Controller.getIsPauseState()) {
-          clearTimeout(playTimer);
+          clearInterval(playTimer);
         }
         const widthPixel = PlayBarUtil.getSomePixel(TIMER_TIME);
         Controller.setMarkerWidth(widthPixel);
