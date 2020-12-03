@@ -76,7 +76,7 @@ const INIT_DURATION = 300;
     dblclickPlayBarListener(): void {
       if (!this.playbarMarkerElementLeft || !this.playbarMarkerElementRight) return;
 
-      const currentPosition = Controller.getCurrentPosition();
+      const [currentPosition] = Controller.getCurrentPosition();
       if (this.compareCloseMarker(currentPosition)) {
         this.playbarMarkerElementLeft.style.left = `${currentPosition}px`;
         return;
