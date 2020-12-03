@@ -162,15 +162,19 @@ const removeSection = (trackId: number, sectionIndex: number) => {
 }
 
 const deleteCommand = () => {
+  const { focusList } = store.getState();
+  if (focusList.length === 0) return;
   const command = new DeleteCommand();
   CommandManager.execute(command);
 }
 
 const undoCommand = () => {
+  if (CommandManager.undoList.length === 0) return;
   CommandManager.undo();
 }
 
 const redoCommand = () => {
+  if (CommandManager.redoList.length === 0) return;
   CommandManager.redo();
 }
 
