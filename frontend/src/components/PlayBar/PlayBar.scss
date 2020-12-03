@@ -1,6 +1,7 @@
 @use '@style/variables' as variables;
 
 .playbar {
+  @extend %noselect-font;
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
@@ -21,9 +22,13 @@
 
   width: 10%;
   height: 0.5rem;
+
+  pointer-events: none;
 }
 
 .playbar-time-none {
   width: 5.5%;
   height: 0.5rem;
+
+  pointer-events: none;
 }

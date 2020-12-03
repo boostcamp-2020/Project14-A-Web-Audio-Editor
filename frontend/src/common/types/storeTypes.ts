@@ -7,7 +7,8 @@ enum StoreChannelType {
     TRACK_DRAG_STATE_CHANNEL = 'TRACK_DRAG_STATE_CHANNEL',
     TRACK_SECTION_LIST_CHANNEL = 'TRACK_SECTION_LIST_CHANNEL',
     CURSOR_TIME_CHANNEL = 'CURSOR_TIME_CHANNEL',
-    TRACK_CHANNEL = 'TRACK_CHANNEL'
+    TRACK_CHANNEL = 'TRACK_CHANNEL',
+    CURRENT_POSITION_CHANNEL = 'CURRENT_POSITION_CHANNEL'
 }
 
 interface StoreStateType {
@@ -17,6 +18,7 @@ interface StoreStateType {
     isTrackDraggable: Boolean;
     trackList : Track[];
     audioSourceInfoInTrackList: AudioSourceInfoInTrack[];
+    currentPosition: number;
 }
 
 interface StoreObserverData {

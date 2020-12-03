@@ -1,33 +1,37 @@
 import './PlayBar.scss';
-import { PlayBarUtil } from '@util';
+import { PlayBarUtil, MarkerEventUtil } from '@util';
 import { EventUtil } from '@util';
 import { EventType, EventKeyType } from '@types';
 import { Controller } from '@controllers';
+
+const INIT_DURATION = 300;
 
 (() => {
   const PlayBar = class extends HTMLElement {
     private defaultStartX: number;
     private playBarElement: HTMLElement | null;
-    private markerElementLeft: HTMLElement | null;
-    private markerElementRight: HTMLElement | null;
-    private currentLocation: number;
+    private playbarMarkerElementLeft: HTMLElement | null;
+    private playbarMarkerElementRight: HTMLElement | null;
+    private mainWidth: number;
+    private markerElement: HTMLElement | null;
     private playtime: string[];
     private totalPlayTime: string;
 
     constructor() {
       super();
       this.defaultStartX = 0;
+      this.mainWidth = 0;
       this.playBarElement = null;
-      this.markerElementLeft = null;
-      this.markerElementRight = null;
-      this.currentLocation = 0;
+      this.playbarMarkerElementLeft = null;
+      this.playbarMarkerElementRight = null;
+      this.markerElement = null;
       this.playtime = [];
       this.totalPlayTime = '';
     }
 
     connectedCallback(): void {
       this.totalPlayTime = this.getTotalTime();
-      this.playtime = PlayBarUtil.getStringTime();
+      this.playtime = PlayBarUtil.getStringTime(INIT_DURATION);
       this.init();
     }
 
@@ -49,40 +53,36 @@ import { Controller } from '@controllers';
 
     initEvent(): void {
       EventUtil.registerEventToRoot({
-        eventTypes: [EventType.mousemove, EventType.dblclick],
+        eventTypes: [EventType.mousemove, EventType.dblclick, EventType.click],
         eventKey: EventKeyType.PLAYBAR_MULTIPLE,
-        listeners: [this.mousemovePlayBarListener, this.dblclickPlayBarListener],
+        listeners: [
+          MarkerEventUtil.mousemoveMarkerListener(this, this.defaultStartX, this.mainWidth),
+          this.dblclickPlayBarListener,
+          MarkerEventUtil.clickMarkerListener(this.markerElement)
+        ],
         bindObj: this
       });
     }
 
     initElement(): void {
       this.playBarElement = document.querySelector('audi-playbar');
-      this.markerElementLeft = document.getElementById('playbar-marker-left');
-      this.markerElementRight = document.getElementById('playbar-marker-right');
-    }
-
-    mousemovePlayBarListener(e: Event): void {
-      if (!this.playBarElement) return;
-      e.preventDefault();
-      this.defaultStartX = this.playBarElement.getBoundingClientRect().left;
-
-      const cursorPosition = e.pageX;
-      const [minute, second, milsecond, location] = PlayBarUtil.getCursorPosition(this.defaultStartX, cursorPosition);
-
-      this.currentLocation = location;
-      Controller.changeCursorTime(minute.toString(), second.toString(), milsecond.toString());
+      this.playbarMarkerElementLeft = document.getElementById('playbar-marker-left');
+      this.playbarMarkerElementRight = document.getElementById('playbar-marker-right');
+      this.markerElement = document.querySelector('.marker');
+      this.defaultStartX = this.playBarElement?.getBoundingClientRect().left;
+      this.mainWidth = this.playBarElement?.getBoundingClientRect().right - this.defaultStartX;
     }
 
     dblclickPlayBarListener(): void {
-      if (!this.markerElementLeft || !this.markerElementRight) return;
+      if (!this.playbarMarkerElementLeft || !this.playbarMarkerElementRight) return;
 
-      if (this.compareCloseMarker()) {
-        this.markerElementLeft.style.left = `${this.currentLocation}px`;
+      const currentPosition = Controller.getCurrentPosition();
+      if (this.compareCloseMarker(currentPosition)) {
+        this.playbarMarkerElementLeft.style.left = `${currentPosition}px`;
         return;
       }
 
-      this.markerElementRight.style.left = `${this.currentLocation}px`;
+      this.playbarMarkerElementRight.style.left = `${currentPosition}px`;
     }
 
     setStringTime(): string {
@@ -101,16 +101,16 @@ import { Controller } from '@controllers';
     }
 
     getTotalTime(): string {
-      const [minute, second] = PlayBarUtil.setTime(300);
+      const [minute, second] = PlayBarUtil.setTime(INIT_DURATION);
       return `${minute.toString().padStart(2, '0')}:${second.toString().padStart(2, '0')}`;
     }
 
-    compareCloseMarker(): boolean {
-      const markerLeft = Number(this.markerElementLeft?.style.left.split('px').join(''));
-      const markerRight = Number(this.markerElementRight?.style.left.split('px').join(''));
+    compareCloseMarker(currentPosition: number): boolean {
+      const markerLeft = Number(this.playbarMarkerElementLeft?.style.left.split('px').join(''));
+      const markerRight = Number(this.playbarMarkerElementRight?.style.left.split('px').join(''));
 
-      const offsetLeft = Math.abs(this.currentLocation - markerLeft);
-      const offsetRight = Math.abs(this.currentLocation - markerRight);
+      const offsetLeft = Math.abs(currentPosition - markerLeft);
+      const offsetRight = Math.abs(currentPosition - markerRight);
 
       if (offsetLeft <= offsetRight) return true;
 

@@ -16,7 +16,8 @@ const store = new (class Store{
             },
             isTrackDraggable: false,
             trackList: this.initTrackList(3),
-            audioSourceInfoInTrackList:[]
+            audioSourceInfoInTrackList:[],
+            currentPosition: 0
         }
     }
 
@@ -103,6 +104,15 @@ const store = new (class Store{
         });
 
         storeChannel.publish(StoreChannelType.TRACK_CHANNEL, newTrackList);
+    }
+
+    setCurrentPosition(newCurrentPosition: number): void{
+        const {currentPosition} = this.state;
+
+        if (currentPosition === newCurrentPosition) return;
+
+        this.state = {...this.state, currentPosition: newCurrentPosition};
+        storeChannel.publish(StoreChannelType.CURRENT_POSITION_CHANNEL, newCurrentPosition);
     }
 })();
 
