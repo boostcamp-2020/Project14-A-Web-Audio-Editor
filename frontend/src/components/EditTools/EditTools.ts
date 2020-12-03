@@ -86,11 +86,12 @@ import './EditTools.scss'
 
     clipBoardState() {
       const clipBoard = Controller.getClipBoard();
-      if (!clipBoard) {
+      const focusList = Controller.getFocusList();
+
+      if (focusList.length > 1 || !clipBoard) {
         this.pasteElement?.classList.add('disabled');
       }
     }
-
 
     commandState() {
       const { undoList, redoList } = CommandManager;
