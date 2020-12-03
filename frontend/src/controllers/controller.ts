@@ -1,29 +1,24 @@
 import { Source, Track, TrackSection } from '@model';
 import { store } from "@store";
-import { ModalType } from "@types";
+import { ModalType, FocusInfo, CursorType } from "@types";
 
 const getSectionChannelData = (trackId: number, trackSectionId: number): number[] | undefined => {
     const { trackList, sourceList } = store.getState();
+
     const track = trackList.find((track) => (track.id === trackId));
-    // console.log(track);
     if (!track) return;
 
     const { trackSectionList } = track;
-    const trackSection = trackSectionList.find((trackSection) => (trackSection.id === trackSectionId));
-    // console.log(trackSection);
+    const trackSection = trackSectionList.find(trackSection => (trackSection.id === trackSectionId));
+
     if (!trackSection) return;
 
     const source = sourceList.find((source) => (source.id === trackSection.sourceId));
-    // console.log(source);
+
     if (!source) return;
 
     const { channelData, parsedChannelData, duration, length, sampleRate } = source;
     const { parsedChannelStartTime, parsedChannelEndTime } = trackSection;
-    console.log("channelData", channelData);
-    console.log("parsedChannelData", parsedChannelData);
-    console.log("duration", duration);
-    console.log("length", length);
-    console.log("sampleRate", sampleRate);
 
     return parsedChannelData;
 }
@@ -73,6 +68,72 @@ const setCtrlIsPressed = (isPressed: boolean): void => {
     store.setCtrlIsPressed(isPressed);
 }
 
+const getFocusList = () => {
+    const { focusList } = store.getState();
+    return focusList;
+}
+
+const toggleFocus = (trackId: number, sectionId: number, selectedElement: HTMLElement): void => {
+    const { trackList, focusList, ctrlIsPressed, cursorMode } = store.getState();
+
+    if (cursorMode !== CursorType.SELECT_MODE) return;
+
+    const track = trackList.find(track => track.id === trackId);
+    const trackSection = track?.trackSectionList.find(section => section.id === sectionId);
+
+    if (!trackSection) return;
+
+    const existFocus = focusList.find(info => info.trackSection.id === sectionId);
+
+    if (ctrlIsPressed) {
+        if (existFocus) {
+            removeFocus(sectionId, selectedElement);
+        } else {
+            addFocus(trackSection, selectedElement);
+        }
+    } else {
+        resetFocus();
+        addFocus(trackSection, selectedElement);
+    }
+}
+
+const addFocus = (trackSection: TrackSection, selectedElement: HTMLElement): void => {
+    selectedElement.classList.add('focused-section')
+    const newFocusInfo: FocusInfo = {
+        trackSection: trackSection,
+        element: selectedElement
+    }
+    store.addFocus(newFocusInfo);
+}
+
+const removeFocus = (sectionId: number, selectedElement: HTMLElement): void => {
+    const { focusList } = store.getState();
+    const index = focusList.findIndex(focus => focus.trackSection.id === sectionId);
+    selectedElement.classList.remove('focused-section')
+    store.removeFocus(index);
+}
+
+const resetFocus = (): void => {
+    const { focusList } = store.getState();
+    focusList.forEach(focus => focus.element.classList.remove('focused-section'));
+    store.resetFocus();
+}
+
+const getCursorMode = (): CursorType => {
+    const { cursorMode } = store.getState();
+    return cursorMode;
+}
+
+const getClipBoard = (): TrackSection | null => {
+    const { clipBoard } = store.getState();
+    return clipBoard;
+}
+
+const setClipBoard = (newSection: TrackSection) => {
+    store.setClipBoard(newSection);
+}
+
+
 export default {
     getSourceBySourceId,
     getSectionChannelData,
@@ -84,5 +145,13 @@ export default {
     addTrackSection,
     changeCursorTime,
     getCtrlIsPressed,
-    setCtrlIsPressed
+    setCtrlIsPressed,
+    getFocusList,
+    toggleFocus,
+    addFocus,
+    removeFocus,
+    resetFocus,
+    getCursorMode,
+    getClipBoard,
+    setClipBoard
 }

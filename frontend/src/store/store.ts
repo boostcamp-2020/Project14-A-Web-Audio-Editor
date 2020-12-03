@@ -1,6 +1,6 @@
 import { StoreStateType, CursorType } from "@types";
 import { Track, Source, TrackSection } from "@model";
-import { StoreChannelType, ModalType, ModalStateType } from "@types";
+import { StoreChannelType, ModalType, ModalStateType, FocusInfo } from "@types";
 import { storeChannel } from "@store";
 
 const store = new (class Store {
@@ -19,6 +19,9 @@ const store = new (class Store {
             focusList: [],
             ctrlIsPressed: false,
             cursorMode: CursorType.SELECT_MODE,
+            trackIndex: 3,
+            sectionIndex: 0,
+            clipBoard: null
         }
     }
 
@@ -84,11 +87,11 @@ const store = new (class Store {
 
     setTrackSection(trackId: number, newTrackSection: TrackSection): void {
         const { trackList } = this.state;
-        if (trackId < 0 || trackId >= trackList.length) return;
+        const track = trackList.find(track => track.id === trackId)
+        if (!track) return;
 
-        const track = trackList[trackId];
         const { trackSectionList } = track;
-        newTrackSection.id = trackSectionList.length;
+        newTrackSection.id = this.state.sectionIndex++;
 
         const newTrackSectionList = trackSectionList
             .concat(newTrackSection).sort((a, b) => a.trackStartTime - b.trackStartTime);
@@ -99,6 +102,7 @@ const store = new (class Store {
             []);
 
         this.state = { ...this.state, trackList: newTrackList };
+
         storeChannel.publish(StoreChannelType.TRACK_SECTION_LIST_CHANNEL, {
             trackId: trackId,
             trackSectionList: newTrackSectionList
@@ -107,6 +111,32 @@ const store = new (class Store {
 
     setCtrlIsPressed(isPressed: boolean): void {
         this.state.ctrlIsPressed = isPressed;
+    }
+
+    addFocus(newFocusInfo: FocusInfo): void {
+        const { focusList } = this.state;
+        const newfocusList = focusList.concat(newFocusInfo);
+
+        this.state = { ...this.state, focusList: newfocusList };
+        storeChannel.publish(StoreChannelType.EDIT_TOOLS_CHANNEL, '');
+    }
+
+    removeFocus(removeIndex: number) {
+        const { focusList } = this.state;
+        const newfocusList = [...focusList];
+        newfocusList.splice(removeIndex, 1);
+        this.state = { ...this.state, focusList: newfocusList };
+        storeChannel.publish(StoreChannelType.EDIT_TOOLS_CHANNEL, '');
+    }
+
+    resetFocus(): void {
+        this.state = { ...this.state, focusList: [] };
+        storeChannel.publish(StoreChannelType.EDIT_TOOLS_CHANNEL, '');
+    }
+
+    setClipBoard(newSection: TrackSection): void {
+        this.state.clipBoard = newSection;
+        storeChannel.publish(StoreChannelType.EDIT_TOOLS_CHANNEL, '');
     }
 })();
 
