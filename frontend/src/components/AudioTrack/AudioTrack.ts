@@ -65,7 +65,7 @@ import "./AudioTrack.scss";
       }
 
       initElement(): void {
-        this.trackMessage = this.querySelector('.audio-track-massage');
+        this.trackMessage = this.querySelector('.audio-track-message');
         this.trackDropzoneElement = this.querySelector('.audio-track-dropzone');
       }
 
@@ -90,13 +90,15 @@ import "./AudioTrack.scss";
         const source = Controller.getSourceBySourceId(Number(sourceId));
         if(!source) return;
 
+        const { duration } = source;
+
         const trackSection = new TrackSection({ 
           sourceId : source.id, 
           trackId: this.trackId,
           channelStartTime : 0, 
-          channelEndTime : 0, 
+          channelEndTime : duration, 
           parsedChannelStartTime : 0,
-          parsedChannelEndTime: 10,
+          parsedChannelEndTime: duration,
           trackStartTime : 0
         });
 
