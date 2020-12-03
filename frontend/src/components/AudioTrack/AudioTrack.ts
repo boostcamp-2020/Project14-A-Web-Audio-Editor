@@ -97,7 +97,8 @@ import "./AudioTrack.scss";
           channelEndTime : 0, 
           parsedChannelStartTime : 0,
           parsedChannelEndTime: 10,
-          trackStartTime : 0
+          trackStartTime : 0,
+          audioStartTime : 0
        });
         Controller.changeTrackDragState(false);
         Controller.addTrackSection(this.trackId, trackSection);
