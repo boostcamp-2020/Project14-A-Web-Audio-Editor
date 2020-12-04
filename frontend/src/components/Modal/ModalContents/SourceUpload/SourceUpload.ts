@@ -138,7 +138,7 @@ import './SourceUpload.scss';
       const mergedBuffer = await AudioUtil.mergeChannels(audioBuffer);
       const channelData = mergedBuffer.getChannelData(0);
       const parsedChannelData = await AudioUtil.parsePeaks(mergedBuffer, 7500);
-      
+
       this.source = new Source(file, audioBuffer, parsedChannelData, channelData);
     }
 
