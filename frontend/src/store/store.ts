@@ -180,6 +180,38 @@ const store = new (class Store {
     this.state = { ...this.state, playTime: newPlayTime };
     storeChannel.publish(StoreChannelType.PLAY_TIME_CHANNEL, newPlayTime);
   }
+
+  removeSection(trackId: number, sectionIndex: number): void {
+    const { trackList } = this.state;
+
+    const track = trackList.find(track => track.id === trackId)
+    if (!track) return;
+
+    const { trackSectionList } = track;
+
+    const newTrackSectionList = [...trackSectionList];
+
+    newTrackSectionList.splice(sectionIndex, 1);
+
+    const newTrack = new Track({ ...track, trackSectionList: newTrackSectionList });
+    const newTrackList: Array<Track> = trackList.reduce<Track[]>((acc, track) =>
+        (track.id === trackId) ? acc.concat(newTrack) : acc.concat(track),
+        []);
+
+    this.state = { ...this.state, trackList: newTrackList };
+
+    storeChannel.publish(StoreChannelType.TRACK_SECTION_LIST_CHANNEL, {
+        trackId: trackId,
+        trackSectionList: newTrackSectionList
+    });
+
+    storeChannel.publish(StoreChannelType.TRACK_CHANNEL, newTrackList);
+  }
+
+  setCursorMode(newType: CursorType): void {
+    this.state.cursorMode = newType;
+    storeChannel.publish(StoreChannelType.EDIT_TOOLS_CHANNEL, '');
+  }
 })();
 
 export { store };

@@ -1,7 +1,11 @@
 import { Source, Track, TrackSection } from '@model';
-import { store } from '@store';
-import { ModalType, FocusInfo, CursorType } from '@types';
+import { store } from "@store";
+import { ModalType, FocusInfo, CursorType } from "@types";
+import CommandManager from '@command/CommandManager';
+import DeleteCommand from '@command/DeleteCommand'
+import { CopyUtil } from '@util'
 import { PlayBarUtil } from '@util';
+
 interface SectionData {
   sectionChannelData: number[];
   duration: number;
@@ -18,6 +22,7 @@ const getSectionChannelData = (trackId: number, trackSectionId: number): Section
   if (!trackSection) return;
 
   const source = sourceList.find((source) => source.id === trackSection.sourceId);
+  
   if (!source) return;
 
   const { parsedChannelData, duration } = source;
@@ -107,6 +112,7 @@ const toggleFocus = (trackId: number, sectionId: number, selectedElement: HTMLEl
 
   const existFocus = focusList.find((info) => info.trackSection.id === sectionId);
 
+
   if (ctrlIsPressed) {
     if (existFocus) {
       removeFocus(sectionId, selectedElement);
@@ -146,16 +152,25 @@ const getCursorMode = (): CursorType => {
   return cursorMode;
 };
 
+const setCursorMode = (newType: CursorType) => {
+  const trackContainer = document.querySelector('.audi-main-audio-track-container');
+
+  if (!trackContainer) return;
+
+  if (newType === CursorType.SELECT_MODE) {
+    trackContainer.classList.remove('cursor-change');
+  } else if (newType === CursorType.CUT_MODE) {
+    resetFocus();
+    trackContainer.classList.add('cursor-change');
+  }
+  store.setCursorMode(newType);
+};
+
 const getClipBoard = (): TrackSection | null => {
   const { clipBoard } = store.getState();
   return clipBoard;
 };
 
-const setClipBoard = (newSection: TrackSection) => {
-  store.setClipBoard(newSection);
-};
-
-//일시정지용
 const pauseChangeMarkerTime = (playingTime: number): void => {
   const { markerTime } = store.getState();
   const newMarkerTime = markerTime + playingTime;
@@ -163,12 +178,10 @@ const pauseChangeMarkerTime = (playingTime: number): void => {
   store.setMarkerTime(newMarkerTime);
 };
 
-//재생바를 눌렀을때
 const cursorChangeMarkerTime = (newMarkerTime): void => {
   store.setMarkerTime(newMarkerTime);
 };
 
-//재생했을 때
 const getMarkerTime = (): number => {
   const { markerTime } = store.getState();
   return markerTime;
@@ -222,6 +235,37 @@ const resetPlayTime = (cursorTime: number): void => {
   store.setPlayTime(newPlayTime);
 };
 
+const removeSection = (trackId: number, sectionIndex: number) => {
+  store.removeSection(trackId, sectionIndex);
+};
+
+const deleteCommand = () => {
+  const { focusList } = store.getState();
+  if (focusList.length === 0) return;
+  const command = new DeleteCommand();
+  CommandManager.execute(command);
+};
+
+const undoCommand = () => {
+  if (CommandManager.undoList.length === 0) return;
+  CommandManager.undo();
+};
+
+const redoCommand = () => {
+  if (CommandManager.redoList.length === 0) return;
+  CommandManager.redo();
+};
+ 
+const setClipBoard = () => {
+  const { focusList } = store.getState();
+
+  if (focusList.length !== 1) return;
+
+  const newSection: TrackSection = CopyUtil.copySection(focusList[0].trackSection);
+
+  store.setClipBoard(newSection);
+};
+
 export default {
   getSourceBySourceId,
   getSectionChannelData,
@@ -242,6 +286,7 @@ export default {
   removeFocus,
   resetFocus,
   getCursorMode,
+  setCursorMode,
   getClipBoard,
   setClipBoard,
   pauseChangeMarkerTime,
@@ -252,5 +297,9 @@ export default {
   getIsPauseState,
   changeIsPauseState,
   changePlayTime,
-  resetPlayTime
+  resetPlayTime,
+  removeSection,
+  deleteCommand,
+  undoCommand,
+  redoCommand
 };
