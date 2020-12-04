@@ -67,6 +67,13 @@ import './EditTools.scss'
     initEvent() {
       EventUtil.registerEventToRoot({
         eventTypes: [EventType.click],
+        eventKey: EventKeyType.EDIT_TOOLS_CLICK + IconType.cursor,
+        listeners: [this.selectCursorListener],
+        bindObj: this
+      });
+
+      EventUtil.registerEventToRoot({
+        eventTypes: [EventType.click],
         eventKey: EventKeyType.EDIT_TOOLS_CLICK + IconType.delete,
         listeners: [this.deleteListener],
         bindObj: this
@@ -78,6 +85,13 @@ import './EditTools.scss'
         listeners: [this.undoListener],
         bindObj: this
       });
+      
+      EventUtil.registerEventToRoot({
+        eventTypes: [EventType.click],
+        eventKey: EventKeyType.EDIT_TOOLS_CLICK + IconType.blade,
+        listeners: [this.cutCursorListener],
+        bindObj: this
+      });
 
       EventUtil.registerEventToRoot({
         eventTypes: [EventType.click],
@@ -85,8 +99,15 @@ import './EditTools.scss'
         listeners: [this.redoListener],
         bindObj: this
       });
+    
+      EventUtil.registerEventToRoot({
+        eventTypes: [EventType.click],
+        eventKey: EventKeyType.EDIT_TOOLS_CLICK + IconType.copy,
+        listeners: [this.copyListener],
+        bindObj: this
+      });
     }
-
+    
     cursorState() {
       const cursorMode = Controller.getCursorMode();
       if (cursorMode === CursorType.SELECT_MODE) {
@@ -127,6 +148,18 @@ import './EditTools.scss'
       }
     }
 
+    selectCursorListener(e) {
+      Controller.setCursorMode(CursorType.SELECT_MODE);
+    }
+
+    cutCursorListener(e) {
+      Controller.setCursorMode(CursorType.CUT_MODE);
+    }
+
+    copyListener(e) {
+      Controller.setClipBoard();
+    }
+
     subscribe(): void {
       storeChannel.subscribe(StoreChannelType.EDIT_TOOLS_CHANNEL, this.updateEditTools, this);
     }
@@ -149,8 +182,8 @@ import './EditTools.scss'
     redoListener(): void {
       Controller.redoCommand();
     }
-
   };
+      
   customElements.define('audi-edit-tools', EditTools);
 })()
 

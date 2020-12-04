@@ -4,33 +4,33 @@ import { EventUtil } from '@util';
 
 import "./AudioTrackSection.scss";
 
-interface SectionData{
+interface SectionData {
   sectionChannelData: number[];
-  duration: number; 
+  duration: number;
 }
 
 (() => {
- const AudioTrackSection = class extends HTMLElement {
+  const AudioTrackSection = class extends HTMLElement {
     private trackId: number;
     private sectionId: number;
     private sectionData: SectionData | undefined;
     private trackCanvasElement: HTMLCanvasElement | undefined | null;
 
-    constructor(){
-        super();
-        this.trackId = 0;
-        this.sectionId = 0;
-        this.sectionData;
-        this.trackCanvasElement;
+    constructor() {
+      super();
+      this.trackId = 0;
+      this.sectionId = 0;
+      this.sectionData;
+      this.trackCanvasElement;
     }
 
     static get observedAttributes(): string[] {
       return ['data-id', 'data-track-id'];
     }
-  
+
     attributeChangedCallback(attrName: string, oldVal: string, newVal: string): void {
-      if(oldVal !== newVal){
-        switch(attrName){
+      if (oldVal !== newVal) {
+        switch (attrName) {
           case 'data-id':
             this.sectionId = Number(newVal);
             break;
@@ -41,7 +41,7 @@ interface SectionData{
         this[attrName] = newVal;
       }
     }
-        
+
     connectedCallback(): void {
       try {
         this.render();
@@ -61,38 +61,38 @@ interface SectionData{
 
     init(): void {
       this.trackCanvasElement = this.querySelector<HTMLCanvasElement>('.audio-track-section');
-      this.sectionChannelData = Controller.getSectionChannelData(this.trackId, this.sectionId);
+      this.sectionData = Controller.getSectionChannelData(this.trackId, this.sectionId);
     }
 
-    draw(): void {        
-      if(!this.sectionData || !this.trackCanvasElement) return;
+    draw(): void {
+      if (!this.sectionData || !this.trackCanvasElement) return;
 
       const { sectionChannelData, duration } = this.sectionData;
-          
+
       const trackWidth = this.trackCanvasElement.clientWidth;
-      const canvasWidth = trackWidth / (300/duration);
+      const canvasWidth = trackWidth / (300 / duration);
       this.trackCanvasElement.width = canvasWidth;
       this.trackCanvasElement.style.width = `${canvasWidth}px`;
 
       const canvasHeight = this.trackCanvasElement.clientHeight;
       const canvasCtx = this.trackCanvasElement.getContext('2d');
-      if(!canvasCtx) return;
+      if (!canvasCtx) return;
 
       const numOfPeaks = sectionChannelData.length;
       const middleHeight = canvasHeight / 2;
-      const defaultLineWidth =1;
+      const defaultLineWidth = 1;
 
       canvasCtx.strokeStyle = '#2196f3';
-      canvasCtx.lineWidth = defaultLineWidth / ((numOfPeaks/2) / canvasWidth);
+      canvasCtx.lineWidth = defaultLineWidth / ((numOfPeaks / 2) / canvasWidth);
       canvasCtx.beginPath();
 
       let offsetX = 0;
       let offsetY;
-      for(let i = 0; i < numOfPeaks; i++){
-        offsetY = middleHeight + Math.floor((sectionChannelData[i]*canvasHeight)/2);
-        if(i % 2 == 0)
+      for (let i = 0; i < numOfPeaks; i++) {
+        offsetY = middleHeight + Math.floor((sectionChannelData[i] * canvasHeight) / 2);
+        if (i % 2 == 0)
           canvasCtx.moveTo(offsetX, offsetY);
-        else{
+        else {
           canvasCtx.lineTo(offsetX, offsetY);
           offsetX += canvasCtx.lineWidth;
         }
@@ -113,6 +113,6 @@ interface SectionData{
       Controller.toggleFocus(this.trackId, this.sectionId, e.target);
     }
   };
-  
+
   customElements.define('audi-track-section', AudioTrackSection);
 })();

@@ -1,5 +1,5 @@
 import './App.scss';
-import { EventDataType, eventTypes, EventTargetDataType, KeyBoard } from '@types';
+import { EventDataType, eventTypes, EventTargetDataType, KeyBoard, CursorType } from '@types';
 import { Controller } from "@controllers";
 
 (() => {
@@ -46,10 +46,10 @@ import { Controller } from "@controllers";
       }
 
       if (e.which === KeyBoard.C && !isCtrl) {
-        // console.log('Select Mode');
+        Controller.setCursorMode(CursorType.CUT_MODE);
       }
       else if (e.which === KeyBoard.V && !isCtrl) {
-        // console.log('Cut Mode');
+        Controller.setCursorMode(CursorType.SELECT_MODE);
       }
       else if (e.which === KeyBoard.DELETE && !isCtrl) {
         Controller.deleteCommand();
@@ -64,7 +64,7 @@ import { Controller } from "@controllers";
         // console.log('스페이스바');
       }
       else if (e.which === KeyBoard.C && isCtrl) {
-        // console.log('복사');
+        Controller.setClipBoard();
       }
       else if (e.which === KeyBoard.X && isCtrl) {
         // console.log('잘라내기');

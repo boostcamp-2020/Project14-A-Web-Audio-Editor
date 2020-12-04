@@ -3,7 +3,7 @@ import { store } from "@store";
 import { ModalType, FocusInfo, CursorType } from "@types";
 import CommandManager from '@command/CommandManager';
 import DeleteCommand from '@command/DeleteCommand'
-
+import { CopyUtil } from '@util'
 
 interface SectionData {
   sectionChannelData: number[];
@@ -148,13 +148,23 @@ const getCursorMode = (): CursorType => {
   return cursorMode;
 }
 
+const setCursorMode = (newType: CursorType) => {
+  const trackContainer = document.querySelector('.audi-main-audio-track-container');
+
+  if (!trackContainer) return;
+
+  if (newType === CursorType.SELECT_MODE) {
+    trackContainer.classList.remove('cursor-change');
+  } else if (newType === CursorType.CUT_MODE) {
+    resetFocus();
+    trackContainer.classList.add('cursor-change');
+  }
+  store.setCursorMode(newType);
+}
+
 const getClipBoard = (): TrackSection | null => {
   const { clipBoard } = store.getState();
   return clipBoard;
-}
-
-const setClipBoard = (newSection: TrackSection) => {
-  store.setClipBoard(newSection);
 }
 
 const removeSection = (trackId: number, sectionIndex: number) => {
@@ -177,6 +187,16 @@ const redoCommand = () => {
   if (CommandManager.redoList.length === 0) return;
   CommandManager.redo();
 }
+  
+const setClipBoard = () => {
+  const { focusList } = store.getState();
+
+  if (focusList.length !== 1) return;
+
+  const newSection: TrackSection = CopyUtil.copySection(focusList[0].trackSection);
+
+  store.setClipBoard(newSection);
+}
 
 export default {
   getSourceBySourceId,
@@ -198,6 +218,7 @@ export default {
   removeFocus,
   resetFocus,
   getCursorMode,
+  setCursorMode,
   getClipBoard,
   setClipBoard,
   removeSection,

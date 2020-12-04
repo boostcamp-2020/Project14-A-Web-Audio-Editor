@@ -177,6 +177,11 @@ const store = new (class Store {
 
         storeChannel.publish(StoreChannelType.TRACK_CHANNEL, newTrackList);
     }
+    
+    setCursorMode(newType: CursorType): void {
+        this.state.cursorMode = newType;
+        storeChannel.publish(StoreChannelType.EDIT_TOOLS_CHANNEL, '');
+    }
 })();
 
 export { store };

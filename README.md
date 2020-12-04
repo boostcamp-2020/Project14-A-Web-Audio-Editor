@@ -20,7 +20,7 @@
 
 ## [🎨UI Prototype](https://ovenapp.io/view/q5bGJWiAvVedUkqksVhGGjf8NpimvrDb/)
 
-## [🎼Project URL](https://github.com/boostcamp-2020/Project14-A-Web-Audio-Editor)
+## [🎼Project URL](http://49.50.163.212/)
 
 ## [🥝WIKI](https://github.com/boostcamp-2020/Project14-A-Web-Audio-Editor/wiki)
 
