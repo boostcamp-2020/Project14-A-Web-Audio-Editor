@@ -43,7 +43,7 @@
         "src/controllers"
       ],
       "@command": [
-        "src/command"
+        "src/common/command"
       ]
     }
   },

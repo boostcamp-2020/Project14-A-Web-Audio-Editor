@@ -1,4 +1,6 @@
 import ICommand from './ICommand'
+import { storeChannel } from '@store'
+import { StoreChannelType } from '@types'
 
 class CommandManager {
   public undoList: ICommand[];
@@ -13,6 +15,7 @@ class CommandManager {
     command.execute();
     this.undoList.push(command);
     this.redoList = [];
+    storeChannel.publish(StoreChannelType.EDIT_TOOLS_CHANNEL, '');
   }
 
   undo() {
@@ -21,6 +24,7 @@ class CommandManager {
       if (command) {
         this.redoList.push(command);
         command.undo();
+        storeChannel.publish(StoreChannelType.EDIT_TOOLS_CHANNEL, '');
       }
     }
   }
@@ -31,6 +35,7 @@ class CommandManager {
       if (command) {
         this.undoList.push(command);
         command.execute();
+        storeChannel.publish(StoreChannelType.EDIT_TOOLS_CHANNEL, '');
       }
     }
   }

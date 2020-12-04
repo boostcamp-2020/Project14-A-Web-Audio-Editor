@@ -52,7 +52,7 @@ import { Controller } from "@controllers";
         Controller.setCursorMode(CursorType.SELECT_MODE);
       }
       else if (e.which === KeyBoard.DELETE && !isCtrl) {
-        // console.log('삭제');
+        Controller.deleteCommand();
       }
       else if (e.which === KeyBoard.LEFT && !isCtrl) {
         // console.log('왼쪽');
@@ -73,10 +73,10 @@ import { Controller } from "@controllers";
         // console.log('붙여넣기');
       }
       else if (e.which === KeyBoard.Z && isCtrl) {
-        // console.log('undo');
+        Controller.undoCommand();
       }
       else if (e.which === KeyBoard.Y && isCtrl) {
-        // console.log('redo');
+        Controller.redoCommand();
       }
     }
 

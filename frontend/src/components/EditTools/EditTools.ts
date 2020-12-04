@@ -1,7 +1,7 @@
-import CommandManager from '../../command/CommandManager';
+import CommandManager from '@command/CommandManager';
 import { CursorType, StoreChannelType, EventKeyType, EventType, IconType } from "@types";
-import { Controller } from '@controllers'
 import { storeChannel } from '@store';
+import { Controller } from '@controllers'
 import { EventUtil } from '@util';
 import './EditTools.scss'
 
@@ -58,7 +58,7 @@ import './EditTools.scss'
     }
 
     initState() {
-      this.cursotState();
+      this.cursorState();
       this.focusState();
       this.clipBoardState();
       this.commandState();
@@ -74,6 +74,20 @@ import './EditTools.scss'
 
       EventUtil.registerEventToRoot({
         eventTypes: [EventType.click],
+        eventKey: EventKeyType.EDIT_TOOLS_CLICK + IconType.delete,
+        listeners: [this.deleteListener],
+        bindObj: this
+      });
+
+      EventUtil.registerEventToRoot({
+        eventTypes: [EventType.click],
+        eventKey: EventKeyType.EDIT_TOOLS_CLICK + IconType.undo,
+        listeners: [this.undoListener],
+        bindObj: this
+      });
+      
+      EventUtil.registerEventToRoot({
+        eventTypes: [EventType.click],
         eventKey: EventKeyType.EDIT_TOOLS_CLICK + IconType.blade,
         listeners: [this.cutCursorListener],
         bindObj: this
@@ -81,14 +95,20 @@ import './EditTools.scss'
 
       EventUtil.registerEventToRoot({
         eventTypes: [EventType.click],
+        eventKey: EventKeyType.EDIT_TOOLS_CLICK + IconType.redo,
+        listeners: [this.redoListener],
+        bindObj: this
+      });
+    
+      EventUtil.registerEventToRoot({
+        eventTypes: [EventType.click],
         eventKey: EventKeyType.EDIT_TOOLS_CLICK + IconType.copy,
         listeners: [this.copyListener],
         bindObj: this
       });
     }
-
-
-    cursotState() {
+    
+    cursorState() {
       const cursorMode = Controller.getCursorMode();
       if (cursorMode === CursorType.SELECT_MODE) {
         this.cursorElement?.classList.add('selected');
@@ -146,12 +166,24 @@ import './EditTools.scss'
 
     updateEditTools(): void {
       this.render();
-      this.init()
+      this.init();
       this.initState();
       this.initEvent();
     }
 
+    deleteListener(): void {
+      Controller.deleteCommand();
+    }
+
+    undoListener(): void {
+      Controller.undoCommand();
+    }
+
+    redoListener(): void {
+      Controller.redoCommand();
+    }
   };
+      
   customElements.define('audi-edit-tools', EditTools);
 })()
 

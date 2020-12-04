@@ -1,6 +1,8 @@
 import { Source, Track, TrackSection } from '@model';
 import { store } from "@store";
 import { ModalType, FocusInfo, CursorType } from "@types";
+import CommandManager from '@command/CommandManager';
+import DeleteCommand from '@command/DeleteCommand'
 import { CopyUtil } from '@util'
 
 interface SectionData {
@@ -165,6 +167,27 @@ const getClipBoard = (): TrackSection | null => {
   return clipBoard;
 }
 
+const removeSection = (trackId: number, sectionIndex: number) => {
+  store.removeSection(trackId, sectionIndex);
+}
+
+const deleteCommand = () => {
+  const { focusList } = store.getState();
+  if (focusList.length === 0) return;
+  const command = new DeleteCommand();
+  CommandManager.execute(command);
+}
+
+const undoCommand = () => {
+  if (CommandManager.undoList.length === 0) return;
+  CommandManager.undo();
+}
+
+const redoCommand = () => {
+  if (CommandManager.redoList.length === 0) return;
+  CommandManager.redo();
+}
+  
 const setClipBoard = () => {
   const { focusList } = store.getState();
 
@@ -174,7 +197,6 @@ const setClipBoard = () => {
 
   store.setClipBoard(newSection);
 }
-
 
 export default {
   getSourceBySourceId,
@@ -198,5 +220,9 @@ export default {
   getCursorMode,
   setCursorMode,
   getClipBoard,
-  setClipBoard
+  setClipBoard,
+  removeSection,
+  deleteCommand,
+  undoCommand,
+  redoCommand
 };
