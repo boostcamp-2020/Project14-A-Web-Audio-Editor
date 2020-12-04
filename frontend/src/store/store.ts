@@ -1,187 +1,217 @@
-import { StoreStateType, CursorType } from "@types";
-import { Track, Source, TrackSection } from "@model";
-import { StoreChannelType, ModalType, ModalStateType, FocusInfo } from "@types";
-import { storeChannel } from "@store";
+import { StoreStateType, CursorType } from '@types';
+import { Track, Source, TrackSection } from '@model';
+import { StoreChannelType, ModalType, ModalStateType, FocusInfo } from '@types';
+import { storeChannel } from '@store';
 
 const store = new (class Store {
-    private state: StoreStateType;
+  private state: StoreStateType;
 
-    constructor() {
-        this.state = {
-            cursorTime: '00:00:000',
-            sourceList: [],
-            modalState: {
-                modalType: ModalType.upload,
-                isHidden: true
-            },
-            isTrackDraggable: false,
-            trackList: this.initTrackList(3),
-            focusList: [],
-            ctrlIsPressed: false,
-            cursorMode: CursorType.SELECT_MODE,
-            trackIndex: 3,
-            sectionIndex: 0,
-            clipBoard: null,
-            audioSourceInfoInTrackList: [],
-            currentPosition: 0
-        }
-    }
+  constructor() {
+    this.state = {
+      cursorTime: '00:00:000',
+      playTime: '00:00:000',
+      sourceList: [],
+      modalState: {
+        modalType: ModalType.upload,
+        isHidden: true
+      },
+      isTrackDraggable: false,
+      trackList: this.initTrackList(3),
+      focusList: [],
+      ctrlIsPressed: false,
+      cursorMode: CursorType.SELECT_MODE,
+      trackIndex: 3,
+      sectionIndex: 0,
+      clipBoard: null,
+      audioSourceInfoInTrackList: [],
+      currentPosition: 0,
+      markerTime: 0,
+      totalCursorTime: 0,
+      isPause: true
+    };
+  }
 
-    initTrackList(numOfTracks: number): Track[] {
-        return Array(numOfTracks).fill(0).reduce((acc, cur, idx) => {
-            const track = new Track({ id: idx, trackSectionList: [] });
-            return acc.concat(track);
-        }, []);
-    }
+  initTrackList(numOfTracks: number): Track[] {
+    return Array(numOfTracks)
+      .fill(0)
+      .reduce((acc, cur, idx) => {
+        const track = new Track({ id: idx, trackSectionList: [] });
+        return acc.concat(track);
+      }, []);
+  }
 
-    getState(): StoreStateType {
-        return this.state;
-    }
+  getState(): StoreStateType {
+    return this.state;
+  }
 
-    setSource(source: Source): void {
-        const { sourceList } = this.state;
-        source.id = sourceList.length;
+  setSource(source: Source): void {
+    const { sourceList } = this.state;
+    source.id = sourceList.length;
 
-        const newSourceList = sourceList.concat(source);
-        this.state = { ...this.state, sourceList: newSourceList };
-        storeChannel.publish(StoreChannelType.SOURCE_LIST_CHANNEL, newSourceList);
-    }
+    const newSourceList = sourceList.concat(source);
+    this.state = { ...this.state, sourceList: newSourceList };
+    storeChannel.publish(StoreChannelType.SOURCE_LIST_CHANNEL, newSourceList);
+  }
 
-    setModalState(newModalType: ModalType, newIsHiiden: Boolean): void {
-        const { modalState } = this.state;
-        const { modalType, isHidden } = modalState;
+  setModalState(newModalType: ModalType, newIsHiiden: Boolean): void {
+    const { modalState } = this.state;
+    const { modalType, isHidden } = modalState;
 
-        if (modalType === newModalType && isHidden === newIsHiiden) return;
+    if (modalType === newModalType && isHidden === newIsHiiden) return;
 
-        const newModalState: ModalStateType = { modalType: newModalType, isHidden: newIsHiiden };
-        this.state = { ...this.state, modalState: newModalState };
-        storeChannel.publish(StoreChannelType.MODAL_STATE_CHANNEL, newModalState);
-    }
+    const newModalState: ModalStateType = { modalType: newModalType, isHidden: newIsHiiden };
+    this.state = { ...this.state, modalState: newModalState };
+    storeChannel.publish(StoreChannelType.MODAL_STATE_CHANNEL, newModalState);
+  }
 
-    setCursorTime(newMinute: string, newSecond: string, newMilsecond): void {
-        const { cursorTime } = this.state;
-        const [minute, second, milsecond] = cursorTime.split(':');
+  setCursorTime(newMinute: string, newSecond: string, newMilsecond): void {
+    const { cursorTime } = this.state;
+    const [minute, second, milsecond] = cursorTime.split(':');
 
-        if (minute === newMinute && second === newSecond && milsecond === newMilsecond) return;
+    if (minute === newMinute && second === newSecond && milsecond === newMilsecond) return;
 
-        const newCursorTime: string = `${newMinute.padStart(2, '0')}:${newSecond.padStart(2, '0')}:${newMilsecond.padStart(3, '0')}`;
-        this.state = { ...this.state, cursorTime: newCursorTime };
-        storeChannel.publish(StoreChannelType.CURSOR_TIME_CHANNEL, newCursorTime);
-    }
+    const newCursorTime: string = `${newMinute.padStart(2, '0')}:${newSecond.padStart(2, '0')}:${newMilsecond.padStart(3, '0')}`;
+    this.state = { ...this.state, cursorTime: newCursorTime };
+    storeChannel.publish(StoreChannelType.CURSOR_TIME_CHANNEL, newCursorTime);
+  }
 
-    setTrackDragState(newIsTrackDraggable: Boolean): void {
-        const { isTrackDraggable } = this.state;
-        if (isTrackDraggable === newIsTrackDraggable) return;
+  setTrackDragState(newIsTrackDraggable: Boolean): void {
+    const { isTrackDraggable } = this.state;
+    if (isTrackDraggable === newIsTrackDraggable) return;
 
-        this.state = { ...this.state, isTrackDraggable: newIsTrackDraggable };
-        storeChannel.publish(StoreChannelType.TRACK_DRAG_STATE_CHANNEL, newIsTrackDraggable);
-    }
+    this.state = { ...this.state, isTrackDraggable: newIsTrackDraggable };
+    storeChannel.publish(StoreChannelType.TRACK_DRAG_STATE_CHANNEL, newIsTrackDraggable);
+  }
 
-    setTrack(newTrack: Track): void {
-        const { trackList } = this.state;
+  setTrack(newTrack: Track): void {
+    const { trackList } = this.state;
 
-        newTrack.id = trackList.length;
-        const newAudioTrackList = trackList.concat(newTrack);
+    newTrack.id = trackList.length;
+    const newAudioTrackList = trackList.concat(newTrack);
 
-        this.state = { ...this.state, trackList: newAudioTrackList };
-    }
+    this.state = { ...this.state, trackList: newAudioTrackList };
+  }
 
-    setTrackSection(trackId: number, newTrackSection: TrackSection): void {
-        const { trackList } = this.state;
-        const track = trackList.find(track => track.id === trackId)
-        if (!track) return;
+  setTrackSection(trackId: number, newTrackSection: TrackSection): void {
+    const { trackList } = this.state;
+    const track = trackList.find((track) => track.id === trackId);
+    if (!track) return;
 
-        const { trackSectionList } = track;
-        newTrackSection.id = this.state.sectionIndex++;
+    const { trackSectionList } = track;
+    newTrackSection.id = this.state.sectionIndex++;
 
-        const newTrackSectionList = trackSectionList
-            .concat(newTrackSection).sort((a, b) => a.trackStartTime - b.trackStartTime);
+    const newTrackSectionList = trackSectionList.concat(newTrackSection).sort((a, b) => a.trackStartTime - b.trackStartTime);
 
-        const newTrack = new Track({ ...track, trackSectionList: newTrackSectionList });
-        const newTrackList: Array<Track> = trackList.reduce<Track[]>((acc, track) =>
-            (track.id === trackId) ? acc.concat(newTrack) : acc.concat(track),
-            []);
+    const newTrack = new Track({ ...track, trackSectionList: newTrackSectionList });
+    const newTrackList: Array<Track> = trackList.reduce<Track[]>(
+      (acc, track) => (track.id === trackId ? acc.concat(newTrack) : acc.concat(track)),
+      []
+    );
 
-        this.state = { ...this.state, trackList: newTrackList };
+    this.state = { ...this.state, trackList: newTrackList };
 
-        storeChannel.publish(StoreChannelType.TRACK_SECTION_LIST_CHANNEL, {
-            trackId: trackId,
-            trackSectionList: newTrackSectionList
-        });
+    storeChannel.publish(StoreChannelType.TRACK_SECTION_LIST_CHANNEL, {
+      trackId: trackId,
+      trackSectionList: newTrackSectionList
+    });
 
-        storeChannel.publish(StoreChannelType.TRACK_CHANNEL, newTrackList);
-    }
+    storeChannel.publish(StoreChannelType.TRACK_CHANNEL, newTrackList);
+  }
 
-    setCurrentPosition(newCurrentPosition: number): void {
-        const { currentPosition } = this.state;
+  setCurrentPosition(newCurrentPosition: number): void {
+    const { currentPosition } = this.state;
 
-        if (currentPosition === newCurrentPosition) return;
+    if (currentPosition === newCurrentPosition) return;
 
-        this.state = { ...this.state, currentPosition: newCurrentPosition };
-        storeChannel.publish(StoreChannelType.CURRENT_POSITION_CHANNEL, newCurrentPosition);
-    }
+    this.state = { ...this.state, currentPosition: newCurrentPosition };
+  }
 
-    setCtrlIsPressed(isPressed: boolean): void {
-        this.state.ctrlIsPressed = isPressed;
-    }
+  setCtrlIsPressed(isPressed: boolean): void {
+    this.state.ctrlIsPressed = isPressed;
+  }
 
-    addFocus(newFocusInfo: FocusInfo): void {
-        const { focusList } = this.state;
-        const newfocusList = focusList.concat(newFocusInfo);
+  addFocus(newFocusInfo: FocusInfo): void {
+    const { focusList } = this.state;
+    const newfocusList = focusList.concat(newFocusInfo);
 
-        this.state = { ...this.state, focusList: newfocusList };
-        storeChannel.publish(StoreChannelType.EDIT_TOOLS_CHANNEL, '');
-    }
+    this.state = { ...this.state, focusList: newfocusList };
+    storeChannel.publish(StoreChannelType.EDIT_TOOLS_CHANNEL, '');
+  }
 
-    removeFocus(removeIndex: number) {
-        const { focusList } = this.state;
-        const newfocusList = [...focusList];
-        newfocusList.splice(removeIndex, 1);
-        this.state = { ...this.state, focusList: newfocusList };
-        storeChannel.publish(StoreChannelType.EDIT_TOOLS_CHANNEL, '');
-    }
+  removeFocus(removeIndex: number) {
+    const { focusList } = this.state;
+    const newfocusList = [...focusList];
+    newfocusList.splice(removeIndex, 1);
+    this.state = { ...this.state, focusList: newfocusList };
+    storeChannel.publish(StoreChannelType.EDIT_TOOLS_CHANNEL, '');
+  }
 
-    resetFocus(): void {
-        this.state = { ...this.state, focusList: [] };
-        storeChannel.publish(StoreChannelType.EDIT_TOOLS_CHANNEL, '');
-    }
+  resetFocus(): void {
+    this.state = { ...this.state, focusList: [] };
+    storeChannel.publish(StoreChannelType.EDIT_TOOLS_CHANNEL, '');
+  }
 
-    setClipBoard(newSection: TrackSection): void {
-        this.state.clipBoard = newSection;
-        storeChannel.publish(StoreChannelType.EDIT_TOOLS_CHANNEL, '');
-    }
+  setClipBoard(newSection: TrackSection): void {
+    this.state.clipBoard = newSection;
+    storeChannel.publish(StoreChannelType.EDIT_TOOLS_CHANNEL, '');
+  }
 
-    removeSection(trackId: number, sectionIndex: number): void {
-        const { trackList } = this.state;
+  setMarkerTime(newMarkerTime: number): void {
+    const { markerTime } = this.state;
 
-        const track = trackList.find(track => track.id === trackId)
-        if (!track) return;
+    if (markerTime === newMarkerTime) return;
 
-        const { trackSectionList } = track;
+    this.state = { ...this.state, markerTime: newMarkerTime };
+  }
 
-        const newTrackSectionList = [...trackSectionList];
+  setTotalCursorTime(newTotalCursorTime: number): void {
+    this.state = { ...this.state, totalCursorTime: newTotalCursorTime };
+  }
 
-        newTrackSectionList.splice(sectionIndex, 1);
+  setIsPauseState(isPauseState: boolean): void {
+    this.state = { ...this.state, isPause: isPauseState };
+  }
 
-        const newTrack = new Track({ ...track, trackSectionList: newTrackSectionList });
-        const newTrackList: Array<Track> = trackList.reduce<Track[]>((acc, track) =>
-            (track.id === trackId) ? acc.concat(newTrack) : acc.concat(track),
-            []);
+  setMarkerWidth(newMarkerWidth: number): void {
+    storeChannel.publish(StoreChannelType.CURRENT_POSITION_CHANNEL, newMarkerWidth);
+  }
 
-        this.state = { ...this.state, trackList: newTrackList };
+  setPlayTime(newPlayTime): void {
+    this.state = { ...this.state, playTime: newPlayTime };
+    storeChannel.publish(StoreChannelType.PLAY_TIME_CHANNEL, newPlayTime);
+  }
 
-        storeChannel.publish(StoreChannelType.TRACK_SECTION_LIST_CHANNEL, {
-            trackId: trackId,
-            trackSectionList: newTrackSectionList
-        });
+  removeSection(trackId: number, sectionIndex: number): void {
+    const { trackList } = this.state;
 
-        storeChannel.publish(StoreChannelType.TRACK_CHANNEL, newTrackList);
-    }
-    
-    setCursorMode(newType: CursorType): void {
-        this.state.cursorMode = newType;
-        storeChannel.publish(StoreChannelType.EDIT_TOOLS_CHANNEL, '');
-    }
+    const track = trackList.find(track => track.id === trackId)
+    if (!track) return;
+
+    const { trackSectionList } = track;
+
+    const newTrackSectionList = [...trackSectionList];
+
+    newTrackSectionList.splice(sectionIndex, 1);
+
+    const newTrack = new Track({ ...track, trackSectionList: newTrackSectionList });
+    const newTrackList: Array<Track> = trackList.reduce<Track[]>((acc, track) =>
+        (track.id === trackId) ? acc.concat(newTrack) : acc.concat(track),
+        []);
+
+    this.state = { ...this.state, trackList: newTrackList };
+
+    storeChannel.publish(StoreChannelType.TRACK_SECTION_LIST_CHANNEL, {
+        trackId: trackId,
+        trackSectionList: newTrackSectionList
+    });
+
+    storeChannel.publish(StoreChannelType.TRACK_CHANNEL, newTrackList);
+  }
+
+  setCursorMode(newType: CursorType): void {
+    this.state.cursorMode = newType;
+    storeChannel.publish(StoreChannelType.EDIT_TOOLS_CHANNEL, '');
+  }
 })();
 
 export { store };

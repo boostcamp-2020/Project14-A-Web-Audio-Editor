@@ -10,6 +10,7 @@ import { StoreChannelType } from '@types';
 
     connectedCallback(): void {
       this.render();
+      this.subscribe();
     }
 
     render(): void {
@@ -26,7 +27,9 @@ import { StoreChannelType } from '@types';
       const markerElement: HTMLElement | null = document.querySelector('.marker');
 
       if (!markerElement) return;
-      markerElement.style.left = `${newCurrentPosition}px`;
+      const prevCurrentPosition = Number(markerElement?.style.left.split('px')[0]);
+      const currentPosition = prevCurrentPosition + newCurrentPosition;
+      markerElement.style.left = `${currentPosition}px`;
     }
   };
 

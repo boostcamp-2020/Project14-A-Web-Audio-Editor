@@ -43,10 +43,16 @@ import { storeChannel } from '@store';
 
     subscribe() {
       storeChannel.subscribe(StoreChannelType.CURSOR_TIME_CHANNEL, this.updateCursorTime, this);
+      storeChannel.subscribe(StoreChannelType.PLAY_TIME_CHANNEL, this.updatePlayTime, this);
     }
 
     updateCursorTime(cursorTime) {
       this.cursorTime = cursorTime;
+      this.render();
+    }
+
+    updatePlayTime(playTime) {
+      this.playTime = playTime;
       this.render();
     }
   };

@@ -1,8 +1,8 @@
-import { Controller } from "@controllers";
-import { EventKeyType, EventType } from '@types'
+import { Controller } from '@controllers';
+import { EventKeyType, EventType } from '@types';
 import { EventUtil } from '@util';
 
-import "./AudioTrackSection.scss";
+import './AudioTrackSection.scss';
 
 interface SectionData {
   sectionChannelData: number[];
@@ -83,15 +83,14 @@ interface SectionData {
       const defaultLineWidth = 1;
 
       canvasCtx.strokeStyle = '#2196f3';
-      canvasCtx.lineWidth = defaultLineWidth / ((numOfPeaks / 2) / canvasWidth);
+      canvasCtx.lineWidth = defaultLineWidth / (numOfPeaks / 2 / canvasWidth);
       canvasCtx.beginPath();
 
       let offsetX = 0;
       let offsetY;
       for (let i = 0; i < numOfPeaks; i++) {
         offsetY = middleHeight + Math.floor((sectionChannelData[i] * canvasHeight) / 2);
-        if (i % 2 == 0)
-          canvasCtx.moveTo(offsetX, offsetY);
+        if (i % 2 == 0) canvasCtx.moveTo(offsetX, offsetY);
         else {
           canvasCtx.lineTo(offsetX, offsetY);
           offsetX += canvasCtx.lineWidth;
