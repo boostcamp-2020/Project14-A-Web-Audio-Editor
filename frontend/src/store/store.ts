@@ -22,7 +22,7 @@ const store = new (class Store {
             trackIndex: 3,
             sectionIndex: 0,
             clipBoard: null,
-            audioSourceInfoInTrackList:[],
+            audioSourceInfoInTrackList: [],
             currentPosition: 0
         }
     }
@@ -83,7 +83,7 @@ const store = new (class Store {
         newTrack.id = trackList.length;
         const newAudioTrackList = trackList.concat(newTrack);
 
-        this.state = {...this.state, trackList: newAudioTrackList};
+        this.state = { ...this.state, trackList: newAudioTrackList };
     }
 
     setTrackSection(trackId: number, newTrackSection: TrackSection): void {
@@ -112,12 +112,12 @@ const store = new (class Store {
         storeChannel.publish(StoreChannelType.TRACK_CHANNEL, newTrackList);
     }
 
-    setCurrentPosition(newCurrentPosition: number): void{
-        const {currentPosition} = this.state;
+    setCurrentPosition(newCurrentPosition: number): void {
+        const { currentPosition } = this.state;
 
         if (currentPosition === newCurrentPosition) return;
 
-        this.state = {...this.state, currentPosition: newCurrentPosition};
+        this.state = { ...this.state, currentPosition: newCurrentPosition };
         storeChannel.publish(StoreChannelType.CURRENT_POSITION_CHANNEL, newCurrentPosition);
     }
 
@@ -150,6 +150,12 @@ const store = new (class Store {
         this.state.clipBoard = newSection;
         storeChannel.publish(StoreChannelType.EDIT_TOOLS_CHANNEL, '');
     }
+
+    setCursorMode(newType: CursorType): void {
+        this.state.cursorMode = newType;
+        storeChannel.publish(StoreChannelType.EDIT_TOOLS_CHANNEL, '');
+    }
+
 })();
 
 export { store };

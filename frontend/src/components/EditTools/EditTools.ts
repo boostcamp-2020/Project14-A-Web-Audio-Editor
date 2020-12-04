@@ -1,7 +1,8 @@
 import CommandManager from '../../command/CommandManager';
-import { CursorType, StoreChannelType } from "@types";
-import { storeChannel } from '@store';
+import { CursorType, StoreChannelType, EventKeyType, EventType, IconType } from "@types";
 import { Controller } from '@controllers'
+import { storeChannel } from '@store';
+import { EventUtil } from '@util';
 import './EditTools.scss'
 
 (() => {
@@ -33,13 +34,14 @@ import './EditTools.scss'
       this.render();
       this.init()
       this.initState();
+      this.initEvent();
       this.subscribe();
     }
 
     render() {
       this.innerHTML = `
               <div class="edit-tools">
-                ${this.iconlist.reduce((acc, icon) => acc + `<audi-icon-button id="${icon}" color="white" icontype="${icon}" size="32px"></audi-icon-button>`, '')}
+                ${this.iconlist.reduce((acc, icon) => acc + `<audi-icon-button id="${icon}" color="white" icontype="${icon}" size="32px" data-event-key=${EventKeyType.EDIT_TOOLS_CLICK + icon}></audi-icon-button>`, '')}
               </div>
             `;
     }
@@ -60,6 +62,29 @@ import './EditTools.scss'
       this.focusState();
       this.clipBoardState();
       this.commandState();
+    }
+
+    initEvent() {
+      EventUtil.registerEventToRoot({
+        eventTypes: [EventType.click],
+        eventKey: EventKeyType.EDIT_TOOLS_CLICK + IconType.cursor,
+        listeners: [this.selectCursorListener],
+        bindObj: this
+      });
+
+      EventUtil.registerEventToRoot({
+        eventTypes: [EventType.click],
+        eventKey: EventKeyType.EDIT_TOOLS_CLICK + IconType.blade,
+        listeners: [this.cutCursorListener],
+        bindObj: this
+      });
+
+      EventUtil.registerEventToRoot({
+        eventTypes: [EventType.click],
+        eventKey: EventKeyType.EDIT_TOOLS_CLICK + IconType.copy,
+        listeners: [this.copyListener],
+        bindObj: this
+      });
     }
 
 
@@ -103,6 +128,18 @@ import './EditTools.scss'
       }
     }
 
+    selectCursorListener(e) {
+      Controller.setCursorMode(CursorType.SELECT_MODE);
+    }
+
+    cutCursorListener(e) {
+      Controller.setCursorMode(CursorType.CUT_MODE);
+    }
+
+    copyListener(e) {
+      Controller.setClipBoard();
+    }
+
     subscribe(): void {
       storeChannel.subscribe(StoreChannelType.EDIT_TOOLS_CHANNEL, this.updateEditTools, this);
     }
@@ -111,6 +148,7 @@ import './EditTools.scss'
       this.render();
       this.init()
       this.initState();
+      this.initEvent();
     }
 
   };
