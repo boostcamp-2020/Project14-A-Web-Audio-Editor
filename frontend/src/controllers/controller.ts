@@ -204,6 +204,10 @@ const setMarkerWidth = (markerWidth: number): void => {
   store.setMarkerWidth(markerWidth);
 };
 
+const setMarkerWidthToZero = (): void => {
+  store.setMarkerWidthToZero();
+}
+
 const changePlayTime = (passedTime: number): void => {
   const { playTime } = store.getState();
 
@@ -294,6 +298,7 @@ export default {
   changeTotalCursorTime,
   cursorChangeMarkerTime,
   setMarkerWidth,
+  setMarkerWidthToZero,
   getIsPauseState,
   changeIsPauseState,
   changePlayTime,

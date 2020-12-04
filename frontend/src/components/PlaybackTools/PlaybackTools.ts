@@ -12,7 +12,7 @@ const TIMER_TIME = 34;
     public iconlist: string[];
     public eventKeyList: string[];
 
-    //TODO: 다른 ts로 옮기기
+    //TODO: 다른 ts로 옮기기.. 어디 옮겨야 할 지 모르겠음.
     private audioContext: AudioContext;
     private isPause: boolean;
     private trackList: Track[];
@@ -139,6 +139,14 @@ const TIMER_TIME = 34;
 
     audioStopListener() {
       if (this.trackList.length == 0) return;
+
+      this.isPause = true;
+      Controller.changeIsPauseState(true);
+
+      this.iconlist[0] = 'play';
+
+      this.stop();
+      this.render();
     }
 
     audioRepeatListener() {
@@ -149,8 +157,11 @@ const TIMER_TIME = 34;
       if (this.trackList.length == 0) return;
     }
 
+    //앞으로 건너뛰기입니다.
     audioFastForwardListener() {
       if (this.trackList.length == 0) return;
+
+      this.fastForward();
     }
 
     audioSkipPrevListener() {
@@ -255,6 +266,28 @@ const TIMER_TIME = 34;
 
       const timeDiff = this.audioContext.currentTime - this.passedTime;
       Controller.pauseChangeMarkerTime(timeDiff);
+    }
+
+    stop() {
+      this.audioContext.close();
+      this.audioContext = new AudioContext();
+      this.audioContext.suspend();
+      
+      //setInterval에서 멈췄는지를 확인하는 시간 간격이 있어서
+      //정지 버튼을 누른 후에도 시간이 흘러가는 문제가 있어
+      //그 시간간격보다 조금 흐른 후 호출헤서 완전히 0이 되도록 함.
+      setTimeout(()=>{
+        Controller.resetPlayTime(0); 
+
+        //원하는 시간으로 바로 바꿔주는 기능이 cursorChangeMarkerTime이라서
+       //이름과는 맞지 않지만 사용함.
+        Controller.cursorChangeMarkerTime(0);
+        Controller.setMarkerWidthToZero();  
+      }, TIMER_TIME+1);
+    }
+
+    fastForward() {
+
     }
   };
   customElements.define('audi-playback-tools', PlaybackTools);
