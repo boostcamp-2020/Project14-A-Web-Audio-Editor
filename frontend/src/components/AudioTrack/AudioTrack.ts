@@ -57,7 +57,7 @@ import "./AudioTrack.scss";
                     </div>
                 `;
     }
-    
+
     getTrackSectionList(): string {
       return this.trackSectionList.reduce((acc, trackSection, idx) =>
         acc += `<audi-track-section data-id=${trackSection.id} data-track-id=${trackSection.trackId}></audi-track-section>`
@@ -84,7 +84,7 @@ import "./AudioTrack.scss";
         bindObj: this
       });
     }
-      
+
     focusResetListener(e): void {
       const ctrlIsPressed = Controller.getCtrlIsPressed();
       if (!ctrlIsPressed) {
@@ -102,25 +102,26 @@ import "./AudioTrack.scss";
       e.stopPropagation();
       const sourceId = e.dataTransfer.getData("text/plain");
       const source = Controller.getSourceBySourceId(Number(sourceId));
-      if(!source) return;
+      if (!source) return;
 
       const { duration } = source;
 
-      const trackSection = new TrackSection({ 
-        sourceId : source.id, 
+      const trackSection = new TrackSection({
+        id: 0,
+        sourceId: source.id,
         trackId: this.trackId,
-        channelStartTime : 0, 
-        channelEndTime : duration, 
-        parsedChannelStartTime : 0,
+        channelStartTime: 0,
+        channelEndTime: duration,
+        parsedChannelStartTime: 0,
         parsedChannelEndTime: duration,
-        trackStartTime : 0,
-        audioStartTime : 0
-     });
-        
+        trackStartTime: 0,
+        audioStartTime: 0
+      });
+
       Controller.addTrackSection(this.trackId, trackSection);
       this.hideMessage();
     }
-      
+
     trackDragenterListener(e): void {
       e.preventDefault()
       this.trackDropzoneElement?.classList.add('focus');
@@ -132,7 +133,7 @@ import "./AudioTrack.scss";
     }
 
     hideMessage(): void {
-        this.trackMessage?.classList.add('hide');
+      this.trackMessage?.classList.add('hide');
     }
 
     subscribe(): void {
@@ -141,7 +142,7 @@ import "./AudioTrack.scss";
     }
 
     trackDragStateObserverCallback(isTrackDraggable): void {
-      if(isTrackDraggable){
+      if (isTrackDraggable) {
         this.activeTrackDropzone();
         return;
       }
@@ -156,8 +157,8 @@ import "./AudioTrack.scss";
       this.trackDropzoneElement?.classList.add('hide');
     }
 
-    trackSectionListObserverCallback({trackId, trackSectionList}): void {
-      if(trackId !== this.trackId) return;
+    trackSectionListObserverCallback({ trackId, trackSectionList }): void {
+      if (trackId !== this.trackId) return;
 
       this.trackSectionList = trackSectionList;
       this.render();
