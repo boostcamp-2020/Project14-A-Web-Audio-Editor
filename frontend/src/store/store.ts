@@ -20,8 +20,8 @@ const store = new (class Store {
       focusList: [],
       ctrlIsPressed: false,
       cursorMode: CursorType.SELECT_MODE,
-      trackIndex: 3,
-      sectionIndex: 0,
+      trackIndex: 4,
+      sectionIndex: 1,
       clipBoard: null,
       audioSourceInfoInTrackList: [],
       currentPosition: 0,
@@ -35,7 +35,7 @@ const store = new (class Store {
     return Array(numOfTracks)
       .fill(0)
       .reduce((acc, cur, idx) => {
-        const track = new Track({ id: idx, trackSectionList: [] });
+        const track = new Track({ id: idx + 1, trackSectionList: [] });
         return acc.concat(track);
       }, []);
   }
@@ -143,17 +143,19 @@ const store = new (class Store {
     const newfocusList = [...focusList];
     newfocusList.splice(removeIndex, 1);
     this.state = { ...this.state, focusList: newfocusList };
-    storeChannel.publish(StoreChannelType.EDIT_TOOLS_CHANNEL, '');
+    storeChannel.publish(StoreChannelType.EDIT_TOOLS_CHANNEL, null);
   }
 
   resetFocus(): void {
     this.state = { ...this.state, focusList: [] };
-    storeChannel.publish(StoreChannelType.EDIT_TOOLS_CHANNEL, '');
+    storeChannel.publish(StoreChannelType.EDIT_TOOLS_CHANNEL, null);
   }
 
   setClipBoard(newSection: TrackSection): void {
     this.state.clipBoard = newSection;
-    storeChannel.publish(StoreChannelType.EDIT_TOOLS_CHANNEL, '');
+    storeChannel.publish(StoreChannelType.EDIT_TOOLS_CHANNEL, null);
+    console.log(newSection);
+
   }
 
   setMarkerTime(newMarkerTime: number): void {
@@ -195,14 +197,14 @@ const store = new (class Store {
 
     const newTrack = new Track({ ...track, trackSectionList: newTrackSectionList });
     const newTrackList: Array<Track> = trackList.reduce<Track[]>((acc, track) =>
-        (track.id === trackId) ? acc.concat(newTrack) : acc.concat(track),
-        []);
+      (track.id === trackId) ? acc.concat(newTrack) : acc.concat(track),
+      []);
 
     this.state = { ...this.state, trackList: newTrackList };
 
     storeChannel.publish(StoreChannelType.TRACK_SECTION_LIST_CHANNEL, {
-        trackId: trackId,
-        trackSectionList: newTrackSectionList
+      trackId: trackId,
+      trackSectionList: newTrackSectionList
     });
 
     storeChannel.publish(StoreChannelType.TRACK_CHANNEL, newTrackList);
