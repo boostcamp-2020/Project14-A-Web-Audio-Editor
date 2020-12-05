@@ -13,7 +13,6 @@ const QUANTUM = 3;
     public iconlist: string[];
     public eventKeyList: string[];
 
-    //TODO: 다른 ts로 옮기기.. 어디 옮겨야 할 지 모르겠음.
     private audioContext: AudioContext;
     private isPause: boolean;
     private trackList: Track[];
@@ -33,7 +32,6 @@ const QUANTUM = 3;
         EventKeyType.AUDIO_SKIP_NEXT
       ];
 
-      //옮기기
       this.audioContext = new AudioContext();
       this.isPause = Controller.getIsPauseState();
       this.trackList = [];
@@ -312,7 +310,7 @@ const QUANTUM = 3;
       const widthPixel = PlayBarUtil.getSomePixel(QUANTUM * 1000);
       Controller.setMarkerWidth(-widthPixel); //마커 위치 변경
       Controller.pauseChangeMarkerTime(-QUANTUM); //마커 시간 변경
-      Controller.changePlayTime(-QUANTUM * 1000);
+      Controller.changePlayTime(-QUANTUM * 1000); //playTime(왼쪽상단 시간 부분)변경
 
       this.trackList.forEach((track: Track) => {
         if (track.trackSectionList.length != 0) {
