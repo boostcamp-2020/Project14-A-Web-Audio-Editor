@@ -22,7 +22,7 @@ const getSectionChannelData = (trackId: number, trackSectionId: number): Section
   if (!trackSection) return;
 
   const source = sourceList.find((source) => source.id === trackSection.sourceId);
-  
+
   if (!source) return;
 
   const { parsedChannelData, duration } = source;
@@ -255,16 +255,25 @@ const redoCommand = () => {
   if (CommandManager.redoList.length === 0) return;
   CommandManager.redo();
 };
- 
-const setClipBoard = () => {
+
+const setClipBoard = (): boolean => {
   const { focusList } = store.getState();
 
-  if (focusList.length !== 1) return;
+  if (focusList.length !== 1) return false;
 
   const newSection: TrackSection = CopyUtil.copySection(focusList[0].trackSection);
-
+  newSection.id = 0;
   store.setClipBoard(newSection);
+
+  return true;
 };
+
+const cutCommand = () => {
+  if (!setClipBoard()) return;
+
+  const command = new DeleteCommand();
+  CommandManager.execute(command);
+}
 
 export default {
   getSourceBySourceId,
@@ -301,5 +310,6 @@ export default {
   removeSection,
   deleteCommand,
   undoCommand,
-  redoCommand
+  redoCommand,
+  cutCommand
 };
