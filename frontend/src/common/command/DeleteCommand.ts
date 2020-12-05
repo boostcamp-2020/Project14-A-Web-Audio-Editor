@@ -3,7 +3,7 @@ import { Controller } from '@controllers'
 import { TrackSection } from '@model'
 import { CopyUtil } from '@util'
 
-export default class DeleteCommand extends ICommand {
+export class DeleteCommand extends ICommand {
   private deleteList: TrackSection[];
 
   constructor() {
