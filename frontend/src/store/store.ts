@@ -86,10 +86,15 @@ const store = new (class Store {
   setTrack(newTrack: Track): void {
     const { trackList } = this.state;
 
-    newTrack.id = trackList.length;
-    const newAudioTrackList = trackList.concat(newTrack);
+    const track = trackList.find(track => track.id === newTrack.id);
+    if (track) {
+      track.trackSectionList = [...newTrack.trackSectionList];
+    } else {
+      newTrack.id = this.state.trackIndex++;
+      const newAudioTrackList = trackList.concat(newTrack);
 
-    this.state = { ...this.state, trackList: newAudioTrackList };
+      this.state = { ...this.state, trackList: newAudioTrackList };
+    }
   }
 
   setTrackSection(trackId: number, newTrackSection: TrackSection): void {
@@ -98,7 +103,9 @@ const store = new (class Store {
     if (!track) return;
 
     const { trackSectionList } = track;
-    newTrackSection.id = this.state.sectionIndex++;
+    if (newTrackSection.id === 0) {
+      newTrackSection.id = this.state.sectionIndex++;
+    }
 
     const newTrackSectionList = trackSectionList.concat(newTrackSection).sort((a, b) => a.trackStartTime - b.trackStartTime);
 
