@@ -29,7 +29,8 @@ import { StoreChannelType } from '@types';
 
       if (!markerElement) return;
       const prevCurrentPosition = Number(markerElement?.style.left.split('px')[0]);
-      const currentPosition = prevCurrentPosition + newCurrentPosition;
+      let currentPosition = prevCurrentPosition + newCurrentPosition;
+      if(currentPosition < 0) currentPosition = 0;
       markerElement.style.left = `${currentPosition}px`;
     }
 
