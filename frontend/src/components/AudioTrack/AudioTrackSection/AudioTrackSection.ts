@@ -1,5 +1,5 @@
 import { Controller } from '@controllers';
-import { EventKeyType, EventType } from '@types';
+import { CursorType, EventKeyType, EventType } from '@types';
 import { EventUtil } from '@util';
 
 import './AudioTrackSection.scss';
@@ -109,7 +109,13 @@ interface SectionData {
     }
 
     clickListener(e): void {
-      Controller.toggleFocus(this.trackId, this.sectionId, e.target);
+      const cursorMode = Controller.getCursorMode();
+      if (cursorMode === CursorType.SELECT_MODE) {
+        Controller.toggleFocus(this.trackId, this.sectionId, e.target);
+      } else if (cursorMode === CursorType.CUT_MODE) {
+        const cursorPosition = e.pageX;
+        Controller.splitCommand(cursorPosition, this.trackId, this.sectionId);
+      }
     }
   };
 
