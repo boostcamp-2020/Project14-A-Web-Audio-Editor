@@ -15,7 +15,7 @@ class CommandManager {
     command.execute();
     this.undoList.push(command);
     this.redoList = [];
-    storeChannel.publish(StoreChannelType.EDIT_TOOLS_CHANNEL, '');
+    storeChannel.publish(StoreChannelType.EDIT_TOOLS_CHANNEL, null);
   }
 
   undo() {
@@ -24,7 +24,7 @@ class CommandManager {
       if (command) {
         this.redoList.push(command);
         command.undo();
-        storeChannel.publish(StoreChannelType.EDIT_TOOLS_CHANNEL, '');
+        storeChannel.publish(StoreChannelType.EDIT_TOOLS_CHANNEL, null);
       }
     }
   }
@@ -35,7 +35,7 @@ class CommandManager {
       if (command) {
         this.undoList.push(command);
         command.execute();
-        storeChannel.publish(StoreChannelType.EDIT_TOOLS_CHANNEL, '');
+        storeChannel.publish(StoreChannelType.EDIT_TOOLS_CHANNEL, null);
       }
     }
   }
