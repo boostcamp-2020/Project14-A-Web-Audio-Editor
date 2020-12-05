@@ -39,7 +39,7 @@ const getCursorPosition = (defaultStartX: number, currentX: number, mainWidth: n
 
   const [newMinute, newSecond, newMilsecond] = setTime(cursorTime);
 
-  return [newMinute, newSecond, newMilsecond, differenceWidth, cursorTime];
+  return [newMinute, newSecond, newMilsecond, differenceWidth, cursorTime]; // {} 으로 retrun해도 좋을 것 같아요
 };
 
 const getStringTime = (time: number): string[] => {
