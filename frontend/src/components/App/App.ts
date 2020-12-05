@@ -75,7 +75,7 @@ import { Controller } from "@controllers";
         Controller.cutCommand();
       }
       else if (e.which === KeyBoard.V && isCtrl) {
-        // console.log('붙여넣기');
+        Controller.pasteCommand();
       }
       else if (e.which === KeyBoard.Z && isCtrl) {
         Controller.undoCommand();
