@@ -113,6 +113,13 @@ import './EditTools.scss'
         listeners: [this.cutListener],
         bindObj: this
       });
+
+      EventUtil.registerEventToRoot({
+        eventTypes: [EventType.click],
+        eventKey: EventKeyType.EDIT_TOOLS_CLICK + IconType.paste,
+        listeners: [this.pasteListener],
+        bindObj: this
+      });
     }
 
     cursorState() {
@@ -169,6 +176,10 @@ import './EditTools.scss'
 
     cutListener(e) {
       Controller.cutCommand();
+    }
+
+    pasteListener(e) {
+      Controller.pasteCommand();
     }
 
     subscribe(): void {
