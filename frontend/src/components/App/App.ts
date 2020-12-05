@@ -67,7 +67,7 @@ import { Controller } from "@controllers";
         Controller.setClipBoard();
       }
       else if (e.which === KeyBoard.X && isCtrl) {
-        // console.log('잘라내기');
+        Controller.cutCommand();
       }
       else if (e.which === KeyBoard.V && isCtrl) {
         // console.log('붙여넣기');
