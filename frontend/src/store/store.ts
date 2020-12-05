@@ -180,7 +180,6 @@ const store = new (class Store {
     storeChannel.publish(StoreChannelType.CURRENT_POSITION_ZERO_CHANNEL, '');
   }
 
-
   setPlayTime(newPlayTime): void {
     this.state = { ...this.state, playTime: newPlayTime };
     storeChannel.publish(StoreChannelType.PLAY_TIME_CHANNEL, newPlayTime);
