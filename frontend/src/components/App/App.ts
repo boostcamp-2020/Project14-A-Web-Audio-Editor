@@ -38,7 +38,6 @@ import { Controller } from "@controllers";
     }
 
     KeyDownListener(e): void {
-      const { } = Controller
       const isCtrl = Controller.getCtrlIsPressed();
 
       if (e.which === KeyBoard.CTRL) {
@@ -59,6 +58,12 @@ import { Controller } from "@controllers";
       }
       else if (e.which === KeyBoard.RIGHT && !isCtrl) {
         // console.log('오른쪽');
+      }
+      else if (e.which === KeyBoard.LEFT_BRACKET && !isCtrl) {
+        // console.log('시작지점');
+      }
+      else if (e.which === KeyBoard.RIGHT_BRACKET && !isCtrl) {
+        // console.log('마지막지점');
       }
       else if (e.which === KeyBoard.SPACE && !isCtrl) {
         // console.log('스페이스바');

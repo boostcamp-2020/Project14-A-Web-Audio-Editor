@@ -8,7 +8,9 @@ enum KeyBoard {
   CTRL = 17,
   LEFT = 37,
   RIGHT = 39,
-  SPACE = 32
+  SPACE = 32,
+  LEFT_BRACKET = 219,
+  RIGHT_BRACKET = 221,
 }
 
 export { KeyBoard }
