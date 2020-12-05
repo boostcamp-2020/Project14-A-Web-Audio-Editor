@@ -2,9 +2,8 @@ import { Source, Track, TrackSection } from '@model';
 import { store } from "@store";
 import { ModalType, FocusInfo, CursorType } from "@types";
 import CommandManager from '@command/CommandManager';
-import DeleteCommand from '@command/DeleteCommand'
-import { CopyUtil } from '@util'
-import { PlayBarUtil } from '@util';
+import { DeleteCommand, PasteCommand } from '@command'
+import { CopyUtil, PlayBarUtil } from '@util'
 
 interface SectionData {
   sectionChannelData: number[];
@@ -68,7 +67,7 @@ const getTrackList = (): Track[] => {
   return trackList;
 };
 
-const addTrack = (track: Track): void => {
+const setTrack = (track: Track): void => {
   store.setTrack(track);
 };
 
@@ -275,6 +274,26 @@ const cutCommand = () => {
   CommandManager.execute(command);
 }
 
+const pasteCommand = () => {
+  const { focusList, trackList, clipBoard } = store.getState();
+
+  if (focusList.length !== 1) return false;
+
+  const track = trackList.find(track => track.id === focusList[0].trackSection.trackId);
+  if (!track || !clipBoard) return;
+
+  const copyTrack = CopyUtil.copyTrack(track);
+  const copySection = CopyUtil.copySection(clipBoard);
+  const focusSection = focusList[0].trackSection;
+
+  copySection.trackStartTime = focusSection.trackStartTime + focusSection.length;
+  copySection.trackId = focusSection.trackId;
+
+  const command = new PasteCommand(copyTrack, copySection);
+
+  CommandManager.execute(command)
+}
+
 export default {
   getSourceBySourceId,
   getSectionChannelData,
@@ -282,7 +301,7 @@ export default {
   changeModalState,
   changeTrackDragState,
   getTrackList,
-  addTrack,
+  setTrack,
   addTrackSection,
   changeCursorTime,
   changeCurrentPosition,
@@ -311,5 +330,6 @@ export default {
   deleteCommand,
   undoCommand,
   redoCommand,
-  cutCommand
+  cutCommand,
+  pasteCommand
 };
