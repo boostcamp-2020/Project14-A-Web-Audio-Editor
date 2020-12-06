@@ -6,7 +6,6 @@
 
   .audi-main-content {
     display: flex;
-    justify-content: space-between;
     width: 100%;
     height: 100%;
     padding: 30px;
@@ -15,7 +14,15 @@
     background-color: #000000;
 
     aside {
-      width: 20%;
+      width: 15%;
+    }
+
+    .audi-main-menu-container{
+      width: 5%;
+
+      .audi-main-track-option-area{
+        padding-top: 1.8rem;
+      }
     }
 
     .audi-main-audio-track-container {
@@ -47,10 +54,29 @@
       }
     }
   }
+
   .cursor-change {
-        cursor: url("https://user-images.githubusercontent.com/7006837/100991542-73da8780-3596-11eb-84fc-de0de7494be8.png") 6 12, auto !important;
+      cursor: url("https://user-images.githubusercontent.com/7006837/100991542-73da8780-3596-11eb-84fc-de0de7494be8.png") 6 12, auto !important;
       & * {
         cursor: url("https://user-images.githubusercontent.com/7006837/100991542-73da8780-3596-11eb-84fc-de0de7494be8.png") 6 12, auto !important;
       }
+  }
+}
+
+@media screen and (max-width: 1280px) {
+  .audi-main-container {
+    .audi-main-content {
+      aside {
+        width: 22%;
       }
+  
+      .audi-main-menu-container{
+        width: 8%;
+      }
+
+      .audi-main-audio-track-container {
+        width: 70%;
+      }
+    }
+  }
 }

@@ -26,3 +26,9 @@ audi-track-section{
         border-radius: 5px;
     }
 }
+
+@media screen and (max-width: 1280px) {
+    .audio-track-section{
+        height: 100px;
+    }
+}

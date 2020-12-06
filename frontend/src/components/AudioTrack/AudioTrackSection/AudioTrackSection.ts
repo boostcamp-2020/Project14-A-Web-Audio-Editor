@@ -68,11 +68,13 @@ interface SectionData {
 
       const { sectionChannelData, duration } = this.sectionData;
       const trackWidth = this.trackCanvasElement.clientWidth;
+      const trackHeight = this.trackCanvasElement.clientHeight;
       const canvasWidth = trackWidth / (300 / duration);
 
       this.style.width = `${canvasWidth}px`;
       this.trackCanvasElement.width = canvasWidth;
       this.trackCanvasElement.style.width = `${canvasWidth}px`;
+      this.trackCanvasElement.height = trackHeight;
 
       const canvasHeight = this.trackCanvasElement.clientHeight;
       const canvasCtx = this.trackCanvasElement.getContext('2d');
