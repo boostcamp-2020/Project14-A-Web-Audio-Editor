@@ -12,6 +12,16 @@
   color: variables.$white-color;
 
   font-size: 0.7rem;
+
+  .playbar-event-zone {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+
+    z-index: 3;
+  }
 }
 
 .playbar-time {
