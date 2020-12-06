@@ -28,21 +28,22 @@ enum EventKeyType {
 }
 
 enum EventType {
-  click = 'click',
-  dblclick = 'dblclick',
-  keyup = 'keyup',
-  dragstart = 'dragstart',
-  dragover = 'dragover',
-  dragenter = 'dragenter',
-  dragleave = 'dragleave',
-  dragend = 'dragend',
-  drop = 'drop',
-  change = 'change',
-  input = 'input',
-  mousemove = 'mousemove'
+    click = 'click',
+    dblclick = 'dblclick',
+    keyup = 'keyup',
+    dragstart = 'dragstart',
+    dragover = 'dragover',
+    dragenter = 'dragenter',
+    dragleave = 'dragleave',
+    dragend = 'dragend',
+    drop = 'drop',
+    change = 'change',
+    input = 'input',
+    mousemove = 'mousemove',
+    mousedown = 'mousedown'
 }
 
-const eventTypes = ['click', 'dblclick', 'keyup', 'dragstart', 'dragover', 'dragenter', 'dragleave', 'drop', 'change', 'input', 'mousemove', 'dragend'];
+const eventTypes = ['click', 'dblclick', 'keyup', 'dragstart', 'dragover', 'dragenter', 'dragleave','drop', 'change', 'input', 'mousemove', 'mousedown', 'dragend'];
 
 interface EventTargetDataType {
   listener: EventListener;
