@@ -1,3 +1,5 @@
+@import '@style/variables';
+
 audi-audio-track:not(:defined) {
     display: hidden;
 }
@@ -22,7 +24,7 @@ audi-audio-track:not(:defined) {
         border-top: 1px solid #ffffff;
         border-bottom: 1px solid #ffffff;
         box-sizing: border-box;
-
+        
         .audio-track-dropzone{
             position: absolute;
             top: 0;
@@ -45,6 +47,7 @@ audi-audio-track:not(:defined) {
     }
 
     .audio-track-message{
+        @extend %noselect-font;
         position: absolute;
         top: 50%;
         left: 50%;

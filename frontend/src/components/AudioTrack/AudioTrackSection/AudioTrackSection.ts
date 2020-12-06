@@ -1,7 +1,6 @@
 import { Controller } from '@controllers';
 import { EventKeyType, EventType } from '@types';
 import { EventUtil } from '@util';
-
 import './AudioTrackSection.scss';
 
 interface SectionData {
@@ -68,9 +67,10 @@ interface SectionData {
       if (!this.sectionData || !this.trackCanvasElement) return;
 
       const { sectionChannelData, duration } = this.sectionData;
-
       const trackWidth = this.trackCanvasElement.clientWidth;
       const canvasWidth = trackWidth / (300 / duration);
+
+      this.style.width = `${canvasWidth}px`;
       this.trackCanvasElement.width = canvasWidth;
       this.trackCanvasElement.style.width = `${canvasWidth}px`;
 
