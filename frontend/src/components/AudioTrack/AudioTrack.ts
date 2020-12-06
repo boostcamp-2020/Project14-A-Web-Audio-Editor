@@ -8,7 +8,7 @@ import "./AudioTrack.scss";
 (() => {
   const AudioTrack = class extends HTMLElement {
     private trackId: number;
-    private trackMessage: HTMLDivElement | null;
+    private trackMessageElement: HTMLDivElement | null;
     private trackDropzoneElement: HTMLDivElement | null;
     private trackSectionList: TrackSection[];
     private trackAreaElement: HTMLDivElement | null;
@@ -17,7 +17,7 @@ import "./AudioTrack.scss";
     constructor() {
       super();
       this.trackId = 0;
-      this.trackMessage = null;
+      this.trackMessageElement = null;
       this.trackDropzoneElement = null;
       this.trackSectionList = [];
       this.trackAreaElement = null;
@@ -69,7 +69,7 @@ import "./AudioTrack.scss";
     }
 
     initElement(): void {
-      this.trackMessage = this.querySelector('.audio-track-message');
+      this.trackMessageElement = this.querySelector('.audio-track-message');
       this.trackDropzoneElement = this.querySelector('.audio-track-dropzone');
       this.trackAreaElement = this.querySelector('.audio-track-area');
       this.trackScrollAreaElement = document.querySelector('.audi-main-audio-track-scroll-area');
@@ -124,7 +124,6 @@ import "./AudioTrack.scss";
      });
         
       Controller.addTrackSection(this.trackId, trackSection);
-      this.hideMessage();
     }
       
     trackDragenterListener(e): void {
@@ -135,10 +134,6 @@ import "./AudioTrack.scss";
     trackDragleaveListener(e): void {
       e.preventDefault()
       this.trackDropzoneElement?.classList.remove('focus');
-    }
-
-    hideMessage(): void {
-        this.trackMessage?.classList.add('hide');
     }
 
     subscribe(): void {
@@ -169,16 +164,24 @@ import "./AudioTrack.scss";
       this.trackSectionList = trackSectionList;
       this.render();
       this.initElement();
+      this.messageDisplayHandler();
       Controller.changeMaxTrackWidth(this.trackScrollAreaElement.scrollWidth);
+    }
+
+    messageDisplayHandler(): void {
+      if(!this.trackMessageElement) return;
+
+      if(this.trackSectionList.length > 0)
+        this.trackMessageElement.classList.add('hide');
+      else
+        this.trackMessageElement.classList.remove('hide');
     }
 
     maxTrackWidthObserverCallback(maxTrackWidth: number): void {
       this.resizeTrackArea(maxTrackWidth);
     }
 
-    resizeTrackArea(width: number){
-      console.log(width);
-      
+    resizeTrackArea(width: number){     
       if(!this.trackAreaElement) return;
       this.trackAreaElement.style.width = `${width}px`;
     }
