@@ -53,6 +53,7 @@ import "./AudioTrack.scss";
                         ${this.getTrackSectionList()}
                         <div class="audio-track-message"><span>Drag & Drop</span></div>
                         <div class="audio-track-dropzone hide" event-key=${EventKeyType.AUDIO_TRACK_DRAGOVER_DROP + this.trackId}></div>
+                        <div id="section-cut-line-${this.trackId}" class="cut-line"></div>
                       </div>      
                     </div>
                 `;
@@ -83,6 +84,7 @@ import "./AudioTrack.scss";
         listeners: [this.focusResetListener],
         bindObj: this
       });
+
     }
 
     focusResetListener(e): void {
