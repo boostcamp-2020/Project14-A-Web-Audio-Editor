@@ -18,3 +18,4 @@ import './Modal';
 import './Pages';
 import './Button';
 import './EffectController';
+import './ZoomBar/ZoomBar';
