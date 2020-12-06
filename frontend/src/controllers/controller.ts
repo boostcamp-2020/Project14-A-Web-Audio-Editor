@@ -266,6 +266,12 @@ const setClipBoard = () => {
   store.setClipBoard(newSection);
 };
 
+const changeMaxTrackWidth = (newMaxTrackWidth: number) => {
+  const { maxTrackWidth } = store.getState();
+  if(maxTrackWidth >= newMaxTrackWidth) return;
+  store.setMaxTrackWidth(newMaxTrackWidth);
+}
+
 export default {
   getSourceBySourceId,
   getSectionChannelData,
@@ -301,5 +307,6 @@ export default {
   removeSection,
   deleteCommand,
   undoCommand,
-  redoCommand
+  redoCommand,
+  changeMaxTrackWidth
 };
