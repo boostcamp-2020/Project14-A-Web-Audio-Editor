@@ -39,12 +39,15 @@ import './Main.scss';
                             <audi-side-bar></audi-side-bar>
                         </aside>
                         <section class="audi-main-audio-track-container" event-key=${EventKeyType.FOCUS_RESET_CLICK}>
-                            <audi-marker></audi-marker>
-                            <audi-playbar></audi-playbar>
-                            ${this.getTrackList()}
+                            <div class="audi-main-audio-track-scroll-area">
+                              <audi-marker></audi-marker>
+                              <audi-playbar></audi-playbar>
+                              ${this.getTrackList()}
+                            </div>
                             <div class='audi-main-audio-track-container-event-zone hide' event-key=${
                               EventKeyType.AUDIO_TRACK_CONTAINER_MULTIPLE
                             }></div>
+                            <audi-zoom-bar></audi-zoom-bar>
                         </section>
                     </div>
                   </main>
