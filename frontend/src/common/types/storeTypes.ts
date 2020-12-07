@@ -53,4 +53,8 @@ interface StoreObserverData {
   bindObj: Object;
 }
 
-export { StoreStateType, StoreChannelType, StoreObserverData, CursorType, FocusInfo };
+interface EffectList {
+  name: string;
+}
+
+export { StoreStateType, StoreChannelType, StoreObserverData, CursorType, FocusInfo, EffectList };
