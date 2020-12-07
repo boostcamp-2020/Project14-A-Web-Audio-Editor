@@ -1,0 +1,29 @@
+.audio-track-menu-container{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    padding: 10px 0 5px 0;
+    border: 1px solid #ffffff;
+    border-radius: 3px;
+
+    .track-menu-area{
+        display: flex;
+        justify-content: center;
+    }
+
+    .zoom-menu-area{
+        display: flex;
+        justify-content: center;
+    }
+
+    audi-icon-button{
+        margin-right: 5px;
+        cursor: pointer;
+
+        &:last-of-type{
+            margin-right: 0;
+        }
+    }
+}
