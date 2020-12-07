@@ -19,6 +19,11 @@ const clickMarkerListener = (element: HTMLElement) => (e: Event): void => {
 
   Controller.cursorChangeMarkerTime(totalCursorTime);
   Controller.resetPlayTime(totalCursorTime);
+
+  if(!Controller.getIsPauseState()) {
+    //play 함수 실행
+  }
+
   if (currentPosition < 0) return;
   element.style.left = `${currentPosition}px`;
 };

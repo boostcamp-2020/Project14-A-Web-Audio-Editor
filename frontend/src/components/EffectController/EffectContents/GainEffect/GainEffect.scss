@@ -19,7 +19,6 @@ audi-effect-gain {
   display: flex;
 
   & .gain-percentage-value {
-    @extend %noselect-font;
     height: 30px;
     width: 70px;
     border: 1px solid white ;
@@ -32,6 +31,5 @@ audi-effect-gain {
 }
 
 .effect-option-name {
-  @extend %noselect-font;
   margin: 10px 0;
 }

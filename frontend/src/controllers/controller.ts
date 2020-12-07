@@ -2,9 +2,8 @@ import { Source, Track, TrackSection } from '@model';
 import { store } from "@store";
 import { ModalType, FocusInfo, CursorType } from "@types";
 import CommandManager from '@command/CommandManager';
-import DeleteCommand from '@command/DeleteCommand'
-import { CopyUtil } from '@util'
-import { PlayBarUtil } from '@util';
+import { DeleteCommand, PasteCommand, SplitCommand } from '@command'
+import { CopyUtil, PlayBarUtil } from '@util'
 
 interface SectionData {
   sectionChannelData: number[];
@@ -22,7 +21,7 @@ const getSectionChannelData = (trackId: number, trackSectionId: number): Section
   if (!trackSection) return;
 
   const source = sourceList.find((source) => source.id === trackSection.sourceId);
-  
+
   if (!source) return;
 
   const { parsedChannelData, duration } = source;
@@ -68,7 +67,17 @@ const getTrackList = (): Track[] => {
   return trackList;
 };
 
-const addTrack = (track: Track): void => {
+const getTrack = (trackId: number): Track | null => {
+  const { trackList } = store.getState();
+  const track = trackList.find(track => track.id === trackId);
+
+  if (!track)
+    return null;
+
+  return track;
+}
+
+const setTrack = (track: Track): void => {
   store.setTrack(track);
 };
 
@@ -173,7 +182,10 @@ const getClipBoard = (): TrackSection | null => {
 
 const pauseChangeMarkerTime = (playingTime: number): void => {
   const { markerTime } = store.getState();
-  const newMarkerTime = markerTime + playingTime;
+  let newMarkerTime = markerTime + playingTime;
+  if(newMarkerTime < 0) {
+    newMarkerTime = 0 ;
+  }
 
   store.setMarkerTime(newMarkerTime);
 };
@@ -204,6 +216,10 @@ const setMarkerWidth = (markerWidth: number): void => {
   store.setMarkerWidth(markerWidth);
 };
 
+const setMarkerWidthToZero = (): void => {
+  store.setMarkerWidthToZero();
+}
+
 const changePlayTime = (passedTime: number): void => {
   const { playTime } = store.getState();
 
@@ -212,14 +228,31 @@ const changePlayTime = (passedTime: number): void => {
   let newSecond = Number(second);
   let newMilsecond = Number(milsecond) + Math.floor(passedTime);
 
-  if (newMilsecond >= 1000) {
-    newMilsecond -= 1000;
-    newSecond += 1;
+  if(newMilsecond > 0){
+    if (newMilsecond >= 1000) {
+      newMilsecond -= 1000;
+      newSecond += 1;
+    }
+  
+    if (newSecond >= 60) {
+      newSecond -= 60;
+      newMinute += 1;
+    }  
   }
-
-  if (newSecond >= 60) {
-    newSecond -= 60;
-    newMinute += 1;
+  else { 
+    let totalMilsecond = newMinute*1000*60 + newSecond*1000 + newMilsecond;
+    if(totalMilsecond < 0){
+      newMinute = 0;
+      newSecond = 0;
+      newMilsecond = 0
+    }
+    else {
+      newMinute = Math.floor(totalMilsecond/(1000*60));
+      totalMilsecond -= newMinute*1000*60;
+      newSecond = Math.floor(totalMilsecond/1000);
+      totalMilsecond -= newSecond*1000;
+      newMilsecond = totalMilsecond;
+    }
   }
 
   const newPlayTime = `${newMinute.toString().padStart(2, '0')}:${newSecond.toString().padStart(2, '0')}:${newMilsecond.toString().padStart(3, '0')}`;
@@ -255,15 +288,55 @@ const redoCommand = () => {
   if (CommandManager.redoList.length === 0) return;
   CommandManager.redo();
 };
- 
-const setClipBoard = () => {
+
+const setClipBoard = (): boolean => {
   const { focusList } = store.getState();
 
-  if (focusList.length !== 1) return;
+  if (focusList.length !== 1) return false;
 
   const newSection: TrackSection = CopyUtil.copySection(focusList[0].trackSection);
-
+  newSection.id = 0;
   store.setClipBoard(newSection);
+
+  return true;
+};
+
+const cutCommand = () => {
+  if (!setClipBoard()) return;
+
+  const command = new DeleteCommand();
+  CommandManager.execute(command);
+};
+
+const pasteCommand = () => {
+  const { focusList, trackList, clipBoard } = store.getState();
+
+  if (focusList.length !== 1) return false;
+
+  const track = trackList.find(track => track.id === focusList[0].trackSection.trackId);
+  if (!track || !clipBoard) return;
+
+  const copyTrack = CopyUtil.copyTrack(track);
+  const copySection = CopyUtil.copySection(clipBoard);
+  const focusSection = focusList[0].trackSection;
+
+  copySection.trackStartTime = focusSection.trackStartTime + focusSection.length;
+  copySection.trackId = focusSection.trackId;
+
+  const command = new PasteCommand(copyTrack, copySection);
+
+  CommandManager.execute(command)
+};
+
+const splitCommand = (cursorPosition: number, trackId: number, sectionId: number): void => {
+  const track = getTrack(trackId);
+  const trackSection = track?.trackSectionList.find(section => section.id === sectionId);
+
+  if (!trackSection || !track) return;
+
+  const command = new SplitCommand(cursorPosition, CopyUtil.copyTrack(track), CopyUtil.copySection(trackSection))
+  CommandManager.execute(command);
+
 };
 
 export default {
@@ -273,7 +346,8 @@ export default {
   changeModalState,
   changeTrackDragState,
   getTrackList,
-  addTrack,
+  getTrack,
+  setTrack,
   addTrackSection,
   changeCursorTime,
   changeCurrentPosition,
@@ -294,6 +368,7 @@ export default {
   changeTotalCursorTime,
   cursorChangeMarkerTime,
   setMarkerWidth,
+  setMarkerWidthToZero,
   getIsPauseState,
   changeIsPauseState,
   changePlayTime,
@@ -301,5 +376,8 @@ export default {
   removeSection,
   deleteCommand,
   undoCommand,
-  redoCommand
+  redoCommand,
+  cutCommand,
+  pasteCommand,
+  splitCommand
 };
