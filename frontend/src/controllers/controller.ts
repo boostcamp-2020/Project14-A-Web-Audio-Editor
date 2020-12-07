@@ -173,7 +173,10 @@ const getClipBoard = (): TrackSection | null => {
 
 const pauseChangeMarkerTime = (playingTime: number): void => {
   const { markerTime } = store.getState();
-  const newMarkerTime = markerTime + playingTime;
+  let newMarkerTime = markerTime + playingTime;
+  if(newMarkerTime < 0) {
+    newMarkerTime = 0 ;
+  }
 
   store.setMarkerTime(newMarkerTime);
 };
@@ -204,6 +207,10 @@ const setMarkerWidth = (markerWidth: number): void => {
   store.setMarkerWidth(markerWidth);
 };
 
+const setMarkerWidthToZero = (): void => {
+  store.setMarkerWidthToZero();
+}
+
 const changePlayTime = (passedTime: number): void => {
   const { playTime } = store.getState();
 
@@ -212,14 +219,31 @@ const changePlayTime = (passedTime: number): void => {
   let newSecond = Number(second);
   let newMilsecond = Number(milsecond) + Math.floor(passedTime);
 
-  if (newMilsecond >= 1000) {
-    newMilsecond -= 1000;
-    newSecond += 1;
+  if(newMilsecond > 0){
+    if (newMilsecond >= 1000) {
+      newMilsecond -= 1000;
+      newSecond += 1;
+    }
+  
+    if (newSecond >= 60) {
+      newSecond -= 60;
+      newMinute += 1;
+    }  
   }
-
-  if (newSecond >= 60) {
-    newSecond -= 60;
-    newMinute += 1;
+  else { 
+    let totalMilsecond = newMinute*1000*60 + newSecond*1000 + newMilsecond;
+    if(totalMilsecond < 0){
+      newMinute = 0;
+      newSecond = 0;
+      newMilsecond = 0
+    }
+    else {
+      newMinute = Math.floor(totalMilsecond/(1000*60));
+      totalMilsecond -= newMinute*1000*60;
+      newSecond = Math.floor(totalMilsecond/1000);
+      totalMilsecond -= newSecond*1000;
+      newMilsecond = totalMilsecond;
+    }
   }
 
   const newPlayTime = `${newMinute.toString().padStart(2, '0')}:${newSecond.toString().padStart(2, '0')}:${newMilsecond.toString().padStart(3, '0')}`;
@@ -294,6 +318,7 @@ export default {
   changeTotalCursorTime,
   cursorChangeMarkerTime,
   setMarkerWidth,
+  setMarkerWidthToZero,
   getIsPauseState,
   changeIsPauseState,
   changePlayTime,
