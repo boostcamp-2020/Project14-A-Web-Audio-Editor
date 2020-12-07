@@ -85,11 +85,11 @@ import './EditTools.scss'
         listeners: [this.undoListener],
         bindObj: this
       });
-      
+
       EventUtil.registerEventToRoot({
         eventTypes: [EventType.click],
         eventKey: EventKeyType.EDIT_TOOLS_CLICK + IconType.blade,
-        listeners: [this.cutCursorListener],
+        listeners: [this.cuttingCursorListener],
         bindObj: this
       });
 
@@ -99,15 +99,29 @@ import './EditTools.scss'
         listeners: [this.redoListener],
         bindObj: this
       });
-    
+
       EventUtil.registerEventToRoot({
         eventTypes: [EventType.click],
         eventKey: EventKeyType.EDIT_TOOLS_CLICK + IconType.copy,
         listeners: [this.copyListener],
         bindObj: this
       });
+
+      EventUtil.registerEventToRoot({
+        eventTypes: [EventType.click],
+        eventKey: EventKeyType.EDIT_TOOLS_CLICK + IconType.cut,
+        listeners: [this.cutListener],
+        bindObj: this
+      });
+
+      EventUtil.registerEventToRoot({
+        eventTypes: [EventType.click],
+        eventKey: EventKeyType.EDIT_TOOLS_CLICK + IconType.paste,
+        listeners: [this.pasteListener],
+        bindObj: this
+      });
     }
-    
+
     cursorState() {
       const cursorMode = Controller.getCursorMode();
       if (cursorMode === CursorType.SELECT_MODE) {
@@ -152,12 +166,20 @@ import './EditTools.scss'
       Controller.setCursorMode(CursorType.SELECT_MODE);
     }
 
-    cutCursorListener(e) {
+    cuttingCursorListener(e) {
       Controller.setCursorMode(CursorType.CUT_MODE);
     }
 
     copyListener(e) {
       Controller.setClipBoard();
+    }
+
+    cutListener(e) {
+      Controller.cutCommand();
+    }
+
+    pasteListener(e) {
+      Controller.pasteCommand();
     }
 
     subscribe(): void {
@@ -183,7 +205,7 @@ import './EditTools.scss'
       Controller.redoCommand();
     }
   };
-      
+
   customElements.define('audi-edit-tools', EditTools);
 })()
 
