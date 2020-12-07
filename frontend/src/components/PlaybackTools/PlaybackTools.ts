@@ -385,7 +385,7 @@ const QUANTUM = 3;
               
               this.sourceInfo[sourceIdx].bufferSourceNode.start(waitTime, audioStartTime, playDuration);
             }
-            else if(trackSection.trackStartTime<=markerTime && markerTime + QUANTUM <=trackSection.trackStartTime+trackSection.length)
+            else if(trackSection.trackStartTime <= markerTime && markerTime + QUANTUM <= trackSection.trackStartTime+trackSection.length)
             {
               diff = markerTime - trackSection.trackStartTime + QUANTUM;
               waitTime = 0;
