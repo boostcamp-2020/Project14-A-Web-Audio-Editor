@@ -93,10 +93,11 @@ import { Controller } from "@controllers";
 
     eventListenerForRegistrant(e): void {
       const { target } = e;
-      if (!target || !this.isEventTarget(target) || !this.eventListenerCollectors) return;
-
+      if (!target || !this.isEventTarget(target) && !this.isDelegationEvent(target)) return;
+      
       const eventType = e.type;
-      const eventKey = target.getAttribute('event-key');
+      const eventKey = this.parseEventKey(target);
+      if(!eventKey) return;
 
       this.excuteEventListenerForTarget(eventType, eventKey, e);
     }
@@ -104,6 +105,22 @@ import { Controller } from "@controllers";
     isEventTarget(eventTarget: HTMLElement): Boolean {
       const eventKey = eventTarget.getAttribute('event-key');
       return eventKey ? true : false;
+    }
+
+    isDelegationEvent(eventTarget: HTMLElement): Boolean {
+      const eventDelegation = eventTarget.getAttribute('event-delegation');      
+      return eventDelegation === '' ? true : false;
+    }
+
+    parseEventKey(eventTarget: HTMLElement){
+      const eventDelegation = eventTarget.getAttribute('event-delegation');
+
+      if(eventDelegation === ''){
+        const newEventTarget = eventTarget.closest('.delegation');
+        return newEventTarget?.getAttribute('event-key');
+      }else{
+        return eventTarget.getAttribute('event-key');
+      }   
     }
 
     excuteEventListenerForTarget(eventType: string, eventKey: string, e: Event): void {

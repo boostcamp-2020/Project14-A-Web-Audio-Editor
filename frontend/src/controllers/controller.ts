@@ -339,6 +339,12 @@ const splitCommand = (cursorPosition: number, trackId: number, sectionId: number
 
 };
 
+const changeMaxTrackWidth = (newMaxTrackWidth: number) => {
+  const { maxTrackWidth } = store.getState();
+  if(maxTrackWidth >= newMaxTrackWidth) return;
+  store.setMaxTrackWidth(newMaxTrackWidth);
+}
+
 export default {
   getSourceBySourceId,
   getSectionChannelData,
@@ -377,6 +383,7 @@ export default {
   deleteCommand,
   undoCommand,
   redoCommand,
+  changeMaxTrackWidth,
   cutCommand,
   pasteCommand,
   splitCommand

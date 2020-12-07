@@ -25,7 +25,9 @@ enum EventKeyType {
   AUDIO_TRACK_SECTION_MULTIPLE = 'AUDIO_TRACK_SECTION_MULTIPLE',
   FOCUS_RESET_CLICK = 'FOCUS_RESET_CLICK',
   EDIT_TOOLS_CLICK = 'EDIT_TOOLS_CLICK',
-  PLAYBAR_EVENT_ZONE_DROP = 'PLAYBAR_EVENT_ZONE_DROP'
+  PLAYBAR_EVENT_ZONE_DROP = 'PLAYBAR_EVENT_ZONE_DROP',
+  ZOOM_BAR_MOUSE_DOWN = 'ZOOM_BAR_MOUSE_DOWN',
+  AUDIO_TRACK_OPTION_CLICK = 'AUDIO_TRACK_OPTION_CLICK'
 }
 
 enum EventType {
@@ -41,6 +43,7 @@ enum EventType {
   change = 'change',
   input = 'input',
   mousemove = 'mousemove',
+  mousedown = 'mousedown',
   mouseout = 'mouseout'
 }
 
@@ -57,6 +60,7 @@ const eventTypes = [
   'input',
   'mousemove',
   'dragend',
+  'mousedown',
   'mouseout'
 ];
 

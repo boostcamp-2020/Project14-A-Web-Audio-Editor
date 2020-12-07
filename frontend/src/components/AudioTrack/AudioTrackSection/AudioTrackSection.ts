@@ -1,7 +1,6 @@
 import { Controller } from '@controllers';
 import { CursorType, EventKeyType, EventType } from '@types';
 import { EventUtil, PlayBarUtil } from '@util';
-
 import './AudioTrackSection.scss';
 
 interface SectionData {
@@ -75,11 +74,14 @@ interface SectionData {
       if (!this.sectionData || !this.trackCanvasElement) return;
 
       const { sectionChannelData, duration } = this.sectionData;
-
       const trackWidth = this.trackCanvasElement.clientWidth;
+      const trackHeight = this.trackCanvasElement.clientHeight;
       const canvasWidth = trackWidth / (300 / duration);
+
+      this.style.width = `${canvasWidth}px`;
       this.trackCanvasElement.width = canvasWidth;
       this.trackCanvasElement.style.width = `${canvasWidth}px`;
+      this.trackCanvasElement.height = trackHeight;
 
       const canvasHeight = this.trackCanvasElement.clientHeight;
       const canvasCtx = this.trackCanvasElement.getContext('2d');

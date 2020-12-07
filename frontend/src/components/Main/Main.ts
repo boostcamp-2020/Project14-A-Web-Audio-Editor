@@ -38,13 +38,24 @@ import './Main.scss';
                         <aside>
                             <audi-side-bar></audi-side-bar>
                         </aside>
+                        <section class="audi-main-menu-container">
+                            <div class="audi-main-track-option-area">
+                              ${this.getTraclOptions()}
+                            </div>
+                            <audi-track-menu></audi-track-menu>
+                        </section>
                         <section class="audi-main-audio-track-container" event-key=${EventKeyType.FOCUS_RESET_CLICK}>
-                            <audi-marker></audi-marker>
-                            <audi-playbar></audi-playbar>
-                            ${this.getTrackList()}
-                            <div class='audi-main-audio-track-container-event-zone hide' event-key=${
-                              EventKeyType.AUDIO_TRACK_CONTAINER_MULTIPLE
-                            }></div>
+                            <div>
+                              <audi-marker></audi-marker>
+                              <audi-playbar></audi-playbar>
+                              <div class="audi-main-audio-track-scroll-area">
+                                ${this.getTrackList()}
+                              </div>
+                              <div class='audi-main-audio-track-container-event-zone hide' event-key=${
+                                EventKeyType.AUDIO_TRACK_CONTAINER_MULTIPLE
+                              }></div>
+                            </div>
+                            <audi-zoom-bar></audi-zoom-bar>
                         </section>
                     </div>
                   </main>
@@ -85,6 +96,11 @@ import './Main.scss';
       if (!ctrlIsPressed) {
         Controller.resetFocus();
       }
+    }
+    
+    getTraclOptions(): string{
+      return this.trackList.reduce((acc, cur, idx) =>
+        acc += `<audi-track-option data-id=${idx} data-track-id=${cur.id}></audi-track-option>`, "");
     }
 
     getTrackList(): string {

@@ -8,7 +8,7 @@ side-bar:not(:defined) {
     align-items:center;
     padding:1px;
     height:100%;
-    width:270px;
+    width:100%;
 
     border-radius: 5px;
     background-color: black;
@@ -21,6 +21,7 @@ side-bar:not(:defined) {
 .sidebar-source-list {
     height:85%;
 }
+
 .sidebar-time-info {
     height:15%;
 

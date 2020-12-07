@@ -27,7 +27,8 @@ const store = new (class Store {
       currentPosition: 0,
       markerTime: 0,
       totalCursorTime: 0,
-      isPause: true
+      isPause: true,
+      maxTrackWidth: 0
     };
   }
 
@@ -224,6 +225,15 @@ const store = new (class Store {
   setCursorMode(newType: CursorType): void {
     this.state.cursorMode = newType;
     storeChannel.publish(StoreChannelType.EDIT_TOOLS_CHANNEL, '');
+  }
+
+  setMaxTrackWidth(newMaxTrackWidth: number): void{
+    const { maxTrackWidth } = this.state;
+        
+    if(maxTrackWidth >= newMaxTrackWidth) return;
+        
+    this.state = { ...this.state, maxTrackWidth: newMaxTrackWidth };
+    storeChannel.publish(StoreChannelType.MAX_TRACK_WIDTH_CHANNEL, newMaxTrackWidth);
   }
 })();
 

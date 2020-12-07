@@ -8,16 +8,20 @@ import "./AudioTrack.scss";
 (() => {
   const AudioTrack = class extends HTMLElement {
     private trackId: number;
-    private trackMessage: HTMLDivElement | null;
+    private trackMessageElement: HTMLDivElement | null;
     private trackDropzoneElement: HTMLDivElement | null;
     private trackSectionList: TrackSection[];
+    private trackAreaElement: HTMLDivElement | null;
+    private trackScrollAreaElement: HTMLDivElement | null;
 
     constructor() {
       super();
       this.trackId = 0;
-      this.trackMessage = null;
+      this.trackMessageElement = null;
       this.trackDropzoneElement = null;
       this.trackSectionList = [];
+      this.trackAreaElement = null;
+      this.trackScrollAreaElement = null;
     }
 
     static get observedAttributes(): string[] {
@@ -66,8 +70,10 @@ import "./AudioTrack.scss";
     }
 
     initElement(): void {
-      this.trackMessage = this.querySelector('.audio-track-message');
+      this.trackMessageElement = this.querySelector('.audio-track-message');
       this.trackDropzoneElement = this.querySelector('.audio-track-dropzone');
+      this.trackAreaElement = this.querySelector('.audio-track-area');
+      this.trackScrollAreaElement = document.querySelector('.audi-main-audio-track-scroll-area');
     }
 
     initEvent(): void {
@@ -121,7 +127,6 @@ import "./AudioTrack.scss";
       });
 
       Controller.addTrackSection(this.trackId, trackSection);
-      this.hideMessage();
     }
 
     trackDragenterListener(e): void {
@@ -141,6 +146,7 @@ import "./AudioTrack.scss";
     subscribe(): void {
       storeChannel.subscribe(StoreChannelType.TRACK_DRAG_STATE_CHANNEL, this.trackDragStateObserverCallback, this);
       storeChannel.subscribe(StoreChannelType.TRACK_SECTION_LIST_CHANNEL, this.trackSectionListObserverCallback, this);
+      storeChannel.subscribe(StoreChannelType.MAX_TRACK_WIDTH_CHANNEL, this.maxTrackWidthObserverCallback, this);
     }
 
     trackDragStateObserverCallback(isTrackDraggable): void {
@@ -159,15 +165,34 @@ import "./AudioTrack.scss";
       this.trackDropzoneElement?.classList.add('hide');
     }
 
-    trackSectionListObserverCallback({ trackId, trackSectionList }): void {
-      if (trackId !== this.trackId) return;
+    trackSectionListObserverCallback({trackId, trackSectionList}): void {
+      if(trackId !== this.trackId || !this.trackScrollAreaElement) return;
 
       this.trackSectionList = trackSectionList;
       this.render();
       this.initElement();
+      this.messageDisplayHandler();
+      Controller.changeMaxTrackWidth(this.trackScrollAreaElement.scrollWidth);
+    }
+
+    messageDisplayHandler(): void {
+      if(!this.trackMessageElement) return;
+
+      if(this.trackSectionList.length > 0)
+        this.trackMessageElement.classList.add('hide');
+      else
+        this.trackMessageElement.classList.remove('hide');
+    }
+
+    maxTrackWidthObserverCallback(maxTrackWidth: number): void {
+      this.resizeTrackArea(maxTrackWidth);
+    }
+
+    resizeTrackArea(width: number){     
+      if(!this.trackAreaElement) return;
+      this.trackAreaElement.style.width = `${width}px`;
     }
   };
 
   customElements.define('audi-audio-track', AudioTrack);
 })();
-
