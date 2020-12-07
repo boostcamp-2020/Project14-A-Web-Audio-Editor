@@ -11,11 +11,14 @@
   
   border: 1px solid white;
   border-radius: 6px;
+  
+  &:last-of-type{
+    margin-right: 20px;
+  }
 }
 
 .icon-wrap > audi-icon-button {
   margin: auto 5px;
-
   cursor: pointer;
 }
 
@@ -27,6 +30,16 @@
 #user-menu:hover {
   svg > path {
     fill: #ffffff
+  }
+}
+
+@media screen and (max-width: 1280px) {
+  #editor-menu {
+    audi-icon-button{
+      svg{
+        width: 25px !important;
+      }
+    }
   }
 }
 

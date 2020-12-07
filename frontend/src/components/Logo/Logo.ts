@@ -1,3 +1,5 @@
+import './Logo.scss';
+
 (() => {
   const Logo = class extends HTMLElement {
     public color: string;

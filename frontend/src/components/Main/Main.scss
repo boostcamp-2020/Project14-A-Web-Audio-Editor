@@ -18,7 +18,12 @@
     }
 
     .audi-main-menu-container{
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
       width: 5%;
+      height: 100%;
+      margin: 0 15px;
 
       .audi-main-track-option-area{
         padding-top: 1.8rem;
@@ -26,6 +31,9 @@
     }
 
     .audi-main-audio-track-container {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
       position: relative;
       width: 80%;
       height: 100%;
