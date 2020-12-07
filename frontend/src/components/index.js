@@ -11,6 +11,7 @@ import './SourceList/SourceList';
 import './TimeInfo/TimeInfo';
 import './Main/Main';
 import './Loading/Loading';
+import './PlayBar/PlayBarMarkerBlurZone/PlayBarMarkerBlurZone';
 import './PlayBar/PlayBarMarker/PlayBarMarker';
 import './PlayBar/PlayBar';
 import './Marker/Marker';

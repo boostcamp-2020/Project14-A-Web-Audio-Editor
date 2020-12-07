@@ -25,6 +25,7 @@ enum EventKeyType {
   AUDIO_TRACK_SECTION_MULTIPLE = 'AUDIO_TRACK_SECTION_MULTIPLE',
   FOCUS_RESET_CLICK = 'FOCUS_RESET_CLICK',
   EDIT_TOOLS_CLICK = 'EDIT_TOOLS_CLICK',
+  PLAYBAR_EVENT_ZONE_DROP = 'PLAYBAR_EVENT_ZONE_DROP'
 }
 
 enum EventType {
@@ -43,7 +44,21 @@ enum EventType {
   mouseout = 'mouseout'
 }
 
-const eventTypes = ['click', 'dblclick', 'keyup', 'dragstart', 'dragover', 'dragenter', 'dragleave', 'drop', 'change', 'input', 'mousemove', 'dragend', 'mouseout'];
+const eventTypes = [
+  'click',
+  'dblclick',
+  'keyup',
+  'dragstart',
+  'dragover',
+  'dragenter',
+  'dragleave',
+  'drop',
+  'change',
+  'input',
+  'mousemove',
+  'dragend',
+  'mouseout'
+];
 
 interface EventTargetDataType {
   listener: EventListener;
