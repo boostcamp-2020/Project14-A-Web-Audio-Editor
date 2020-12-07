@@ -7,3 +7,4 @@ export { CompressorOption } from './CompressorOption';
 export { EffectStateType, EffectType, EffectTitleType, EffectContentType, EffectButtonContentType } from './effectTypes'
 export { KeyBoard } from './keyType'
 export { TrackOptionType } from './trackOptionTypes';
+export { SectionDataType } from './trackSectionTypes';

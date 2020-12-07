@@ -1,16 +1,11 @@
 import { Source, Track, TrackSection } from '@model';
 import { store } from "@store";
-import { ModalType, FocusInfo, CursorType } from "@types";
+import { ModalType, FocusInfo, CursorType, SectionDataType } from "@types";
 import CommandManager from '@command/CommandManager';
 import { DeleteCommand, PasteCommand, SplitCommand } from '@command'
 import { CopyUtil, PlayBarUtil } from '@util'
 
-interface SectionData {
-  sectionChannelData: number[];
-  duration: number;
-}
-
-const getSectionChannelData = (trackId: number, trackSectionId: number): SectionData | undefined => {
+const getSectionData = (trackId: number, trackSectionId: number): SectionDataType | undefined => {
   const { trackList, sourceList } = store.getState();
   const track = trackList.find((track) => track.id === trackId);
 
@@ -25,25 +20,18 @@ const getSectionChannelData = (trackId: number, trackSectionId: number): Section
   if (!source) return;
 
   const { parsedChannelData, duration } = source;
-  const { parsedChannelStartTime, parsedChannelEndTime } = trackSection;
+  const { channelStartTime, channelEndTime } = trackSection;
 
   const numOfPeakPerSecond = parsedChannelData.length / duration;
 
-  const sectionChannelStartTime = numOfPeakPerSecond * parsedChannelStartTime;
-  const sectionChannelEndTime = numOfPeakPerSecond * parsedChannelEndTime;
+  const sectionChannelStartTime = numOfPeakPerSecond * channelStartTime;
+  const sectionChannelEndTime = numOfPeakPerSecond * channelEndTime;
   const sectionChannelData = parsedChannelData.slice(sectionChannelStartTime, sectionChannelEndTime);
 
   return {
     sectionChannelData: sectionChannelData,
-    duration: parsedChannelEndTime - parsedChannelStartTime
+    duration: channelEndTime - channelStartTime
   };
-};
-
-const getSourceBySourceId = (sourceId: number): Source | undefined => {
-  const { sourceList } = store.getState();
-  const source = sourceList.find((source) => source.id === sourceId);
-
-  return source;
 };
 
 const addSource = (source: Source): void => {
@@ -80,6 +68,47 @@ const getTrack = (trackId: number): Track | null => {
 const setTrack = (track: Track): void => {
   store.setTrack(track);
 };
+
+const addTrackSectionFromSource = (sourceId: number, trackId: number): void => {
+  const getSourceById = (sourceId: number): Source | undefined => {
+    const { sourceList } = store.getState();
+    const source = sourceList.find((source) => source.id === sourceId);
+    return source;
+  }
+
+  const calculateTrackStartTime = (trackId: number): number | undefined => {
+    const targetTrack = getTrack(trackId);
+    if(!targetTrack) return;
+
+    const { trackSectionList } = targetTrack;
+    let trackStartTime = 0;
+    if(trackSectionList.length > 0){
+      const lastTrackSection = trackSectionList[trackSectionList.length - 1];
+      trackStartTime = lastTrackSection.channelEndTime;
+    }
+
+    return trackStartTime;
+  }
+
+  const addNewTrackSection = (trackId: number, source: Source, trackStartTime: number) => {
+    if(!source || trackStartTime === undefined) return;
+
+    const newTrackSection = new TrackSection({
+      id: 0,
+      sourceId: source.id,
+      trackId: trackId,
+      channelStartTime: 0,
+      channelEndTime: source.duration,
+      trackStartTime: trackStartTime,
+      audioStartTime: 0
+    });
+    
+    addTrackSection(trackId, newTrackSection);
+  }
+
+  const pipe = (f,g,h) => (x,y) => h(y, f(x), g(y));
+  pipe(getSourceById, calculateTrackStartTime, addNewTrackSection)(sourceId, trackId);
+}
 
 const addTrackSection = (trackId: number, trackSection: TrackSection): void => {
   store.setTrackSection(trackId, trackSection);
@@ -161,18 +190,18 @@ const getCursorMode = (): CursorType => {
   return cursorMode;
 };
 
-const setCursorMode = (newType: CursorType) => {
-  const trackContainer = document.querySelector('.audi-main-audio-track-container');
+const setCursorMode = (newCursorType: CursorType) => {
+  const trackContainerElement = document.querySelector('.audi-main-audio-track-container');
 
-  if (!trackContainer) return;
+  if (!trackContainerElement) return;
 
-  if (newType === CursorType.SELECT_MODE) {
-    trackContainer.classList.remove('cursor-change');
-  } else if (newType === CursorType.CUT_MODE) {
+  if (newCursorType === CursorType.SELECT_MODE) {
+    trackContainerElement.classList.remove('cursor-change');
+  } else if (newCursorType === CursorType.CUT_MODE) {
     resetFocus();
-    trackContainer.classList.add('cursor-change');
+    trackContainerElement.classList.add('cursor-change');
   }
-  store.setCursorMode(newType);
+  store.setCursorMode(newCursorType);
 };
 
 const getClipBoard = (): TrackSection | null => {
@@ -328,15 +357,13 @@ const pasteCommand = () => {
   CommandManager.execute(command)
 };
 
-const splitCommand = (cursorPosition: number, trackId: number, sectionId: number): void => {
+const splitTrackSection = (cursorPosition: number, trackId: number, sectionId: number): void => {
   const track = getTrack(trackId);
   const trackSection = track?.trackSectionList.find(section => section.id === sectionId);
-
   if (!trackSection || !track) return;
 
-  const command = new SplitCommand(cursorPosition, CopyUtil.copyTrack(track), CopyUtil.copySection(trackSection))
-  CommandManager.execute(command);
-
+  const splitCommand = new SplitCommand(cursorPosition, CopyUtil.copyTrack(track), CopyUtil.copySection(trackSection))
+  CommandManager.execute(splitCommand);
 };
 
 const changeMaxTrackWidth = (newMaxTrackWidth: number) => {
@@ -346,8 +373,8 @@ const changeMaxTrackWidth = (newMaxTrackWidth: number) => {
 }
 
 export default {
-  getSourceBySourceId,
-  getSectionChannelData,
+  addTrackSectionFromSource,
+  getSectionData,
   addSource,
   changeModalState,
   changeTrackDragState,
@@ -386,5 +413,5 @@ export default {
   changeMaxTrackWidth,
   cutCommand,
   pasteCommand,
-  splitCommand
+  splitTrackSection
 };
