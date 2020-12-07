@@ -20,3 +20,4 @@ import './Pages';
 import './Button';
 import './EffectController';
 import './ZoomBar/ZoomBar';
+import './SectionEffectList/SectionEffectList';
