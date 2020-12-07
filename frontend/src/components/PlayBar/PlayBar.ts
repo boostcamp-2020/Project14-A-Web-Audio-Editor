@@ -140,15 +140,25 @@ const INIT_DURATION = 300;
     }
 
     dblclickPlayBarListener(): void {
-      if (!this.playbarMarkerElementLeft || !this.playbarMarkerElementRight) return;
+      if (
+        !this.playbarMarkerElementLeft ||
+        !this.playbarMarkerElementRight ||
+        !this.playbarMarkerBlurZoneElementLeft ||
+        !this.playbarMarkerBlurZoneElementRight
+      )
+        return;
 
       const [currentPosition] = Controller.getCurrentPosition();
       if (this.compareCloseMarker(currentPosition)) {
+        const blurZone = this.mainWidth - currentPosition;
         this.playbarMarkerElementLeft.style.left = `${currentPosition}px`;
+        this.playbarMarkerBlurZoneElementLeft.style.width = `${blurZone}px`;
+        this.playbarMarkerBlurZoneElementLeft.style.left = `${currentPosition}px`;
         return;
       }
 
       this.playbarMarkerElementRight.style.left = `${currentPosition}px`;
+      this.playbarMarkerBlurZoneElementRight.style.width = `${currentPosition}px`;
     }
 
     setStringTime(): string {
@@ -172,7 +182,7 @@ const INIT_DURATION = 300;
     }
 
     compareCloseMarker(currentPosition: number): boolean {
-      const markerLeft = Number(this.playbarMarkerElementLeft?.style.left.split('px').join(''));
+      const markerLeft = Number(this.playbarMarkerElementLeft?.style.left.split(/px|%/).join(''));
       const markerRight = Number(this.playbarMarkerElementRight?.style.left.split('px').join(''));
 
       const offsetLeft = Math.abs(currentPosition - markerLeft);
