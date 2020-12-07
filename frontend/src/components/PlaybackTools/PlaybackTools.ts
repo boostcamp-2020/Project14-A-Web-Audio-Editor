@@ -139,7 +139,7 @@ const QUANTUM = 3;
 
       this.iconlist[0] = 'play';
 
-      this.stop();
+      this.stop(false);
       this.render();
     }
 
@@ -182,6 +182,8 @@ const QUANTUM = 3;
 
     audioSkipPrevListener() {
       if (this.trackList.length == 0) return;
+
+      this.stop(true);      
     }
 
     audioSkipNextListener() {
@@ -283,7 +285,7 @@ const QUANTUM = 3;
       this.audioContext.suspend();      
     }
 
-    stop() {
+    stop(restart:boolean) {
       this.audioContext.close();
       this.audioContext = new AudioContext();
       this.audioContext.suspend();
@@ -298,6 +300,10 @@ const QUANTUM = 3;
         //이름과는 맞지 않지만 사용함.
         Controller.cursorChangeMarkerTime(0); //재생 시간을 0으로
         Controller.setMarkerWidthToZero(); //마커의 위치를 맨 앞으로
+
+        if(restart){
+          this.play();
+        }
       }, TIMER_TIME+1);
     }
 
