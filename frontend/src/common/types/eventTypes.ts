@@ -22,30 +22,47 @@ enum EventKeyType {
   AUDIO_SKIP_NEXT = 'AUDIO_SKIP_NEXT',
   AUDIO_TRACK_CONTAINER_MULTIPLE = 'AUDIO_TRACK_CONTAINER_MULTIPLE',
   SOURCE_LIST_MULTIPLE = 'SOURCE_LIST_MULTIPLE',
-  AUDIO_TRACK_SECTION_CLICK = 'AUDIO_TRACK_SECTION_CLICK',
+  AUDIO_TRACK_SECTION_MULTIPLE = 'AUDIO_TRACK_SECTION_MULTIPLE',
   FOCUS_RESET_CLICK = 'FOCUS_RESET_CLICK',
   EDIT_TOOLS_CLICK = 'EDIT_TOOLS_CLICK',
+  PLAYBAR_EVENT_ZONE_DROP = 'PLAYBAR_EVENT_ZONE_DROP',
   ZOOM_BAR_MOUSE_DOWN = 'ZOOM_BAR_MOUSE_DOWN',
   AUDIO_TRACK_OPTION_CLICK = 'AUDIO_TRACK_OPTION_CLICK'
 }
 
 enum EventType {
-    click = 'click',
-    dblclick = 'dblclick',
-    keyup = 'keyup',
-    dragstart = 'dragstart',
-    dragover = 'dragover',
-    dragenter = 'dragenter',
-    dragleave = 'dragleave',
-    dragend = 'dragend',
-    drop = 'drop',
-    change = 'change',
-    input = 'input',
-    mousemove = 'mousemove',
-    mousedown = 'mousedown'
+  click = 'click',
+  dblclick = 'dblclick',
+  keyup = 'keyup',
+  dragstart = 'dragstart',
+  dragover = 'dragover',
+  dragenter = 'dragenter',
+  dragleave = 'dragleave',
+  dragend = 'dragend',
+  drop = 'drop',
+  change = 'change',
+  input = 'input',
+  mousemove = 'mousemove',
+  mousedown = 'mousedown',
+  mouseout = 'mouseout'
 }
 
-const eventTypes = ['click', 'dblclick', 'keyup', 'dragstart', 'dragover', 'dragenter', 'dragleave','drop', 'change', 'input', 'mousemove', 'mousedown', 'dragend'];
+const eventTypes = [
+  'click',
+  'dblclick',
+  'keyup',
+  'dragstart',
+  'dragover',
+  'dragenter',
+  'dragleave',
+  'drop',
+  'change',
+  'input',
+  'mousemove',
+  'dragend',
+  'mousedown',
+  'mouseout'
+];
 
 interface EventTargetDataType {
   listener: EventListener;

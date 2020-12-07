@@ -8,7 +8,7 @@ audi-audio-track:not(:defined) {
     position: relative;
     width: 100%;
     min-height: 150px;
-    padding: 10px;
+    padding: 10px 0px;
     background-color: #000000;
     box-sizing: border-box;
 
@@ -37,6 +37,18 @@ audi-audio-track:not(:defined) {
                 background-color: rgba(43, 130, 211, 0.5);
                 box-shadow: rgb(43, 130, 211) 0 0 15px 5px;
             }
+        }
+        .cut-line {
+            position: absolute;
+            width: 1px;
+            height: 100%;
+
+            top:0;
+            left: 0px;
+            border-left: 1px dashed white;
+            z-index: 999;
+
+            pointer-events: none;
         }
     }
     

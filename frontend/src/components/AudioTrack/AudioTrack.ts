@@ -57,11 +57,12 @@ import "./AudioTrack.scss";
                         ${this.getTrackSectionList()}
                         <div class="audio-track-message"><span>Drag & Drop</span></div>
                         <div class="audio-track-dropzone hide" event-key=${EventKeyType.AUDIO_TRACK_DRAGOVER_DROP + this.trackId}></div>
+                        <div id="section-cut-line-${this.trackId}" class="cut-line"></div>
                       </div>      
                     </div>
                 `;
     }
-    
+
     getTrackSectionList(): string {
       return this.trackSectionList.reduce((acc, trackSection, idx) =>
         acc += `<audi-track-section data-id=${trackSection.id} data-track-id=${trackSection.trackId}></audi-track-section>`
@@ -89,8 +90,9 @@ import "./AudioTrack.scss";
         listeners: [this.focusResetListener],
         bindObj: this
       });
+
     }
-      
+
     focusResetListener(e): void {
       const ctrlIsPressed = Controller.getCtrlIsPressed();
       if (!ctrlIsPressed) {
@@ -108,24 +110,25 @@ import "./AudioTrack.scss";
       e.stopPropagation();
       const sourceId = e.dataTransfer.getData("text/plain");
       const source = Controller.getSourceBySourceId(Number(sourceId));
-      if(!source) return;
+      if (!source) return;
 
       const { duration } = source;
 
-      const trackSection = new TrackSection({ 
-        sourceId : source.id, 
+      const trackSection = new TrackSection({
+        id: 0,
+        sourceId: source.id,
         trackId: this.trackId,
-        channelStartTime : 0, 
-        channelEndTime : duration, 
-        parsedChannelStartTime : 0,
+        channelStartTime: 0,
+        channelEndTime: duration,
+        parsedChannelStartTime: 0,
         parsedChannelEndTime: duration,
-        trackStartTime : 0,
-        audioStartTime : 0
-     });
-        
+        trackStartTime: 0,
+        audioStartTime: 0
+      });
+
       Controller.addTrackSection(this.trackId, trackSection);
     }
-      
+
     trackDragenterListener(e): void {
       e.preventDefault()
       this.trackDropzoneElement?.classList.add('focus');
@@ -136,6 +139,10 @@ import "./AudioTrack.scss";
       this.trackDropzoneElement?.classList.remove('focus');
     }
 
+    hideMessage(): void {
+      this.trackMessage?.classList.add('hide');
+    }
+
     subscribe(): void {
       storeChannel.subscribe(StoreChannelType.TRACK_DRAG_STATE_CHANNEL, this.trackDragStateObserverCallback, this);
       storeChannel.subscribe(StoreChannelType.TRACK_SECTION_LIST_CHANNEL, this.trackSectionListObserverCallback, this);
@@ -143,7 +150,7 @@ import "./AudioTrack.scss";
     }
 
     trackDragStateObserverCallback(isTrackDraggable): void {
-      if(isTrackDraggable){
+      if (isTrackDraggable) {
         this.activeTrackDropzone();
         return;
       }
@@ -189,4 +196,3 @@ import "./AudioTrack.scss";
 
   customElements.define('audi-audio-track', AudioTrack);
 })();
-

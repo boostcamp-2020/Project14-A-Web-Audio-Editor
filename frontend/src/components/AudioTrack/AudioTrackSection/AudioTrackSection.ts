@@ -1,6 +1,6 @@
 import { Controller } from '@controllers';
-import { EventKeyType, EventType } from '@types';
-import { EventUtil } from '@util';
+import { CursorType, EventKeyType, EventType } from '@types';
+import { EventUtil, PlayBarUtil } from '@util';
 import './AudioTrackSection.scss';
 
 interface SectionData {
@@ -14,6 +14,9 @@ interface SectionData {
     private sectionId: number;
     private sectionData: SectionData | undefined;
     private trackCanvasElement: HTMLCanvasElement | undefined | null;
+    private cutLineElement: HTMLElement | undefined | null;
+    private trackContainerElement: HTMLElement | null;
+
 
     constructor() {
       super();
@@ -21,6 +24,8 @@ interface SectionData {
       this.sectionId = 0;
       this.sectionData;
       this.trackCanvasElement;
+      this.cutLineElement;
+      this.trackContainerElement = null;
     }
 
     static get observedAttributes(): string[] {
@@ -54,13 +59,15 @@ interface SectionData {
 
     render(): void {
       this.innerHTML = `
-                <canvas class="audio-track-section" event-key=${EventKeyType.AUDIO_TRACK_SECTION_CLICK + this.sectionId}></canvas>
+                <canvas class="audio-track-section" event-key=${EventKeyType.AUDIO_TRACK_SECTION_MULTIPLE + this.sectionId}></canvas>
             `;
     }
 
     init(): void {
       this.trackCanvasElement = this.querySelector<HTMLCanvasElement>('.audio-track-section');
       this.sectionData = Controller.getSectionChannelData(this.trackId, this.sectionId);
+      this.cutLineElement = document.getElementById(`section-cut-line-${this.trackId}`);
+      this.trackContainerElement = document.querySelector('.audi-main-audio-track-container');
     }
 
     draw(): void {
@@ -103,15 +110,49 @@ interface SectionData {
 
     initEvent(): void {
       EventUtil.registerEventToRoot({
-        eventTypes: [EventType.click],
-        eventKey: EventKeyType.AUDIO_TRACK_SECTION_CLICK + this.sectionId,
-        listeners: [this.clickListener],
+        eventTypes: [EventType.click, EventType.mousemove, EventType.mouseout],
+        eventKey: EventKeyType.AUDIO_TRACK_SECTION_MULTIPLE + this.sectionId,
+        listeners: [this.clickListener, this.cutLineMouseMoveListener, this.mouseoutListener],
         bindObj: this
       });
+
     }
 
     clickListener(e): void {
-      Controller.toggleFocus(this.trackId, this.sectionId, e.target);
+      const cursorMode = Controller.getCursorMode();
+      if (cursorMode === CursorType.SELECT_MODE) {
+        Controller.toggleFocus(this.trackId, this.sectionId, e.target);
+
+      } else if (cursorMode === CursorType.CUT_MODE) {
+        const cursorPosition = e.pageX;
+        Controller.splitCommand(cursorPosition, this.trackId, this.sectionId);
+      }
+    }
+
+    cutLineMouseMoveListener(e): void {
+      const cursorMode = Controller.getCursorMode();
+
+      if (!this.cutLineElement || !this.trackContainerElement) return;
+
+
+      if (cursorMode !== CursorType.CUT_MODE) {
+        this.cutLineElement.classList.add('hide');
+        return;
+      }
+
+      const cursorPosition = e.pageX;
+      const startX = this.trackContainerElement.getBoundingClientRect().left;
+      const endX = this.trackContainerElement.getBoundingClientRect().right;
+      const [minute, second, milsecond, location, totalCursorTime] = PlayBarUtil.getCursorPosition(startX, cursorPosition, endX - startX);
+
+      this.cutLineElement.classList.remove('hide');
+      this.cutLineElement.style.left = `${location}px`;
+    }
+
+    mouseoutListener(e): void {
+      if (!this.cutLineElement) return;
+
+      this.cutLineElement.classList.add('hide');
     }
   };
 
