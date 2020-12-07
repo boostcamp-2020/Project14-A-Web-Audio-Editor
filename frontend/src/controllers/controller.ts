@@ -6,32 +6,41 @@ import { DeleteCommand, PasteCommand, SplitCommand } from '@command'
 import { CopyUtil, PlayBarUtil } from '@util'
 
 const getSectionData = (trackId: number, trackSectionId: number): SectionDataType | undefined => {
-  const { trackList, sourceList } = store.getState();
-  const track = trackList.find((track) => track.id === trackId);
+  const getSourceAndTrackSection = (trackId: number, trackSectionId: number): {source: Source, trackSection: TrackSection} | undefined =>{
+    const { trackList, sourceList } = store.getState();
+    const track = trackList.find((track) => track.id === trackId);
+    if(!track) return;
 
-  if (!track) return;
+    const { trackSectionList } = track;
+    const trackSection = trackSectionList.find((trackSection) => trackSection.id === trackSectionId);
+    if (!trackSection) return;
 
-  const { trackSectionList } = track;
-  const trackSection = trackSectionList.find((trackSection) => trackSection.id === trackSectionId);
-  if (!trackSection) return;
+    const source = sourceList.find((source) => source.id === trackSection.sourceId);
+    if (!source) return;
 
-  const source = sourceList.find((source) => source.id === trackSection.sourceId);
+    return { source, trackSection };
+  }
 
-  if (!source) return;
+  const parseSectionData = ({ source, trackSection }: {source: Source, trackSection: TrackSection}): SectionDataType | undefined => {
+    if(!source || !trackSection) return;
 
-  const { parsedChannelData, duration } = source;
-  const { channelStartTime, channelEndTime } = trackSection;
+    const { parsedChannelData, duration } = source;
+    const { channelStartTime, channelEndTime } = trackSection;
 
-  const numOfPeakPerSecond = parsedChannelData.length / duration;
+    const numOfPeakPerSecond = parsedChannelData.length / duration;
 
-  const sectionChannelStartTime = numOfPeakPerSecond * channelStartTime;
-  const sectionChannelEndTime = numOfPeakPerSecond * channelEndTime;
-  const sectionChannelData = parsedChannelData.slice(sectionChannelStartTime, sectionChannelEndTime);
+    const sectionChannelStartTime = numOfPeakPerSecond * channelStartTime;
+    const sectionChannelEndTime = numOfPeakPerSecond * channelEndTime;
+    const sectionChannelData = parsedChannelData.slice(sectionChannelStartTime, sectionChannelEndTime);
 
-  return {
-    sectionChannelData: sectionChannelData,
-    duration: channelEndTime - channelStartTime
-  };
+    return {
+      sectionChannelData: sectionChannelData,
+      duration: channelEndTime - channelStartTime
+    };
+  }
+  
+  const pipe = (f,g) => (x,y) => g(f(x,y));
+  return pipe(getSourceAndTrackSection, parseSectionData)(trackId, trackSectionId);
 };
 
 const addSource = (source: Source): void => {
