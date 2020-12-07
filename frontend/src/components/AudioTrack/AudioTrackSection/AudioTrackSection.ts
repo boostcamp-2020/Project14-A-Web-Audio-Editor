@@ -52,6 +52,7 @@ interface SectionData {
         this.init();
         this.draw();
         this.initEvent();
+        this.initState();
       } catch (e) {
         console.log(e);
       }
@@ -106,6 +107,15 @@ interface SectionData {
         }
       }
       canvasCtx.stroke();
+    }
+
+    initState(): void {
+      const focusList = Controller.getFocusList();
+      const focusInfo = focusList.find(focus => focus.trackSection.id === this.sectionId);
+      if (!focusInfo || !this.trackCanvasElement) return;
+
+      focusInfo.element = this.trackCanvasElement;
+      focusInfo.element.classList.add('focused-section');
     }
 
     initEvent(): void {
