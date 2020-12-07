@@ -46,6 +46,12 @@ const getSourceBySourceId = (sourceId: number): Source | undefined => {
   return source;
 };
 
+const getSourceList = (): Source[] => {
+  const { sourceList } = store.getState();
+
+  return sourceList;
+};
+
 const addSource = (source: Source): void => {
   store.setSource(source);
 };
@@ -109,7 +115,7 @@ const getFocusList = () => {
   return focusList;
 };
 
-const toggleFocus = (trackId: number, sectionId: number, selectedElement: HTMLElement): void => {
+const toggleFocus = (trackId: number, sectionId: number, selectedElement: HTMLCanvasElement): void => {
   const { trackList, focusList, ctrlIsPressed, cursorMode } = store.getState();
 
   if (cursorMode !== CursorType.SELECT_MODE) return;
@@ -134,7 +140,7 @@ const toggleFocus = (trackId: number, sectionId: number, selectedElement: HTMLEl
   }
 };
 
-const addFocus = (trackSection: TrackSection, selectedElement: HTMLElement): void => {
+const addFocus = (trackSection: TrackSection, selectedElement: HTMLCanvasElement): void => {
   selectedElement.classList.add('focused-section');
   const newFocusInfo: FocusInfo = {
     trackSection: trackSection,
@@ -183,8 +189,8 @@ const getClipBoard = (): TrackSection | null => {
 const pauseChangeMarkerTime = (playingTime: number): void => {
   const { markerTime } = store.getState();
   let newMarkerTime = markerTime + playingTime;
-  if(newMarkerTime < 0) {
-    newMarkerTime = 0 ;
+  if (newMarkerTime < 0) {
+    newMarkerTime = 0;
   }
 
   store.setMarkerTime(newMarkerTime);
@@ -228,29 +234,29 @@ const changePlayTime = (passedTime: number): void => {
   let newSecond = Number(second);
   let newMilsecond = Number(milsecond) + Math.floor(passedTime);
 
-  if(newMilsecond > 0){
+  if (newMilsecond > 0) {
     if (newMilsecond >= 1000) {
       newMilsecond -= 1000;
       newSecond += 1;
     }
-  
+
     if (newSecond >= 60) {
       newSecond -= 60;
       newMinute += 1;
-    }  
+    }
   }
-  else { 
-    let totalMilsecond = newMinute*1000*60 + newSecond*1000 + newMilsecond;
-    if(totalMilsecond < 0){
+  else {
+    let totalMilsecond = newMinute * 1000 * 60 + newSecond * 1000 + newMilsecond;
+    if (totalMilsecond < 0) {
       newMinute = 0;
       newSecond = 0;
       newMilsecond = 0
     }
     else {
-      newMinute = Math.floor(totalMilsecond/(1000*60));
-      totalMilsecond -= newMinute*1000*60;
-      newSecond = Math.floor(totalMilsecond/1000);
-      totalMilsecond -= newSecond*1000;
+      newMinute = Math.floor(totalMilsecond / (1000 * 60));
+      totalMilsecond -= newMinute * 1000 * 60;
+      newSecond = Math.floor(totalMilsecond / 1000);
+      totalMilsecond -= newSecond * 1000;
       newMilsecond = totalMilsecond;
     }
   }
@@ -341,12 +347,13 @@ const splitCommand = (cursorPosition: number, trackId: number, sectionId: number
 
 const changeMaxTrackWidth = (newMaxTrackWidth: number) => {
   const { maxTrackWidth } = store.getState();
-  if(maxTrackWidth >= newMaxTrackWidth) return;
+  if (maxTrackWidth >= newMaxTrackWidth) return;
   store.setMaxTrackWidth(newMaxTrackWidth);
 }
 
 export default {
   getSourceBySourceId,
+  getSourceList,
   getSectionChannelData,
   addSource,
   changeModalState,
