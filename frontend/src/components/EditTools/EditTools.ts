@@ -32,7 +32,7 @@ import './EditTools.scss'
 
     connectedCallback() {
       this.render();
-      this.init()
+      this.initElement()
       this.initState();
       this.initEvent();
       this.subscribe();
@@ -46,7 +46,7 @@ import './EditTools.scss'
             `;
     }
 
-    init() {
+    initElement() {
       this.cursorElement = this.querySelector('#cursor');
       this.bladeElement = this.querySelector('#blade');
       this.copyElement = this.querySelector('#copy');
@@ -58,10 +58,50 @@ import './EditTools.scss'
     }
 
     initState() {
-      this.cursorState();
-      this.focusState();
-      this.clipBoardState();
-      this.commandState();
+      this.initCursorState();
+      this.initFocusState();
+      this.initClipBoardState();
+      this.initCommandState();
+    }
+
+    initCursorState() {
+      const cursorMode = Controller.getCursorMode();
+      if (cursorMode === CursorType.SELECT_MODE) {
+        this.cursorElement?.classList.add('selected');
+      } else {
+        this.bladeElement?.classList.add('selected');
+      }
+    }
+
+    initFocusState() {
+      const focusList = Controller.getFocusList();
+      if (focusList.length === 0) {
+        this.copyElement?.classList.add('disabled');
+        this.cutElement?.classList.add('disabled');
+        this.deleteElement?.classList.add('disabled');
+      } else if (focusList.length > 1) {
+        this.copyElement?.classList.add('disabled');
+        this.cutElement?.classList.add('disabled');
+      }
+    }
+
+    initClipBoardState() {
+      const clipBoard = Controller.getClipBoard();
+      const focusList = Controller.getFocusList();
+
+      if (focusList.length > 1 || !clipBoard) {
+        this.pasteElement?.classList.add('disabled');
+      }
+    }
+
+    initCommandState() {
+      const { undoList, redoList } = CommandManager;
+      if (undoList.length === 0) {
+        this.undoElement?.classList.add('disabled');
+      }
+      if (redoList.length === 0) {
+        this.redoElement?.classList.add('disabled');
+      }
     }
 
     initEvent() {
@@ -122,46 +162,6 @@ import './EditTools.scss'
       });
     }
 
-    cursorState() {
-      const cursorMode = Controller.getCursorMode();
-      if (cursorMode === CursorType.SELECT_MODE) {
-        this.cursorElement?.classList.add('selected');
-      } else {
-        this.bladeElement?.classList.add('selected');
-      }
-    }
-
-    focusState() {
-      const focusList = Controller.getFocusList();
-      if (focusList.length === 0) {
-        this.copyElement?.classList.add('disabled');
-        this.cutElement?.classList.add('disabled');
-        this.deleteElement?.classList.add('disabled');
-      } else if (focusList.length > 1) {
-        this.copyElement?.classList.add('disabled');
-        this.cutElement?.classList.add('disabled');
-      }
-    }
-
-    clipBoardState() {
-      const clipBoard = Controller.getClipBoard();
-      const focusList = Controller.getFocusList();
-
-      if (focusList.length > 1 || !clipBoard) {
-        this.pasteElement?.classList.add('disabled');
-      }
-    }
-
-    commandState() {
-      const { undoList, redoList } = CommandManager;
-      if (undoList.length === 0) {
-        this.undoElement?.classList.add('disabled');
-      }
-      if (redoList.length === 0) {
-        this.redoElement?.classList.add('disabled');
-      }
-    }
-
     selectCursorListener(e) {
       Controller.setCursorMode(CursorType.SELECT_MODE);
     }
@@ -182,17 +182,6 @@ import './EditTools.scss'
       Controller.pasteCommand();
     }
 
-    subscribe(): void {
-      storeChannel.subscribe(StoreChannelType.EDIT_TOOLS_CHANNEL, this.updateEditTools, this);
-    }
-
-    updateEditTools(): void {
-      this.render();
-      this.init();
-      this.initState();
-      this.initEvent();
-    }
-
     deleteListener(): void {
       Controller.deleteCommand();
     }
@@ -203,6 +192,17 @@ import './EditTools.scss'
 
     redoListener(): void {
       Controller.redoCommand();
+    }
+
+    subscribe(): void {
+      storeChannel.subscribe(StoreChannelType.EDIT_TOOLS_CHANNEL, this.updateEditTools, this);
+      storeChannel.subscribe(StoreChannelType.CURSOR_MODE_CHANNEL, this.updateEditTools, this);
+    }
+
+    updateEditTools(): void {
+      this.render();
+      this.initElement();
+      this.initState();
     }
   };
 
