@@ -1,9 +1,9 @@
 import { Source, Track, TrackSection } from '@model';
-import { store } from "@store";
-import { ModalType, FocusInfo, CursorType } from "@types";
+import { store } from '@store';
+import { ModalType, FocusInfo, CursorType } from '@types';
 import CommandManager from '@command/CommandManager';
-import { DeleteCommand, PasteCommand, SplitCommand } from '@command'
-import { CopyUtil, PlayBarUtil } from '@util'
+import { DeleteCommand, PasteCommand, SplitCommand } from '@command';
+import { CopyUtil, PlayBarUtil, SectionEffectListUtil } from '@util';
 
 interface SectionData {
   sectionChannelData: number[];
@@ -69,13 +69,12 @@ const getTrackList = (): Track[] => {
 
 const getTrack = (trackId: number): Track | null => {
   const { trackList } = store.getState();
-  const track = trackList.find(track => track.id === trackId);
+  const track = trackList.find((track) => track.id === trackId);
 
-  if (!track)
-    return null;
+  if (!track) return null;
 
   return track;
-}
+};
 
 const setTrack = (track: Track): void => {
   store.setTrack(track);
@@ -121,7 +120,6 @@ const toggleFocus = (trackId: number, sectionId: number, selectedElement: HTMLEl
 
   const existFocus = focusList.find((info) => info.trackSection.id === sectionId);
 
-
   if (ctrlIsPressed) {
     if (existFocus) {
       removeFocus(sectionId, selectedElement);
@@ -141,6 +139,7 @@ const addFocus = (trackSection: TrackSection, selectedElement: HTMLElement): voi
     element: selectedElement
   };
   store.addFocus(newFocusInfo);
+  SectionEffectListUtil.showEffectList();
 };
 
 const removeFocus = (sectionId: number, selectedElement: HTMLElement): void => {
@@ -148,12 +147,14 @@ const removeFocus = (sectionId: number, selectedElement: HTMLElement): void => {
   const index = focusList.findIndex((focus) => focus.trackSection.id === sectionId);
   selectedElement.classList.remove('focused-section');
   store.removeFocus(index);
+  SectionEffectListUtil.hideEffectList();
 };
 
 const resetFocus = (): void => {
   const { focusList } = store.getState();
   focusList.forEach((focus) => focus.element.classList.remove('focused-section'));
   store.resetFocus();
+  SectionEffectListUtil.hideEffectList();
 };
 
 const getCursorMode = (): CursorType => {
@@ -183,8 +184,8 @@ const getClipBoard = (): TrackSection | null => {
 const pauseChangeMarkerTime = (playingTime: number): void => {
   const { markerTime } = store.getState();
   let newMarkerTime = markerTime + playingTime;
-  if(newMarkerTime < 0) {
-    newMarkerTime = 0 ;
+  if (newMarkerTime < 0) {
+    newMarkerTime = 0;
   }
 
   store.setMarkerTime(newMarkerTime);
@@ -218,7 +219,7 @@ const setMarkerWidth = (markerWidth: number): void => {
 
 const setMarkerWidthToZero = (): void => {
   store.setMarkerWidthToZero();
-}
+};
 
 const changePlayTime = (passedTime: number): void => {
   const { playTime } = store.getState();
@@ -228,29 +229,27 @@ const changePlayTime = (passedTime: number): void => {
   let newSecond = Number(second);
   let newMilsecond = Number(milsecond) + Math.floor(passedTime);
 
-  if(newMilsecond > 0){
+  if (newMilsecond > 0) {
     if (newMilsecond >= 1000) {
       newMilsecond -= 1000;
       newSecond += 1;
     }
-  
+
     if (newSecond >= 60) {
       newSecond -= 60;
       newMinute += 1;
-    }  
-  }
-  else { 
-    let totalMilsecond = newMinute*1000*60 + newSecond*1000 + newMilsecond;
-    if(totalMilsecond < 0){
+    }
+  } else {
+    let totalMilsecond = newMinute * 1000 * 60 + newSecond * 1000 + newMilsecond;
+    if (totalMilsecond < 0) {
       newMinute = 0;
       newSecond = 0;
-      newMilsecond = 0
-    }
-    else {
-      newMinute = Math.floor(totalMilsecond/(1000*60));
-      totalMilsecond -= newMinute*1000*60;
-      newSecond = Math.floor(totalMilsecond/1000);
-      totalMilsecond -= newSecond*1000;
+      newMilsecond = 0;
+    } else {
+      newMinute = Math.floor(totalMilsecond / (1000 * 60));
+      totalMilsecond -= newMinute * 1000 * 60;
+      newSecond = Math.floor(totalMilsecond / 1000);
+      totalMilsecond -= newSecond * 1000;
       newMilsecond = totalMilsecond;
     }
   }
@@ -313,7 +312,7 @@ const pasteCommand = () => {
 
   if (focusList.length !== 1) return false;
 
-  const track = trackList.find(track => track.id === focusList[0].trackSection.trackId);
+  const track = trackList.find((track) => track.id === focusList[0].trackSection.trackId);
   if (!track || !clipBoard) return;
 
   const copyTrack = CopyUtil.copyTrack(track);
@@ -325,25 +324,24 @@ const pasteCommand = () => {
 
   const command = new PasteCommand(copyTrack, copySection);
 
-  CommandManager.execute(command)
+  CommandManager.execute(command);
 };
 
 const splitCommand = (cursorPosition: number, trackId: number, sectionId: number): void => {
   const track = getTrack(trackId);
-  const trackSection = track?.trackSectionList.find(section => section.id === sectionId);
+  const trackSection = track?.trackSectionList.find((section) => section.id === sectionId);
 
   if (!trackSection || !track) return;
 
-  const command = new SplitCommand(cursorPosition, CopyUtil.copyTrack(track), CopyUtil.copySection(trackSection))
+  const command = new SplitCommand(cursorPosition, CopyUtil.copyTrack(track), CopyUtil.copySection(trackSection));
   CommandManager.execute(command);
-
 };
 
 const changeMaxTrackWidth = (newMaxTrackWidth: number) => {
   const { maxTrackWidth } = store.getState();
-  if(maxTrackWidth >= newMaxTrackWidth) return;
+  if (maxTrackWidth >= newMaxTrackWidth) return;
   store.setMaxTrackWidth(newMaxTrackWidth);
-}
+};
 
 export default {
   getSourceBySourceId,
