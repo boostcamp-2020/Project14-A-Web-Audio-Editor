@@ -122,7 +122,6 @@ const store = new (class Store {
       trackId: trackId,
       trackSectionList: newTrackSectionList
     });
-
     storeChannel.publish(StoreChannelType.TRACK_CHANNEL, newTrackList);
   }
 
@@ -162,8 +161,6 @@ const store = new (class Store {
   setClipBoard(newSection: TrackSection): void {
     this.state.clipBoard = newSection;
     storeChannel.publish(StoreChannelType.EDIT_TOOLS_CHANNEL, null);
-    console.log(newSection);
-
   }
 
   setMarkerTime(newMarkerTime: number): void {
@@ -222,9 +219,12 @@ const store = new (class Store {
     storeChannel.publish(StoreChannelType.TRACK_CHANNEL, newTrackList);
   }
 
-  setCursorMode(newType: CursorType): void {
-    this.state.cursorMode = newType;
-    storeChannel.publish(StoreChannelType.EDIT_TOOLS_CHANNEL, '');
+  setCursorMode(newCursorMode: CursorType): void {
+    const { cursorMode } = this.state;
+    if(cursorMode === newCursorMode) return;
+
+    this.state = {...this.state, cursorMode: newCursorMode};
+    storeChannel.publish(StoreChannelType.CURSOR_MODE_CHANNEL, newCursorMode);
   }
 
   setMaxTrackWidth(newMaxTrackWidth: number): void{
