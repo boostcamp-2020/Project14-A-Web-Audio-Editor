@@ -20,32 +20,11 @@ export class SplitCommand extends ICommand {
   }
 
   execute() {
-    if (!this.trackContainerElement) return;
-    const startX = this.trackContainerElement.getBoundingClientRect().left;
-    const endX = this.trackContainerElement.getBoundingClientRect().right;
-    const cursorNumberTime = TimeUtil.calculateTimeOfCursorPosition(startX, this.cursorPosition, endX - startX);
+    if(!this.trackContainerElement) return;
 
-    const splitTime = cursorNumberTime - this.targetSection.trackStartTime;
-    const leftSection = CopyUtil.copySection(this.targetSection);
-    leftSection.id = 0;
-    leftSection.channelEndTime = splitTime;
-    leftSection.parsedChannelEndTime = splitTime;
-    leftSection.length = splitTime;
-
-    const rightSection = CopyUtil.copySection(this.targetSection);
-    rightSection.id = 0;
-    rightSection.channelStartTime = splitTime;
-    rightSection.parsedChannelStartTime = splitTime;
-    rightSection.trackStartTime += splitTime;
-    rightSection.length -= splitTime;
-
-    const sectionIndex = this.beforeTrack.trackSectionList.findIndex((section) => section.id === this.targetSection.id);
-
-    if (sectionIndex === -1) return;
-    const trackId = this.beforeTrack.id;
-    Controller.removeSection(trackId, sectionIndex);
-    Controller.addTrackSection(trackId, leftSection);
-    Controller.addTrackSection(trackId, rightSection);
+    const timeOfCursorPosition = this.calculateTimeOfCursorPosition(this.trackContainerElement);
+    const [leftTrackSection, rightTrackSection] = this.splitTrackSection(timeOfCursorPosition);
+    this.updateSplitedSections(leftTrackSection, rightTrackSection);
   }
 
   calculateTimeOfCursorPosition(trackContainerElement: HTMLDivElement): number{

@@ -33,7 +33,7 @@ const QUANTUM = 3;
       ];
 
       this.audioContext = new AudioContext();
-      this.isPause = Controller.getIsPauseState();
+      this.isPause = true;
       this.trackList = [];
       this.sourceList = [];
       this.sourceInfo = [];
@@ -41,8 +41,15 @@ const QUANTUM = 3;
 
     connectedCallback() {
       this.render();
+      this.init();
       this.initEvent();
       this.subscribe();
+    }
+
+    init(){
+      this.isPause = Controller.getIsPauseState();
+      this.trackList = Controller.getTrackList();
+      this.sourceList = Controller.getSourceList();
     }
 
     render() {
@@ -110,25 +117,29 @@ const QUANTUM = 3;
     }
 
     audioPlayOrPauseListener() {
-      if (this.trackList.length == 0) return;
+      try{
+        if (this.trackList.length == 0) return;
 
-      if (this.isPause) {
-        this.isPause = false;
-        Controller.changeIsPauseState(false);
+        if (this.isPause) {
+          this.isPause = false;
+          Controller.changeIsPauseState(false);
 
-        this.iconlist[0] = 'pause';
+          this.iconlist[0] = 'pause';
 
-        this.play();
-        this.playTimer();
-      } else {
-        this.isPause = true;
-        Controller.changeIsPauseState(true);
+          this.play();
+          this.playTimer()
+        } else{
+          this.isPause = true;
+          Controller.changeIsPauseState(true);
+          
+          this.iconlist[0] = 'play';
 
-        this.iconlist[0] = 'play';
-
-        this.pause();
+          this.pause();
+        }
+        this.render();
+      }catch(e){
+        console.log(e);
       }
-      this.render();
     }
 
     audioStopListener() {
@@ -218,7 +229,6 @@ const QUANTUM = 3;
 
     updateSourceInfo(sourceId: number, trackId: number, sectionId: number) {
       const bufferSourceNode = this.audioContext.createBufferSource();
-
       bufferSourceNode.buffer = this.sourceList[sourceId].buffer;
 
       //TODO: effect가 적용된 노드에 대해 effect를 적용하기
