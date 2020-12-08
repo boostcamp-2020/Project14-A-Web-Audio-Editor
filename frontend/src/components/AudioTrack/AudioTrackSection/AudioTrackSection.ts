@@ -1,7 +1,7 @@
 import { Controller } from '@controllers';
 import { CursorType, EventKeyType, EventType, StoreChannelType, SectionDataType } from '@types';
 import { EventUtil } from '@util';
-import { storeChannel, WidthUtil } from '@store';
+import { storeChannel } from '@store';
 import './AudioTrackSection.scss';
 
 (() => {
@@ -10,9 +10,11 @@ import './AudioTrackSection.scss';
     private sectionId: number;
     private sectionData: SectionDataType | undefined;
     private cursorMode: CursorType | undefined;
+    private canvasWidth: number;
+    private canvasHeight: number;
     private trackCanvasElement: HTMLCanvasElement | undefined | null;
-    private cutLineElement: HTMLElement | undefined | null;
     private trackContainerElement: HTMLElement | null;
+    private cutLineElement: HTMLElement | undefined | null;
 
     constructor() {
       super();
@@ -20,9 +22,11 @@ import './AudioTrackSection.scss';
       this.sectionId = 0;
       this.sectionData;
       this.cursorMode;
+      this.canvasWidth = 0;
+      this.canvasHeight = 0;
       this.trackCanvasElement;
-      this.cutLineElement;
       this.trackContainerElement = null;
+      this.cutLineElement;
     }
 
     static get observedAttributes(): string[] {
@@ -47,7 +51,7 @@ import './AudioTrackSection.scss';
       try {
         this.render();
         this.initProperty();
-        this.draw();
+        this.drawTrackSection();
         this.initEvent();
         this.initState();
         this.subscribe();
@@ -70,35 +74,51 @@ import './AudioTrackSection.scss';
       this.trackContainerElement = document.querySelector('.audi-main-audio-track-container');
     }
 
-    draw(): void {
-      if (!this.sectionData || !this.trackCanvasElement) return;
+    drawTrackSection(): void {
+      if (!this.sectionData || !this.trackCanvasElement || !this.trackContainerElement) return;
 
       const { sectionChannelData, duration } = this.sectionData;
-      const trackWidth = this.trackCanvasElement.clientWidth;
+      this.calculateCanvasSize(duration);
+      this.resizeCanvas();
+      this.drawCanvas(sectionChannelData);
+    }
+
+    calculateCanvasSize(duration: number): void {
+      if(!this.trackContainerElement || !this.trackCanvasElement) return;
+
+      const trackWidth = this.trackContainerElement.getBoundingClientRect().right - this.trackContainerElement.getBoundingClientRect().left;
       const trackHeight = this.trackCanvasElement.clientHeight;
-      const canvasWidth = trackWidth / (300 / duration);
+      this.canvasWidth = trackWidth / (300 / duration);
+      this.canvasHeight = trackHeight;
+    }
 
-      this.style.width = `${canvasWidth}px`;
-      this.trackCanvasElement.width = canvasWidth;
-      this.trackCanvasElement.style.width = `${canvasWidth}px`;
-      this.trackCanvasElement.height = trackHeight;
+    resizeCanvas(): void {
+      if(!this.trackCanvasElement) return;
 
-      const canvasHeight = this.trackCanvasElement.clientHeight;
+      this.style.width = `${this.canvasWidth}px`;
+      this.trackCanvasElement.width = this.canvasWidth;
+      this.trackCanvasElement.style.width = `${this.canvasWidth}px`;
+      this.trackCanvasElement.height = this.canvasHeight;
+    }
+
+    drawCanvas(sectionChannelData: number[]): void {
+      if(!this.trackCanvasElement) return;
+
       const canvasCtx = this.trackCanvasElement.getContext('2d');
       if (!canvasCtx) return;
 
       const numOfPeaks = sectionChannelData.length;
-      const middleHeight = canvasHeight / 2;
+      const middleHeight = this.canvasHeight / 2;
       const defaultLineWidth = 1;
 
       canvasCtx.strokeStyle = '#2196f3';
-      canvasCtx.lineWidth = defaultLineWidth / (numOfPeaks / 2 / canvasWidth);
+      canvasCtx.lineWidth = defaultLineWidth / (numOfPeaks / 2 / this.canvasWidth);
       canvasCtx.beginPath();
 
       let offsetX = 0;
       let offsetY;
       for (let i = 0; i < numOfPeaks; i++) {
-        offsetY = middleHeight + Math.floor((sectionChannelData[i] * canvasHeight) / 2);
+        offsetY = middleHeight + Math.floor((sectionChannelData[i] * this.canvasHeight) / 2);
         if (i % 2 == 0) canvasCtx.moveTo(offsetX, offsetY);
         else {
           canvasCtx.lineTo(offsetX, offsetY);
@@ -108,15 +128,6 @@ import './AudioTrackSection.scss';
       canvasCtx.stroke();
     }
 
-    initState(): void {
-      const focusList = Controller.getFocusList();
-      const focusInfo = focusList.find(focus => focus.trackSection.id === this.sectionId);
-      if (!focusInfo || !this.trackCanvasElement) return;
-
-      focusInfo.element = this.trackCanvasElement;
-      focusInfo.element.classList.add('focused-section');
-    }
-
     initEvent(): void {
       EventUtil.registerEventToRoot({
         eventTypes: [EventType.click, EventType.mousemove, EventType.mouseout],
@@ -124,6 +135,7 @@ import './AudioTrackSection.scss';
         listeners: [this.trackSectionClickListener, this.trackSectionMouseMoveListener, this.trackSectionMouseoutListener],
         bindObj: this
       });
+      window.addEventListener('resize', this.windowResizeListener.bind(this));
     }
     
     trackSectionClickListener(e): void {
@@ -178,6 +190,19 @@ import './AudioTrackSection.scss';
 
     cursorModeObserverCallback(newCursorMode){
       this.cursorMode = newCursorMode;
+    }
+
+    windowResizeListener(e){
+      this.drawTrackSection();
+    }
+
+    initState(): void {
+      const focusList = Controller.getFocusList();
+      const focusInfo = focusList.find(focus => focus.trackSection.id === this.sectionId);
+      if (!focusInfo || !this.trackCanvasElement) return;
+
+      focusInfo.element = this.trackCanvasElement;
+      focusInfo.element.classList.add('focused-section');
     }
   };
 
