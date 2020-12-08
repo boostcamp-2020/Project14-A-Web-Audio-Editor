@@ -43,6 +43,13 @@ const getSectionData = (trackId: number, trackSectionId: number): SectionDataTyp
   return pipe(getSourceAndTrackSection, parseSectionData)(trackId, trackSectionId);
 };
 
+const getSourceBySourceId = (sourceId: number): Source | undefined=> {
+  const { sourceList } = store.getState();
+  const source = sourceList.find((source) => source.id === sourceId);
+
+  return source;
+}
+
 const getSourceList = (): Source[] => {
   const { sourceList } = store.getState();
 
@@ -425,5 +432,6 @@ export default {
   changeMaxTrackWidth,
   cutCommand,
   pasteCommand,
-  splitTrackSection
+  splitTrackSection,
+  getSourceBySourceId
 };
