@@ -10,7 +10,7 @@ const getSplitTime = (time: number): number[] => {
   return [newMinute, Math.floor(newSecond), newMilsecond];
 };
 
-const getStringPlayBarTime = (time: number): string[] => {
+const getPlayBarTimes = (time: number): string[] => {
   let gap = Math.round(time / SECTION_TIME);
   const timeArray: string[] = [];
 
@@ -46,4 +46,4 @@ const calculateTimeOfCursorPosition = (startX: number, currentX: number, mainWid
   return cursorTime;
 };
 
-export { getSplitTime, getStringPlayBarTime, getNumberTime, getStringTime, calculateTimeOfCursorPosition };
+export { getSplitTime, getPlayBarTimes, getNumberTime, getStringTime, calculateTimeOfCursorPosition };

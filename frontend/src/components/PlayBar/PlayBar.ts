@@ -1,51 +1,72 @@
-import './PlayBar.scss';
-import { TimeUtil, MarkerEventUtil } from '@util';
-import { EventUtil } from '@util';
-import { EventType, EventKeyType } from '@types';
+import { TimeUtil, MarkerEventUtil, EventUtil } from '@util';
+import { EventType, EventKeyType, StoreChannelType } from '@types';
 import { Controller } from '@controllers';
-
-const INIT_DURATION = 300;
+import { storeChannel } from "@store";
+import './PlayBar.scss';
 
 (() => {
   const PlayBar = class extends HTMLElement {
     private defaultStartX: number;
+    private mainWidth: number;
+    private maxTrackWidth: number;
+    private maxTrackPlayTime: number;
+    private playBarTimeDatas: string[];
+    private totalPlayTime: string;
+    private markerID: string;
+    private markerElement: HTMLElement | null;
     private playBarElement: HTMLElement | null;
+    private playBarContainerElement: HTMLElement | null;
     private playbarMarkerElementLeft: HTMLElement | null;
     private playbarMarkerElementRight: HTMLElement | null;
     private playbarMarkerBlurZoneElementLeft: HTMLElement | null;
     private playbarMarkerBlurZoneElementRight: HTMLElement | null;
-    private mainWidth: number;
-    private markerElement: HTMLElement | null;
-    private playtime: string[];
-    private totalPlayTime: string;
-    private markerID: string;
+    private trackScrollAreaElement: HTMLDivElement | null;
 
     constructor() {
       super();
       this.defaultStartX = 0;
       this.mainWidth = 0;
+      this.markerElement = null;
+      this.maxTrackWidth = 0;
+      this.maxTrackPlayTime = Controller.getMaxTrackPlayTime();
+      this.totalPlayTime = '';
+      this.playBarTimeDatas = [];
+      this.markerID = '';
       this.playBarElement = null;
+      this.playBarContainerElement = null;
       this.playbarMarkerElementLeft = null;
       this.playbarMarkerElementRight = null;
       this.playbarMarkerBlurZoneElementLeft = null;
       this.playbarMarkerBlurZoneElementRight = null;
-      this.markerElement = null;
-      this.playtime = [];
-      this.totalPlayTime = '';
-      this.markerID = '';
+      this.trackScrollAreaElement = null;
+
+      this.setPlayBarTimeInfo();
+    }
+
+    setPlayBarTimeInfo(): void {
+      this.totalPlayTime = this.parseTotalPlayTime(this.maxTrackPlayTime);
+      this.playBarTimeDatas = TimeUtil.getPlayBarTimes(this.maxTrackPlayTime);
+    }
+
+    parseTotalPlayTime(maxTrackPlayTime: number): string {
+      const [minute, second] = TimeUtil.getSplitTime(maxTrackPlayTime);
+      return `${minute.toString().padStart(2, '0')}:${second.toString().padStart(2, '0')}`;
     }
 
     connectedCallback(): void {
-      this.totalPlayTime = this.getTotalTime();
-      this.playtime = TimeUtil.getStringPlayBarTime(INIT_DURATION);
-      this.init();
+      try{
+        this.init();
+      }catch(e){
+        console.log(e);
+      }
     }
 
     init(): void {
       this.render();
-      this.initElement();
-      this.initEvent();
+      this.initProperty();
       this.initPlayBarMarkerLocation();
+      this.initEvent();
+      this.subscribe();
     }
 
     render(): void {
@@ -57,37 +78,40 @@ const INIT_DURATION = 300;
                   </div> 
                   <audi-playbar-marker-blur-zone type='right'></audi-playbar-marker-blur-zone>
                   <audi-playbar-marker-blur-zone type='left'></audi-playbar-marker-blur-zone>
-                  ${this.setStringTime()}
+                  ${this.getPlayBarTimes()}
                 </div>
             `;
     }
 
-    initEvent(): void {
-      EventUtil.registerEventToRoot({
-        eventTypes: [EventType.mousemove, EventType.dblclick, EventType.click, EventType.dragover, EventType.drop],
-        eventKey: EventKeyType.PLAYBAR_MULTIPLE,
-        listeners: [
-          MarkerEventUtil.mousemoveMarkerListener(this, this.defaultStartX, this.mainWidth),
-          this.dblclickPlayBarListener,
-          MarkerEventUtil.clickMarkerListener(this.markerElement),
-          this.dragoverPlayBarListener,
-          this.dropPlayBarListener
-        ],
-        bindObj: this
-      });
+    getPlayBarTimes(): string {
+      return this.playBarTimeDatas.reduce((acc, time) => {
+        if (time === '00:00' || time === this.totalPlayTime) {
+          return (acc += `<div class='playbar-time-none'></div>`);
+        }
 
-      this.addEventListener('dragstart', this.dragStartPlayBarMarkerListener.bind(this));
+        return (acc += `
+            <div class='playbar-time'>
+                <div>${time}</div>
+                <div>|</div>
+            </div>
+        `);
+      }, '');
     }
 
-    initElement(): void {
+    initProperty(): void {
       this.playBarElement = document.querySelector('audi-playbar');
+      this.playBarContainerElement = this.querySelector('.playbar');
       this.playbarMarkerElementLeft = document.getElementById('playbar-marker-left');
       this.playbarMarkerElementRight = document.getElementById('playbar-marker-right');
       this.playbarMarkerBlurZoneElementLeft = document.getElementById('playbar-marker-blur-zone-left');
       this.playbarMarkerBlurZoneElementRight = document.getElementById('playbar-marker-blur-zone-right');
       this.markerElement = document.querySelector('.marker');
-      this.defaultStartX = this.playBarElement?.getBoundingClientRect().left;
-      this.mainWidth = this.playBarElement?.getBoundingClientRect().right - this.defaultStartX;
+      this.trackScrollAreaElement = document.querySelector('.audi-main-audio-track-scroll-area');
+
+      if(this.playBarElement){
+        this.defaultStartX = this.playBarElement.getBoundingClientRect().left;
+        this.mainWidth = this.playBarElement.getBoundingClientRect().right - this.defaultStartX;
+      }
     }
 
     initPlayBarMarkerLocation(): void {
@@ -104,6 +128,25 @@ const INIT_DURATION = 300;
       }
     }
 
+    initEvent(): void {
+      if(!this.markerElement) return;
+
+      EventUtil.registerEventToRoot({
+        eventTypes: [EventType.mousemove, EventType.dblclick, EventType.click, EventType.dragover, EventType.drop],
+        eventKey: EventKeyType.PLAYBAR_MULTIPLE,
+        listeners: [
+          MarkerEventUtil.mousemoveMarkerListener(this, this.defaultStartX, this.mainWidth),
+          this.dblclickPlayBarListener,
+          MarkerEventUtil.clickMarkerListener(this.markerElement),
+          this.dragoverPlayBarListener,
+          this.dropPlayBarListener
+        ],
+        bindObj: this
+      });
+
+      this.addEventListener('dragstart', this.dragStartPlayBarMarkerListener.bind(this));
+    }
+    
     dragStartPlayBarMarkerListener(e): void {
       this.markerID = e.target.getAttribute('id').split('-')[2];
       const dragImage = document.createElement('div');
@@ -161,26 +204,6 @@ const INIT_DURATION = 300;
       this.playbarMarkerBlurZoneElementRight.style.width = `${currentPosition}px`;
     }
 
-    setStringTime(): string {
-      return this.playtime.reduce((acc, time) => {
-        if (time === '00:00' || time === this.totalPlayTime) {
-          return (acc += `<div class='playbar-time-none'></div>`);
-        }
-
-        return (acc += `
-            <div class='playbar-time'>
-                <div>${time}</div>
-                <div>|</div>
-            </div>
-        `);
-      }, '');
-    }
-
-    getTotalTime(): string {
-      const [minute, second] = TimeUtil.getSplitTime(INIT_DURATION);
-      return `${minute.toString().padStart(2, '0')}:${second.toString().padStart(2, '0')}`;
-    }
-
     compareCloseMarker(currentPosition: number): boolean {
       const markerLeft = Number(this.playbarMarkerElementLeft?.style.left.split(/px|%/).join(''));
       const markerRight = Number(this.playbarMarkerElementRight?.style.left.split('px').join(''));
@@ -189,8 +212,35 @@ const INIT_DURATION = 300;
       const offsetRight = Math.abs(currentPosition - markerRight);
 
       if (offsetLeft <= offsetRight) return true;
-
       return false;
+    }
+
+    subscribe(): void {
+      storeChannel.subscribe(StoreChannelType.MAX_TRACK_WIDTH_CHANNEL, this.maxTrackWidthObserverCallback, this);
+      storeChannel.subscribe(StoreChannelType.MAX_TRACK_PLAY_TIME_CHANNEL, this.maxTrackPlayTimeObserverCallback, this);
+    }
+
+    maxTrackWidthObserverCallback(maxTrackWidth: number): void {
+      this.maxTrackWidth = maxTrackWidth;
+      this.resizePlayBarContainer();
+    }
+
+    maxTrackPlayTimeObserverCallback(maxTrackPlayTime: number): void {
+      this.maxTrackPlayTime = maxTrackPlayTime;
+      this.setPlayBarTimeInfo();
+      this.render();
+      this.initProperty();
+      this.initPlayBarMarkerLocation();
+      this.resizePlayBarContainer();
+    }
+
+    resizePlayBarContainer(){     
+      if(!this.playBarContainerElement || !this.trackScrollAreaElement) return;
+      
+      const scrollAreaWidth = this.trackScrollAreaElement.getBoundingClientRect().right - this.trackScrollAreaElement.getBoundingClientRect().left;
+      const ratio = this.maxTrackWidth / scrollAreaWidth;
+
+      this.playBarContainerElement.style.width = `${100 * ratio}%`;
     }
   };
 
