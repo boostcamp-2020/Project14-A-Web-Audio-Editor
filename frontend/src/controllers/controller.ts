@@ -385,11 +385,19 @@ const splitTrackSection = (cursorPosition: number, trackId: number, sectionId: n
   CommandManager.execute(splitCommand);
 };
 
-const changeMaxTrackWidth = (newMaxTrackWidth: number) => {
-  const { maxTrackWidth } = store.getState();
-  if (maxTrackWidth >= newMaxTrackWidth) return;
-  store.setMaxTrackWidth(newMaxTrackWidth);
-};
+const changeMaxTrackWidth = (maxTrackWidth: number): void => {
+  store.setMaxTrackWidth(maxTrackWidth);
+}
+
+const changeMaxTrackPlayTime = (trackSectionList: TrackSection[]): void => {
+  const trackPlaytime = trackSectionList.reduce((acc, trackSection)=> acc += trackSection.length, 0);
+  store.setMaxTrackPlayTime(trackPlaytime);
+}
+
+const getMaxTrackPlayTime = () => {
+  const { maxTrackPlayTime } = store.getState();
+  return maxTrackPlayTime;
+}
 
 export default {
   addTrackSectionFromSource,
@@ -429,9 +437,11 @@ export default {
   deleteCommand,
   undoCommand,
   redoCommand,
-  changeMaxTrackWidth,
+  getMaxTrackPlayTime,
   cutCommand,
   pasteCommand,
   splitTrackSection,
-  getSourceBySourceId
+  getSourceBySourceId,
+  changeMaxTrackWidth,
+  changeMaxTrackPlayTime
 };
