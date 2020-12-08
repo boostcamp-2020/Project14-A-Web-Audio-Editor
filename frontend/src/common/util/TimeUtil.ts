@@ -1,4 +1,4 @@
-import { getSecondPerPixel, getDifferenceWidth } from './PlayBarUtil';
+import { getSecondPerPixel, getDifferenceWidth } from './WidthUtil';
 
 const SECTION_TIME = 15;
 
