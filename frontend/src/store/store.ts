@@ -25,8 +25,8 @@ const store = new (class Store {
       clipBoard: null,
       audioSourceInfoInTrackList: [],
       currentPosition: 0,
-      markerStringTime: 0,
-      cursorStringTime: 0,
+      markerNumberTime: 0,
+      cursorNumberTime: 0,
       isPause: true,
       maxTrackWidth: 0
     };
@@ -65,15 +65,13 @@ const store = new (class Store {
     storeChannel.publish(StoreChannelType.MODAL_STATE_CHANNEL, newModalState);
   }
 
-  setCursorStringTime(newMinute: string, newSecond: string, newMilsecond): void {
+  setCursorStringTime(newCursorStringTime: string): void {
     const { cursorStringTime } = this.state;
-    const [minute, second, milsecond] = cursorStringTime.split(':');
 
-    if (minute === newMinute && second === newSecond && milsecond === newMilsecond) return;
+    if (cursorStringTime === newCursorStringTime) return;
 
-    const newCursorTime: string = `${newMinute.padStart(2, '0')}:${newSecond.padStart(2, '0')}:${newMilsecond.padStart(3, '0')}`;
-    this.state = { ...this.state, cursorStringTime: newCursorTime };
-    storeChannel.publish(StoreChannelType.CURSOR_TIME_CHANNEL, newCursorTime);
+    this.state = { ...this.state, cursorStringTime: newCursorStringTime };
+    storeChannel.publish(StoreChannelType.CURSOR_TIME_CHANNEL, newCursorStringTime);
   }
 
   setTrackDragState(newIsTrackDraggable: Boolean): void {
@@ -165,7 +163,7 @@ const store = new (class Store {
     console.log(newSection);
   }
 
-  setMarkerTime(newMarkerNumberTime: number): void {
+  setMarkerNumberTime(newMarkerNumberTime: number): void {
     const { markerNumberTime } = this.state;
 
     if (markerNumberTime === newMarkerNumberTime) return;
@@ -185,7 +183,7 @@ const store = new (class Store {
     storeChannel.publish(StoreChannelType.CURRENT_POSITION_CHANNEL, newMarkerWidth);
   }
 
-  setPlayTime(newPlayStringTime): void {
+  setPlayStringTime(newPlayStringTime): void {
     this.state = { ...this.state, playStringTime: newPlayStringTime };
     storeChannel.publish(StoreChannelType.PLAY_TIME_CHANNEL, newPlayStringTime);
   }
