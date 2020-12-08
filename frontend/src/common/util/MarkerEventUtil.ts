@@ -1,12 +1,12 @@
 import { getDifferenceWidth } from './WidthUtil';
-import { getSplitTime, getNumberTime } from './TimeUtil';
+import { getSplitTime, calculateTimeOfCursorPosition } from './TimeUtil';
 import { Controller } from '@controllers';
 
 const mousemoveMarkerListener: Function = (element: HTMLElement, defaultStartX: number, mainWidth: number) => (e: Event): void => {
   if (!element) return;
   const cursorPosition = e.pageX;
 
-  const cursorNumberTime = getNumberTime(defaultStartX, cursorPosition, mainWidth);
+  const cursorNumberTime = calculateTimeOfCursorPosition(defaultStartX, cursorPosition, mainWidth);
   const [minute, second, milsecond] = getSplitTime(cursorNumberTime);
   const cursorWidth = getDifferenceWidth(defaultStartX, cursorPosition);
 

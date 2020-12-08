@@ -38,4 +38,12 @@ const getStringTime = (minute: number, second: number, milsecond: number): strin
   return stringTime;
 };
 
-export { getSplitTime, getStringPlayBarTime, getNumberTime, getStringTime };
+const calculateTimeOfCursorPosition = (startX: number, currentX: number, mainWidth: number): number => {
+  const secondPerPixel = getSecondPerPixel(mainWidth);
+  const differenceWidth = getDifferenceWidth(startX, currentX);
+  const cursorTime = secondPerPixel * differenceWidth;
+
+  return cursorTime;
+};
+
+export { getSplitTime, getStringPlayBarTime, getNumberTime, getStringTime, calculateTimeOfCursorPosition };

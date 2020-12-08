@@ -23,7 +23,7 @@ export class SplitCommand extends ICommand {
     if (!this.trackContainerElement) return;
     const startX = this.trackContainerElement.getBoundingClientRect().left;
     const endX = this.trackContainerElement.getBoundingClientRect().right;
-    const cursorNumberTime = TimeUtil.getNumberTime(startX, this.cursorPosition, endX - startX);
+    const cursorNumberTime = TimeUtil.calculateTimeOfCursorPosition(startX, this.cursorPosition, endX - startX);
 
     const splitTime = cursorNumberTime - this.targetSection.trackStartTime;
     const leftSection = CopyUtil.copySection(this.targetSection);
