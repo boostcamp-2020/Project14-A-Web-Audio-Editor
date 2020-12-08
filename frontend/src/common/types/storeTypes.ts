@@ -26,7 +26,8 @@ enum StoreChannelType {
   PLAY_TIME_CHANNEL = 'PLAY_TIME_CHANNEL',
   MAX_TRACK_WIDTH_CHANNEL = 'MAX_TRACK_WIDTH_CHANNEL',
   CURSOR_MODE_CHANNEL = 'CURSOR_MODE_CHANNEL',
-  EDIT_MENU_CHANNEL = 'EDIT_MENU_CHANNEL'
+  EDIT_MENU_CHANNEL = 'EDIT_MENU_CHANNEL',
+  MAX_TRACK_PLAY_TIME_CHANNEL = 'MAX_TRACK_PLAY_TIME_CHANNEL'
 }
 
 interface StoreStateType {
@@ -48,6 +49,7 @@ interface StoreStateType {
   cursorNumberTime: number;
   isPause: boolean;
   maxTrackWidth: number;
+  maxTrackPlayTime: number;
 }
 
 interface StoreObserverData {

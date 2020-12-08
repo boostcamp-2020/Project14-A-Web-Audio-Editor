@@ -28,7 +28,8 @@ const store = new (class Store {
       markerNumberTime: 0,
       cursorNumberTime: 0,
       isPause: true,
-      maxTrackWidth: 0
+      maxTrackWidth: 0,
+      maxTrackPlayTime: 300
     };
   }
 
@@ -226,11 +227,18 @@ const store = new (class Store {
 
   setMaxTrackWidth(newMaxTrackWidth: number): void {
     const { maxTrackWidth } = this.state;
-
     if (maxTrackWidth >= newMaxTrackWidth) return;
 
     this.state = { ...this.state, maxTrackWidth: newMaxTrackWidth };
     storeChannel.publish(StoreChannelType.MAX_TRACK_WIDTH_CHANNEL, newMaxTrackWidth);
+  }
+
+  setMaxTrackPlayTime(newMaxTrackPlayTime: number): void {
+    const { maxTrackPlayTime } = this.state;
+    if(maxTrackPlayTime >= newMaxTrackPlayTime) return;
+
+    this.state = {...this.state, maxTrackPlayTime: newMaxTrackPlayTime}
+    storeChannel.publish(StoreChannelType.MAX_TRACK_PLAY_TIME_CHANNEL, newMaxTrackPlayTime);
   }
 })();
 
