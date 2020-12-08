@@ -1,9 +1,9 @@
-import ICommand from './ICommand'
-import { Controller } from '@controllers'
-import { StoreChannelType } from '@types'
-import { storeChannel } from '@store'
-import { Track, TrackSection } from '@model'
-import { CopyUtil, PlayBarUtil } from '@util'
+import ICommand from './ICommand';
+import { Controller } from '@controllers';
+import { StoreChannelType } from '@types';
+import { storeChannel } from '@store';
+import { Track, TrackSection } from '@model';
+import { CopyUtil, TimeUtil } from '@util';
 
 export class SplitCommand extends ICommand {
   private beforeTrack: Track;
@@ -23,9 +23,9 @@ export class SplitCommand extends ICommand {
     if (!this.trackContainerElement) return;
     const startX = this.trackContainerElement.getBoundingClientRect().left;
     const endX = this.trackContainerElement.getBoundingClientRect().right;
-    const [minute, second, milsecond, location, totalCursorTime] = PlayBarUtil.getCursorPosition(startX, this.cursorPosition, endX - startX);
+    const cursorNumberTime = TimeUtil.calculateTimeOfCursorPosition(startX, this.cursorPosition, endX - startX);
 
-    const splitTime = totalCursorTime - this.targetSection.trackStartTime;
+    const splitTime = cursorNumberTime - this.targetSection.trackStartTime;
     const leftSection = CopyUtil.copySection(this.targetSection);
     leftSection.id = 0;
     leftSection.channelEndTime = splitTime;
@@ -39,14 +39,14 @@ export class SplitCommand extends ICommand {
     rightSection.trackStartTime += splitTime;
     rightSection.length -= splitTime;
 
-    const sectionIndex = this.beforeTrack.trackSectionList.findIndex(section => section.id === this.targetSection.id);
+    const sectionIndex = this.beforeTrack.trackSectionList.findIndex((section) => section.id === this.targetSection.id);
 
     if (sectionIndex === -1) return;
     const trackId = this.beforeTrack.id;
     Controller.removeSection(trackId, sectionIndex);
     Controller.addTrackSection(trackId, leftSection);
     Controller.addTrackSection(trackId, rightSection);
-  };
+  }
 
   undo() {
     const newTrack = CopyUtil.copyTrack(this.beforeTrack);
@@ -58,7 +58,5 @@ export class SplitCommand extends ICommand {
     });
 
     storeChannel.publish(StoreChannelType.TRACK_CHANNEL, newTrack.trackSectionList);
-  };
+  }
 }
-
-

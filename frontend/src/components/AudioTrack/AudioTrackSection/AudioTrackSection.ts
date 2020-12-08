@@ -1,6 +1,6 @@
 import { Controller } from '@controllers';
 import { CursorType, EventKeyType, EventType } from '@types';
-import { EventUtil, PlayBarUtil } from '@util';
+import { EventUtil, WidthUtil } from '@util';
 import './AudioTrackSection.scss';
 
 interface SectionData {
@@ -16,7 +16,6 @@ interface SectionData {
     private trackCanvasElement: HTMLCanvasElement | undefined | null;
     private cutLineElement: HTMLElement | undefined | null;
     private trackContainerElement: HTMLElement | null;
-
 
     constructor() {
       super();
@@ -125,14 +124,12 @@ interface SectionData {
         listeners: [this.clickListener, this.cutLineMouseMoveListener, this.mouseoutListener],
         bindObj: this
       });
-
     }
 
     clickListener(e): void {
       const cursorMode = Controller.getCursorMode();
       if (cursorMode === CursorType.SELECT_MODE) {
         Controller.toggleFocus(this.trackId, this.sectionId, e.target);
-
       } else if (cursorMode === CursorType.CUT_MODE) {
         const cursorPosition = e.pageX;
         Controller.splitCommand(cursorPosition, this.trackId, this.sectionId);
@@ -144,7 +141,6 @@ interface SectionData {
 
       if (!this.cutLineElement || !this.trackContainerElement) return;
 
-
       if (cursorMode !== CursorType.CUT_MODE) {
         this.cutLineElement.classList.add('hide');
         return;
@@ -153,10 +149,10 @@ interface SectionData {
       const cursorPosition = e.pageX;
       const startX = this.trackContainerElement.getBoundingClientRect().left;
       const endX = this.trackContainerElement.getBoundingClientRect().right;
-      const [minute, second, milsecond, location, totalCursorTime] = PlayBarUtil.getCursorPosition(startX, cursorPosition, endX - startX);
+      const cursorWidth = WidthUtil.getDifferenceWidth(startX, cursorPosition, endX - startX);
 
       this.cutLineElement.classList.remove('hide');
-      this.cutLineElement.style.left = `${location}px`;
+      this.cutLineElement.style.left = `${cursorWidth}px`;
     }
 
     mouseoutListener(e): void {

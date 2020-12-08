@@ -1,9 +1,9 @@
-import { EventKeyType, EventType, StoreChannelType } from "@types";
+import { EventKeyType, EventType, StoreChannelType } from '@types';
 import { storeChannel } from '@store';
 import { Source } from '@model';
-import { EventUtil } from "@util";
-import { Controller } from "@controllers";
-import "./SourceList.scss";
+import { EventUtil } from '@util';
+import { Controller } from '@controllers';
+import './SourceList.scss';
 
 (() => {
   const SourceList = class extends HTMLElement {
@@ -21,8 +21,10 @@ import "./SourceList.scss";
     }
 
     getSources(): string {
-      return this.sourceList.reduce((acc, source) =>
-        acc + `<li class="audio-source" draggable="true" data-id=${source.id} event-key=${EventKeyType.SOURCE_LIST_MULTIPLE}>
+      return this.sourceList.reduce(
+        (acc, source) =>
+          acc +
+          `<li class="audio-source" draggable="true" data-id=${source.id} event-key=${EventKeyType.SOURCE_LIST_MULTIPLE}>
                         <span event-key=${EventKeyType.SOURCE_LIST_MULTIPLE}>${source.fileName}</span>
                         <ul class="source-info">
                           <li><span>FileName: ${source.fileName}</span></li>
@@ -31,12 +33,13 @@ import "./SourceList.scss";
                           <li><span>Channel: ${source.numberOfChannels}</span></li>
                           <li><span>PlayTime: ${this.parsePlayTime(source.duration)}</span></li>
                         </ul>
-                      </li>`
-        , "")
+                      </li>`,
+        ''
+      );
     }
-    
-    parseFileSize(fileSize: number): string{
-      let parsedFileSize = fileSize / 1024 /1024
+
+    parseFileSize(fileSize: number): string {
+      let parsedFileSize = fileSize / 1024 / 1024;
       parsedFileSize = parsedFileSize * 100;
       parsedFileSize = Math.floor(parsedFileSize);
       parsedFileSize = parsedFileSize / 100;
@@ -45,7 +48,7 @@ import "./SourceList.scss";
     }
 
     parsePlayTime(playTime: number): string {
-      if(playTime < 60){
+      if (playTime < 60) {
         const seconds = Math.round(playTime);
         return `${seconds}초`;
       }
@@ -68,33 +71,41 @@ import "./SourceList.scss";
       `;
     }
 
-    initEvent(): void{
+    initEvent(): void {
       EventUtil.registerEventToRoot({
         eventTypes: [EventType.dragstart, EventType.dragend],
         eventKey: EventKeyType.SOURCE_LIST_MULTIPLE,
         listeners: [this.sourceListDragstartListener, this.sourceListDragendListener],
         bindObj: this
-      })
+      });
     }
 
-    sourceListDragstartListener(e): void{
-      e.dataTransfer.setData("text/plain", e.target.dataset.id);
-      e.dataTransfer.dropEffect = "link";
+    sourceListDragstartListener(e): void {
+      e.dataTransfer.setData('text/plain', e.target.dataset.id);
+      e.dataTransfer.dropEffect = 'link';
 
       Controller.changeTrackDragState(true);
     }
 
-    sourceListDragendListener(e): void{
+    sourceListDragendListener(e): void {
       Controller.changeTrackDragState(false);
     }
 
-    subscribe(): void{
-      storeChannel.subscribe(StoreChannelType.SOURCE_LIST_CHANNEL,this.updateSourceList,this);
+    subscribe(): void {
+      storeChannel.subscribe(StoreChannelType.SOURCE_LIST_CHANNEL, this.updateSourceList, this);
     }
 
-    updateSourceList(sourceList: Source[]): void{
+    updateSourceList(sourceList: Source[]): void {
       this.sourceList = sourceList;
       this.render();
+    }
+
+    hide(): void {
+      this.classList.add('hide');
+    }
+
+    show(): void {
+      this.classList.remove('hide');
     }
   };
 
