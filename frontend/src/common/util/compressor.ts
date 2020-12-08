@@ -18,13 +18,10 @@ export const saveFile = async (options: CompressorOption) => {
   }
 
   const mergedBuffer = await mergeTrackArrayBuffer(arrayBufferList);
-
   const leftChannel = mergedBuffer.getChannelData(0);
   const righttChannel = mergedBuffer.getChannelData(1);
   const length = leftChannel.length;
-
   const wavBuffer = ChannelDataToWave([leftChannel, righttChannel], length);
-
   const name = `${options.fileName}.${options.extention}`;
 
   if (options.extention === 'wav') {
@@ -159,8 +156,6 @@ const mergeTrackArrayBuffer = async (arrayBufferList: ArrayBuffer[]) => {
 
   return renderBuffer;
 }
-
-
 
 const makeMP3 = (wavBuffer: ArrayBuffer, quality: number) => {
   const mp3Data: Int8Array[] = [];
