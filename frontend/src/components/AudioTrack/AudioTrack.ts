@@ -64,7 +64,7 @@ import "./AudioTrack.scss";
     }
 
     getTrackSectionList(): string {
-      return this.trackSectionList.reduce((acc, trackSection, idx) =>
+      return this.trackSectionList.reduce((acc, trackSection) =>
         acc += `<audi-track-section data-id=${trackSection.id} data-track-id=${trackSection.trackId}></audi-track-section>`
         , "");
     }
@@ -90,7 +90,6 @@ import "./AudioTrack.scss";
         listeners: [this.focusResetListener],
         bindObj: this
       });
-
     }
 
     focusResetListener(e): void {
@@ -108,39 +107,24 @@ import "./AudioTrack.scss";
     trackDropListener(e): void {
       e.preventDefault();
       e.stopPropagation();
+
       const sourceId = e.dataTransfer.getData("text/plain");
-      const source = Controller.getSourceBySourceId(Number(sourceId));
-      if (!source) return;
-
-      const { duration } = source;
-
-      const trackSection = new TrackSection({
-        id: 0,
-        sourceId: source.id,
-        trackId: this.trackId,
-        channelStartTime: 0,
-        channelEndTime: duration,
-        parsedChannelStartTime: 0,
-        parsedChannelEndTime: duration,
-        trackStartTime: 0,
-        audioStartTime: 0
-      });
-
-      Controller.addTrackSection(this.trackId, trackSection);
+      Controller.addTrackSectionFromSource(Number(sourceId), this.trackId);
     }
 
     trackDragenterListener(e): void {
-      e.preventDefault()
+      e.preventDefault();
       this.trackDropzoneElement?.classList.add('focus');
     }
 
     trackDragleaveListener(e): void {
-      e.preventDefault()
+      e.preventDefault();
       this.trackDropzoneElement?.classList.remove('focus');
     }
 
     hideMessage(): void {
-      this.trackMessage?.classList.add('hide');
+      if(!this.trackMessageElement) return;
+      this.trackMessageElement.classList.add('hide');
     }
 
     subscribe(): void {
