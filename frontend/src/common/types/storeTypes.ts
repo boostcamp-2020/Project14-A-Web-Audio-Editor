@@ -8,7 +8,7 @@ enum CursorType {
 
 interface FocusInfo {
   trackSection: TrackSection;
-  element: HTMLElement;
+  element: HTMLCanvasElement;
 }
 
 enum StoreChannelType {
@@ -24,7 +24,8 @@ enum StoreChannelType {
   MARKER_TIME_CHANNEL = 'MARKER_TIME_CHANNEL',
   IS_PAUSE_CHANNEL = 'IS_PAUSE_CHANNEL',
   PLAY_TIME_CHANNEL = 'PLAY_TIME_CHANNEL',
-  MAX_TRACK_WIDTH_CHANNEL = 'MAX_TRACK_WIDTH_CHANNEL'
+  MAX_TRACK_WIDTH_CHANNEL = 'MAX_TRACK_WIDTH_CHANNEL',
+  EDIT_MENU_CHANNEL = 'EDIT_MENU_CHANNEL'
 }
 
 interface StoreStateType {

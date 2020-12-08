@@ -46,6 +46,12 @@ const getSourceBySourceId = (sourceId: number): Source | undefined => {
   return source;
 };
 
+const getSourceList = (): Source[] => {
+  const { sourceList } = store.getState();
+
+  return sourceList;
+};
+
 const addSource = (source: Source): void => {
   store.setSource(source);
 };
@@ -109,7 +115,7 @@ const getFocusList = () => {
   return focusList;
 };
 
-const toggleFocus = (trackId: number, sectionId: number, selectedElement: HTMLElement): void => {
+const toggleFocus = (trackId: number, sectionId: number, selectedElement: HTMLCanvasElement): void => {
   const { trackList, focusList, ctrlIsPressed, cursorMode } = store.getState();
 
   if (cursorMode !== CursorType.SELECT_MODE) return;
@@ -133,7 +139,7 @@ const toggleFocus = (trackId: number, sectionId: number, selectedElement: HTMLEl
   }
 };
 
-const addFocus = (trackSection: TrackSection, selectedElement: HTMLElement): void => {
+const addFocus = (trackSection: TrackSection, selectedElement: HTMLCanvasElement): void => {
   selectedElement.classList.add('focused-section');
   const newFocusInfo: FocusInfo = {
     trackSection: trackSection,
@@ -181,6 +187,7 @@ const getClipBoard = (): TrackSection | null => {
   const { clipBoard } = store.getState();
   return clipBoard;
 };
+
 
 const pauseChangeMarkerNumberTime = (playingTime: number): void => {
   const { markerNumberTime } = store.getState();
@@ -342,6 +349,7 @@ const changeMaxTrackWidth = (newMaxTrackWidth: number) => {
 
 export default {
   getSourceBySourceId,
+  getSourceList,
   getSectionChannelData,
   addSource,
   changeModalState,

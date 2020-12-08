@@ -122,6 +122,7 @@ const store = new (class Store {
     });
 
     storeChannel.publish(StoreChannelType.TRACK_CHANNEL, newTrackList);
+    storeChannel.publish(StoreChannelType.EDIT_MENU_CHANNEL, null);
   }
 
   setCurrentPosition(newCurrentPosition: number): void {
@@ -141,7 +142,7 @@ const store = new (class Store {
     const newfocusList = focusList.concat(newFocusInfo);
 
     this.state = { ...this.state, focusList: newfocusList };
-    storeChannel.publish(StoreChannelType.EDIT_TOOLS_CHANNEL, '');
+    storeChannel.publish(StoreChannelType.EDIT_TOOLS_CHANNEL, null);
   }
 
   removeFocus(removeIndex: number) {
@@ -214,6 +215,7 @@ const store = new (class Store {
     });
 
     storeChannel.publish(StoreChannelType.TRACK_CHANNEL, newTrackList);
+    storeChannel.publish(StoreChannelType.EDIT_MENU_CHANNEL, null);
   }
 
   setCursorMode(newType: CursorType): void {

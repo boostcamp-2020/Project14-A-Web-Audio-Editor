@@ -1,52 +1,40 @@
+import { Controller } from '@controllers';
 import { CompressorOption } from '@types';
 import * as lamejs from 'lamejs';
 
-export const saveFile = async (arrayBuffer: ArrayBuffer, options: CompressorOption) => {
-  const audioCtx: AudioContext = new AudioContext();
-  const buffer = await audioCtx.decodeAudioData(arrayBuffer);
-  const name = `${options.fileName}.${options.extention}`;
+const sampleRate = 48000;
+const numberOfChannels = 2;
 
-  const wavBuffer = await makeWaveBlob(buffer);
+export const saveFile = async (options: CompressorOption) => {
+  const arrayBufferList: ArrayBuffer[] = [];
+  const trackList = Controller.getTrackList();
+
+  for (let i = 0; i < trackList.length; i++) {
+    const trackArrayBuffer = await getTrackArrayBuffer(trackList[i].id);
+
+    if (trackArrayBuffer) {
+      arrayBufferList.push(trackArrayBuffer);
+    }
+  }
+
+  const mergedBuffer = await mergeTrackArrayBuffer(arrayBufferList);
+  const leftChannel = mergedBuffer.getChannelData(0);
+  const righttChannel = mergedBuffer.getChannelData(1);
+  const length = leftChannel.length;
+  const wavBuffer = ChannelDataToWave([leftChannel, righttChannel], length);
+  const name = `${options.fileName}.${options.extention}`;
 
   if (options.extention === 'wav') {
     const wavFile = new Blob([wavBuffer], { type: `audio/wav` });
     makeDownload(wavFile, name);
   } else if (options.extention === 'mp3' && options.quality) {
-    const mp3Blob = await makeMP3(wavBuffer, options.quality);
+    const mp3Blob = makeMP3(wavBuffer, options.quality);
     makeDownload(mp3Blob, name);
   }
 }
 
-const makeWaveBlob = async (buffer: AudioBuffer) => {
-  const offlineAudioCtx: OfflineAudioContext = new OfflineAudioContext({
-    numberOfChannels: 2,
-    length: (44100) * buffer.duration,
-    sampleRate: 44100,
-  });
-  const soundSource = offlineAudioCtx.createBufferSource();
-  soundSource.buffer = buffer;
-
-  const compressor = offlineAudioCtx.createDynamicsCompressor();
-  compressor.threshold.setValueAtTime(-20, offlineAudioCtx.currentTime);
-  compressor.knee.setValueAtTime(30, offlineAudioCtx.currentTime);
-  compressor.ratio.setValueAtTime(5, offlineAudioCtx.currentTime);
-  compressor.attack.setValueAtTime(.05, offlineAudioCtx.currentTime);
-  compressor.release.setValueAtTime(.25, offlineAudioCtx.currentTime);
-
-  const gainNode = offlineAudioCtx.createGain();
-  gainNode.gain.setValueAtTime(1, offlineAudioCtx.currentTime);
-  soundSource.connect(compressor);
-  compressor.connect(gainNode);
-  gainNode.connect(offlineAudioCtx.destination);
-  soundSource.start(0);
-  soundSource.loop = false;
-
-  const renderedBuffer = await offlineAudioCtx.startRendering();
-  return bufferToWave(renderedBuffer, offlineAudioCtx.length);
-}
-
-const bufferToWave = (abuffer: AudioBuffer, len: number) => {
-  const numOfChan: number = abuffer.numberOfChannels;
+const ChannelDataToWave = (channelDatas: Float32Array[], len: number) => {
+  const numOfChan: number = numberOfChannels;
   const length: number = len * numOfChan * 2 + 44;
   const buffer: ArrayBuffer = new ArrayBuffer(length);
   const view: DataView = new DataView(buffer);     // buffer를 다룰 때 사용
@@ -76,16 +64,17 @@ const bufferToWave = (abuffer: AudioBuffer, len: number) => {
   setUint32(16);                                      // length = 16
   setUint16(1);                                       // PCM (uncompressed)
   setUint16(numOfChan);
-  setUint32(abuffer.sampleRate);
-  setUint32(abuffer.sampleRate * 2 * numOfChan);      // avg. bytes/sec
+  setUint32(sampleRate);
+  setUint32(sampleRate * 2 * numOfChan);      // avg. bytes/sec
   setUint16(numOfChan * 2);                           // block-align
   setUint16(16);                                      // 16-bit (hardcoded in this demo)
 
   setUint32(0x61746164);                              // "data" - chunk
   setUint32(length - pos - 4);                        // chunk length
 
-  for (let i = 0; i < abuffer.numberOfChannels; i++)
-    channels.push(abuffer.getChannelData(i));
+  for (let i = 0; i < channelDatas.length; i++) {
+    channels.push(channelDatas[i]);
+  }
 
   while (pos < length) {
     for (let i = 0; i < numOfChan; i++) {
@@ -100,10 +89,78 @@ const bufferToWave = (abuffer: AudioBuffer, len: number) => {
   return buffer;
 }
 
-const makeMP3 = async (wavBuffer: ArrayBuffer, quality: number) => {
+const getTrackArrayBuffer = async (trackId: number) => {
+  const track = Controller.getTrack(trackId);
+  if (!track || track.trackSectionList.length === 0) return null;
+
+  const lastSection = track.trackSectionList[track.trackSectionList.length - 1];
+
+  const bufferLength = (lastSection.trackStartTime + lastSection.length) * sampleRate;
+
+  const leftChannel = new Float32Array(bufferLength);
+  const rightChannel = new Float32Array(bufferLength);
+  let offset = 0;
+
+  for (let i = 0; i < track.trackSectionList.length; i++) {
+    const section = track.trackSectionList[i];
+    const audioSource = Controller.getSourceBySourceId(section.sourceId);
+
+    if (!audioSource) return;
+
+    const duration = section.trackStartTime + section.length;
+    const offlineCtx = new OfflineAudioContext(numberOfChannels, duration * sampleRate, sampleRate);
+    const source = offlineCtx.createBufferSource();
+
+    source.buffer = audioSource.buffer;
+    source.connect(offlineCtx.destination);
+    source.start(section.trackStartTime, section.channelStartTime, duration);
+
+    const renderBuffer = await offlineCtx.startRendering();
+    const left = renderBuffer.getChannelData(0);
+    const right = renderBuffer.getChannelData(1);
+
+    while (offset < left.length) {
+      leftChannel[offset] = left[offset];
+      rightChannel[offset] = right[offset];
+      offset++;
+    }
+  }
+  const len = leftChannel.length;
+  const wave = ChannelDataToWave([leftChannel, rightChannel], len);
+
+  return wave;
+}
+
+const mergeTrackArrayBuffer = async (arrayBufferList: ArrayBuffer[]) => {
+  const audioBuffers: AudioBuffer[] = [];
+  let maxLength = 0;
+  for (let i = 0; i < arrayBufferList.length; i++) {
+    const audioCtx: AudioContext = new AudioContext();
+    const audioBuffer = await audioCtx.decodeAudioData(arrayBufferList[i]);
+
+    audioBuffers.push(audioBuffer);
+    maxLength = Math.max(maxLength, audioBuffer.length);
+  }
+  const numberOfChannels = 2;
+  const offlineCtx = new OfflineAudioContext(numberOfChannels, maxLength, sampleRate);
+  const merger = offlineCtx.createChannelMerger(numberOfChannels);
+
+  audioBuffers.forEach(buffer => {
+    const source = offlineCtx.createBufferSource();
+    source.buffer = buffer;
+    source.connect(merger);
+    source.connect(offlineCtx.destination);
+    source.start();
+  })
+  const renderBuffer = await offlineCtx.startRendering();
+
+  return renderBuffer;
+}
+
+const makeMP3 = (wavBuffer: ArrayBuffer, quality: number) => {
   const mp3Data: Int8Array[] = [];
 
-  const mp3encoder = new lamejs.Mp3Encoder(2, 44100, quality);
+  const mp3encoder = new lamejs.Mp3Encoder(numberOfChannels, sampleRate, quality);
 
   const wavHdr = lamejs.WavHeader.readHeader(new DataView(wavBuffer));
   const wavSamples = new Int16Array(wavBuffer, wavHdr.dataOffset, wavHdr.dataLen / 2);
@@ -117,7 +174,7 @@ const makeMP3 = async (wavBuffer: ArrayBuffer, quality: number) => {
   }
   const mp3buf = mp3encoder?.encodeBuffer(leftData, rightData);
   if (mp3buf.length > 0) {
-    mp3Data.push(mp3buf);//new Int8Array(mp3buf));
+    mp3Data.push(mp3buf);
   }
   const d = mp3encoder?.flush();
 
