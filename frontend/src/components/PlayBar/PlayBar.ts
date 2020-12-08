@@ -97,7 +97,7 @@ const INIT_DURATION = 300;
         this.playbarMarkerBlurZoneElementLeft &&
         this.playbarMarkerBlurZoneElementRight
       ) {
-        this.playbarMarkerElementLeft.style.left = '100%';
+        this.playbarMarkerElementLeft.style.left = '99.3%';
         this.playbarMarkerElementRight.style.left = '0px';
         this.playbarMarkerBlurZoneElementLeft.style.left = '100%';
         this.playbarMarkerBlurZoneElementRight.style.left = '0px';
