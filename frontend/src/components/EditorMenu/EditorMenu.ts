@@ -1,17 +1,21 @@
 import './EditorMenu.scss';
-import { Controller } from '@controllers';
-import { ModalType, EventType, EventKeyType } from '@types';
+import { ModalType, EventType, EventKeyType, StoreChannelType } from '@types';
+import { storeChannel } from '@store';
+import { Controller } from '@controllers'
 import { EventUtil } from '@util';
- 
+
 (() => {
   const EditorMenu = class extends HTMLElement {
+
     constructor() {
       super();
     }
 
     connectedCallback(): void {
       this.render();
+      this.init();
       this.initEvent();
+      this.subscribe();
     }
 
     render(): void {
@@ -34,6 +38,18 @@ import { EventUtil } from '@util';
             `;
     }
 
+    init(): void {
+      const saveButton = this.querySelector('#save');
+      if (!saveButton) return;
+
+      const trackList = Controller.getTrackList();
+
+      const possibleSave = trackList.find(track => track.trackSectionList.length > 0);
+
+      if (!possibleSave) saveButton.classList.add('disabled')
+
+    }
+
     initEvent(): void {
       EventUtil.registerEventToRoot({
         eventTypes: [EventType.click],
@@ -50,16 +66,28 @@ import { EventUtil } from '@util';
       });
     }
 
-    openUploadModalBtnClickListener(): void{
+    openUploadModalBtnClickListener(): void {
       Controller.changeModalState(ModalType.upload, false);
     }
 
-    openDownloadModalBtnClickListener(): void{
+    openDownloadModalBtnClickListener(): void {
       Controller.changeModalState(ModalType.download, false);
     }
+
+    subscribe(): void {
+      storeChannel.subscribe(StoreChannelType.EDIT_MENU_CHANNEL, this.updateEditorMenu, this);
+    }
+
+    updateEditorMenu(): void {
+      this.render();
+      this.init();
+      this.initEvent();
+    }
   };
+
+
 
   customElements.define('audi-editor-menu', EditorMenu);
 })();
 
-export {};
+export { };

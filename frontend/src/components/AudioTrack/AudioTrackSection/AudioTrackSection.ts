@@ -1,7 +1,7 @@
 import { Controller } from '@controllers';
 import { CursorType, EventKeyType, EventType, StoreChannelType, SectionDataType } from '@types';
 import { EventUtil } from '@util';
-import { storeChannel } from '@store';
+import { storeChannel, WidthUtil } from '@store';
 import './AudioTrackSection.scss';
 
 (() => {
@@ -49,6 +49,7 @@ import './AudioTrackSection.scss';
         this.initProperty();
         this.draw();
         this.initEvent();
+        this.initState();
         this.subscribe();
       } catch (e) {
         console.log(e);
@@ -107,6 +108,15 @@ import './AudioTrackSection.scss';
       canvasCtx.stroke();
     }
 
+    initState(): void {
+      const focusList = Controller.getFocusList();
+      const focusInfo = focusList.find(focus => focus.trackSection.id === this.sectionId);
+      if (!focusInfo || !this.trackCanvasElement) return;
+
+      focusInfo.element = this.trackCanvasElement;
+      focusInfo.element.classList.add('focused-section');
+    }
+
     initEvent(): void {
       EventUtil.registerEventToRoot({
         eventTypes: [EventType.click, EventType.mousemove, EventType.mouseout],
@@ -115,7 +125,7 @@ import './AudioTrackSection.scss';
         bindObj: this
       });
     }
-
+    
     trackSectionClickListener(e): void {
       switch(this.cursorMode){
         case CursorType.SELECT_MODE:

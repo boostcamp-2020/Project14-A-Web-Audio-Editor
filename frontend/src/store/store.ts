@@ -8,8 +8,8 @@ const store = new (class Store {
 
   constructor() {
     this.state = {
-      cursorTime: '00:00:000',
-      playTime: '00:00:000',
+      cursorStringTime: '00:00:000',
+      playStringTime: '00:00:000',
       sourceList: [],
       modalState: {
         modalType: ModalType.upload,
@@ -25,8 +25,8 @@ const store = new (class Store {
       clipBoard: null,
       audioSourceInfoInTrackList: [],
       currentPosition: 0,
-      markerTime: 0,
-      totalCursorTime: 0,
+      markerNumberTime: 0,
+      cursorNumberTime: 0,
       isPause: true,
       maxTrackWidth: 0
     };
@@ -65,15 +65,13 @@ const store = new (class Store {
     storeChannel.publish(StoreChannelType.MODAL_STATE_CHANNEL, newModalState);
   }
 
-  setCursorTime(newMinute: string, newSecond: string, newMilsecond): void {
-    const { cursorTime } = this.state;
-    const [minute, second, milsecond] = cursorTime.split(':');
+  setCursorStringTime(newCursorStringTime: string): void {
+    const { cursorStringTime } = this.state;
 
-    if (minute === newMinute && second === newSecond && milsecond === newMilsecond) return;
+    if (cursorStringTime === newCursorStringTime) return;
 
-    const newCursorTime: string = `${newMinute.padStart(2, '0')}:${newSecond.padStart(2, '0')}:${newMilsecond.padStart(3, '0')}`;
-    this.state = { ...this.state, cursorTime: newCursorTime };
-    storeChannel.publish(StoreChannelType.CURSOR_TIME_CHANNEL, newCursorTime);
+    this.state = { ...this.state, cursorStringTime: newCursorStringTime };
+    storeChannel.publish(StoreChannelType.CURSOR_TIME_CHANNEL, newCursorStringTime);
   }
 
   setTrackDragState(newIsTrackDraggable: Boolean): void {
@@ -87,7 +85,7 @@ const store = new (class Store {
   setTrack(newTrack: Track): void {
     const { trackList } = this.state;
 
-    const track = trackList.find(track => track.id === newTrack.id);
+    const track = trackList.find((track) => track.id === newTrack.id);
     if (track) {
       track.trackSectionList = [...newTrack.trackSectionList];
     } else {
@@ -123,6 +121,7 @@ const store = new (class Store {
       trackSectionList: newTrackSectionList
     });
     storeChannel.publish(StoreChannelType.TRACK_CHANNEL, newTrackList);
+    storeChannel.publish(StoreChannelType.EDIT_MENU_CHANNEL, null);
   }
 
   setCurrentPosition(newCurrentPosition: number): void {
@@ -142,7 +141,7 @@ const store = new (class Store {
     const newfocusList = focusList.concat(newFocusInfo);
 
     this.state = { ...this.state, focusList: newfocusList };
-    storeChannel.publish(StoreChannelType.EDIT_TOOLS_CHANNEL, '');
+    storeChannel.publish(StoreChannelType.EDIT_TOOLS_CHANNEL, null);
   }
 
   removeFocus(removeIndex: number) {
@@ -163,16 +162,16 @@ const store = new (class Store {
     storeChannel.publish(StoreChannelType.EDIT_TOOLS_CHANNEL, null);
   }
 
-  setMarkerTime(newMarkerTime: number): void {
-    const { markerTime } = this.state;
+  setMarkerNumberTime(newMarkerNumberTime: number): void {
+    const { markerNumberTime } = this.state;
 
-    if (markerTime === newMarkerTime) return;
+    if (markerNumberTime === newMarkerNumberTime) return;
 
-    this.state = { ...this.state, markerTime: newMarkerTime };
+    this.state = { ...this.state, markerNumberTime: newMarkerNumberTime };
   }
 
-  setTotalCursorTime(newTotalCursorTime: number): void {
-    this.state = { ...this.state, totalCursorTime: newTotalCursorTime };
+  setCursorNumberTime(newCursorNumberTime: number): void {
+    this.state = { ...this.state, cursorNumberTime: newCursorNumberTime };
   }
 
   setIsPauseState(isPauseState: boolean): void {
@@ -183,19 +182,15 @@ const store = new (class Store {
     storeChannel.publish(StoreChannelType.CURRENT_POSITION_CHANNEL, newMarkerWidth);
   }
 
-  setMarkerWidthToZero(): void {
-    storeChannel.publish(StoreChannelType.CURRENT_POSITION_ZERO_CHANNEL, '');
-  }
-
-  setPlayTime(newPlayTime): void {
-    this.state = { ...this.state, playTime: newPlayTime };
-    storeChannel.publish(StoreChannelType.PLAY_TIME_CHANNEL, newPlayTime);
+  setPlayStringTime(newPlayStringTime): void {
+    this.state = { ...this.state, playStringTime: newPlayStringTime };
+    storeChannel.publish(StoreChannelType.PLAY_TIME_CHANNEL, newPlayStringTime);
   }
 
   removeSection(trackId: number, sectionIndex: number): void {
     const { trackList } = this.state;
 
-    const track = trackList.find(track => track.id === trackId)
+    const track = trackList.find((track) => track.id === trackId);
     if (!track) return;
 
     const { trackSectionList } = track;
@@ -205,9 +200,10 @@ const store = new (class Store {
     newTrackSectionList.splice(sectionIndex, 1);
 
     const newTrack = new Track({ ...track, trackSectionList: newTrackSectionList });
-    const newTrackList: Array<Track> = trackList.reduce<Track[]>((acc, track) =>
-      (track.id === trackId) ? acc.concat(newTrack) : acc.concat(track),
-      []);
+    const newTrackList: Array<Track> = trackList.reduce<Track[]>(
+      (acc, track) => (track.id === trackId ? acc.concat(newTrack) : acc.concat(track)),
+      []
+    );
 
     this.state = { ...this.state, trackList: newTrackList };
 
@@ -217,6 +213,7 @@ const store = new (class Store {
     });
 
     storeChannel.publish(StoreChannelType.TRACK_CHANNEL, newTrackList);
+    storeChannel.publish(StoreChannelType.EDIT_MENU_CHANNEL, null);
   }
 
   setCursorMode(newCursorMode: CursorType): void {
@@ -227,11 +224,11 @@ const store = new (class Store {
     storeChannel.publish(StoreChannelType.CURSOR_MODE_CHANNEL, newCursorMode);
   }
 
-  setMaxTrackWidth(newMaxTrackWidth: number): void{
+  setMaxTrackWidth(newMaxTrackWidth: number): void {
     const { maxTrackWidth } = this.state;
-        
-    if(maxTrackWidth >= newMaxTrackWidth) return;
-        
+
+    if (maxTrackWidth >= newMaxTrackWidth) return;
+
     this.state = { ...this.state, maxTrackWidth: newMaxTrackWidth };
     storeChannel.publish(StoreChannelType.MAX_TRACK_WIDTH_CHANNEL, newMaxTrackWidth);
   }

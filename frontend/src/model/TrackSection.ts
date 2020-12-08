@@ -1,3 +1,5 @@
+import { EffectList } from '@types';
+
 class TrackSection {
     public id: number;
     public trackId: number;

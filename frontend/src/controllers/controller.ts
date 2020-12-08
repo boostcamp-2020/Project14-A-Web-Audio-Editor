@@ -2,8 +2,8 @@ import { Source, Track, TrackSection } from '@model';
 import { store } from "@store";
 import { ModalType, FocusInfo, CursorType, SectionDataType } from "@types";
 import CommandManager from '@command/CommandManager';
-import { DeleteCommand, PasteCommand, SplitCommand } from '@command'
-import { CopyUtil, PlayBarUtil } from '@util'
+import { DeleteCommand, PasteCommand, SplitCommand } from '@command';
+import { CopyUtil, SectionEffectListUtil, TimeUtil } from '@util';
 
 const getSectionData = (trackId: number, trackSectionId: number): SectionDataType | undefined => {
   const getSourceAndTrackSection = (trackId: number, trackSectionId: number): {source: Source, trackSection: TrackSection} | undefined =>{
@@ -43,6 +43,12 @@ const getSectionData = (trackId: number, trackSectionId: number): SectionDataTyp
   return pipe(getSourceAndTrackSection, parseSectionData)(trackId, trackSectionId);
 };
 
+const getSourceList = (): Source[] => {
+  const { sourceList } = store.getState();
+
+  return sourceList;
+};
+
 const addSource = (source: Source): void => {
   store.setSource(source);
 };
@@ -51,8 +57,9 @@ const changeModalState = (modalType: ModalType, isHidden: Boolean): void => {
   store.setModalState(modalType, isHidden);
 };
 
-const changeCursorTime = (minute: string, second: string, milsecond: string): void => {
-  store.setCursorTime(minute, second, milsecond);
+const changeCursorStringTime = (minute: number, second: number, milsecond: number): void => {
+  const newCursorStringTime = TimeUtil.getStringTime(minute, second, milsecond);
+  store.setCursorStringTime(newCursorStringTime);
 };
 
 const changeTrackDragState = (isTrackDraggable: Boolean): void => {
@@ -66,13 +73,12 @@ const getTrackList = (): Track[] => {
 
 const getTrack = (trackId: number): Track | null => {
   const { trackList } = store.getState();
-  const track = trackList.find(track => track.id === trackId);
+  const track = trackList.find((track) => track.id === trackId);
 
-  if (!track)
-    return null;
+  if (!track) return null;
 
   return track;
-}
+};
 
 const setTrack = (track: Track): void => {
   store.setTrack(track);
@@ -128,9 +134,9 @@ const changeCurrentPosition = (currentPosition: number): void => {
 };
 
 const getCurrentPosition = (): number[] => {
-  const { currentPosition, totalCursorTime } = store.getState();
+  const { currentPosition, cursorNumberTime } = store.getState();
 
-  return [currentPosition, totalCursorTime];
+  return [currentPosition, cursorNumberTime];
 };
 
 const getCtrlIsPressed = (): boolean => {
@@ -147,7 +153,7 @@ const getFocusList = () => {
   return focusList;
 };
 
-const toggleFocus = (trackId: number, sectionId: number, selectedElement: HTMLElement): void => {
+const toggleFocus = (trackId: number, sectionId: number, selectedElement: HTMLCanvasElement): void => {
   const { trackList, focusList, ctrlIsPressed, cursorMode } = store.getState();
 
   if (cursorMode !== CursorType.SELECT_MODE) return;
@@ -158,7 +164,6 @@ const toggleFocus = (trackId: number, sectionId: number, selectedElement: HTMLEl
   if (!trackSection) return;
 
   const existFocus = focusList.find((info) => info.trackSection.id === sectionId);
-
 
   if (ctrlIsPressed) {
     if (existFocus) {
@@ -172,13 +177,14 @@ const toggleFocus = (trackId: number, sectionId: number, selectedElement: HTMLEl
   }
 };
 
-const addFocus = (trackSection: TrackSection, selectedElement: HTMLElement): void => {
+const addFocus = (trackSection: TrackSection, selectedElement: HTMLCanvasElement): void => {
   selectedElement.classList.add('focused-section');
   const newFocusInfo: FocusInfo = {
     trackSection: trackSection,
     element: selectedElement
   };
   store.addFocus(newFocusInfo);
+  SectionEffectListUtil.showEffectList();
 };
 
 const removeFocus = (sectionId: number, selectedElement: HTMLElement): void => {
@@ -186,12 +192,14 @@ const removeFocus = (sectionId: number, selectedElement: HTMLElement): void => {
   const index = focusList.findIndex((focus) => focus.trackSection.id === sectionId);
   selectedElement.classList.remove('focused-section');
   store.removeFocus(index);
+  SectionEffectListUtil.hideEffectList();
 };
 
 const resetFocus = (): void => {
   const { focusList } = store.getState();
   focusList.forEach((focus) => focus.element.classList.remove('focused-section'));
   store.resetFocus();
+  SectionEffectListUtil.hideEffectList();
 };
 
 const getCursorMode = (): CursorType => {
@@ -218,27 +226,28 @@ const getClipBoard = (): TrackSection | null => {
   return clipBoard;
 };
 
-const pauseChangeMarkerTime = (playingTime: number): void => {
-  const { markerTime } = store.getState();
-  let newMarkerTime = markerTime + playingTime;
-  if(newMarkerTime < 0) {
-    newMarkerTime = 0 ;
+
+const pauseChangeMarkerNumberTime = (playingTime: number): void => {
+  const { markerNumberTime } = store.getState();
+  let newMarkerNumberTime = markerNumberTime + playingTime;
+  if (newMarkerNumberTime < 0) {
+    newMarkerNumberTime = 0;
   }
 
-  store.setMarkerTime(newMarkerTime);
+  store.setMarkerNumberTime(newMarkerNumberTime);
 };
 
-const cursorChangeMarkerTime = (newMarkerTime): void => {
-  store.setMarkerTime(newMarkerTime);
+const changeCursorMarkerNumberTime = (newMarkerNumberTime: number): void => {
+  store.setCursorNumberTime(newMarkerNumberTime);
 };
 
 const getMarkerTime = (): number => {
-  const { markerTime } = store.getState();
-  return markerTime;
+  const { markerNumberTime } = store.getState();
+  return markerNumberTime;
 };
 
-const changeTotalCursorTime = (totalCursorTime: number): void => {
-  store.setTotalCursorTime(totalCursorTime);
+const changeCursorNumberTime = (cursorNumberTime: number): void => {
+  store.setCursorNumberTime(cursorNumberTime);
 };
 
 const changeIsPauseState = (isPauseState: boolean): void => {
@@ -254,56 +263,50 @@ const setMarkerWidth = (markerWidth: number): void => {
   store.setMarkerWidth(markerWidth);
 };
 
-const setMarkerWidthToZero = (): void => {
-  store.setMarkerWidthToZero();
-}
+const changePlayStringTime = (passedTime: number): void => {
+  const { playStringTime } = store.getState();
 
-const changePlayTime = (passedTime: number): void => {
-  const { playTime } = store.getState();
-
-  const [minute, second, milsecond] = playTime.split(':');
+  const [minute, second, milsecond] = playStringTime.split(':');
   let newMinute = Number(minute);
   let newSecond = Number(second);
   let newMilsecond = Number(milsecond) + Math.floor(passedTime);
 
-  if(newMilsecond > 0){
+  if (newMilsecond > 0) {
     if (newMilsecond >= 1000) {
       newMilsecond -= 1000;
       newSecond += 1;
     }
-  
+
     if (newSecond >= 60) {
       newSecond -= 60;
       newMinute += 1;
-    }  
-  }
-  else { 
-    let totalMilsecond = newMinute*1000*60 + newSecond*1000 + newMilsecond;
-    if(totalMilsecond < 0){
+    }
+  } else {
+    let totalMilsecond = newMinute * 1000 * 60 + newSecond * 1000 + newMilsecond;
+    if (totalMilsecond < 0) {
       newMinute = 0;
       newSecond = 0;
-      newMilsecond = 0
-    }
-    else {
-      newMinute = Math.floor(totalMilsecond/(1000*60));
-      totalMilsecond -= newMinute*1000*60;
-      newSecond = Math.floor(totalMilsecond/1000);
-      totalMilsecond -= newSecond*1000;
+      newMilsecond = 0;
+    } else {
+      newMinute = Math.floor(totalMilsecond / (1000 * 60));
+      totalMilsecond -= newMinute * 1000 * 60;
+      newSecond = Math.floor(totalMilsecond / 1000);
+      totalMilsecond -= newSecond * 1000;
       newMilsecond = totalMilsecond;
     }
   }
 
-  const newPlayTime = `${newMinute.toString().padStart(2, '0')}:${newSecond.toString().padStart(2, '0')}:${newMilsecond.toString().padStart(3, '0')}`;
+  const newPlayStringTime = TimeUtil.getStringTime(newMinute, newSecond, newMilsecond);
 
-  store.setPlayTime(newPlayTime);
+  store.setPlayStringTime(newPlayStringTime);
 };
 
-const resetPlayTime = (cursorTime: number): void => {
-  const [minute, second, milsecond] = PlayBarUtil.setTime(cursorTime);
+const changeMarkerPlayStringTime = (cursorNumberTime: number): void => {
+  const [minute, second, milsecond] = TimeUtil.getSplitTime(cursorNumberTime);
 
-  const newPlayTime = `${minute.toString().padStart(2, '0')}:${second.toString().padStart(2, '0')}:${milsecond.toString().padStart(3, '0')}`;
+  const newPlayStringTime = TimeUtil.getStringTime(minute, second, milsecond);
 
-  store.setPlayTime(newPlayTime);
+  store.setPlayStringTime(newPlayStringTime);
 };
 
 const removeSection = (trackId: number, sectionIndex: number) => {
@@ -351,7 +354,7 @@ const pasteCommand = () => {
 
   if (focusList.length !== 1) return false;
 
-  const track = trackList.find(track => track.id === focusList[0].trackSection.trackId);
+  const track = trackList.find((track) => track.id === focusList[0].trackSection.trackId);
   if (!track || !clipBoard) return;
 
   const copyTrack = CopyUtil.copyTrack(track);
@@ -363,7 +366,7 @@ const pasteCommand = () => {
 
   const command = new PasteCommand(copyTrack, copySection);
 
-  CommandManager.execute(command)
+  CommandManager.execute(command);
 };
 
 const splitTrackSection = (cursorPosition: number, trackId: number, sectionId: number): void => {
@@ -377,13 +380,14 @@ const splitTrackSection = (cursorPosition: number, trackId: number, sectionId: n
 
 const changeMaxTrackWidth = (newMaxTrackWidth: number) => {
   const { maxTrackWidth } = store.getState();
-  if(maxTrackWidth >= newMaxTrackWidth) return;
+  if (maxTrackWidth >= newMaxTrackWidth) return;
   store.setMaxTrackWidth(newMaxTrackWidth);
-}
+};
 
 export default {
   addTrackSectionFromSource,
   getSectionData,
+  getSourceList,
   addSource,
   changeModalState,
   changeTrackDragState,
@@ -391,7 +395,7 @@ export default {
   getTrack,
   setTrack,
   addTrackSection,
-  changeCursorTime,
+  changeCursorStringTime,
   changeCurrentPosition,
   getCurrentPosition,
   getCtrlIsPressed,
@@ -405,16 +409,15 @@ export default {
   setCursorMode,
   getClipBoard,
   setClipBoard,
-  pauseChangeMarkerTime,
+  pauseChangeMarkerNumberTime,
   getMarkerTime,
-  changeTotalCursorTime,
-  cursorChangeMarkerTime,
+  changeCursorNumberTime,
+  changeCursorMarkerNumberTime,
   setMarkerWidth,
-  setMarkerWidthToZero,
   getIsPauseState,
   changeIsPauseState,
-  changePlayTime,
-  resetPlayTime,
+  changePlayStringTime,
+  changeMarkerPlayStringTime,
   removeSection,
   deleteCommand,
   undoCommand,
