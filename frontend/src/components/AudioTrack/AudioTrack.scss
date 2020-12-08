@@ -73,7 +73,7 @@ audi-audio-track:not(:defined) {
 @media screen and (max-width: 1280px) {
     .audio-track-container{
         min-height: 100px;
-        padding: 5px;
+        padding: 5px 0;
     
         .audio-track-area{
             min-height: 100px;
