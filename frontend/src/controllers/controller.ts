@@ -3,7 +3,7 @@ import { store } from '@store';
 import { ModalType, FocusInfo, CursorType } from '@types';
 import CommandManager from '@command/CommandManager';
 import { DeleteCommand, PasteCommand, SplitCommand } from '@command';
-import { CopyUtil, PlayBarUtil, SectionEffectListUtil } from '@util';
+import { CopyUtil, SectionEffectListUtil, TimeUtil } from '@util';
 
 interface SectionData {
   sectionChannelData: number[];
@@ -54,8 +54,9 @@ const changeModalState = (modalType: ModalType, isHidden: Boolean): void => {
   store.setModalState(modalType, isHidden);
 };
 
-const changeCursorTime = (minute: string, second: string, milsecond: string): void => {
-  store.setCursorTime(minute, second, milsecond);
+const changeCursorStringTime = (minute: number, second: number, milsecond: number): void => {
+  const newCursorStringTime = TimeUtil.getStringTime(minute, second, milsecond);
+  store.setCursorStringTime(newCursorStringTime);
 };
 
 const changeTrackDragState = (isTrackDraggable: Boolean): void => {
@@ -89,9 +90,9 @@ const changeCurrentPosition = (currentPosition: number): void => {
 };
 
 const getCurrentPosition = (): number[] => {
-  const { currentPosition, totalCursorTime } = store.getState();
+  const { currentPosition, cursorNumberTime } = store.getState();
 
-  return [currentPosition, totalCursorTime];
+  return [currentPosition, cursorNumberTime];
 };
 
 const getCtrlIsPressed = (): boolean => {
@@ -181,27 +182,27 @@ const getClipBoard = (): TrackSection | null => {
   return clipBoard;
 };
 
-const pauseChangeMarkerTime = (playingTime: number): void => {
-  const { markerTime } = store.getState();
-  let newMarkerTime = markerTime + playingTime;
-  if (newMarkerTime < 0) {
-    newMarkerTime = 0;
+const pauseChangeMarkerNumberTime = (playingTime: number): void => {
+  const { markerNumberTime } = store.getState();
+  let newMarkerNumberTime = markerNumberTime + playingTime;
+  if (newMarkerNumberTime < 0) {
+    newMarkerNumberTime = 0;
   }
 
-  store.setMarkerTime(newMarkerTime);
+  store.setMarkerNumberTime(newMarkerNumberTime);
 };
 
-const cursorChangeMarkerTime = (newMarkerTime): void => {
-  store.setMarkerTime(newMarkerTime);
+const changeCursorMarkerNumberTime = (newMarkerNumberTime: number): void => {
+  store.setCursorNumberTime(newMarkerNumberTime);
 };
 
 const getMarkerTime = (): number => {
-  const { markerTime } = store.getState();
-  return markerTime;
+  const { markerNumberTime } = store.getState();
+  return markerNumberTime;
 };
 
-const changeTotalCursorTime = (totalCursorTime: number): void => {
-  store.setTotalCursorTime(totalCursorTime);
+const changeCursorNumberTime = (cursorNumberTime: number): void => {
+  store.setCursorNumberTime(cursorNumberTime);
 };
 
 const changeIsPauseState = (isPauseState: boolean): void => {
@@ -217,10 +218,10 @@ const setMarkerWidth = (markerWidth: number): void => {
   store.setMarkerWidth(markerWidth);
 };
 
-const changePlayTime = (passedTime: number): void => {
-  const { playTime } = store.getState();
+const changePlayStringTime = (passedTime: number): void => {
+  const { playStringTime } = store.getState();
 
-  const [minute, second, milsecond] = playTime.split(':');
+  const [minute, second, milsecond] = playStringTime.split(':');
   let newMinute = Number(minute);
   let newSecond = Number(second);
   let newMilsecond = Number(milsecond) + Math.floor(passedTime);
@@ -250,17 +251,17 @@ const changePlayTime = (passedTime: number): void => {
     }
   }
 
-  const newPlayTime = `${newMinute.toString().padStart(2, '0')}:${newSecond.toString().padStart(2, '0')}:${newMilsecond.toString().padStart(3, '0')}`;
+  const newPlayStringTime = TimeUtil.getStringTime(newMinute, newSecond, newMilsecond);
 
-  store.setPlayTime(newPlayTime);
+  store.setPlayStringTime(newPlayStringTime);
 };
 
-const resetPlayTime = (cursorTime: number): void => {
-  const [minute, second, milsecond] = PlayBarUtil.setTime(cursorTime);
+const changeMarkerPlayStringTime = (cursorNumberTime: number): void => {
+  const [minute, second, milsecond] = TimeUtil.getSplitTime(cursorNumberTime);
 
-  const newPlayTime = `${minute.toString().padStart(2, '0')}:${second.toString().padStart(2, '0')}:${milsecond.toString().padStart(3, '0')}`;
+  const newPlayStringTime = TimeUtil.getStringTime(minute, second, milsecond);
 
-  store.setPlayTime(newPlayTime);
+  store.setPlayStringTime(newPlayStringTime);
 };
 
 const removeSection = (trackId: number, sectionIndex: number) => {
@@ -349,7 +350,7 @@ export default {
   getTrack,
   setTrack,
   addTrackSection,
-  changeCursorTime,
+  changeCursorStringTime,
   changeCurrentPosition,
   getCurrentPosition,
   getCtrlIsPressed,
@@ -363,16 +364,15 @@ export default {
   setCursorMode,
   getClipBoard,
   setClipBoard,
-  pauseChangeMarkerTime,
+  pauseChangeMarkerNumberTime,
   getMarkerTime,
-  changeTotalCursorTime,
-  cursorChangeMarkerTime,
+  changeCursorNumberTime,
+  changeCursorMarkerNumberTime,
   setMarkerWidth,
-  setMarkerWidthToZero,
   getIsPauseState,
   changeIsPauseState,
-  changePlayTime,
-  resetPlayTime,
+  changePlayStringTime,
+  changeMarkerPlayStringTime,
   removeSection,
   deleteCommand,
   undoCommand,
