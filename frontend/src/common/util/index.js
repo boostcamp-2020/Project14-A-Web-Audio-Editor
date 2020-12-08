@@ -5,4 +5,5 @@ export * as PlayBarUtil from './PlayBarUtil';
 export * as MarkerEventUtil from './MarkerEventUtil';
 export * as CopyUtil from './CopyUtil';
 export * as SectionEffectListUtil from './SectionEffectListUtil';
+export * as TimeUtil from './TimeUtil';
 export { saveFile } from './compressor';
