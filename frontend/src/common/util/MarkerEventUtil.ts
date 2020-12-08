@@ -1,26 +1,28 @@
-import { getCursorPosition } from './PlayBarUtil';
+import { getDifferenceWidth } from './WidthUtil';
+import { getSplitTime, getNumberTime } from './TimeUtil';
 import { Controller } from '@controllers';
 
 const mousemoveMarkerListener: Function = (element: HTMLElement, defaultStartX: number, mainWidth: number) => (e: Event): void => {
   if (!element) return;
   const cursorPosition = e.pageX;
 
-  const [minute, second, milsecond, location, totalCursorTime] = getCursorPosition(defaultStartX, cursorPosition, mainWidth);
+  const cursorNumberTime = getNumberTime(defaultStartX, cursorPosition, mainWidth);
+  const [minute, second, milsecond] = getSplitTime(cursorNumberTime);
+  const cursorWidth = getDifferenceWidth(defaultStartX, cursorPosition);
 
   if (minute < 0 && second < 0) return;
-  Controller.changeCurrentPosition(location);
-  Controller.changeCursorTime(minute.toString(), second.toString(), milsecond.toString());
-  Controller.changeTotalCursorTime(totalCursorTime);
+  Controller.changeCurrentPosition(cursorWidth);
+  Controller.changeCursorStringTime(minute, second, milsecond);
+  Controller.changeCursorMarkerNumberTime(cursorNumberTime);
 };
 
 const clickMarkerListener = (element: HTMLElement) => (e: Event): void => {
   if (!element) return;
-  const [currentPosition, totalCursorTime] = Controller.getCurrentPosition();
+  const [currentPosition, cursorNumberTime] = Controller.getCurrentPosition();
 
-  Controller.cursorChangeMarkerTime(totalCursorTime);
-  Controller.resetPlayTime(totalCursorTime);
+  Controller.changeMarkerPlayStringTime(cursorNumberTime);
 
-  if(!Controller.getIsPauseState()) {
+  if (!Controller.getIsPauseState()) {
     //play 함수 실행
   }
 

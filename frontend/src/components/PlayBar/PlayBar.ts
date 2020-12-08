@@ -1,5 +1,5 @@
 import './PlayBar.scss';
-import { PlayBarUtil, MarkerEventUtil } from '@util';
+import { TimeUtil, MarkerEventUtil } from '@util';
 import { EventUtil } from '@util';
 import { EventType, EventKeyType } from '@types';
 import { Controller } from '@controllers';
@@ -37,7 +37,7 @@ const INIT_DURATION = 300;
 
     connectedCallback(): void {
       this.totalPlayTime = this.getTotalTime();
-      this.playtime = PlayBarUtil.getStringTime(INIT_DURATION);
+      this.playtime = TimeUtil.getStringPlayBarTime(INIT_DURATION);
       this.init();
     }
 
@@ -177,7 +177,7 @@ const INIT_DURATION = 300;
     }
 
     getTotalTime(): string {
-      const [minute, second] = PlayBarUtil.setTime(INIT_DURATION);
+      const [minute, second] = TimeUtil.getSplitTime(INIT_DURATION);
       return `${minute.toString().padStart(2, '0')}:${second.toString().padStart(2, '0')}`;
     }
 

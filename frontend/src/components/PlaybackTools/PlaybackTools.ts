@@ -1,5 +1,5 @@
 import './PlaybackTools.scss';
-import { EventUtil, PlayBarUtil } from '@util';
+import { EventUtil, WidthUtil } from '@util';
 import { EventType, EventKeyType, StoreChannelType } from '@types';
 import { Source, Track, TrackSection, AudioSourceInfoInTrack } from '@model';
 import { storeChannel } from '@store';
@@ -234,10 +234,10 @@ const QUANTUM = 3;
         if (Controller.getIsPauseState()) {
           clearInterval(playTimer);
         }
-        const widthPixel = PlayBarUtil.getSomePixel(TIMER_TIME);
+        const widthPixel = WidthUtil.getPerPixel(TIMER_TIME);
         Controller.setMarkerWidth(widthPixel);
-        Controller.changePlayTime(TIMER_TIME);
-        Controller.pauseChangeMarkerTime(TIMER_TIME / 1000);
+        Controller.changePlayStringTime(TIMER_TIME);
+        Controller.pauseChangeMarkerNumberTime(TIMER_TIME / 1000);
       }, TIMER_TIME);
     }
 
@@ -290,8 +290,8 @@ const QUANTUM = 3;
       this.audioContext.suspend();
 
       setTimeout(() => {
-        Controller.resetPlayTime(0);
-        Controller.cursorChangeMarkerTime(0);
+        Controller.changeMarkerPlayStringTime(0);
+        Controller.changeCursorMarkerNumberTime(0);
         Controller.setMarkerWidth(0);
 
         if (restart) {
@@ -306,10 +306,10 @@ const QUANTUM = 3;
       this.stopAudioSources();
       this.sourceInfo = [];
 
-      const widthPixel = PlayBarUtil.getSomePixel(QUANTUM * 1000);
+      const widthPixel = WidthUtil.getPerPixel(QUANTUM * 1000);
       Controller.setMarkerWidth(-widthPixel);
-      Controller.pauseChangeMarkerTime(-QUANTUM);
-      Controller.changePlayTime(-QUANTUM * 1000);
+      Controller.pauseChangeMarkerNumberTime(-QUANTUM);
+      Controller.changePlayStringTime(-QUANTUM * 1000);
 
       this.trackList.forEach((track: Track) => {
         if (track.trackSectionList.length != 0) {
@@ -361,10 +361,10 @@ const QUANTUM = 3;
       this.stopAudioSources();
       this.sourceInfo = [];
 
-      const widthPixel = PlayBarUtil.getSomePixel(QUANTUM * 1000);
+      const widthPixel = WidthUtil.getPerPixel(QUANTUM * 1000);
       Controller.setMarkerWidth(widthPixel);
-      Controller.pauseChangeMarkerTime(QUANTUM);
-      Controller.changePlayTime(QUANTUM * 1000);
+      Controller.pauseChangeMarkerNumberTime(QUANTUM);
+      Controller.changePlayStringTime(QUANTUM * 1000);
 
       this.trackList.forEach((track: Track) => {
         if (track.trackSectionList.length != 0) {
