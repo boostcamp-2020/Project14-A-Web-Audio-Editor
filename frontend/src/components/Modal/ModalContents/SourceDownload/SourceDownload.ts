@@ -148,6 +148,11 @@ import './SourceDownload.scss';
     fileNameChangeListener(e): void {
       if (!this.saveButton) return;
       this.saveButtonActivationHandler();
+
+      if (!this.downloadLink || !this.downloadLink.getAttribute('download') || !this.formElement) return;
+
+      const fileName = `${this.formElement.fileName.value}.${this.formElement.extention.value}`;
+      this.downloadLink.setAttribute('download', fileName);
     };
 
     extentionChangeListener(e): void {
