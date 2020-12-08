@@ -102,8 +102,8 @@ const getTrackArrayBuffer = async (trackId: number) => {
 
   const leftChannel = new Float32Array(bufferLength);
   const rightChannel = new Float32Array(bufferLength);
+  let offset = 0;
 
-  let prevEnd = 0;
   for (let i = 0; i < track.trackSectionList.length; i++) {
     const section = track.trackSectionList[i];
     const audioSource = Controller.getSourceBySourceId(section.sourceId);
@@ -122,9 +122,10 @@ const getTrackArrayBuffer = async (trackId: number) => {
     const left = renderBuffer.getChannelData(0);
     const right = renderBuffer.getChannelData(1);
 
-    for (let i = 0; i < left.length; i++) {
-      leftChannel[i] += left[i];
-      rightChannel[i] += right[i];
+    while (offset < left.length) {
+      leftChannel[offset] = left[offset];
+      rightChannel[offset] = right[offset];
+      offset++;
     }
   }
   const len = leftChannel.length;
