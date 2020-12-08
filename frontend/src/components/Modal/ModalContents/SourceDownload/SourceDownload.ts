@@ -51,7 +51,7 @@ import './SourceDownload.scss';
                   </label>
                   <label>
                     <input type="radio" name="extention" value="wav" checked event-key=${EventKeyType.SOURCE_DOWNLOAD_EXTENTION_CHANGE}></input>
-                    wav (44.1kHz)
+                    wav (48kHz)
                   </label>
                 </div>
                 <div class="radios quality-radios visible-hidden">
@@ -129,11 +129,7 @@ import './SourceDownload.scss';
       this.changeBtnValue('압축 중');
       this.inactiveSaveButton(this.saveButton);
 
-      const URL = 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/123941/Yodel_Sound_Effect.mp3';
-      const response = await window.fetch(URL);
-      const arrayBuffer = await response.arrayBuffer();
-
-      await saveFile(arrayBuffer, compressorObject);
+      await saveFile(compressorObject);
       this.changeBtnValue('저장하기');
 
       this.activeSaveButton(this.saveButton);
@@ -152,6 +148,11 @@ import './SourceDownload.scss';
     fileNameChangeListener(e): void {
       if (!this.saveButton) return;
       this.saveButtonActivationHandler();
+
+      if (!this.downloadLink || !this.downloadLink.getAttribute('download') || !this.formElement) return;
+
+      const fileName = `${this.formElement.fileName.value}.${this.formElement.extention.value}`;
+      this.downloadLink.setAttribute('download', fileName);
     };
 
     extentionChangeListener(e): void {

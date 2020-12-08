@@ -124,6 +124,7 @@ const store = new (class Store {
     });
 
     storeChannel.publish(StoreChannelType.TRACK_CHANNEL, newTrackList);
+    storeChannel.publish(StoreChannelType.EDIT_MENU_CHANNEL, null);
   }
 
   setCurrentPosition(newCurrentPosition: number): void {
@@ -143,7 +144,7 @@ const store = new (class Store {
     const newfocusList = focusList.concat(newFocusInfo);
 
     this.state = { ...this.state, focusList: newfocusList };
-    storeChannel.publish(StoreChannelType.EDIT_TOOLS_CHANNEL, '');
+    storeChannel.publish(StoreChannelType.EDIT_TOOLS_CHANNEL, null);
   }
 
   removeFocus(removeIndex: number) {
@@ -220,6 +221,7 @@ const store = new (class Store {
     });
 
     storeChannel.publish(StoreChannelType.TRACK_CHANNEL, newTrackList);
+    storeChannel.publish(StoreChannelType.EDIT_MENU_CHANNEL, null);
   }
 
   setCursorMode(newType: CursorType): void {
@@ -227,11 +229,11 @@ const store = new (class Store {
     storeChannel.publish(StoreChannelType.EDIT_TOOLS_CHANNEL, '');
   }
 
-  setMaxTrackWidth(newMaxTrackWidth: number): void{
+  setMaxTrackWidth(newMaxTrackWidth: number): void {
     const { maxTrackWidth } = this.state;
-        
-    if(maxTrackWidth >= newMaxTrackWidth) return;
-        
+
+    if (maxTrackWidth >= newMaxTrackWidth) return;
+
     this.state = { ...this.state, maxTrackWidth: newMaxTrackWidth };
     storeChannel.publish(StoreChannelType.MAX_TRACK_WIDTH_CHANNEL, newMaxTrackWidth);
   }
