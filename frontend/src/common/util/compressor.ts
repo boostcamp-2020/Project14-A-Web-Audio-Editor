@@ -36,76 +36,6 @@ export const saveFile = async (options: CompressorOption) => {
   }
 }
 
-const getTrackArrayBuffer = async (trackId: number) => {
-  const track = Controller.getTrack(trackId);
-  if (!track || track.trackSectionList.length === 0) return null;
-
-  const lastSection = track.trackSectionList[track.trackSectionList.length - 1];
-
-  const bufferLength = (lastSection.trackStartTime + lastSection.length) * sampleRate;
-
-  const leftChannel = new Float32Array(bufferLength);
-  const rightChannel = new Float32Array(bufferLength);
-
-  let prevEnd = 0;
-  for (let i = 0; i < track.trackSectionList.length; i++) {
-    const section = track.trackSectionList[i];
-    const audioSource = Controller.getSourceBySourceId(section.sourceId);
-
-    if (!audioSource) return;
-
-    const emptyTime = section.trackStartTime - prevEnd;
-    const duration = emptyTime + section.trackStartTime + section.length;
-    const offlineCtx = new OfflineAudioContext(numberOfChannels, duration * sampleRate, sampleRate);
-    const source = offlineCtx.createBufferSource();
-
-    source.buffer = audioSource.buffer;
-    source.connect(offlineCtx.destination);
-    source.start(section.trackStartTime, section.channelStartTime, duration);
-
-    prevEnd = section.trackStartTime + section.length;
-
-    const renderBuffer = await offlineCtx.startRendering();
-    const left = renderBuffer.getChannelData(0);
-    const right = renderBuffer.getChannelData(1);
-
-    for (let i = 0; i < left.length; i++) {
-      leftChannel[i] += left[i];
-      rightChannel[i] += right[i];
-    }
-  }
-  const len = leftChannel.length;
-  const wave = ChannelDataToWave([leftChannel, rightChannel], len);
-
-  return wave;
-}
-
-const mergeTrackArrayBuffer = async (arrayBufferList: ArrayBuffer[]) => {
-  const audioBuffers: AudioBuffer[] = [];
-  let maxLength = 0;
-  for (let i = 0; i < arrayBufferList.length; i++) {
-    const audioCtx: AudioContext = new AudioContext();
-    const audioBuffer = await audioCtx.decodeAudioData(arrayBufferList[i]);
-
-    audioBuffers.push(audioBuffer);
-    maxLength = Math.max(maxLength, audioBuffer.length);
-  }
-  const numberOfChannels = 2;
-  const offlineCtx = new OfflineAudioContext(numberOfChannels, maxLength, sampleRate);
-  const merger = offlineCtx.createChannelMerger(numberOfChannels);
-
-  audioBuffers.forEach(buffer => {
-    const source = offlineCtx.createBufferSource();
-    source.buffer = buffer;
-    source.connect(merger);
-    source.connect(offlineCtx.destination);
-    source.start();
-  })
-  const renderBuffer = await offlineCtx.startRendering();
-
-  return renderBuffer;
-}
-
 const ChannelDataToWave = (channelDatas: Float32Array[], len: number) => {
   const numOfChan: number = numberOfChannels;
   const length: number = len * numOfChan * 2 + 44;
@@ -161,6 +91,75 @@ const ChannelDataToWave = (channelDatas: Float32Array[], len: number) => {
 
   return buffer;
 }
+
+const getTrackArrayBuffer = async (trackId: number) => {
+  const track = Controller.getTrack(trackId);
+  if (!track || track.trackSectionList.length === 0) return null;
+
+  const lastSection = track.trackSectionList[track.trackSectionList.length - 1];
+
+  const bufferLength = (lastSection.trackStartTime + lastSection.length) * sampleRate;
+
+  const leftChannel = new Float32Array(bufferLength);
+  const rightChannel = new Float32Array(bufferLength);
+
+  let prevEnd = 0;
+  for (let i = 0; i < track.trackSectionList.length; i++) {
+    const section = track.trackSectionList[i];
+    const audioSource = Controller.getSourceBySourceId(section.sourceId);
+
+    if (!audioSource) return;
+
+    const duration = section.trackStartTime + section.length;
+    const offlineCtx = new OfflineAudioContext(numberOfChannels, duration * sampleRate, sampleRate);
+    const source = offlineCtx.createBufferSource();
+
+    source.buffer = audioSource.buffer;
+    source.connect(offlineCtx.destination);
+    source.start(section.trackStartTime, section.channelStartTime, duration);
+
+    const renderBuffer = await offlineCtx.startRendering();
+    const left = renderBuffer.getChannelData(0);
+    const right = renderBuffer.getChannelData(1);
+
+    for (let i = 0; i < left.length; i++) {
+      leftChannel[i] += left[i];
+      rightChannel[i] += right[i];
+    }
+  }
+  const len = leftChannel.length;
+  const wave = ChannelDataToWave([leftChannel, rightChannel], len);
+
+  return wave;
+}
+
+const mergeTrackArrayBuffer = async (arrayBufferList: ArrayBuffer[]) => {
+  const audioBuffers: AudioBuffer[] = [];
+  let maxLength = 0;
+  for (let i = 0; i < arrayBufferList.length; i++) {
+    const audioCtx: AudioContext = new AudioContext();
+    const audioBuffer = await audioCtx.decodeAudioData(arrayBufferList[i]);
+
+    audioBuffers.push(audioBuffer);
+    maxLength = Math.max(maxLength, audioBuffer.length);
+  }
+  const numberOfChannels = 2;
+  const offlineCtx = new OfflineAudioContext(numberOfChannels, maxLength, sampleRate);
+  const merger = offlineCtx.createChannelMerger(numberOfChannels);
+
+  audioBuffers.forEach(buffer => {
+    const source = offlineCtx.createBufferSource();
+    source.buffer = buffer;
+    source.connect(merger);
+    source.connect(offlineCtx.destination);
+    source.start();
+  })
+  const renderBuffer = await offlineCtx.startRendering();
+
+  return renderBuffer;
+}
+
+
 
 const makeMP3 = (wavBuffer: ArrayBuffer, quality: number) => {
   const mp3Data: Int8Array[] = [];
