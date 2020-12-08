@@ -46,9 +46,9 @@ import './Main.scss';
                         </section>
                         <section class="audi-main-audio-track-container" event-key=${EventKeyType.FOCUS_RESET_CLICK}>
                             <div>
-                              <audi-marker></audi-marker>
-                              <audi-playbar></audi-playbar>
                               <div class="audi-main-audio-track-scroll-area">
+                                <audi-marker></audi-marker>
+                                <audi-playbar></audi-playbar>
                                 ${this.getTrackList()}
                               </div>
                               <div class='audi-main-audio-track-container-event-zone hide' event-key=${
