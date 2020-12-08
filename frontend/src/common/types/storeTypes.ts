@@ -28,8 +28,8 @@ enum StoreChannelType {
 }
 
 interface StoreStateType {
-  cursorTime: string;
-  playTime: string;
+  cursorStringTime: string;
+  playStringTime: string;
   sourceList: Source[];
   modalState: ModalStateType;
   isTrackDraggable: Boolean;
@@ -42,8 +42,8 @@ interface StoreStateType {
   trackIndex: number;
   sectionIndex: number;
   clipBoard: TrackSection | null;
-  markerTime: number;
-  totalCursorTime: number;
+  markerNumberTime: number;
+  cursorNumberTime: number;
   isPause: boolean;
   maxTrackWidth: number;
 }

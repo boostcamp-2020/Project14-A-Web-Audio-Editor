@@ -8,8 +8,8 @@ const store = new (class Store {
 
   constructor() {
     this.state = {
-      cursorTime: '00:00:000',
-      playTime: '00:00:000',
+      cursorStringTime: '00:00:000',
+      playStringTime: '00:00:000',
       sourceList: [],
       modalState: {
         modalType: ModalType.upload,
@@ -25,8 +25,8 @@ const store = new (class Store {
       clipBoard: null,
       audioSourceInfoInTrackList: [],
       currentPosition: 0,
-      markerTime: 0,
-      totalCursorTime: 0,
+      markerStringTime: 0,
+      cursorStringTime: 0,
       isPause: true,
       maxTrackWidth: 0
     };
@@ -65,14 +65,14 @@ const store = new (class Store {
     storeChannel.publish(StoreChannelType.MODAL_STATE_CHANNEL, newModalState);
   }
 
-  setCursorTime(newMinute: string, newSecond: string, newMilsecond): void {
-    const { cursorTime } = this.state;
-    const [minute, second, milsecond] = cursorTime.split(':');
+  setCursorStringTime(newMinute: string, newSecond: string, newMilsecond): void {
+    const { cursorStringTime } = this.state;
+    const [minute, second, milsecond] = cursorStringTime.split(':');
 
     if (minute === newMinute && second === newSecond && milsecond === newMilsecond) return;
 
     const newCursorTime: string = `${newMinute.padStart(2, '0')}:${newSecond.padStart(2, '0')}:${newMilsecond.padStart(3, '0')}`;
-    this.state = { ...this.state, cursorTime: newCursorTime };
+    this.state = { ...this.state, cursorStringTime: newCursorTime };
     storeChannel.publish(StoreChannelType.CURSOR_TIME_CHANNEL, newCursorTime);
   }
 
@@ -87,7 +87,7 @@ const store = new (class Store {
   setTrack(newTrack: Track): void {
     const { trackList } = this.state;
 
-    const track = trackList.find(track => track.id === newTrack.id);
+    const track = trackList.find((track) => track.id === newTrack.id);
     if (track) {
       track.trackSectionList = [...newTrack.trackSectionList];
     } else {
@@ -163,19 +163,18 @@ const store = new (class Store {
     this.state.clipBoard = newSection;
     storeChannel.publish(StoreChannelType.EDIT_TOOLS_CHANNEL, null);
     console.log(newSection);
-
   }
 
-  setMarkerTime(newMarkerTime: number): void {
-    const { markerTime } = this.state;
+  setMarkerTime(newMarkerNumberTime: number): void {
+    const { markerNumberTime } = this.state;
 
-    if (markerTime === newMarkerTime) return;
+    if (markerNumberTime === newMarkerNumberTime) return;
 
-    this.state = { ...this.state, markerTime: newMarkerTime };
+    this.state = { ...this.state, markerNumberTime: newMarkerNumberTime };
   }
 
-  setTotalCursorTime(newTotalCursorTime: number): void {
-    this.state = { ...this.state, totalCursorTime: newTotalCursorTime };
+  setCursorNumberTime(newCursorNumberTime: number): void {
+    this.state = { ...this.state, cursorNumberTime: newCursorNumberTime };
   }
 
   setIsPauseState(isPauseState: boolean): void {
@@ -186,15 +185,15 @@ const store = new (class Store {
     storeChannel.publish(StoreChannelType.CURRENT_POSITION_CHANNEL, newMarkerWidth);
   }
 
-  setPlayTime(newPlayTime): void {
-    this.state = { ...this.state, playTime: newPlayTime };
-    storeChannel.publish(StoreChannelType.PLAY_TIME_CHANNEL, newPlayTime);
+  setPlayTime(newPlayStringTime): void {
+    this.state = { ...this.state, playStringTime: newPlayStringTime };
+    storeChannel.publish(StoreChannelType.PLAY_TIME_CHANNEL, newPlayStringTime);
   }
 
   removeSection(trackId: number, sectionIndex: number): void {
     const { trackList } = this.state;
 
-    const track = trackList.find(track => track.id === trackId)
+    const track = trackList.find((track) => track.id === trackId);
     if (!track) return;
 
     const { trackSectionList } = track;
@@ -204,9 +203,10 @@ const store = new (class Store {
     newTrackSectionList.splice(sectionIndex, 1);
 
     const newTrack = new Track({ ...track, trackSectionList: newTrackSectionList });
-    const newTrackList: Array<Track> = trackList.reduce<Track[]>((acc, track) =>
-      (track.id === trackId) ? acc.concat(newTrack) : acc.concat(track),
-      []);
+    const newTrackList: Array<Track> = trackList.reduce<Track[]>(
+      (acc, track) => (track.id === trackId ? acc.concat(newTrack) : acc.concat(track)),
+      []
+    );
 
     this.state = { ...this.state, trackList: newTrackList };
 
@@ -223,11 +223,11 @@ const store = new (class Store {
     storeChannel.publish(StoreChannelType.EDIT_TOOLS_CHANNEL, '');
   }
 
-  setMaxTrackWidth(newMaxTrackWidth: number): void{
+  setMaxTrackWidth(newMaxTrackWidth: number): void {
     const { maxTrackWidth } = this.state;
-        
-    if(maxTrackWidth >= newMaxTrackWidth) return;
-        
+
+    if (maxTrackWidth >= newMaxTrackWidth) return;
+
     this.state = { ...this.state, maxTrackWidth: newMaxTrackWidth };
     storeChannel.publish(StoreChannelType.MAX_TRACK_WIDTH_CHANNEL, newMaxTrackWidth);
   }
