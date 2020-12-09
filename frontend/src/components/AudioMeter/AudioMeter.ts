@@ -26,12 +26,12 @@ import './AudioMeter.scss';
 
     getDecibelMarkers(): string {
       let mindb = -68;
-      let acc = `<div class='playbar-time'>
+      let acc = `<div class='decibel-level'>
                             -INF
                         </div>`;
 
       while (mindb <= 0) {
-        acc += `<div class='playbar-time'>
+        acc += `<div class='decibel-level'>
                     ${mindb}
                 </div>`
         mindb += 4;

@@ -272,8 +272,8 @@ const QUANTUM = 3;
         
         const widthPixel = WidthUtil.getPerPixel(TIMER_TIME, this.maxTrackPlayTime);
         Controller.setMarkerWidth(widthPixel);
-        Controller.changePlayTime(TIMER_TIME);
-        Controller.pauseChangeMarkerTime(TIMER_TIME / 1000);
+        Controller.changePlayStringTime(TIMER_TIME);
+        Controller.pauseChangeMarkerNumberTime(TIMER_TIME / 1000);
 
         const array = new Float32Array(1024);
 
