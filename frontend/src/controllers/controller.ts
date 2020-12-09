@@ -4,6 +4,7 @@ import { ModalType, FocusInfo, CursorType, SectionDataType } from "@types";
 import CommandManager from '@command/CommandManager';
 import { DeleteCommand, PasteCommand, SplitCommand } from '@command';
 import { CopyUtil, SectionEffectListUtil, TimeUtil } from '@util';
+import playbackTool from '@components/PlaybackTools/PlaybackToolClass';
 
 const getSectionData = (trackId: number, trackSectionId: number): SectionDataType | undefined => {
   const getSourceAndTrackSection = (trackId: number, trackSectionId: number): {source: Source, trackSection: TrackSection} | undefined =>{
@@ -121,8 +122,7 @@ const addTrackSectionFromSource = (sourceId: number, trackId: number): void => {
       trackId: trackId,
       channelStartTime: 0,
       channelEndTime: source.duration,
-      trackStartTime: trackStartTime,
-      audioStartTime: 0
+      trackStartTime: trackStartTime
     });
     
     addTrackSection(trackId, newTrackSection);
@@ -233,7 +233,6 @@ const getClipBoard = (): TrackSection | null => {
   return clipBoard;
 };
 
-
 const pauseChangeMarkerNumberTime = (playingTime: number): void => {
   const { markerNumberTime } = store.getState();
   let newMarkerNumberTime = markerNumberTime + playingTime;
@@ -244,15 +243,21 @@ const pauseChangeMarkerNumberTime = (playingTime: number): void => {
   store.setMarkerNumberTime(newMarkerNumberTime);
 };
 
-const changeCursorMarkerNumberTime = (newMarkerNumberTime: number): void => {
-  store.setCursorNumberTime(newMarkerNumberTime);
-};
+const changeMarkerNumberTime = (markerTime:number) => {
+  store.setMarkerNumberTime(markerTime);
+}
+
+//지워도 될 것.
+// const changeCursorMarkerNumberTime = (newMarkerNumberTime: number): void => {
+//   store.setCursorNumberTime(newMarkerNumberTime);
+// };
 
 const getMarkerTime = (): number => {
   const { markerNumberTime } = store.getState();
   return markerNumberTime;
 };
 
+//markerEventUtil에서 이 함수로 바꿈.
 const changeCursorNumberTime = (cursorNumberTime: number): void => {
   store.setCursorNumberTime(cursorNumberTime);
 };
@@ -391,6 +396,57 @@ const changeMaxTrackWidth = (newMaxTrackWidth: number) => {
   store.setMaxTrackWidth(newMaxTrackWidth);
 };
 
+const audioCursorPlay = () => {
+ playbackTool.audioCursorPlay(); 
+}
+
+const audioPlayOrPause = ():void => {
+  const ret = playbackTool.audioPlayOrPause();
+
+  store.changePlayOrPauseIcon(ret);
+}
+
+const audioStop = ():void => {
+  playbackTool.audioStop();
+}
+
+const audioRepeat = ():void => {
+  playbackTool.audioRepeat(); 
+}
+
+const audioFastRewind = () => {
+  playbackTool.audioFastRewind();
+}
+
+const audioFastForward = () => {
+  playbackTool.audioFastForward();
+}
+
+const audioSkipPrev = () => {
+  playbackTool.audioSkipPrev();
+}
+
+const audioSkipNext = () => {
+  playbackTool.audioSkipNext();
+}
+
+const setMute = (trackId:number) => {
+  playbackTool.setMute(trackId);
+}
+
+const unsetMute = (trackId:number) => {
+  playbackTool.unsetMute(trackId);
+}
+
+const setSolo = (trackId:number) => {
+  store.soloPlay(trackId);
+  playbackTool.setSolo(trackId);
+}
+
+const unsetSolo = () => {
+  playbackTool.unsetSolo();
+}
+
 export default {
   addTrackSectionFromSource,
   getSectionData,
@@ -419,7 +475,7 @@ export default {
   pauseChangeMarkerNumberTime,
   getMarkerTime,
   changeCursorNumberTime,
-  changeCursorMarkerNumberTime,
+  // changeCursorMarkerNumberTime,
   setMarkerWidth,
   getIsPauseState,
   changeIsPauseState,
@@ -433,5 +489,18 @@ export default {
   cutCommand,
   pasteCommand,
   splitTrackSection,
-  getSourceBySourceId
+  getSourceBySourceId,
+  changeMarkerNumberTime,
+  audioPlayOrPause,
+  audioStop,
+  audioFastRewind,
+  audioFastForward,
+  audioSkipPrev,
+  audioSkipNext,
+  audioCursorPlay,
+  audioRepeat,
+  setMute,
+  unsetMute,
+  setSolo,
+  unsetSolo
 };
