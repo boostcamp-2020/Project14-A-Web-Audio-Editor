@@ -3,7 +3,7 @@ import { Controller } from '@controllers';
 import { StoreChannelType } from '@types';
 import { storeChannel } from '@store';
 import { Track, TrackSection } from '@model';
-import { CopyUtil, TimeUtil } from '@util';
+import { CopyUtil } from '@util';
 
 export class SplitCommand extends ICommand {
   private beforeTrack: Track;
@@ -22,17 +22,18 @@ export class SplitCommand extends ICommand {
   execute() {
     if(!this.trackContainerElement) return;
 
-    const timeOfCursorPosition = this.calculateTimeOfCursorPosition(this.trackContainerElement);
+    const maxTrackPlayTime = Controller.getMaxTrackPlayTime();
+    const timeOfCursorPosition = this.calculateTimeOfCursorPosition(this.trackContainerElement, maxTrackPlayTime);
     const [leftTrackSection, rightTrackSection] = this.splitTrackSection(timeOfCursorPosition);
     this.updateSplitedSections(leftTrackSection, rightTrackSection);
   }
 
-  calculateTimeOfCursorPosition(trackContainerElement: HTMLDivElement): number{
+  calculateTimeOfCursorPosition(trackContainerElement: HTMLDivElement, maxTrackPlayTime: number): number{
     const trackContainerLeftX = trackContainerElement.getBoundingClientRect().left;
     const trackContainerRightX = trackContainerElement.getBoundingClientRect().right;
     const trackContainerWidth = trackContainerRightX - trackContainerLeftX;
 
-    const trackPixelsPerSecond = parseFloat((trackContainerWidth / 300).toFixed(2));
+    const trackPixelsPerSecond = parseFloat((trackContainerWidth / maxTrackPlayTime).toFixed(2));
     const secondsPerTrackPixel = parseFloat((1 / trackPixelsPerSecond).toFixed(2));
     const cursorOffset = this.cursorPosition - trackContainerLeftX;
     const timeOfCursorPosition = secondsPerTrackPixel * cursorOffset;
