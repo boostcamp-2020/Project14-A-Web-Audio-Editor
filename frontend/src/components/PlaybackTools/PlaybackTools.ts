@@ -35,7 +35,7 @@ import { Controller } from '@controllers';
                   ${this.iconlist.reduce(
         (acc, icon, idx) =>
           acc +
-          `<audi-icon-button id="${icon}" color="white" icontype="${icon}" size="32px" data-event-key="${this.eventKeyList[idx]}"></audi-icon-button>`,
+          `<audi-icon-button id="${icon}" class="delegation" color="white" icontype="${icon}" size="32px" event-key="${this.eventKeyList[idx]}"></audi-icon-button>`,
         ''
       )}
                 </div>
