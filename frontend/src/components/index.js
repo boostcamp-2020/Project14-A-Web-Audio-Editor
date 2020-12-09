@@ -9,7 +9,7 @@ import './PlaybackTools/PlaybackTools';
 import './Sidebar/Sidebar';
 import './SourceList/SourceList';
 import './TimeInfo/TimeInfo';
-import './Main/Main';
+import './Main';
 import './Loading/Loading';
 import './PlayBar/PlayBarMarkerBlurZone/PlayBarMarkerBlurZone';
 import './PlayBar/PlayBarMarker/PlayBarMarker';
