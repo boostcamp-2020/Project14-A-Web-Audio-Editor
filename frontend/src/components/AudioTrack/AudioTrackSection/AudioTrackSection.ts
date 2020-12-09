@@ -12,6 +12,7 @@ import './AudioTrackSection.scss';
     private cursorMode: CursorType | undefined;
     private canvasWidth: number;
     private canvasHeight: number;
+    private maxTrackPlayTime: number;
     private trackCanvasElement: HTMLCanvasElement | undefined | null;
     private trackContainerElement: HTMLElement | null;
     private cutLineElement: HTMLElement | undefined | null;
@@ -24,6 +25,7 @@ import './AudioTrackSection.scss';
       this.cursorMode;
       this.canvasWidth = 0;
       this.canvasHeight = 0;
+      this.maxTrackPlayTime = Controller.getMaxTrackPlayTime();
       this.trackCanvasElement;
       this.trackContainerElement = null;
       this.cutLineElement;
@@ -88,7 +90,7 @@ import './AudioTrackSection.scss';
 
       const trackWidth = this.trackContainerElement.getBoundingClientRect().right - this.trackContainerElement.getBoundingClientRect().left;
       const trackHeight = this.trackCanvasElement.clientHeight;
-      this.canvasWidth = trackWidth / (300 / duration);
+      this.canvasWidth = trackWidth / (this.maxTrackPlayTime / duration);
       this.canvasHeight = trackHeight;
     }
 
