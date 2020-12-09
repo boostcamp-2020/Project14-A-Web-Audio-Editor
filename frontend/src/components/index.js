@@ -20,4 +20,5 @@ import './Pages';
 import './Button';
 import './EffectController';
 import './ZoomBar/ZoomBar';
+import './AudioMeter/AudioMeter';
 import './SectionEffectList/SectionEffectList';

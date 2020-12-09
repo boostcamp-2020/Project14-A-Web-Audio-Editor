@@ -1,5 +1,5 @@
 import './PlaybackTools.scss';
-import { EventUtil, WidthUtil } from '@util';
+import { EventUtil, PlayBarUtil, AudioUtil, WidthUtil } from '@util';
 import { EventType, EventKeyType, StoreChannelType } from '@types';
 import { Source, Track, TrackSection, AudioSourceInfoInTrack } from '@model';
 import { storeChannel } from '@store';
@@ -58,11 +58,11 @@ const QUANTUM = 3;
       this.innerHTML = `
                 <div class="playback-tools">
                   ${this.iconlist.reduce(
-                    (acc, icon, idx) =>
-                      acc +
-                      `<audi-icon-button id="${icon}" color="white" icontype="${icon}" size="32px" data-event-key="${this.eventKeyList[idx]}"></audi-icon-button>`,
-                    ''
-                  )}
+        (acc, icon, idx) =>
+          acc +
+          `<audi-icon-button id="${icon}" color="white" icontype="${icon}" size="32px" data-event-key="${this.eventKeyList[idx]}"></audi-icon-button>`,
+        ''
+      )}
                 </div>
             `;
     }
@@ -226,7 +226,7 @@ const QUANTUM = 3;
         try {
           source.bufferSourceNode.stop();
           source.bufferSourceNode.buffer = null;
-        } catch (e) {}
+        } catch (e) { }
       });
 
       this.audioContext.close();
@@ -247,15 +247,56 @@ const QUANTUM = 3;
     }
 
     playTimer() {
+      const volumeBar = document.getElementById("audio-meter-fill");
+
+      const analyser = this.audioContext.createAnalyser();
+      analyser.smoothingTimeConstant = 0.3;
+      analyser.fftSize = 1024;
+
+      this.sourceInfo.forEach((source) => {
+        try {
+          source.bufferSourceNode.connect(analyser);
+        } catch (e) { }
+      });
+      analyser.connect(this.audioContext.destination);
+
       let playTimer = setInterval(() => {
         if (Controller.getIsPauseState()) {
+          if (volumeBar) {
+            setTimeout(() => {
+              volumeBar.style.width = '0';
+            }, TIMER_TIME)
+          };
           clearInterval(playTimer);
         }
         
         const widthPixel = WidthUtil.getPerPixel(TIMER_TIME, this.maxTrackPlayTime);
         Controller.setMarkerWidth(widthPixel);
-        Controller.changePlayStringTime(TIMER_TIME);
-        Controller.pauseChangeMarkerNumberTime(TIMER_TIME / 1000);
+        Controller.changePlayTime(TIMER_TIME);
+        Controller.pauseChangeMarkerTime(TIMER_TIME / 1000);
+
+        const array = new Float32Array(1024);
+
+        analyser.getFloatTimeDomainData(array);
+
+        if (!volumeBar) return;
+
+        const colors = ['rgb(153, 194, 198)', 'rgb(110,204,136)', 'rgb(214,171,34)', 'rgb(209,81,16)']
+        let decibel = AudioUtil.getDecibel(array);
+        if (decibel < -72) {
+          decibel = -72
+        }
+        const scaledDecibel = (decibel / 72) * 100;
+        const percentage = 100 + scaledDecibel;
+
+        volumeBar.style.width = `${percentage}%`;
+        if (percentage > 98) {
+          volumeBar.style.background = `linear-gradient(to right, ${colors[0]},  ${colors[1]} 70%,  ${colors[2]} 95%,  ${colors[3]} 99%)`;
+        } else if (percentage > 80) {
+          volumeBar.style.background = `linear-gradient(to right, ${colors[0]}, ${colors[1]} 80%,${colors[2]})`;
+        } else {
+          volumeBar.style.background = `linear-gradient(to right, ${colors[0]}, ${colors[1]} 90%)`;
+        }
       }, TIMER_TIME);
     }
 
@@ -311,7 +352,7 @@ const QUANTUM = 3;
         Controller.changeMarkerPlayStringTime(0);
         Controller.changeCursorMarkerNumberTime(0);
         Controller.setMarkerWidth(0);
-
+        
         if (restart) {
           this.play();
         }
@@ -347,7 +388,8 @@ const QUANTUM = 3;
               playDuration = trackSection.length;
 
               this.sourceInfo[sourceIdx].bufferSourceNode.start(waitTime, audioStartTime, playDuration);
-            } else if (trackSection.trackStartTime <= markerTime - QUANTUM && markerTime <= trackSection.trackStartTime + trackSection.length) {
+            }
+            else if (trackSection.trackStartTime <= markerTime - QUANTUM && markerTime <= trackSection.trackStartTime + trackSection.length) {
               diff = markerTime - trackSection.trackStartTime - QUANTUM;
               waitTime = 0;
               audioStartTime = trackSection.audioStartTime + diff;
@@ -426,4 +468,4 @@ const QUANTUM = 3;
   };
   customElements.define('audi-playback-tools', PlaybackTools);
 })();
-export {};
+export { };

@@ -22,7 +22,7 @@ const getPerPixel = (time: number, trackPlayTime: number): number => {
 };
 
 const getDifferenceWidth = (startX: number, currentX: number): number => {
-  const differenceWidth = currentX - startX;
+  const differenceWidth = Math.abs(currentX - startX);
   return differenceWidth;
 };
 

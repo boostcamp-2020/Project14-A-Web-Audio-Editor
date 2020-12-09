@@ -1,6 +1,6 @@
 import { Controller } from '@controllers';
 import { CursorType, EventKeyType, EventType, StoreChannelType, SectionDataType } from '@types';
-import { EventUtil } from '@util';
+import { EventUtil, TimeUtil } from '@util';
 import { storeChannel } from '@store';
 import './AudioTrackSection.scss';
 
@@ -18,6 +18,8 @@ import './AudioTrackSection.scss';
     private trackContainerElement: HTMLElement | null;
     private trackAreaElement: HTMLElement | null;
     private cutLineElement: HTMLElement | undefined | null;
+    private trackContainerWidth: number;
+
 
     constructor() {
       super();
@@ -33,6 +35,7 @@ import './AudioTrackSection.scss';
       this.trackContainerElement = null;
       this.trackAreaElement = null;
       this.cutLineElement;
+      this.trackContainerWidth = 0;
     }
 
     static get observedAttributes(): string[] {
@@ -68,7 +71,7 @@ import './AudioTrackSection.scss';
 
     render(): void {
       this.innerHTML = `
-                <canvas class="audio-track-section" event-key=${EventKeyType.AUDIO_TRACK_SECTION_MULTIPLE + this.sectionId}></canvas>
+                <canvas draggable="true" class="audio-track-section" event-key=${EventKeyType.AUDIO_TRACK_SECTION_MULTIPLE + this.sectionId}></canvas>
             `;
     }
 
@@ -80,6 +83,7 @@ import './AudioTrackSection.scss';
       this.cutLineElement = document.getElementById(`section-cut-line-${this.trackId}`);
       this.trackContainerElement = document.querySelector('.audi-main-audio-track-container');
       this.trackAreaElement = document.querySelector('.audio-track-area');
+      this.trackContainerWidth = this.trackContainerElement?.getBoundingClientRect().right - this.trackContainerElement?.getBoundingClientRect().left;
     }
 
     drawTrackSection(): void {
@@ -138,16 +142,33 @@ import './AudioTrackSection.scss';
 
     initEvent(): void {
       EventUtil.registerEventToRoot({
-        eventTypes: [EventType.click, EventType.mousemove, EventType.mouseout],
+        eventTypes: [EventType.click, EventType.mousemove, EventType.mouseout, EventType.dragstart],
         eventKey: EventKeyType.AUDIO_TRACK_SECTION_MULTIPLE + this.sectionId,
-        listeners: [this.trackSectionClickListener, this.trackSectionMouseMoveListener, this.trackSectionMouseoutListener],
+        listeners: [
+          this.trackSectionClickListener,
+          this.trackSectionMouseMoveListener,
+          this.trackSectionMouseoutListener,
+          this.trackSectiondragStartListener
+        ],
         bindObj: this
       });
       window.addEventListener('resize', this.windowResizeListener.bind(this));
     }
-    
+
+    trackSectiondragStartListener(e): void {
+      if (!this.trackContainerElement) return;
+      const offsetLeft = this.trackContainerElement.getBoundingClientRect().left;
+
+      const prevCursorPosition = e.pageX;
+      const prevCursorTime = TimeUtil.calculateTimeOfCursorPosition(offsetLeft, prevCursorPosition, this.trackContainerWidth);
+
+      const data = { sectionId: this.sectionId, prevTrackId: this.trackId, prevCursorTime, offsetLeft };
+      e.dataTransfer.setData('text/plain', JSON.stringify(data));
+      e.dataTransfer.effectAllowed = 'move';
+    }
+
     trackSectionClickListener(e): void {
-      switch(this.cursorMode){
+      switch (this.cursorMode) {
         case CursorType.SELECT_MODE:
           this.selectModeClickHandler(e);
           break;
@@ -173,7 +194,7 @@ import './AudioTrackSection.scss';
       const cursorPosition = e.pageX;
       const trackContainerLeftX = this.trackContainerElement.getBoundingClientRect().left;
       const cursorOffset = cursorPosition - trackContainerLeftX;
-      
+
       this.showCutLine(cursorOffset + this.currentScrollAmount);
     }
 
@@ -202,7 +223,7 @@ import './AudioTrackSection.scss';
       // storeChannel.subscribe(StoreChannelType.MAX_TRACK_PLAY_TIME_CHANNEL, this.maxTrackPlayTimeObserverCallback, this);
     }
 
-    cursorModeObserverCallback(newCursorMode){
+    cursorModeObserverCallback(newCursorMode) {
       this.cursorMode = newCursorMode;
     }
 
