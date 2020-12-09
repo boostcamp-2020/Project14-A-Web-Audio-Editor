@@ -54,11 +54,12 @@ import './Main.scss';
                                 <audi-playbar></audi-playbar>
                                 ${this.getTrackList()}
                               </div>
-                              <div class='audi-main-audio-track-container-event-zone hide' event-key=${EventKeyType.AUDIO_TRACK_CONTAINER_MULTIPLE
-        }></div>
+                              <div class='audi-main-audio-track-container-event-zone hide' event-key=${EventKeyType.AUDIO_TRACK_CONTAINER_MULTIPLE}></div>
                             </div>
-                            <audi-zoom-bar></audi-zoom-bar>
-                            <audi-audio-meter></audi-audio-meter>
+                            <div>
+                              <audi-zoom-bar></audi-zoom-bar>
+                              <audi-audio-meter></audi-audio-meter>
+                            </div>
                         </section>
                     </div>
                   </main>
@@ -67,8 +68,11 @@ import './Main.scss';
 
     initElement(): void {
       const playbarElement = document.querySelector('.playbar');
-      this.mainWidth = playbarElement?.getBoundingClientRect().right - playbarElement?.getBoundingClientRect().left;
       this.mainAudioTrackContainerEventZone = document.querySelector('.audi-main-audio-track-container-event-zone');
+
+      if(!playbarElement || !this.mainAudioTrackContainerEventZone) return;
+
+      this.mainWidth = playbarElement?.getBoundingClientRect().right - playbarElement?.getBoundingClientRect().left;
       this.defaultStartX = this.mainAudioTrackContainerEventZone?.getBoundingClientRect().left;
       this.markerElement = document.querySelector('.marker');
     }
@@ -81,7 +85,7 @@ import './Main.scss';
         bindObj: this
       });
 
-      if (!this.markerElement) return;
+      if (!this.markerElement || !this.mainAudioTrackContainerEventZone) return;
 
       EventUtil.registerEventToRoot({
         eventTypes: [EventType.mousemove, EventType.click],
