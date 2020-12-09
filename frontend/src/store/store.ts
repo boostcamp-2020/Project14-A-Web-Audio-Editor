@@ -165,7 +165,9 @@ const store = new (class Store {
   setMarkerNumberTime(newMarkerNumberTime: number): void {
     const { markerNumberTime } = this.state;
 
-    if (markerNumberTime === newMarkerNumberTime) return;
+    if (markerNumberTime === newMarkerNumberTime){ 
+      return;
+    };
 
     this.state = { ...this.state, markerNumberTime: newMarkerNumberTime };
   }
@@ -231,6 +233,14 @@ const store = new (class Store {
 
     this.state = { ...this.state, maxTrackWidth: newMaxTrackWidth };
     storeChannel.publish(StoreChannelType.MAX_TRACK_WIDTH_CHANNEL, newMaxTrackWidth);
+  }
+
+  changePlayOrPauseIcon(iconType:number) {
+    storeChannel.publish(StoreChannelType.PLAY_OR_PAUSE_CHANNEL, iconType);
+  }
+
+  soloPlay(trackId:number) {
+    storeChannel.publish(StoreChannelType.SOLO_CHANNEL, trackId);
   }
 })();
 
