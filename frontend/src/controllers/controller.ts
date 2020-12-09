@@ -439,41 +439,46 @@ const splitTrackSection = (cursorPosition: number, trackId: number, sectionId: n
 
 const changeMaxTrackWidth = (maxTrackWidth: number): void => {
   store.setMaxTrackWidth(maxTrackWidth);
-}
+};
+
+const getMaxTrackWidth = () => {
+  const { maxTrackWidth } = store.getState();
+  return maxTrackWidth;
+};
 
 const changeMaxTrackPlayTime = (trackSectionList: TrackSection[]): void => {
   const trackPlaytime = trackSectionList.reduce((acc, trackSection) => acc += trackSection.length, 0);
   store.setMaxTrackPlayTime(trackPlaytime);
-}
+};
 
 const getMaxTrackPlayTime = () => {
   const { maxTrackPlayTime } = store.getState();
   return maxTrackPlayTime;
-}
+};
 
 const changeCurrentScrollAmount = (newCurrentScrollAmount: number): void => {
   store.setCurrentScrollAmount(newCurrentScrollAmount);
-}
+};
 
 const audioCursorPlay = () => {
   playbackTool.audioCursorPlay();
-}
+}v
 
 const audioPlayOrPause = (): void => {
   const ret = playbackTool.audioPlayOrPause();
 
   store.changePlayOrPauseIcon(ret);
-}
+};
 
 const audioStop = (): void => {
   playbackTool.audioStop();
-}
+};
 
 const audioRepeat = (): void => {
   const ret = playbackTool.audioRepeat();
 
   store.changeRepeatIconColor(ret);
-}
+};
 
 const changeIsRepeatState = (isRepeatState: boolean): void => {
   store.setIsRepeatState(isRepeatState);
@@ -486,36 +491,41 @@ const getIsRepeatState = (): boolean => {
 
 const audioFastRewind = () => {
   playbackTool.audioFastRewind();
-}
+};
 
 const audioFastForward = () => {
   playbackTool.audioFastForward();
-}
+};
 
 const audioSkipPrev = () => {
   playbackTool.audioSkipPrev();
-}
+};
 
 const audioSkipNext = () => {
   playbackTool.audioSkipNext();
-}
+};
 
 const setMute = (trackId: number) => {
   playbackTool.setMute(trackId);
-}
+};
 
 const unsetMute = (trackId: number) => {
   playbackTool.unsetMute(trackId);
-}
+};
 
 const setSolo = (trackId: number) => {
   store.soloPlay(trackId);
   playbackTool.setSolo(trackId);
-}
+};
 
 const unsetSolo = () => {
   playbackTool.unsetSolo();
-}
+};
+
+const getCurrentScrollAmount = () : number => {
+  const { currentScrollAmount } = store.getState();
+  return currentScrollAmount;
+};
 
 export default {
   getTrackSection,
@@ -580,5 +590,7 @@ export default {
   unsetSolo,
   changeMaxTrackWidth,
   changeMaxTrackPlayTime,
-  changeCurrentScrollAmount
+  changeCurrentScrollAmount,
+  getMaxTrackWidth,
+  getCurrentScrollAmount
 };
