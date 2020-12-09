@@ -1,5 +1,8 @@
 import { EventKeyType, EventType, TrackOptionType } from '@types';
 import { EventUtil } from '@util';
+import { StoreChannelType } from '@types';
+import { storeChannel } from '@store';
+import { Controller } from '@controllers';
 import './AudioTrackOption.scss';
 
 (() => {
@@ -41,6 +44,7 @@ import './AudioTrackOption.scss';
       try {
         this.render();
         this.initEvent();
+        this.subscribe();
       } catch (e) {
         console.log(e);
       }
@@ -81,12 +85,48 @@ import './AudioTrackOption.scss';
       }
     }
 
+    subscribe(): void {
+      storeChannel.subscribe(StoreChannelType.SOLO_CHANNEL, this.setSoloState, this);
+    }
+
+    setSoloState(trackId:number): void {
+      if(trackId === Number(this.dataset.trackId)) {
+        this.isSolo = true;
+      }
+      else {
+        this.isSolo = false;
+      }
+
+      this.render();
+    }
+
     soloClickHandler(): void {
-      console.log('solo');
+      const trackId = Number(this.dataset.trackId);
+      
+      if(!this.isSolo) {
+        Controller.setSolo(trackId);
+      }
+      else {
+        this.isSolo = false;
+        Controller.unsetSolo();
+      }
+
+      this.render();
     }
 
     muteClickHandler(): void {
-      console.log('mute');
+      const trackId = Number(this.dataset.trackId);
+
+      if(!this.isMute) {
+        this.isMute = true;
+        Controller.setMute(trackId);
+      }
+      else {
+        this.isMute = false;
+        Controller.unsetMute(trackId);
+      }
+
+      this.render();
     }
 
     deleteClickHandler(): void {
