@@ -13,6 +13,7 @@ import './AudioTrackSection.scss';
     private canvasWidth: number;
     private canvasHeight: number;
     private maxTrackPlayTime: number;
+    private currentScrollAmount: number;
     private trackCanvasElement: HTMLCanvasElement | undefined | null;
     private trackContainerElement: HTMLElement | null;
     private cutLineElement: HTMLElement | undefined | null;
@@ -26,6 +27,7 @@ import './AudioTrackSection.scss';
       this.canvasWidth = 0;
       this.canvasHeight = 0;
       this.maxTrackPlayTime = Controller.getMaxTrackPlayTime();
+      this.currentScrollAmount = 0;
       this.trackCanvasElement;
       this.trackContainerElement = null;
       this.cutLineElement;
@@ -168,7 +170,7 @@ import './AudioTrackSection.scss';
       const trackContainerLeftX = this.trackContainerElement.getBoundingClientRect().left;
       const cursorOffset = cursorPosition - trackContainerLeftX;
       
-      this.showCutLine(cursorOffset);
+      this.showCutLine(cursorOffset + this.currentScrollAmount);
     }
 
     trackSectionMouseoutListener(e): void {
@@ -186,16 +188,21 @@ import './AudioTrackSection.scss';
       this.cutLineElement.style.left = `${location}px`;
     }
 
+    windowResizeListener(e){
+      this.drawTrackSection();
+    }
+
     subscribe(): void {
       storeChannel.subscribe(StoreChannelType.CURSOR_MODE_CHANNEL, this.cursorModeObserverCallback, this);
+      storeChannel.subscribe(StoreChannelType.CURRENT_SCROLL_AMOUNT_CHANNEL, this.currentScrollAmountObserverCallback, this);
     }
 
     cursorModeObserverCallback(newCursorMode){
       this.cursorMode = newCursorMode;
     }
 
-    windowResizeListener(e){
-      this.drawTrackSection();
+    currentScrollAmountObserverCallback(newCurrentScrollAmount: number): void {
+      this.currentScrollAmount = newCurrentScrollAmount;
     }
 
     initState(): void {

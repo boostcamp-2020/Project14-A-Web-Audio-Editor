@@ -22,7 +22,6 @@ import './PlayBar.scss';
     private playbarTimeElements: NodeListOf<HTMLDivElement> | null;
     private markerElement: HTMLElement | null;
     private trackScrollAreaElement: HTMLDivElement | null;
-    private zoombarControllerElement: HTMLDivElement | null;
 
     constructor() {
       super();
@@ -42,7 +41,6 @@ import './PlayBar.scss';
       this.playbarTimeElements = null;
       this.markerElement = null;
       this.trackScrollAreaElement = null;
-      this.zoombarControllerElement = null;
 
       this.setPlayBarTimeInfo();
     }
