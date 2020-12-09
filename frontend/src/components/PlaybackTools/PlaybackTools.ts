@@ -1,23 +1,13 @@
 import './PlaybackTools.scss';
-import { EventUtil, WidthUtil } from '@util';
+import { EventUtil } from '@util';
 import { EventType, EventKeyType, StoreChannelType } from '@types';
-import { Source, Track, TrackSection, AudioSourceInfoInTrack } from '@model';
 import { storeChannel } from '@store';
 import { Controller } from '@controllers';
-
-const TIMER_TIME = 34;
-const QUANTUM = 3;
 
 (() => {
   const PlaybackTools = class extends HTMLElement {
     public iconlist: string[];
     public eventKeyList: string[];
-
-    private audioContext: AudioContext;
-    private isPause: boolean;
-    private trackList: Track[];
-    private sourceList: Source[];
-    private sourceInfo: AudioSourceInfoInTrack[];
 
     constructor() {
       super();
@@ -31,25 +21,12 @@ const QUANTUM = 3;
         EventKeyType.AUDIO_SKIP_PREV,
         EventKeyType.AUDIO_SKIP_NEXT
       ];
-
-      this.audioContext = new AudioContext();
-      this.isPause = true;
-      this.trackList = [];
-      this.sourceList = [];
-      this.sourceInfo = [];
     }
 
     connectedCallback() {
       this.render();
-      this.init();
       this.initEvent();
       this.subscribe();
-    }
-
-    init(){
-      this.isPause = Controller.getIsPauseState();
-      this.trackList = Controller.getTrackList();
-      this.sourceList = Controller.getSourceList();
     }
 
     render() {
@@ -117,303 +94,75 @@ const QUANTUM = 3;
     }
 
     audioPlayOrPauseListener() {
-      try{
-        if (this.trackList.length == 0) return;
-
-        if (this.isPause) {
-          this.isPause = false;
-          Controller.changeIsPauseState(false);
-
-          this.iconlist[0] = 'pause';
-
-          this.play();
-          this.playTimer()
-        } else{
-          this.isPause = true;
-          Controller.changeIsPauseState(true);
-          
-          this.iconlist[0] = 'play';
-
-          this.pause();
-        }
-        this.render();
-      }catch(e){
-        console.log(e);
-      }
+      Controller.audioPlayOrPause(); 
     }
 
     audioStopListener() {
-      if (this.trackList.length == 0) return;
-
-      this.isPause = true;
-      Controller.changeIsPauseState(true);
-
+      Controller.audioStop();
       this.iconlist[0] = 'play';
 
-      this.stop(false);
       this.render();
     }
 
     audioRepeatListener() {
-      if (this.trackList.length == 0) return;
+      //store에 isRepeat이 있고 false일 때는 repeat이 아니라서 흰색이고
+      //true가 되면 초록색으로 바꾸고싶은데.
+      //어떻게 하죵..?
+      //const isRepeat = Controller.getIsRepeatState();
+      /*if(!isRepeat) {
+        Controller.changeIsRepeatState(true);
+        //repeat을 하고싶은 거라면
+        //1.색상을 바꿔준다.
+        //2. 어디서부터 어디까지인지 알아온다.
+        //3. 갑자기 거기로 점프한다
+        //4. 루프를 돈다..
+      }
+      else {
+        //루프를 해제한다.
+        //아 이거 controller로 바꾸는 거 class에서 해도 될 것 같다.
+        //흠...
+        Controller.changeIsRepeatState(false);
+
+      }
+      */
+
+      Controller.audioRepeat();
+      //반복 가능 상태여부는 어디서 판단..?
+      // console.log(document.querySelector('#repeat'));
     }
 
     audioFastRewindListener() {
-      if (this.trackList.length == 0) return;
-
-      if (this.isPause) {
-        this.isPause = false;
-        Controller.changeIsPauseState(false);
-
-        this.iconlist[0] = 'pause';
-
-        this.render();
-        this.playTimer();
-      }
-
-      this.fastRewind();
+      Controller.audioFastRewind();
     }
 
     audioFastForwardListener() {
-      if (this.trackList.length == 0) return;
-
-      //일지성지 상태에서 건너뛰기 버튼을 눌렀을 때
-      if (this.isPause) {
-        this.isPause = false;
-        Controller.changeIsPauseState(false);
-
-        this.iconlist[0] = 'pause';
-
-        this.render();
-        this.playTimer();
-      }
-
-      this.fastForward();
+      Controller.audioFastForward();
     }
 
     audioSkipPrevListener() {
-      if (this.trackList.length == 0) return;
-
-      this.stop(true);
+      Controller.audioSkipPrev();
     }
 
     audioSkipNextListener() {
-      if (this.trackList.length == 0) return;
+      Controller.audioSkipNext();
     }
 
     subscribe(): void {
-      storeChannel.subscribe(StoreChannelType.TRACK_CHANNEL, this.trackListObserver, this);
-      storeChannel.subscribe(StoreChannelType.SOURCE_LIST_CHANNEL, this.sourceListObserver, this);
+      storeChannel.subscribe(StoreChannelType.PLAY_OR_PAUSE_CHANNEL, this.changePlayOrPauseIcon, this);
     }
 
-    trackListObserver(trackList): void {
-      this.trackList = trackList;
-    }
-
-    sourceListObserver(sourceList): void {
-      this.sourceList = sourceList;
-    }
-
-    stopAudioSources() {
-      this.sourceInfo.forEach((source) => {
-        try {
-          source.bufferSourceNode.stop();
-          source.bufferSourceNode.buffer = null;
-        } catch (e) {}
-      });
-
-      this.audioContext.close();
-      this.audioContext = new AudioContext();
-      this.audioContext.suspend();
-    }
-
-    updateSourceInfo(sourceId: number, trackId: number, sectionId: number) {
-      const bufferSourceNode = this.audioContext.createBufferSource();
-      bufferSourceNode.buffer = this.sourceList[sourceId].buffer;
-
-      //TODO: effect가 적용된 노드에 대해 effect를 적용하기
-      //trackId와 sectionId는 effectList에 내용이 있을 때 사용된다.
-      //connect가 다르게 된다.
-      bufferSourceNode.connect(this.audioContext.destination);
-
-      this.sourceInfo.push({ trackId: trackId, sectionId: sectionId, bufferSourceNode: bufferSourceNode });
-    }
-
-    playTimer() {
-      let playTimer = setInterval(() => {
-        if (Controller.getIsPauseState()) {
-          clearInterval(playTimer);
-        }
-        const widthPixel = WidthUtil.getPerPixel(TIMER_TIME);
-        Controller.setMarkerWidth(widthPixel);
-        Controller.changePlayStringTime(TIMER_TIME);
-        Controller.pauseChangeMarkerNumberTime(TIMER_TIME / 1000);
-      }, TIMER_TIME);
-    }
-
-    play(): void {
-      const markerTime = Controller.getMarkerTime();
-
-      this.stopAudioSources();
-      this.sourceInfo = [];
-
-      this.trackList.forEach((track: Track) => {
-        if (track.trackSectionList.length != 0) {
-          track.trackSectionList.forEach((trackSection: TrackSection) => {
-            this.updateSourceInfo(trackSection.sourceId, trackSection.trackId, trackSection.id);
-            const sourceIdx = this.sourceInfo.length - 1;
-
-            let waitTime: number = 0;
-            let audioStartTime: number = 0;
-            let playDuration: number = 0;
-            let diff: number = 0;
-
-            if (markerTime <= trackSection.trackStartTime) {
-              waitTime = this.audioContext.currentTime + trackSection.trackStartTime - markerTime;
-              audioStartTime = trackSection.audioStartTime;
-              playDuration = trackSection.length;
-
-              this.sourceInfo[sourceIdx].bufferSourceNode.start(waitTime, audioStartTime, playDuration);
-            } else if (trackSection.trackStartTime + trackSection.length < markerTime) {
-              //재생되지 않는 부분
-            } else {
-              waitTime = 0;
-              diff = markerTime - trackSection.trackStartTime;
-              audioStartTime = trackSection.audioStartTime + diff;
-              playDuration = trackSection.length - diff;
-
-              this.sourceInfo[sourceIdx].bufferSourceNode.start(waitTime, audioStartTime, playDuration);
-            }
-          });
-        }
-      });
-      this.audioContext.resume();
-    }
-
-    pause() {
-      this.audioContext.suspend();
-    }
-
-    stop(restart: boolean) {
-      this.audioContext.close();
-      this.audioContext = new AudioContext();
-      this.audioContext.suspend();
-
-      setTimeout(() => {
-        Controller.changeMarkerPlayStringTime(0);
-        Controller.changeCursorMarkerNumberTime(0);
-        Controller.setMarkerWidth(0);
-
-        if (restart) {
-          this.play();
-        }
-      }, TIMER_TIME + 1);
-    }
-
-    fastRewind() {
-      let markerTime = Controller.getMarkerTime();
-
-      this.stopAudioSources();
-      this.sourceInfo = [];
-
-      const widthPixel = WidthUtil.getPerPixel(QUANTUM * 1000);
-      Controller.setMarkerWidth(-widthPixel);
-      Controller.pauseChangeMarkerNumberTime(-QUANTUM);
-      Controller.changePlayStringTime(-QUANTUM * 1000);
-
-      this.trackList.forEach((track: Track) => {
-        if (track.trackSectionList.length != 0) {
-          track.trackSectionList.forEach((trackSection: TrackSection) => {
-            this.updateSourceInfo(trackSection.sourceId, trackSection.trackId, trackSection.id);
-
-            let waitTime: number = 0;
-            let audioStartTime: number = 0;
-            let playDuration: number = 0;
-            let diff: number = 0;
-            const sourceIdx = this.sourceInfo.length - 1;
-
-            if (markerTime - QUANTUM <= trackSection.trackStartTime) {
-              if (markerTime - QUANTUM < 0) waitTime = 0;
-              else waitTime = this.audioContext.currentTime + trackSection.trackStartTime - markerTime + QUANTUM;
-              audioStartTime = trackSection.audioStartTime;
-              playDuration = trackSection.length;
-
-              this.sourceInfo[sourceIdx].bufferSourceNode.start(waitTime, audioStartTime, playDuration);
-            } else if (trackSection.trackStartTime <= markerTime - QUANTUM && markerTime <= trackSection.trackStartTime + trackSection.length) {
-              diff = markerTime - trackSection.trackStartTime - QUANTUM;
-              waitTime = 0;
-              audioStartTime = trackSection.audioStartTime + diff;
-              playDuration = trackSection.length - diff;
-
-              this.sourceInfo[sourceIdx].bufferSourceNode.start(waitTime, audioStartTime, playDuration);
-            } else if (
-              markerTime - QUANTUM <= trackSection.trackStartTime + trackSection.length &&
-              trackSection.trackStartTime + trackSection.length <= markerTime
-            ) {
-              diff = markerTime - QUANTUM - trackSection.trackStartTime;
-              waitTime = 0;
-              audioStartTime = trackSection.audioStartTime + diff;
-              playDuration = trackSection.length - diff;
-
-              this.sourceInfo[sourceIdx].bufferSourceNode.start(waitTime, audioStartTime, playDuration);
-            } else {
-              //재생 구간을 벗어난 경우
-            }
-          });
-        }
-      });
-      this.audioContext.resume();
-    }
-
-    fastForward() {
-      let markerTime = Controller.getMarkerTime();
-
-      this.stopAudioSources();
-      this.sourceInfo = [];
-
-      const widthPixel = WidthUtil.getPerPixel(QUANTUM * 1000);
-      Controller.setMarkerWidth(widthPixel);
-      Controller.pauseChangeMarkerNumberTime(QUANTUM);
-      Controller.changePlayStringTime(QUANTUM * 1000);
-
-      this.trackList.forEach((track: Track) => {
-        if (track.trackSectionList.length != 0) {
-          track.trackSectionList.forEach((trackSection: TrackSection) => {
-            this.updateSourceInfo(trackSection.sourceId, trackSection.trackId, trackSection.id);
-
-            let waitTime: number = 0;
-            let audioStartTime: number = 0;
-            let playDuration: number = 0;
-            let diff: number = 0;
-            const sourceIdx = this.sourceInfo.length - 1;
-
-            if (markerTime + QUANTUM <= trackSection.trackStartTime) {
-              waitTime = this.audioContext.currentTime + trackSection.trackStartTime - (markerTime + QUANTUM);
-              audioStartTime = trackSection.audioStartTime;
-              playDuration = trackSection.length;
-
-              this.sourceInfo[sourceIdx].bufferSourceNode.start(waitTime, audioStartTime, playDuration);
-            } else if (trackSection.trackStartTime <= markerTime && markerTime + QUANTUM <= trackSection.trackStartTime + trackSection.length) {
-              diff = markerTime - trackSection.trackStartTime + QUANTUM;
-              waitTime = 0;
-              audioStartTime = trackSection.audioStartTime + diff;
-              playDuration = trackSection.length - diff;
-
-              this.sourceInfo[sourceIdx].bufferSourceNode.start(waitTime, audioStartTime, playDuration);
-            } else if (markerTime <= trackSection.trackStartTime && trackSection.trackStartTime <= markerTime + QUANTUM) {
-              diff = markerTime + QUANTUM - trackSection.trackStartTime;
-              waitTime = 0;
-              audioStartTime = trackSection.audioStartTime + diff;
-              playDuration = trackSection.length - diff;
-
-              this.sourceInfo[sourceIdx].bufferSourceNode.start(waitTime, audioStartTime, playDuration);
-            } else {
-              //재생 구간을 벗어난 경우
-            }
-          });
-        }
-      });
-      this.audioContext.resume();
+    changePlayOrPauseIcon(iconType: number) {
+      if(iconType === 0) {
+        return;
+      }
+      else if(iconType === 1) {
+        this.iconlist[0] = 'pause';
+        this.render();
+      }
+      else if(iconType===2) {
+        this.iconlist[0] = 'play';
+        this.render();
+      }
     }
   };
   customElements.define('audi-playback-tools', PlaybackTools);
