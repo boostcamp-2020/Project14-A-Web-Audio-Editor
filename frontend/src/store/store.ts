@@ -28,6 +28,7 @@ const store = new (class Store {
       markerNumberTime: 0,
       cursorNumberTime: 0,
       isPause: true,
+      isRepeat: false,
       maxTrackWidth: 0
     };
   }
@@ -237,6 +238,14 @@ const store = new (class Store {
 
   changePlayOrPauseIcon(iconType:number) {
     storeChannel.publish(StoreChannelType.PLAY_OR_PAUSE_CHANNEL, iconType);
+  }
+
+  setIsRepeatState(isRepeat:boolean) {
+    this.state = { ...this.state, isRepeat: isRepeat};
+  }
+
+  changeRepeatIconColor(isRepeat:boolean) {
+    storeChannel.publish(StoreChannelType.IS_REPEAT_CHANNEL, isRepeat);
   }
 
   soloPlay(trackId:number) {

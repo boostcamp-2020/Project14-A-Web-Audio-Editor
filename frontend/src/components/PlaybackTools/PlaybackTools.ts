@@ -149,6 +149,7 @@ import { Controller } from '@controllers';
 
     subscribe(): void {
       storeChannel.subscribe(StoreChannelType.PLAY_OR_PAUSE_CHANNEL, this.changePlayOrPauseIcon, this);
+      storeChannel.subscribe(StoreChannelType.IS_REPEAT_CHANNEL, this.changeRepeatIconColor, this);//repeat에 대한 정보를 render를 한다고 하면..
     }
 
     changePlayOrPauseIcon(iconType: number) {
@@ -162,6 +163,18 @@ import { Controller } from '@controllers';
       else if(iconType===2) {
         this.iconlist[0] = 'play';
         this.render();
+      }
+    }
+
+    changeRepeatIconColor(isRepeat: boolean) {
+      const repeatIcon = document.querySelector('#repeat');
+      if(!repeatIcon) return;
+
+      if(isRepeat){
+        repeatIcon.classList.add('clicked');
+      }
+      else {
+        repeatIcon.classList.remove('clicked');
       }
     }
   };

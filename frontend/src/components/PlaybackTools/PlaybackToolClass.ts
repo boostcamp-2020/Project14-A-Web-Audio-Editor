@@ -76,7 +76,7 @@ class PlaybackToolClass {
         }
     }
 
-    //커서로 찝었을 때 play 되는거. 재생 중일때만 불림.
+    //커서로 선택 시 play 되는거. 재생 중일때만 불림.
     audioCursorPlay() {
         this.play();
     }
@@ -111,9 +111,19 @@ class PlaybackToolClass {
     audioRepeat() {
         if (this.trackList.length == 0) return;
 
-        //상태 체크, 어디서 시작인지 등.
+        const isRepeat = Controller.getIsRepeatState();
+        
+        if(isRepeat === false) {
+          Controller.changeIsRepeatState(true);
+          this.repeat();
 
-        this.repeat();
+          return true;
+        }
+        else {
+          Controller.changeIsRepeatState(false);
+          
+          return false;
+        }
     }
 
     audioFastRewind() {
@@ -239,24 +249,24 @@ class PlaybackToolClass {
             this.audioContext.suspend();
 
             setTimeout(() => {
-                Controller.changeMarkerPlayStringTime(0);
-                Controller.changeMarkerNumberTime(0);
-                // Controller.changeCursorMarkerNumberTime(0);
-                Controller.setMarkerWidth(0);
+              Controller.changeMarkerPlayStringTime(0);
+              Controller.changeMarkerNumberTime(0);
+              // Controller.changeCursorMarkerNumberTime(0);
+              Controller.setMarkerWidth(0);
 
-                if (restart) {
-                    this.play();
-                }
+              if (restart) {
+                this.play();
+              }
             }, TIMER_TIME + 1);
 
         }
         catch(e){
-            console.log(e);
+          console.log(e);
         }
     }
     
     repeat() {
-
+      
     }
 
     fastRewind() {
@@ -278,9 +288,9 @@ class PlaybackToolClass {
   
         this.trackList.forEach((track: Track) => {
           if (track.trackSectionList.length != 0) {
-            
+                
             if(this.soloTrackIdx!==0 && this.soloTrackIdx!==track.id) {
-                return;
+              return;
             }
 
             const idx = this.mutedTrackList.indexOf(track.id);
@@ -343,7 +353,7 @@ class PlaybackToolClass {
 
       const isPause = Controller.getIsPauseState();
       if(isPause) {
-        //일시정지상태였다면 점프만 해두고 시작안하면 되니까.
+        //일시정지상태였다면 점프만 해두고 시작안하면 되니까....
         return;
       }
 
@@ -406,12 +416,12 @@ class PlaybackToolClass {
             Controller.changeIsPauseState(true);
 
             setTimeout(() => {            
-                //이게 나중에 바뀌어야할것.
-                //stringTime이 300이 되어서 5분이 된 걸거고
+                //수정 필요.
+                //마지막 시간(5분)
                 Controller.changeMarkerPlayStringTime(300);
-                //마커 시간을 5분으로 옮겨버린거고
+                //마커 시간을 맨 끝으로
                 Controller.changeMarkerNumberTime(300);
-                //이거 맨 끝으로 옮겨야되는뎅 어디인지 모르겠음..
+                //마커 길이를 맨 끝으로
                 Controller.setMarkerWidth(500);
             }, TIMER_TIME + 1);
         }

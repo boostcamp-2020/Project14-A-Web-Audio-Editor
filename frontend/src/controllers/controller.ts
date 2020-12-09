@@ -411,8 +411,19 @@ const audioStop = ():void => {
 }
 
 const audioRepeat = ():void => {
-  playbackTool.audioRepeat(); 
+  const ret = playbackTool.audioRepeat(); 
+
+  store.changeRepeatIconColor(ret);
 }
+
+const changeIsRepeatState = (isRepeatState: boolean): void => {
+  store.setIsRepeatState(isRepeatState);
+};
+
+const getIsRepeatState = (): boolean => {
+  const { isRepeat } = store.getState();
+  return isRepeat;
+};
 
 const audioFastRewind = () => {
   playbackTool.audioFastRewind();
@@ -499,6 +510,8 @@ export default {
   audioSkipNext,
   audioCursorPlay,
   audioRepeat,
+  changeIsRepeatState,
+  getIsRepeatState,
   setMute,
   unsetMute,
   setSolo,

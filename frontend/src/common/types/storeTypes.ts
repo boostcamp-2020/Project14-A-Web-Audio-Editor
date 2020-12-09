@@ -27,6 +27,7 @@ enum StoreChannelType {
   CURSOR_MODE_CHANNEL = 'CURSOR_MODE_CHANNEL',
   EDIT_MENU_CHANNEL = 'EDIT_MENU_CHANNEL',
   PLAY_OR_PAUSE_CHANNEL = 'PLAY_OR_PAUSE_CHANNEL',
+  IS_REPEAT_CHANNEL = 'IS_REPEAT_CHANNEL',
   SOLO_CHANNEL = 'SOLO_CHANNEL'
 }
 
@@ -48,6 +49,7 @@ interface StoreStateType {
   markerNumberTime: number;
   cursorNumberTime: number;
   isPause: boolean;
+  isRepeat: boolean;
   maxTrackWidth: number;
 }
 
