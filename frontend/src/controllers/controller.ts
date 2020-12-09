@@ -309,7 +309,7 @@ const changePlayStringTime = (passedTime: number): void => {
 };
 
 const changeMarkerPlayStringTime = (cursorNumberTime: number): void => {
-  const [minute, second, milsecond] = TimeUtil.getSplitTime(cursorNumberTime);
+  const [minute, second, milsecond] = TimeUtil.splitTime(cursorNumberTime);
 
   const newPlayStringTime = TimeUtil.getStringTime(minute, second, milsecond);
 
