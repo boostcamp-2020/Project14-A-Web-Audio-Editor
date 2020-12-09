@@ -1,5 +1,5 @@
 import './PlaybackTools.scss';
-import { EventUtil, PlayBarUtil, AudioUtil } from '@util';
+import { EventUtil, PlayBarUtil, AudioUtil, WidthUtil } from '@util';
 import { EventType, EventKeyType, StoreChannelType } from '@types';
 import { Source, Track, TrackSection, AudioSourceInfoInTrack } from '@model';
 import { storeChannel } from '@store';
@@ -33,7 +33,7 @@ const QUANTUM = 3;
       ];
 
       this.audioContext = new AudioContext();
-      this.isPause = Controller.getIsPauseState();
+      this.isPause = true;
       this.trackList = [];
       this.sourceList = [];
       this.sourceInfo = [];
@@ -41,8 +41,15 @@ const QUANTUM = 3;
 
     connectedCallback() {
       this.render();
+      this.init();
       this.initEvent();
       this.subscribe();
+    }
+
+    init(){
+      this.isPause = Controller.getIsPauseState();
+      this.trackList = Controller.getTrackList();
+      this.sourceList = Controller.getSourceList();
     }
 
     render() {
@@ -110,25 +117,29 @@ const QUANTUM = 3;
     }
 
     audioPlayOrPauseListener() {
-      if (this.trackList.length == 0) return;
+      try{
+        if (this.trackList.length == 0) return;
 
-      if (this.isPause) {
-        this.isPause = false;
-        Controller.changeIsPauseState(false);
+        if (this.isPause) {
+          this.isPause = false;
+          Controller.changeIsPauseState(false);
 
-        this.iconlist[0] = 'pause';
+          this.iconlist[0] = 'pause';
 
-        this.play();
-        this.playTimer();
-      } else {
-        this.isPause = true;
-        Controller.changeIsPauseState(true);
+          this.play();
+          this.playTimer()
+        } else{
+          this.isPause = true;
+          Controller.changeIsPauseState(true);
+          
+          this.iconlist[0] = 'play';
 
-        this.iconlist[0] = 'play';
-
-        this.pause();
+          this.pause();
+        }
+        this.render();
+      }catch(e){
+        console.log(e);
       }
-      this.render();
     }
 
     audioStopListener() {
@@ -218,7 +229,6 @@ const QUANTUM = 3;
 
     updateSourceInfo(sourceId: number, trackId: number, sectionId: number) {
       const bufferSourceNode = this.audioContext.createBufferSource();
-
       bufferSourceNode.buffer = this.sourceList[sourceId].buffer;
 
       //TODO: effect가 적용된 노드에 대해 effect를 적용하기
@@ -252,7 +262,7 @@ const QUANTUM = 3;
           };
           clearInterval(playTimer);
         }
-        const widthPixel = PlayBarUtil.getSomePixel(TIMER_TIME);
+        const widthPixel = WidthUtil.getPerPixel(TIMER_TIME);
         Controller.setMarkerWidth(widthPixel);
         Controller.changePlayTime(TIMER_TIME);
         Controller.pauseChangeMarkerTime(TIMER_TIME / 1000);
@@ -279,7 +289,6 @@ const QUANTUM = 3;
         } else {
           volumeBar.style.background = `linear-gradient(to right, ${colors[0]}, ${colors[1]} 90%)`;
         }
-
       }, TIMER_TIME);
     }
 
@@ -332,10 +341,10 @@ const QUANTUM = 3;
       this.audioContext.suspend();
 
       setTimeout(() => {
-        Controller.resetPlayTime(0);
-        Controller.cursorChangeMarkerTime(0);
-        Controller.setMarkerWidthToZero();
-
+        Controller.changeMarkerPlayStringTime(0);
+        Controller.changeCursorMarkerNumberTime(0);
+        Controller.setMarkerWidth(0);
+        
         if (restart) {
           this.play();
         }
@@ -348,10 +357,10 @@ const QUANTUM = 3;
       this.stopAudioSources();
       this.sourceInfo = [];
 
-      const widthPixel = PlayBarUtil.getSomePixel(QUANTUM * 1000);
+      const widthPixel = WidthUtil.getPerPixel(QUANTUM * 1000);
       Controller.setMarkerWidth(-widthPixel);
-      Controller.pauseChangeMarkerTime(-QUANTUM);
-      Controller.changePlayTime(-QUANTUM * 1000);
+      Controller.pauseChangeMarkerNumberTime(-QUANTUM);
+      Controller.changePlayStringTime(-QUANTUM * 1000);
 
       this.trackList.forEach((track: Track) => {
         if (track.trackSectionList.length != 0) {
@@ -379,16 +388,17 @@ const QUANTUM = 3;
               playDuration = trackSection.length - diff;
 
               this.sourceInfo[sourceIdx].bufferSourceNode.start(waitTime, audioStartTime, playDuration);
-            }
-            else if (markerTime - QUANTUM <= trackSection.trackStartTime + trackSection.length && trackSection.trackStartTime + trackSection.length <= markerTime) {
+            } else if (
+              markerTime - QUANTUM <= trackSection.trackStartTime + trackSection.length &&
+              trackSection.trackStartTime + trackSection.length <= markerTime
+            ) {
               diff = markerTime - QUANTUM - trackSection.trackStartTime;
               waitTime = 0;
               audioStartTime = trackSection.audioStartTime + diff;
               playDuration = trackSection.length - diff;
 
               this.sourceInfo[sourceIdx].bufferSourceNode.start(waitTime, audioStartTime, playDuration);
-            }
-            else {
+            } else {
               //재생 구간을 벗어난 경우
             }
           });
@@ -403,10 +413,10 @@ const QUANTUM = 3;
       this.stopAudioSources();
       this.sourceInfo = [];
 
-      const widthPixel = PlayBarUtil.getSomePixel(QUANTUM * 1000);
+      const widthPixel = WidthUtil.getPerPixel(QUANTUM * 1000);
       Controller.setMarkerWidth(widthPixel);
-      Controller.pauseChangeMarkerTime(QUANTUM);
-      Controller.changePlayTime(QUANTUM * 1000);
+      Controller.pauseChangeMarkerNumberTime(QUANTUM);
+      Controller.changePlayStringTime(QUANTUM * 1000);
 
       this.trackList.forEach((track: Track) => {
         if (track.trackSectionList.length != 0) {
@@ -425,24 +435,21 @@ const QUANTUM = 3;
               playDuration = trackSection.length;
 
               this.sourceInfo[sourceIdx].bufferSourceNode.start(waitTime, audioStartTime, playDuration);
-            }
-            else if (trackSection.trackStartTime <= markerTime && markerTime + QUANTUM <= trackSection.trackStartTime + trackSection.length) {
+            } else if (trackSection.trackStartTime <= markerTime && markerTime + QUANTUM <= trackSection.trackStartTime + trackSection.length) {
               diff = markerTime - trackSection.trackStartTime + QUANTUM;
               waitTime = 0;
               audioStartTime = trackSection.audioStartTime + diff;
               playDuration = trackSection.length - diff;
 
               this.sourceInfo[sourceIdx].bufferSourceNode.start(waitTime, audioStartTime, playDuration);
-            }
-            else if (markerTime <= trackSection.trackStartTime && trackSection.trackStartTime <= markerTime + QUANTUM) {
+            } else if (markerTime <= trackSection.trackStartTime && trackSection.trackStartTime <= markerTime + QUANTUM) {
               diff = markerTime + QUANTUM - trackSection.trackStartTime;
               waitTime = 0;
               audioStartTime = trackSection.audioStartTime + diff;
               playDuration = trackSection.length - diff;
 
               this.sourceInfo[sourceIdx].bufferSourceNode.start(waitTime, audioStartTime, playDuration);
-            }
-            else {
+            } else {
               //재생 구간을 벗어난 경우
             }
           });

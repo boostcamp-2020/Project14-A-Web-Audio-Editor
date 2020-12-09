@@ -8,7 +8,7 @@ enum CursorType {
 
 interface FocusInfo {
   trackSection: TrackSection;
-  element: HTMLElement;
+  element: HTMLCanvasElement;
 }
 
 enum StoreChannelType {
@@ -24,12 +24,14 @@ enum StoreChannelType {
   MARKER_TIME_CHANNEL = 'MARKER_TIME_CHANNEL',
   IS_PAUSE_CHANNEL = 'IS_PAUSE_CHANNEL',
   PLAY_TIME_CHANNEL = 'PLAY_TIME_CHANNEL',
-  MAX_TRACK_WIDTH_CHANNEL = 'MAX_TRACK_WIDTH_CHANNEL'
+  MAX_TRACK_WIDTH_CHANNEL = 'MAX_TRACK_WIDTH_CHANNEL',
+  CURSOR_MODE_CHANNEL = 'CURSOR_MODE_CHANNEL',
+  EDIT_MENU_CHANNEL = 'EDIT_MENU_CHANNEL'
 }
 
 interface StoreStateType {
-  cursorTime: string;
-  playTime: string;
+  cursorStringTime: string;
+  playStringTime: string;
   sourceList: Source[];
   modalState: ModalStateType;
   isTrackDraggable: Boolean;
@@ -42,8 +44,8 @@ interface StoreStateType {
   trackIndex: number;
   sectionIndex: number;
   clipBoard: TrackSection | null;
-  markerTime: number;
-  totalCursorTime: number;
+  markerNumberTime: number;
+  cursorNumberTime: number;
   isPause: boolean;
   maxTrackWidth: number;
 }
@@ -53,4 +55,8 @@ interface StoreObserverData {
   bindObj: Object;
 }
 
-export { StoreStateType, StoreChannelType, StoreObserverData, CursorType, FocusInfo };
+interface EffectList {
+  name: string;
+}
+
+export { StoreStateType, StoreChannelType, StoreObserverData, CursorType, FocusInfo, EffectList };

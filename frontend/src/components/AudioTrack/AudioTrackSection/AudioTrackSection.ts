@@ -1,28 +1,25 @@
 import { Controller } from '@controllers';
-import { CursorType, EventKeyType, EventType } from '@types';
-import { EventUtil, PlayBarUtil } from '@util';
+import { CursorType, EventKeyType, EventType, StoreChannelType, SectionDataType } from '@types';
+import { EventUtil } from '@util';
+import { storeChannel, WidthUtil } from '@store';
 import './AudioTrackSection.scss';
-
-interface SectionData {
-  sectionChannelData: number[];
-  duration: number;
-}
 
 (() => {
   const AudioTrackSection = class extends HTMLElement {
     private trackId: number;
     private sectionId: number;
-    private sectionData: SectionData | undefined;
+    private sectionData: SectionDataType | undefined;
+    private cursorMode: CursorType | undefined;
     private trackCanvasElement: HTMLCanvasElement | undefined | null;
     private cutLineElement: HTMLElement | undefined | null;
     private trackContainerElement: HTMLElement | null;
-
 
     constructor() {
       super();
       this.trackId = 0;
       this.sectionId = 0;
       this.sectionData;
+      this.cursorMode;
       this.trackCanvasElement;
       this.cutLineElement;
       this.trackContainerElement = null;
@@ -49,9 +46,11 @@ interface SectionData {
     connectedCallback(): void {
       try {
         this.render();
-        this.init();
+        this.initProperty();
         this.draw();
         this.initEvent();
+        this.initState();
+        this.subscribe();
       } catch (e) {
         console.log(e);
       }
@@ -63,9 +62,10 @@ interface SectionData {
             `;
     }
 
-    init(): void {
+    initProperty(): void {
+      this.cursorMode = Controller.getCursorMode();
+      this.sectionData = Controller.getSectionData(this.trackId, this.sectionId);
       this.trackCanvasElement = this.querySelector<HTMLCanvasElement>('.audio-track-section');
-      this.sectionData = Controller.getSectionChannelData(this.trackId, this.sectionId);
       this.cutLineElement = document.getElementById(`section-cut-line-${this.trackId}`);
       this.trackContainerElement = document.querySelector('.audi-main-audio-track-container');
     }
@@ -108,51 +108,76 @@ interface SectionData {
       canvasCtx.stroke();
     }
 
+    initState(): void {
+      const focusList = Controller.getFocusList();
+      const focusInfo = focusList.find(focus => focus.trackSection.id === this.sectionId);
+      if (!focusInfo || !this.trackCanvasElement) return;
+
+      focusInfo.element = this.trackCanvasElement;
+      focusInfo.element.classList.add('focused-section');
+    }
+
     initEvent(): void {
       EventUtil.registerEventToRoot({
         eventTypes: [EventType.click, EventType.mousemove, EventType.mouseout],
         eventKey: EventKeyType.AUDIO_TRACK_SECTION_MULTIPLE + this.sectionId,
-        listeners: [this.clickListener, this.cutLineMouseMoveListener, this.mouseoutListener],
+        listeners: [this.trackSectionClickListener, this.trackSectionMouseMoveListener, this.trackSectionMouseoutListener],
         bindObj: this
       });
-
     }
-
-    clickListener(e): void {
-      const cursorMode = Controller.getCursorMode();
-      if (cursorMode === CursorType.SELECT_MODE) {
-        Controller.toggleFocus(this.trackId, this.sectionId, e.target);
-
-      } else if (cursorMode === CursorType.CUT_MODE) {
-        const cursorPosition = e.pageX;
-        Controller.splitCommand(cursorPosition, this.trackId, this.sectionId);
+    
+    trackSectionClickListener(e): void {
+      switch(this.cursorMode){
+        case CursorType.SELECT_MODE:
+          this.selectModeClickHandler(e);
+          break;
+        case CursorType.CUT_MODE:
+          this.cutModeClickHandler(e);
+          break;
       }
     }
 
-    cutLineMouseMoveListener(e): void {
-      const cursorMode = Controller.getCursorMode();
+    selectModeClickHandler(e): void {
+      const trackSectionElement = e.target;
+      Controller.toggleFocus(this.trackId, this.sectionId, trackSectionElement);
+    }
 
-      if (!this.cutLineElement || !this.trackContainerElement) return;
+    cutModeClickHandler(e): void {
+      const cursorPosition = e.pageX;
+      Controller.splitTrackSection(cursorPosition, this.trackId, this.sectionId);
+    }
 
-
-      if (cursorMode !== CursorType.CUT_MODE) {
-        this.cutLineElement.classList.add('hide');
-        return;
-      }
+    trackSectionMouseMoveListener(e): void {
+      if (!this.trackContainerElement || this.cursorMode !== CursorType.CUT_MODE) return;
 
       const cursorPosition = e.pageX;
-      const startX = this.trackContainerElement.getBoundingClientRect().left;
-      const endX = this.trackContainerElement.getBoundingClientRect().right;
-      const [minute, second, milsecond, location, totalCursorTime] = PlayBarUtil.getCursorPosition(startX, cursorPosition, endX - startX);
+      const trackContainerLeftX = this.trackContainerElement.getBoundingClientRect().left;
+      const cursorOffset = cursorPosition - trackContainerLeftX;
+      
+      this.showCutLine(cursorOffset);
+    }
 
-      this.cutLineElement.classList.remove('hide');
+    trackSectionMouseoutListener(e): void {
+      this.hideCutLine();
+    }
+
+    hideCutLine(): void {
+      if (!this.cutLineElement) return;
+      this.cutLineElement?.classList.add('hide');
+    }
+
+    showCutLine(location: number): void {
+      if (!this.cutLineElement) return;
+      this.cutLineElement?.classList.remove('hide');
       this.cutLineElement.style.left = `${location}px`;
     }
 
-    mouseoutListener(e): void {
-      if (!this.cutLineElement) return;
+    subscribe(): void {
+      storeChannel.subscribe(StoreChannelType.CURSOR_MODE_CHANNEL, this.cursorModeObserverCallback, this);
+    }
 
-      this.cutLineElement.classList.add('hide');
+    cursorModeObserverCallback(newCursorMode){
+      this.cursorMode = newCursorMode;
     }
   };
 

@@ -21,13 +21,11 @@ export class PasteCommand extends ICommand {
 
     const endTime: number = newSection.trackStartTime + newSection.length;
     const firstDelayIndex: number = newTrack.trackSectionList.findIndex(section => section.trackStartTime >= newSection.trackStartTime && section.trackStartTime < endTime);
-
     if (firstDelayIndex !== -1) {
-      const deleyTime = endTime - newTrack.trackSectionList[firstDelayIndex].audioStartTime;
-
+      const delayTime = endTime - newTrack.trackSectionList[firstDelayIndex].trackStartTime;
       newTrack.trackSectionList = newTrack.trackSectionList.map((cur, idx) => {
         if (idx >= firstDelayIndex) {
-          cur.trackStartTime += deleyTime;
+          cur.trackStartTime += delayTime;
         }
         return cur;
       })
@@ -36,7 +34,6 @@ export class PasteCommand extends ICommand {
     } else {
       Controller.addTrackSection(this.beforeTrack.id, newSection);
     }
-
   };
 
   undo() {

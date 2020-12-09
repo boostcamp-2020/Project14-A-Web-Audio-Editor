@@ -21,24 +21,22 @@ import { StoreChannelType } from '@types';
 
     subscribe(): void {
       storeChannel.subscribe(StoreChannelType.CURRENT_POSITION_CHANNEL, this.updateMarkerPosition, this);
-      storeChannel.subscribe(StoreChannelType.CURRENT_POSITION_ZERO_CHANNEL, this.updateMaerkerPosiionToZero, this);
     }
 
     updateMarkerPosition(newCurrentPosition): void {
       const markerElement: HTMLElement | null = document.querySelector('.marker');
 
       if (!markerElement) return;
+
+      if (!newCurrentPosition) {
+        markerElement.style.left = `${newCurrentPosition}px`;
+        return;
+      }
+
       const prevCurrentPosition = Number(markerElement?.style.left.split('px')[0]);
       let currentPosition = prevCurrentPosition + newCurrentPosition;
-      if(currentPosition < 0) currentPosition = 0;
+      if (currentPosition < 0) currentPosition = 0;
       markerElement.style.left = `${currentPosition}px`;
-    }
-
-    //마커 위치를 0으로 초기화.
-    updateMaerkerPosiionToZero():void {
-      const markerElement: HTMLElement | null = document.querySelector('.marker');
-      if (!markerElement) return;
-      markerElement.style.left='0px';
     }
   };
 
