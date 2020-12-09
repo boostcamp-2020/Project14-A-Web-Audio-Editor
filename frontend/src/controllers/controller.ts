@@ -399,6 +399,10 @@ const getMaxTrackPlayTime = () => {
   return maxTrackPlayTime;
 }
 
+const changeCurrentScrollAmount = (newCurrentScrollAmount: number): void => {
+  store.setCurrentScrollAmount(newCurrentScrollAmount);
+}
+
 export default {
   addTrackSectionFromSource,
   getSectionData,
@@ -443,5 +447,6 @@ export default {
   splitTrackSection,
   getSourceBySourceId,
   changeMaxTrackWidth,
-  changeMaxTrackPlayTime
+  changeMaxTrackPlayTime,
+  changeCurrentScrollAmount
 };

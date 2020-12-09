@@ -1,6 +1,7 @@
 import { EventUtil } from '@util';
 import { EventKeyType, EventType, StoreChannelType } from '@types';
-import { storeChannel, StoreChannel } from '@store';
+import { storeChannel } from '@store';
+import { Controller } from '@controllers';
 import './ZoomBar.scss';
 
 (() => {
@@ -82,7 +83,11 @@ import './ZoomBar.scss';
 
                 const audioTrackScrollAreaElement = document.querySelector('.audi-main-audio-track-scroll-area');
                 if(!audioTrackScrollAreaElement) return;
-                audioTrackScrollAreaElement.scrollLeft = this.scrollDistancePerPixel * mouseMoveX;
+
+                const scrollAmount = this.scrollDistancePerPixel * mouseMoveX;
+                audioTrackScrollAreaElement.scrollLeft = scrollAmount;
+                
+                Controller.changeCurrentScrollAmount(scrollAmount);
             }
         }
 
@@ -138,7 +143,7 @@ import './ZoomBar.scss';
 
             const zoombarControllerWidth = this.zoombarControllerElement.clientWidth;
             const movementRange = zoombarContainerWidth - zoombarControllerWidth;
-            this.scrollDistancePerPixel = scrollWidth / movementRange;
+            this.scrollDistancePerPixel = 1 / (scrollWidth / movementRange);
         }
     }
 
