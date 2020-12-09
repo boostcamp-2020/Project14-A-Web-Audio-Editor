@@ -23,20 +23,24 @@
   }
 }
 
-.playbar-time {
+.playbar-time-container {
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
   align-items: center;
+  position: absolute;
 
-  width: 10%;
   height: 0.5rem;
 
   pointer-events: none;
+
+  .playbar-time{
+    position: absolute;
+    top: -230%;
+  }
 }
 
 .playbar-time-none {
-  width: 5.5%;
   height: 0.5rem;
 
   pointer-events: none;

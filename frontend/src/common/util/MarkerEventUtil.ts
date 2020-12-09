@@ -1,19 +1,20 @@
 import { getDifferenceWidth } from './WidthUtil';
-import { getSplitTime, calculateTimeOfCursorPosition } from './TimeUtil';
+import { splitTime, calculateTimeOfCursorPosition } from './TimeUtil';
 import { Controller } from '@controllers';
 
-const mousemoveMarkerListener: Function = (element: HTMLElement, defaultStartX: number, mainWidth: number) => (e: Event): void => {
+const mousemoveMarkerListener: Function = (element: HTMLElement, elementLeftX: number, elementWidth: number, currentScrollAmount: number, trackPlayTime: number) => (e: Event): void => {
   if (!element) return;
+  
   const cursorPosition = e.pageX;
-
-  const cursorNumberTime = calculateTimeOfCursorPosition(defaultStartX, cursorPosition, mainWidth);
-  const [minute, second, milsecond] = getSplitTime(cursorNumberTime);
-  const cursorWidth = getDifferenceWidth(defaultStartX, cursorPosition);
+  const scrolledCursorPosition = cursorPosition + currentScrollAmount
+  const timeOfCursorPosition = calculateTimeOfCursorPosition(elementLeftX, scrolledCursorPosition, elementWidth, trackPlayTime); 
+  const [minute, second, milsecond] = splitTime(timeOfCursorPosition);
+  const offesetOfCursorPosition = getDifferenceWidth(elementLeftX, cursorPosition);
 
   if (minute < 0 && second < 0) return;
-  Controller.changeCurrentPosition(cursorWidth);
+  Controller.changeCurrentPosition(offesetOfCursorPosition);
   Controller.changeCursorStringTime(minute, second, milsecond);
-  Controller.changeCursorMarkerNumberTime(cursorNumberTime);
+  Controller.changeCursorMarkerNumberTime(timeOfCursorPosition);
 };
 
 const clickMarkerListener = (element: HTMLElement) => (e: Event): void => {

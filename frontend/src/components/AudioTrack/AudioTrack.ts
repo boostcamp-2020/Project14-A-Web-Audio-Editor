@@ -186,6 +186,7 @@ import './AudioTrack.scss';
       this.initElement();
       this.messageDisplayHandler();
       Controller.changeMaxTrackWidth(this.trackScrollAreaElement.scrollWidth);
+      Controller.changeMaxTrackPlayTime(trackSectionList);
     }
 
     messageDisplayHandler(): void {
@@ -199,9 +200,13 @@ import './AudioTrack.scss';
       this.resizeTrackArea(maxTrackWidth);
     }
 
-    resizeTrackArea(width: number) {
-      if (!this.trackAreaElement) return;
-      this.trackAreaElement.style.width = `${width}px`;
+    resizeTrackArea(maxTrackWidth: number){     
+      if(!this.trackAreaElement || !this.trackScrollAreaElement) return;
+
+      const scrollAreaWidth = this.trackScrollAreaElement.getBoundingClientRect().right - this.trackScrollAreaElement.getBoundingClientRect().left;
+      const ratio = maxTrackWidth / scrollAreaWidth;
+
+      this.trackAreaElement.style.width =  `${100 * ratio}%`;
     }
   };
 

@@ -345,7 +345,7 @@ const changePlayStringTime = (passedTime: number): void => {
 };
 
 const changeMarkerPlayStringTime = (cursorNumberTime: number): void => {
-  const [minute, second, milsecond] = TimeUtil.getSplitTime(cursorNumberTime);
+  const [minute, second, milsecond] = TimeUtil.splitTime(cursorNumberTime);
 
   const newPlayStringTime = TimeUtil.getStringTime(minute, second, milsecond);
 
@@ -436,11 +436,23 @@ const splitTrackSection = (cursorPosition: number, trackId: number, sectionId: n
   CommandManager.execute(splitCommand);
 };
 
-const changeMaxTrackWidth = (newMaxTrackWidth: number) => {
-  const { maxTrackWidth } = store.getState();
-  if (maxTrackWidth >= newMaxTrackWidth) return;
-  store.setMaxTrackWidth(newMaxTrackWidth);
-};
+const changeMaxTrackWidth = (maxTrackWidth: number): void => {
+  store.setMaxTrackWidth(maxTrackWidth);
+}
+
+const changeMaxTrackPlayTime = (trackSectionList: TrackSection[]): void => {
+  const trackPlaytime = trackSectionList.reduce((acc, trackSection)=> acc += trackSection.length, 0);
+  store.setMaxTrackPlayTime(trackPlaytime);
+}
+
+const getMaxTrackPlayTime = () => {
+  const { maxTrackPlayTime } = store.getState();
+  return maxTrackPlayTime;
+}
+
+const changeCurrentScrollAmount = (newCurrentScrollAmount: number): void => {
+  store.setCurrentScrollAmount(newCurrentScrollAmount);
+}
 
 export default {
   getTrackSection,
@@ -483,10 +495,13 @@ export default {
   deleteCommand,
   undoCommand,
   redoCommand,
-  changeMaxTrackWidth,
+  getMaxTrackPlayTime,
   cutCommand,
   pasteCommand,
   moveCommand,
   splitTrackSection,
-  getSourceBySourceId
+  getSourceBySourceId,
+  changeMaxTrackWidth,
+  changeMaxTrackPlayTime,
+  changeCurrentScrollAmount
 };

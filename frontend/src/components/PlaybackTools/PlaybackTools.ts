@@ -18,6 +18,7 @@ const QUANTUM = 3;
     private trackList: Track[];
     private sourceList: Source[];
     private sourceInfo: AudioSourceInfoInTrack[];
+    private maxTrackPlayTime: number;
 
     constructor() {
       super();
@@ -37,6 +38,7 @@ const QUANTUM = 3;
       this.trackList = [];
       this.sourceList = [];
       this.sourceInfo = [];
+      this.maxTrackPlayTime = Controller.getMaxTrackPlayTime();
     }
 
     connectedCallback() {
@@ -202,16 +204,21 @@ const QUANTUM = 3;
     }
 
     subscribe(): void {
-      storeChannel.subscribe(StoreChannelType.TRACK_CHANNEL, this.trackListObserver, this);
-      storeChannel.subscribe(StoreChannelType.SOURCE_LIST_CHANNEL, this.sourceListObserver, this);
+      storeChannel.subscribe(StoreChannelType.TRACK_CHANNEL, this.trackListObserverCallback, this);
+      storeChannel.subscribe(StoreChannelType.SOURCE_LIST_CHANNEL, this.sourceListObserverCallback, this);
+      storeChannel.subscribe(StoreChannelType.MAX_TRACK_PLAY_TIME_CHANNEL, this.maxTrackPlayTimeObserverCallback, this);
     }
 
-    trackListObserver(trackList): void {
+    trackListObserverCallback(trackList): void {
       this.trackList = trackList;
     }
 
-    sourceListObserver(sourceList): void {
+    sourceListObserverCallback(sourceList): void {
       this.sourceList = sourceList;
+    }
+
+    maxTrackPlayTimeObserverCallback(maxTrackPlayTime: number): void {
+      this.maxTrackPlayTime = maxTrackPlayTime;
     }
 
     stopAudioSources() {
@@ -262,7 +269,8 @@ const QUANTUM = 3;
           };
           clearInterval(playTimer);
         }
-        const widthPixel = WidthUtil.getPerPixel(TIMER_TIME);
+        
+        const widthPixel = WidthUtil.getPerPixel(TIMER_TIME, this.maxTrackPlayTime);
         Controller.setMarkerWidth(widthPixel);
         Controller.changePlayTime(TIMER_TIME);
         Controller.pauseChangeMarkerTime(TIMER_TIME / 1000);
@@ -357,7 +365,7 @@ const QUANTUM = 3;
       this.stopAudioSources();
       this.sourceInfo = [];
 
-      const widthPixel = WidthUtil.getPerPixel(QUANTUM * 1000);
+      const widthPixel = WidthUtil.getPerPixel(QUANTUM * 1000, this.maxTrackPlayTime);
       Controller.setMarkerWidth(-widthPixel);
       Controller.pauseChangeMarkerNumberTime(-QUANTUM);
       Controller.changePlayStringTime(-QUANTUM * 1000);
@@ -413,7 +421,7 @@ const QUANTUM = 3;
       this.stopAudioSources();
       this.sourceInfo = [];
 
-      const widthPixel = WidthUtil.getPerPixel(QUANTUM * 1000);
+      const widthPixel = WidthUtil.getPerPixel(QUANTUM * 1000, this.maxTrackPlayTime);
       Controller.setMarkerWidth(widthPixel);
       Controller.pauseChangeMarkerNumberTime(QUANTUM);
       Controller.changePlayStringTime(QUANTUM * 1000);
