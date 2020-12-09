@@ -1,11 +1,11 @@
-import ICommand from './ICommand';
+import { Command } from '@command';
 import { Controller } from '@controllers';
 import { StoreChannelType } from '@types';
 import { storeChannel } from '@store';
 import { Track, TrackSection } from '@model';
 import { CopyUtil, TimeUtil } from '@util';
 
-export class SplitCommand extends ICommand {
+class SplitCommand extends Command {
   private beforeTrack: Track;
   private cursorPosition: number;
   private trackAreaElement: HTMLDivElement | null;
@@ -72,3 +72,5 @@ export class SplitCommand extends ICommand {
     storeChannel.publish(StoreChannelType.TRACK_CHANNEL, newTrack.trackSectionList);
   }
 }
+
+export default SplitCommand;

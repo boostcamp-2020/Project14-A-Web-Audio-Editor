@@ -1,11 +1,11 @@
-import ICommand from './ICommand';
+import { Command } from '@command';
 import { Track, TrackSection } from '@model';
 import { StoreChannelType } from '@types';
 import { storeChannel } from '@store';
 import { CopyUtil } from '@util';
 import { Controller } from '@controllers';
 
-export class MoveCommand extends ICommand {
+class MoveCommand extends Command {
   private prevTrack: Track;
   private currentTrack: Track;
   private trackSection: TrackSection;
@@ -73,3 +73,5 @@ export class MoveCommand extends ICommand {
     return nearLeftSection || nearRightSection;
   }
 }
+
+export default MoveCommand;

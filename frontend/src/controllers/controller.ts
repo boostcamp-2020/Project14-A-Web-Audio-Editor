@@ -1,8 +1,7 @@
 import { Source, Track, TrackSection } from '@model';
 import { store } from '@store';
 import { ModalType, FocusInfo, CursorType, SectionDataType } from '@types';
-import CommandManager from '@command/CommandManager';
-import { DeleteCommand, PasteCommand, SplitCommand, MoveCommand } from '@command';
+import { CommandManager, DeleteCommand, PasteCommand, SplitCommand, MoveCommand } from '@command';
 import { CopyUtil, SectionEffectListUtil, TimeUtil } from '@util';
 import playbackTool from '@components/PlaybackTools/PlaybackToolClass';
 

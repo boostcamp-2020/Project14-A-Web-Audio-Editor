@@ -1,9 +1,9 @@
-import ICommand from './ICommand'
+import { Command } from '@command';
 import { Controller } from '@controllers'
 import { TrackSection } from '@model'
 import { CopyUtil } from '@util'
 
-export class DeleteCommand extends ICommand {
+class DeleteCommand extends Command {
   private deleteList: TrackSection[];
 
   constructor() {
@@ -50,3 +50,4 @@ export class DeleteCommand extends ICommand {
   };
 }
 
+export default DeleteCommand;
