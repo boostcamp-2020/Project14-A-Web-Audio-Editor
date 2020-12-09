@@ -51,11 +51,11 @@ import './Main.scss';
                               <div class="audi-main-audio-track-scroll-area">
                                 ${this.getTrackList()}
                               </div>
-                              <div class='audi-main-audio-track-container-event-zone hide' event-key=${
-                                EventKeyType.AUDIO_TRACK_CONTAINER_MULTIPLE
-                              }></div>
+                              <div class='audi-main-audio-track-container-event-zone hide' event-key=${EventKeyType.AUDIO_TRACK_CONTAINER_MULTIPLE
+        }></div>
                             </div>
                             <audi-zoom-bar></audi-zoom-bar>
+                            <audi-audio-meter></audi-audio-meter>
                         </section>
                     </div>
                   </main>
@@ -71,13 +71,13 @@ import './Main.scss';
     }
 
     initEvent(): void {
-       EventUtil.registerEventToRoot({
+      EventUtil.registerEventToRoot({
         eventTypes: [EventType.click],
         eventKey: EventKeyType.FOCUS_RESET_CLICK,
         listeners: [this.focusResetListener],
         bindObj: this
       });
-      
+
       if (!this.markerElement) return;
 
       EventUtil.registerEventToRoot({
@@ -88,17 +88,17 @@ import './Main.scss';
           MarkerEventUtil.clickMarkerListener(this.markerElement)
         ],
         bindObj: this.mainAudioTrackContainerEventZone
-      }); 
+      });
     }
-  
+
     focusResetListener(e): void {
       const ctrlIsPressed = Controller.getCtrlIsPressed();
       if (!ctrlIsPressed) {
         Controller.resetFocus();
       }
     }
-    
-    getTraclOptions(): string{
+
+    getTraclOptions(): string {
       return this.trackList.reduce((acc, cur, idx) =>
         acc += `<audi-track-option data-id=${idx} data-track-id=${cur.id}></audi-track-option>`, "");
     }
@@ -112,4 +112,4 @@ import './Main.scss';
   customElements.define('audi-main', Main);
 })();
 
-export {};
+export { };
