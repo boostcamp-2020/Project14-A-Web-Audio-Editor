@@ -11,17 +11,13 @@ class AddTrackCommand extends Command {
 
     execute(){
         try{
-            this.addNewTrack();
+            const newTrack = new Track({id: 0, trackSectionList: []});
+            Controller.setTrack(newTrack);
+
+            this.publishNewTrackList();
         }catch(e){
             console.log(e);
         }
-    }
-
-    addNewTrack(): void {
-        const newTrack = new Track({id: 0, trackSectionList: []});
-        Controller.setTrack(newTrack);
-
-        this.publishNewTrackList();
     }
 
     undo(){
@@ -35,7 +31,6 @@ class AddTrackCommand extends Command {
 
     publishNewTrackList(): void {
         const newTrackList = Controller.getTrackList();
-        console.log(newTrackList);
 
         storeChannel.publish(StoreChannelType.TRACK_CHANNEL, newTrackList);
         storeChannel.publish(StoreChannelType.TRACK_LIST_CHANNEL, newTrackList);

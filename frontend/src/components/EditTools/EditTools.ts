@@ -175,23 +175,23 @@ import './EditTools.scss'
     }
 
     cutListener(e) {
-      CommandController.excuteCutCommand();
+      CommandController.executeCutCommand();
     }
 
     pasteListener(e) {
-      CommandController.excutePasteCommand();
+      CommandController.executePasteCommand();
     }
 
     deleteListener(): void {
-      CommandController.excuteDeleteCommand();
+      CommandController.executeDeleteCommand();
     }
 
     undoListener(): void {
-      CommandController.excuteUndoCommand();
+      CommandController.executeUndoCommand();
     }
 
     redoListener(): void {
-      CommandController.excuteRedoCommand();
+      CommandController.executeRedoCommand();
     }
 
     subscribe(): void {

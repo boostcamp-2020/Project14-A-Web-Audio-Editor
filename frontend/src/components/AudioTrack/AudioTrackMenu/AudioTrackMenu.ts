@@ -63,7 +63,7 @@ import './AudioTrackMenu.scss';
 
     trackAddMenuClickListener(e): void {
       try{
-        CommandController.excuteAddTrackCommand();
+        CommandController.executeAddTrackCommand();
       }catch(e){
         console.log(e);
       }
