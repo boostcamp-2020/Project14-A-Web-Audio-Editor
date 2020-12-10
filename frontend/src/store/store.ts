@@ -265,6 +265,14 @@ const store = new (class Store {
   setSectionDragStartData(newDragStartData: SectionDragStartData): void {
     this.state = { ...this.state, sectionDragStartData: newDragStartData };
   }
+
+  setTrackList(newTrackList: Track[]): void {
+    this.state = {...this.state, trackList: newTrackList};
+  }
+
+  setTrackIndex(newTrackIndex: number): void {
+    this.state =  {...this.state, trackIndex: newTrackIndex};
+  }
 })();
 
 export { store };

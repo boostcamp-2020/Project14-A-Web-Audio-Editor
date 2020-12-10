@@ -461,6 +461,13 @@ const getSectionDragStartData = (): SectionDragStartData | null => {
   return sectionDragStartData;
 };
 
+const popTrackWithIndex = (): void => {
+  const { trackList, trackIndex } = store.getState();
+  trackList.pop();
+  
+  store.setTrackList(trackList);
+  store.setTrackIndex(trackIndex - 1);
+};
 
 export default {
   getTrackSection,
@@ -524,5 +531,6 @@ export default {
   getCurrentScrollTime,
   getCurrentScrollAmount,
   changeSectionDragStartData,
-  getSectionDragStartData
+  getSectionDragStartData,
+  popTrackWithIndex
 };

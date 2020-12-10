@@ -11,28 +11,33 @@ class AddTrackCommand extends Command {
 
     execute(){
         try{
-            const newTrack = new Track({id: 0, trackSectionList: []});
-            Controller.setTrack(newTrack);
-
-            const newTrackList = Controller.getTrackList();
-            this.publishNewTrackList(newTrackList);
+            this.addNewTrack();
         }catch(e){
             console.log(e);
         }
+    }
+
+    addNewTrack(): void {
+        const newTrack = new Track({id: 0, trackSectionList: []});
+        Controller.setTrack(newTrack);
+
+        this.publishNewTrackList();
     }
 
     undo(){
         try{
-            const trackList = Controller.getTrackList();
-            trackList.pop();
-
-            this.publishNewTrackList(trackList);
+            Controller.popTrackWithIndex();
+            this.publishNewTrackList();
         }catch(e){
             console.log(e);
         }
     }
 
-    publishNewTrackList(newTrackList){
+    publishNewTrackList(): void {
+        const newTrackList = Controller.getTrackList();
+        console.log(newTrackList);
+
+        storeChannel.publish(StoreChannelType.TRACK_CHANNEL, newTrackList);
         storeChannel.publish(StoreChannelType.TRACK_LIST_CHANNEL, newTrackList);
         newTrackList.forEach((track) => {
             storeChannel.publish(StoreChannelType.TRACK_SECTION_LIST_CHANNEL, {
