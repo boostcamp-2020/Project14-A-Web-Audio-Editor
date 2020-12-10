@@ -92,8 +92,8 @@ import './AudioTrackSection.scss';
       this.trackAreaElement = document.querySelector('.audio-track-area');
       this.trackScrollAreaElement = document.querySelector('.audi-main-audio-track-scroll-area');
       this.trackAfterimageElement = document.querySelector(`#afterimage-${this.trackId}`);
-      
-      if(this.trackContainerElement){
+
+      if (this.trackContainerElement) {
         this.trackContainerWidth = this.trackContainerElement.getBoundingClientRect().right - this.trackContainerElement.getBoundingClientRect().left;
       }
     }
@@ -113,12 +113,12 @@ import './AudioTrackSection.scss';
 
       const trackWidth = this.trackAreaElement.getBoundingClientRect().right - this.trackAreaElement.getBoundingClientRect().left;
       const trackHeight = this.trackAreaElement.clientHeight;
-      
-      if(this.maxTrackWidth > trackWidth)
+
+      if (this.maxTrackWidth > trackWidth)
         this.canvasWidth = this.maxTrackWidth / (this.maxTrackPlayTime / duration);
       else
         this.canvasWidth = trackWidth / (this.maxTrackPlayTime / duration);
-      
+
       this.canvasHeight = trackHeight;;
     }
 
@@ -158,13 +158,13 @@ import './AudioTrackSection.scss';
       canvasCtx.stroke();
     }
 
-    resizeTrackArea(){
-      if(!this.trackScrollAreaElement || !this.trackAreaElement) return;
+    resizeTrackArea() {
+      if (!this.trackScrollAreaElement || !this.trackAreaElement) return;
 
       const scrollAreaWidth = this.trackScrollAreaElement.getBoundingClientRect().right - this.trackScrollAreaElement.getBoundingClientRect().left;
       const ratio = this.maxTrackWidth / scrollAreaWidth;
 
-      this.trackAreaElement.style.width =  `${100 * ratio}%`;
+      this.trackAreaElement.style.width = `${100 * ratio}%`;
     }
 
     initEvent(): void {
@@ -241,7 +241,7 @@ import './AudioTrackSection.scss';
 
     cutModeClickHandler(e): void {
       const cursorPosition = e.pageX;
-      CommandController.excuteSplitCommand(cursorPosition, this.trackId, this.sectionId);
+      CommandController.executeSplitCommand(cursorPosition, this.trackId, this.sectionId);
     }
 
     trackSectionMouseMoveListener(e): void {

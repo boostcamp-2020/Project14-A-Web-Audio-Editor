@@ -54,17 +54,17 @@ import './AudioTrackMenu.scss';
 
     initEvent(): void {
       EventUtil.registerEventToRoot({
-        eventTypes : [EventType.click],
+        eventTypes: [EventType.click],
         eventKey: EventKeyType.TRACK_ADD_MENU_CLICK,
-        listeners : [this.trackAddMenuClickListener],
-        bindObj: this 
+        listeners: [this.trackAddMenuClickListener],
+        bindObj: this
       });
     }
 
     trackAddMenuClickListener(e): void {
-      try{
-        CommandController.excuteAddTrackCommand();
-      }catch(e){
+      try {
+        CommandController.executeAddTrackCommand();
+      } catch (e) {
         console.log(e);
       }
     }
