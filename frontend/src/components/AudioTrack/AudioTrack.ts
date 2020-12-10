@@ -14,6 +14,7 @@ import './AudioTrack.scss';
     private trackAreaElement: HTMLDivElement | null;
     private trackScrollAreaElement: HTMLDivElement | null;
     private trackWidth: number;
+    private maxTrackWidth: number;
     private maxTrackPlayTime: number;
 
     constructor() {
@@ -25,7 +26,8 @@ import './AudioTrack.scss';
       this.trackAreaElement = null;
       this.trackScrollAreaElement = null;
       this.trackWidth = 0;
-      this.maxTrackPlayTime = Controller.getMaxTrackPlayTime();
+      this.maxTrackWidth = 0;
+      this.maxTrackPlayTime = 0;
     }
 
     static get observedAttributes(): string[] {
@@ -67,7 +69,7 @@ import './AudioTrack.scss';
                 `;
     }
 
-    getTrackSectionList(): string {
+    getTrackSectionList(): string {     
       return this.trackSectionList.reduce(
         (acc, trackSection) => (acc += `<audi-track-section data-id=${trackSection.id} data-track-id=${trackSection.trackId}></audi-track-section>`),
         ''
@@ -75,6 +77,8 @@ import './AudioTrack.scss';
     }
 
     initElement(): void {
+      this.maxTrackWidth = Controller.getMaxTrackWidth();
+      this.maxTrackPlayTime = Controller.getMaxTrackPlayTime();
       this.trackMessageElement = this.querySelector('.audio-track-message');
       this.trackDropzoneElement = this.querySelector('.audio-track-dropzone');
       this.trackAreaElement = this.querySelector('.audio-track-area');
@@ -190,8 +194,12 @@ import './AudioTrack.scss';
       this.initElement();
       this.messageDisplayHandler();
 
-      Controller.changeMaxTrackWidth(this.trackScrollAreaElement.scrollWidth);
+      const scrollWidth = this.trackScrollAreaElement.scrollWidth;
+      Controller.changeMaxTrackWidth(scrollWidth);  
       Controller.changeMaxTrackPlayTime(trackSectionList);
+
+      if(this.maxTrackWidth === scrollWidth)
+        this.resizeTrackArea(scrollWidth);
     }
 
     messageDisplayHandler(): void {
@@ -202,6 +210,7 @@ import './AudioTrack.scss';
     }
 
     maxTrackWidthObserverCallback(maxTrackWidth: number): void {
+      this.maxTrackWidth = maxTrackWidth;
       this.resizeTrackArea(maxTrackWidth);
     }
 
