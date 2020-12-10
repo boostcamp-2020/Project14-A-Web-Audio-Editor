@@ -36,8 +36,6 @@ import './AudioMeter.scss';
                 </div>`
         mindb += 4;
       }
-      console.log(acc);
-
       return acc;
     }
   };
