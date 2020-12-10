@@ -24,23 +24,28 @@ export class MoveCommand extends ICommand {
   execute(): void {
     const sectionIndex = this.prevTrack.trackSectionList.findIndex((section) => section.id === this.trackSection.id);
 
-    if (sectionIndex === -1) return;
-
     let newTrackStartTime = this.movingCursorTime - (this.prevCursorTime - this.trackSection.trackStartTime);
-    const newTrackEndTime = newTrackStartTime + this.trackSection.length;
-
-    if (ValidUtil.checkEnterTrack(this.trackSection, this.currentTrack.trackSectionList, newTrackStartTime, newTrackEndTime)) return;
 
     if (newTrackStartTime < 0) {
       newTrackStartTime = 0;
     }
 
-    const newTrackSection = CopyUtil.copySection(this.trackSection);
-    newTrackSection.trackId = this.currentTrack.id;
-    newTrackSection.trackStartTime = newTrackStartTime;
-    newTrackSection.audioStartTime = newTrackStartTime;
+    const newTrackEndTime = newTrackStartTime + this.trackSection.length;
 
-    Controller.removeSection(this.prevTrack.id, sectionIndex);
+    if (ValidUtil.checkEnterTrack(this.trackSection, this.currentTrack.trackSectionList, newTrackStartTime, newTrackEndTime)) return;
+
+    const currentScrollTime = Controller.getCurrentScrollTime() || 0;
+
+    const newTrackSection = CopyUtil.copySection(this.trackSection);
+
+
+    newTrackSection.trackId = this.currentTrack.id;
+    newTrackSection.trackStartTime = newTrackStartTime + currentScrollTime;
+
+    if (newTrackSection.id !== 0) {
+      Controller.removeSection(this.prevTrack.id, sectionIndex);
+    }
+
     Controller.addTrackSection(this.currentTrack.id, newTrackSection);
   }
 
@@ -48,17 +53,18 @@ export class MoveCommand extends ICommand {
     Controller.setTrack(this.prevTrack);
     Controller.setTrack(this.currentTrack);
 
-    storeChannel.publish(StoreChannelType.TRACK_SECTION_LIST_CHANNEL, {
-      trackId: this.prevTrack.id,
-      trackSectionList: this.prevTrack.trackSectionList
-    });
+    if (this.prevTrack.id !== this.currentTrack.id) {
+      storeChannel.publish(StoreChannelType.TRACK_SECTION_LIST_CHANNEL, {
+        trackId: this.prevTrack.id,
+        trackSectionList: this.prevTrack.trackSectionList
+      });
+      storeChannel.publish(StoreChannelType.TRACK_CHANNEL, this.prevTrack.trackSectionList);
+    }
 
     storeChannel.publish(StoreChannelType.TRACK_SECTION_LIST_CHANNEL, {
       trackId: this.currentTrack.id,
       trackSectionList: this.currentTrack.trackSectionList
     });
-
+    storeChannel.publish(StoreChannelType.TRACK_CHANNEL, this.currentTrack.trackSectionList);
   }
-
-
 }
