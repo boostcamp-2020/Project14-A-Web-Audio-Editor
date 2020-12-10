@@ -1,8 +1,6 @@
 import { EventKeyType, EventType, TrackOptionType } from '@types';
 import { EventUtil } from '@util';
-import { StoreChannelType } from '@types';
-import { storeChannel } from '@store';
-import { Controller } from '@controllers';
+import { Controller, CommandController } from '@controllers';
 import './AudioTrackOption.scss';
 
 (() => {
@@ -111,7 +109,7 @@ import './AudioTrackOption.scss';
     }
 
     deleteClickListener(): void {
-      console.log('delete');
+      CommandController.executeDeleteTrackCommand();
     }
   };
 
