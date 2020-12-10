@@ -1,6 +1,6 @@
 import { Controller } from '@controllers';
 import { CursorType, EventKeyType, EventType, StoreChannelType, SectionDataType } from '@types';
-import { EventUtil, TimeUtil } from '@util';
+import { EventUtil, TimeUtil, ValidUtil, WidthUtil } from '@util';
 import { storeChannel } from '@store';
 import './AudioTrackSection.scss';
 
@@ -19,7 +19,7 @@ import './AudioTrackSection.scss';
     private trackAreaElement: HTMLElement | null;
     private cutLineElement: HTMLElement | undefined | null;
     private trackContainerWidth: number;
-
+    private trackAfterimageElement: HTMLElement | null;
 
     constructor() {
       super();
@@ -36,6 +36,7 @@ import './AudioTrackSection.scss';
       this.trackAreaElement = null;
       this.cutLineElement;
       this.trackContainerWidth = 0;
+      this.trackAfterimageElement = null;
     }
 
     static get observedAttributes(): string[] {
@@ -84,6 +85,7 @@ import './AudioTrackSection.scss';
       this.trackContainerElement = document.querySelector('.audi-main-audio-track-container');
       this.trackAreaElement = document.querySelector('.audio-track-area');
       this.trackContainerWidth = this.trackContainerElement?.getBoundingClientRect().right - this.trackContainerElement?.getBoundingClientRect().left;
+      this.trackAfterimageElement = document.querySelector(`#afterimage-${this.trackId}`)
     }
 
     drawTrackSection(): void {
@@ -96,7 +98,7 @@ import './AudioTrackSection.scss';
     }
 
     calculateCanvasSize(duration: number): void {
-      if(!this.trackContainerElement || !this.trackAreaElement) return;
+      if (!this.trackContainerElement || !this.trackAreaElement) return;
 
       const trackWidth = this.trackAreaElement.getBoundingClientRect().right - this.trackContainerElement.getBoundingClientRect().left;
       const trackHeight = this.trackAreaElement.clientHeight;
@@ -105,7 +107,7 @@ import './AudioTrackSection.scss';
     }
 
     resizeCanvas(): void {
-      if(!this.trackCanvasElement) return;
+      if (!this.trackCanvasElement) return;
 
       this.style.width = `${this.canvasWidth}px`;
       this.trackCanvasElement.width = this.canvasWidth;
@@ -114,7 +116,7 @@ import './AudioTrackSection.scss';
     }
 
     drawCanvas(sectionChannelData: number[]): void {
-      if(!this.trackCanvasElement) return;
+      if (!this.trackCanvasElement) return;
 
       const canvasCtx = this.trackCanvasElement.getContext('2d');
       if (!canvasCtx) return;
@@ -142,28 +144,88 @@ import './AudioTrackSection.scss';
 
     initEvent(): void {
       EventUtil.registerEventToRoot({
-        eventTypes: [EventType.click, EventType.mousemove, EventType.mouseout, EventType.dragstart],
+        eventTypes: [EventType.click, EventType.mousemove, EventType.mouseout, EventType.dragstart, EventType.dragover, EventType.drop],
         eventKey: EventKeyType.AUDIO_TRACK_SECTION_MULTIPLE + this.sectionId,
         listeners: [
           this.trackSectionClickListener,
           this.trackSectionMouseMoveListener,
           this.trackSectionMouseoutListener,
-          this.trackSectiondragStartListener
+          this.trackSectiondragStartListener,
+          this.trackSectiondragoverListener,
+          this.trackSectiondropListener
         ],
         bindObj: this
       });
       window.addEventListener('resize', this.windowResizeListener.bind(this));
     }
 
+    trackSectiondragoverListener(e): void {
+      e.preventDefault();
+      if (!this.trackAfterimageElement || !this.trackContainerElement) return;
+      const dragData = Controller.getSectionDragStartData();
+
+      if (!dragData) return;
+      const { trackSection, prevCursorTime, offsetLeft } = dragData;
+
+      const maxTrackPlayTime = Controller.getMaxTrackPlayTime();
+      const secondPerPixer = WidthUtil.getPixelPerSecond(this.trackContainerWidth, maxTrackPlayTime);
+      const currentCursorPosition = e.pageX;
+
+      const track = Controller.getTrack(this.trackId);
+
+      const movingCursorTime = TimeUtil.calculateTimeOfCursorPosition(offsetLeft, currentCursorPosition, this.trackContainerWidth, maxTrackPlayTime);
+
+      if (!trackSection || !track) return;
+
+      let newTrackStartTime = movingCursorTime - (prevCursorTime - trackSection.trackStartTime);
+      const newTrackEndTime = newTrackStartTime + trackSection.length;
+      if (ValidUtil.checkEnterTrack(trackSection, track.trackSectionList, newTrackStartTime, newTrackEndTime)) {
+        this.trackAfterimageElement.style.display = 'none';
+        this.trackAfterimageElement.style.left = `0px`;
+        this.trackAfterimageElement.style.width = `0px`;
+        return;
+      } else {
+        this.trackAfterimageElement.style.display = 'block';
+      }
+
+      if (newTrackStartTime < 0) {
+        newTrackStartTime = 0;
+      }
+
+      if (!this.trackAfterimageElement) return;
+
+      this.trackAfterimageElement.style.left = `${newTrackStartTime * secondPerPixer}px`;
+      this.trackAfterimageElement.style.width = `${trackSection.length * secondPerPixer}px`;
+    }
+
+    trackSectiondropListener(e): void {
+      e.preventDefault();
+      e.stopPropagation();
+
+      const dragData = Controller.getSectionDragStartData();
+
+      if (!dragData) return;
+      const { trackSection, prevCursorTime, offsetLeft } = dragData;
+      const currentCursorPosition = e.pageX;
+      const maxTrackPlayTime = Controller.getMaxTrackPlayTime();
+
+      const movingCursorTime = TimeUtil.calculateTimeOfCursorPosition(offsetLeft, currentCursorPosition, this.trackContainerWidth, maxTrackPlayTime);
+      Controller.resetFocus();
+      Controller.moveCommand(trackSection.trackId, this.trackId, trackSection.id, movingCursorTime, prevCursorTime);
+    }
+
     trackSectiondragStartListener(e): void {
       if (!this.trackContainerElement) return;
       const offsetLeft = this.trackContainerElement.getBoundingClientRect().left;
 
+      const maxTrackPlayTime = Controller.getMaxTrackPlayTime();
       const prevCursorPosition = e.pageX;
-      const prevCursorTime = TimeUtil.calculateTimeOfCursorPosition(offsetLeft, prevCursorPosition, this.trackContainerWidth);
+      const prevCursorTime = TimeUtil.calculateTimeOfCursorPosition(offsetLeft, prevCursorPosition, this.trackContainerWidth, maxTrackPlayTime);
+      const trackSection = Controller.getTrackSection(this.trackId, this.sectionId);
+      if (!trackSection) return;
 
-      const data = { sectionId: this.sectionId, prevTrackId: this.trackId, prevCursorTime, offsetLeft };
-      e.dataTransfer.setData('text/plain', JSON.stringify(data));
+      const sectionDragStartData = { trackSection, prevCursorTime, offsetLeft };
+      Controller.changeSectionDragStartData(sectionDragStartData);
       e.dataTransfer.effectAllowed = 'move';
     }
 
@@ -213,7 +275,7 @@ import './AudioTrackSection.scss';
       this.cutLineElement.style.left = `${location}px`;
     }
 
-    windowResizeListener(e){
+    windowResizeListener(e) {
       this.drawTrackSection();
     }
 
