@@ -174,7 +174,6 @@ const getFocusList = () => {
 
 const toggleFocus = (trackId: number, sectionId: number, selectedElement: HTMLCanvasElement): void => {
   const { trackList, focusList, ctrlIsPressed, cursorMode } = store.getState();
-
   if (cursorMode !== CursorType.SELECT_MODE) return;
 
   const track = trackList.find((track) => track.id === trackId);
@@ -198,6 +197,8 @@ const toggleFocus = (trackId: number, sectionId: number, selectedElement: HTMLCa
 
 const addFocus = (trackSection: TrackSection, selectedElement: HTMLCanvasElement): void => {
   selectedElement.classList.add('focused-section');
+  store.resetSelectTrackData();
+
   const newFocusInfo: FocusInfo = {
     trackSection: trackSection,
     element: selectedElement
@@ -235,6 +236,7 @@ const setCursorMode = (newCursorType: CursorType) => {
     trackContainerElement.classList.remove('cursor-change');
   } else if (newCursorType === CursorType.CUT_MODE) {
     resetFocus();
+    store.resetSelectTrackData();
     trackContainerElement.classList.add('cursor-change');
   }
   store.setCursorMode(newCursorType);
@@ -264,7 +266,6 @@ const getMarkerTime = (): number => {
   return markerNumberTime;
 };
 
-//markerEventUtil에서 이 함수로 바꿈.
 const changeCursorNumberTime = (cursorNumberTime: number): void => {
   store.setCursorNumberTime(cursorNumberTime);
 };
@@ -449,6 +450,20 @@ const getSectionDragStartData = (): SectionDragStartData | null => {
   return sectionDragStartData;
 };
 
+const changeSelectTrackData = (trackId: number, selectedTime: number): void => {
+  const track = getTrack(trackId);
+  const trackSection = track?.trackSectionList.find(section => section.trackStartTime <= selectedTime && selectedTime <= section.trackStartTime + section.length)
+  if (trackSection) {
+    store.setSelectTrackData(0, 0);
+    return;
+  }
+  store.setSelectTrackData(trackId, selectedTime);
+}
+
+const getSelectTrackData = () => {
+  const { selectTrackData } = store.getState();
+  return selectTrackData;
+}
 
 export default {
   getTrackSection,
@@ -511,5 +526,7 @@ export default {
   getCurrentScrollTime,
   getCurrentScrollAmount,
   changeSectionDragStartData,
-  getSectionDragStartData
+  getSectionDragStartData,
+  changeSelectTrackData,
+  getSelectTrackData
 };
