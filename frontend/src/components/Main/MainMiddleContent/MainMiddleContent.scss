@@ -1,5 +1,6 @@
 audi-main-middle-content{
     width: 8%;
+    height: 100%;
 
     .audi-main-menu-container{
         display: flex;
@@ -10,9 +11,8 @@ audi-main-middle-content{
         height: 100%;
         padding: 0 12%;
 
-        .audi-main-track-option-area{
-            width: 100%;
-            padding-top: 1.8rem;
+        audi-track-menu{
+            height: 10%;
         }
     }
 }

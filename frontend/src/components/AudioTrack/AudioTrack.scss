@@ -17,11 +17,11 @@ audi-audio-track:not(:defined) {
         flex-wrap: nowrap;
         padding: 10px 0px;
         position: relative;
-        width: 100%;
         min-height: 175px;
         border-top: 1px solid #ffffff;
         border-bottom: 1px solid #ffffff;
         box-sizing: border-box;
+        overflow: visible;
         
         .audio-track-dropzone{
             position: absolute;
@@ -76,7 +76,7 @@ audi-audio-track:not(:defined) {
         padding: 5px 0;
     
         .audio-track-area{
-            min-height: 100px;
+            min-height: 125px;
         }
     }
 }

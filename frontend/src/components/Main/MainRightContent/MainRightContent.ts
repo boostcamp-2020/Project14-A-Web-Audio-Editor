@@ -17,15 +17,19 @@ import { storeChannel } from "@store";
     constructor() {
       super();
       this.trackList = Controller.getTrackList();
-      this.mainAudioTrackContainerEventZone = null;
       this.defaultStartX = 0;
       this.markerElement = null;
       this.mainWidth = 0;
       this.maxTrackPlayTime = Controller.getMaxTrackPlayTime();
+      this.mainAudioTrackContainerEventZone = null;
     }
 
     connectedCallback(): void {
-      this.init();
+      try{
+        this.init();
+      }catch(e){
+        console.log(e);
+      }
     }
 
     init(): void {
@@ -37,15 +41,15 @@ import { storeChannel } from "@store";
     render(): void {
       this.innerHTML = `
             <section class="audi-main-audio-track-container" event-key=${EventKeyType.FOCUS_RESET_CLICK}>
-                <div>
+                <div class="audi-main-right-top">
                     <div class="audi-main-audio-track-scroll-area">
                         <audi-marker></audi-marker>
                         <audi-playbar></audi-playbar>
-                        ${this.getTrackList()}
+                        <audi-main-track-list-area></audi-main-track-list-area>
                     </div>
                     <div class='audi-main-audio-track-container-event-zone hide' event-key=${EventKeyType.AUDIO_TRACK_CONTAINER_MULTIPLE}></div>
                 </div>
-                <div>
+                <div class="audi-main-right-bottom">
                     <audi-zoom-bar></audi-zoom-bar>
                     <audi-audio-meter></audi-audio-meter>
                 </div>
@@ -92,23 +96,17 @@ import { storeChannel } from "@store";
       }
     }
 
-    getTraclOptions(): string {
-      return this.trackList.reduce((acc, cur, idx) =>
-        acc += `<audi-track-option data-id=${idx} data-track-id=${cur.id}></audi-track-option>`, "");
-    }
-
-    getTrackList(): string {
-      return this.trackList.reduce((acc, cur, idx) =>
-        acc += `<audi-audio-track data-id=${cur.id}></audi-audio-track>`, "");
-    }
-
     subscribe(): void {
       storeChannel.subscribe(StoreChannelType.MAX_TRACK_PLAY_TIME_CHANNEL, this.maxTrackPlayTimeObserverCallback, this);
     }
 
     maxTrackPlayTimeObserverCallback(maxTrackPlayTime: number): void {
-      this.maxTrackPlayTime = maxTrackPlayTime;
-      this.initEvent();
+      try{
+        this.maxTrackPlayTime = maxTrackPlayTime;
+        this.initEvent();
+      }catch(e){
+        console.log(e);
+      }
     }
   };
 
