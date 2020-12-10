@@ -105,30 +105,7 @@ import { Controller } from '@controllers';
     }
 
     audioRepeatListener() {
-      //store에 isRepeat이 있고 false일 때는 repeat이 아니라서 흰색이고
-      //true가 되면 초록색으로 바꾸고싶은데.
-      //어떻게 하죵..?
-      //const isRepeat = Controller.getIsRepeatState();
-      /*if(!isRepeat) {
-        Controller.changeIsRepeatState(true);
-        //repeat을 하고싶은 거라면
-        //1.색상을 바꿔준다.
-        //2. 어디서부터 어디까지인지 알아온다.
-        //3. 갑자기 거기로 점프한다
-        //4. 루프를 돈다..
-      }
-      else {
-        //루프를 해제한다.
-        //아 이거 controller로 바꾸는 거 class에서 해도 될 것 같다.
-        //흠...
-        Controller.changeIsRepeatState(false);
-
-      }
-      */
-
       Controller.audioRepeat();
-      //반복 가능 상태여부는 어디서 판단..?
-      // console.log(document.querySelector('#repeat'));
     }
 
     audioFastRewindListener() {
@@ -162,12 +139,13 @@ import { Controller } from '@controllers';
       else if(iconType === 1) {
         this.iconlist[0] = 'pause';
       }
-      else if(iconType===2) {
+      else if(iconType === 2) {
         this.iconlist[0] = 'play';
       }
       this.render();
     }
 
+    //수정 예정
     changeRepeatIconColor(isRepeat: boolean) {
       const repeatIcon = document.querySelector('#repeat');
       if(!repeatIcon) return;
