@@ -33,21 +33,27 @@ const executeCutCommand = () => {
 };
 
 const executePasteCommand = () => {
+    const { focusList, trackList, clipBoard, isPause, selectTrackData } = store.getState();
 
-    const { focusList, trackList, clipBoard, isPause } = store.getState();
+    if (focusList.length > 1 || !isPause || !clipBoard) return;
+    if (focusList.length === 0 && selectTrackData.trackId === 0) return;
 
-    if (focusList.length !== 1 || !isPause) return;
+    const trackId = focusList.length === 1 ? focusList[0].trackSection.trackId : selectTrackData.trackId;
+    const track = trackList.find((track) => track.id === trackId);
 
-
-    const track = trackList.find((track) => track.id === focusList[0].trackSection.trackId);
-    if (!track || !clipBoard) return;
+    if (!track) return;
 
     const copyTrack = CopyUtil.copyTrack(track);
     const copySection = CopyUtil.copySection(clipBoard);
-    const focusSection = focusList[0].trackSection;
 
-    copySection.trackStartTime = focusSection.trackStartTime + focusSection.length;
-    copySection.trackId = focusSection.trackId;
+    if (focusList.length === 0) {
+        copySection.trackStartTime = selectTrackData.selectedTime;
+        copySection.trackId = selectTrackData.trackId;
+    } else {
+        const focusSection = focusList[0].trackSection;
+        copySection.trackStartTime = focusSection.trackStartTime + focusSection.length;
+        copySection.trackId = focusSection.trackId;
+    }
 
     const command = new PasteCommand(copyTrack, copySection);
 
