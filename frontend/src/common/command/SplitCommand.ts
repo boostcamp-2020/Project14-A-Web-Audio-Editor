@@ -8,7 +8,6 @@ import { CopyUtil, TimeUtil } from '@util';
 class SplitCommand extends Command {
   private beforeTrack: Track;
   private cursorPosition: number;
-  private trackAreaElement: HTMLDivElement | null;
   private targetTrackSection: TrackSection;
 
   constructor(cursorPosition: number, currentTrack: Track, targetTrackSection: TrackSection) {
@@ -16,15 +15,15 @@ class SplitCommand extends Command {
     this.cursorPosition = cursorPosition;
     this.beforeTrack = currentTrack;
     this.targetTrackSection = targetTrackSection;
-    this.trackAreaElement = document.querySelector('.audio-track-area');
   }
 
   execute() {
-    if(!this.trackAreaElement) return;
-
+    const trackAreaElement = document.querySelector('.audio-track-area');
+    if(!trackAreaElement) return;
+  
     const maxTrackPlayTime = Controller.getMaxTrackPlayTime();
-    const trackAreaLeftX = this.trackAreaElement.getBoundingClientRect().left;
-    const trackAreaRightX = this.trackAreaElement.getBoundingClientRect().right;
+    const trackAreaLeftX = trackAreaElement.getBoundingClientRect().left;
+    const trackAreaRightX = trackAreaElement.getBoundingClientRect().right;
     const trackAreaWidth = trackAreaRightX - trackAreaLeftX;
 
     const timeOfCursorPosition = TimeUtil.calculateTimeOfCursorPosition(trackAreaLeftX, this.cursorPosition, trackAreaWidth, maxTrackPlayTime);
