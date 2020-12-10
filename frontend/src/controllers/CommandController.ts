@@ -63,10 +63,10 @@ const executeAddTrackCommand = (): void => {
     CommandManager.execute(addTrackCommand);
 }
 
-const executeDeleteTrackCommand = (): void => {
+const executeDeleteTrackCommand = (trackId: number): void => {
     if(isMinLengthOfTrackList()) return;
     
-    const deleteTrackCommand = new DeleteTrackCommand();
+    const deleteTrackCommand = new DeleteTrackCommand(trackId);
     CommandManager.execute(deleteTrackCommand);
 };
 

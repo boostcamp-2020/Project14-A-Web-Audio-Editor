@@ -109,7 +109,7 @@ import './AudioTrackOption.scss';
     }
 
     deleteClickListener(): void {
-      CommandController.executeDeleteTrackCommand();
+      CommandController.executeDeleteTrackCommand(this.trackId);
     }
   };
 
