@@ -249,10 +249,6 @@ const store = new (class Store {
     storeChannel.publish(StoreChannelType.IS_REPEAT_CHANNEL, isRepeat);
   }
 
-  soloPlay(trackId: number) {
-    storeChannel.publish(StoreChannelType.SOLO_CHANNEL, trackId);
-  }
-
   setMaxTrackPlayTime(newMaxTrackPlayTime: number): void {
     const { maxTrackPlayTime } = this.state;
     if (maxTrackPlayTime >= newMaxTrackPlayTime) return;

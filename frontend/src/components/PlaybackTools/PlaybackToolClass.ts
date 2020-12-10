@@ -13,7 +13,7 @@ class PlaybackToolClass {
   private sourceList: Source[];
   private sourceInfo: AudioSourceInfoInTrack[];
   private mutedTrackList: Number[];
-  private soloTrackIdx: Number;
+  private soloTrackList: Number[];
 
   constructor() {
     this.audioContext = new AudioContext();
@@ -21,7 +21,7 @@ class PlaybackToolClass {
     this.sourceList = [];
     this.sourceInfo = [];
     this.mutedTrackList = [];
-    this.soloTrackIdx = 0;
+    this.soloTrackList = [];
     this.subscribe();
   }
 
@@ -58,7 +58,7 @@ class PlaybackToolClass {
   }
 
   setSolo(trackId: number) {
-    this.soloTrackIdx = trackId;
+    this.soloTrackList.push(trackId);
 
     const isPause = Controller.getIsPauseState();
     if (!isPause) {
@@ -66,8 +66,9 @@ class PlaybackToolClass {
     }
   }
 
-  unsetSolo() {
-    this.soloTrackIdx = 0;
+  unsetSolo(trackId: number) {
+    const idx = this.soloTrackList.indexOf(trackId);
+    if (idx > -1) this.soloTrackList.splice(idx, 1)
 
     const isPause = Controller.getIsPauseState();
     if (!isPause) {
@@ -235,14 +236,13 @@ class PlaybackToolClass {
     this.trackList.forEach((track: Track) => {
       if (track.trackSectionList.length != 0) {
 
-        if (this.soloTrackIdx !== 0 && this.soloTrackIdx !== track.id) {
-          return;
+        if (this.soloTrackList.length !== 0) { 
+          const soloTrackIdx = this.soloTrackList.indexOf(track.id);
+          if(soloTrackIdx === -1) return;
         }
 
-        const idx = this.mutedTrackList.indexOf(track.id);
-        if (idx > -1) {
-          return;
-        }
+        const mutedTrackIdx = this.mutedTrackList.indexOf(track.id);
+        if (mutedTrackIdx > -1) return;
 
         track.trackSectionList.forEach((trackSection: TrackSection) => {
           this.updateSourceInfo(trackSection.sourceId, trackSection.trackId, trackSection.id);
@@ -330,8 +330,9 @@ class PlaybackToolClass {
     this.trackList.forEach((track: Track) => {
       if (track.trackSectionList.length != 0) {
 
-        if (this.soloTrackIdx !== 0 && this.soloTrackIdx !== track.id) {
-          return;
+        if (this.soloTrackList.length !== 0) { 
+          const soloTrackIdx = this.soloTrackList.indexOf(track.id);
+          if(soloTrackIdx === -1) return;
         }
 
         const idx = this.mutedTrackList.indexOf(track.id);
@@ -400,8 +401,10 @@ class PlaybackToolClass {
 
     this.trackList.forEach((track: Track) => {
       if (track.trackSectionList.length != 0) {
-        if (this.soloTrackIdx !== 0 && this.soloTrackIdx !== track.id) {
-          return;
+
+        if (this.soloTrackList.length !== 0) { 
+          const soloTrackIdx = this.soloTrackList.indexOf(track.id);
+          if(soloTrackIdx === -1) return;
         }
 
         const idx = this.mutedTrackList.indexOf(track.id);

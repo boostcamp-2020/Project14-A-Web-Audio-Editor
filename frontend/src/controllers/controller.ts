@@ -509,12 +509,11 @@ const unsetMute = (trackId: number) => {
 }
 
 const setSolo = (trackId: number) => {
-  store.soloPlay(trackId);
   playbackTool.setSolo(trackId);
 }
 
-const unsetSolo = () => {
-  playbackTool.unsetSolo();
+const unsetSolo = (trackId: number) => {
+  playbackTool.unsetSolo(trackId);
 }
 
 export default {

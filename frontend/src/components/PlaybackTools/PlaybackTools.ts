@@ -1,5 +1,5 @@
 import './PlaybackTools.scss';
-import { EventUtil, PlayBarUtil, AudioUtil, WidthUtil } from '@util';
+import { EventUtil } from '@util';
 import { EventType, EventKeyType, StoreChannelType } from '@types';
 import { storeChannel } from '@store';
 import { Controller } from '@controllers';
