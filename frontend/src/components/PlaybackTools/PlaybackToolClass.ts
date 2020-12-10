@@ -13,7 +13,8 @@ class PlaybackToolClass {
   private sourceList: Source[];
   private sourceInfo: AudioSourceInfoInTrack[];
   private mutedTrackList: Number[];
-  private soloTrackIdx: Number;
+  private soloTrackList: Number[];
+  private analyser: AnalyserNode|null;
 
   constructor() {
     this.audioContext = new AudioContext();
@@ -21,7 +22,8 @@ class PlaybackToolClass {
     this.sourceList = [];
     this.sourceInfo = [];
     this.mutedTrackList = [];
-    this.soloTrackIdx = 0;
+    this.soloTrackList = [];
+    this.analyser = null;
     this.subscribe();
   }
 
@@ -38,7 +40,7 @@ class PlaybackToolClass {
     this.sourceList = sourceList;
   }
 
-  setMute(trackId: number) {
+  setMute(trackId: number): void {
     this.mutedTrackList.push(trackId);
 
     const isPause = Controller.getIsPauseState();
@@ -47,7 +49,7 @@ class PlaybackToolClass {
     }
   }
 
-  unsetMute(trackId: number) {
+  unsetMute(trackId: number): void {
     const idx = this.mutedTrackList.indexOf(trackId);
     if (idx > -1) this.mutedTrackList.splice(idx, 1)
 
@@ -57,8 +59,8 @@ class PlaybackToolClass {
     }
   }
 
-  setSolo(trackId: number) {
-    this.soloTrackIdx = trackId;
+  setSolo(trackId: number): void {
+    this.soloTrackList.push(trackId);
 
     const isPause = Controller.getIsPauseState();
     if (!isPause) {
@@ -66,8 +68,9 @@ class PlaybackToolClass {
     }
   }
 
-  unsetSolo() {
-    this.soloTrackIdx = 0;
+  unsetSolo(trackId: number): void {
+    const idx = this.soloTrackList.indexOf(trackId);
+    if (idx > -1) this.soloTrackList.splice(idx, 1)
 
     const isPause = Controller.getIsPauseState();
     if (!isPause) {
@@ -75,8 +78,7 @@ class PlaybackToolClass {
     }
   }
 
-  //커서로 선택 시 play 되는거. 재생 중일때만 불림.
-  audioCursorPlay() {
+  audioCursorPlay(): void {
     this.play();
   }
 
@@ -99,15 +101,14 @@ class PlaybackToolClass {
     }
   }
 
-  audioStop() {
+  audioStop(): void {
     if (this.trackList.length == 0) return;
 
     Controller.changeIsPauseState(true);
-
     this.stop(false);
   }
 
-  audioRepeat() {
+  audioRepeat(): void {
     if (this.trackList.length == 0) return;
 
     const isRepeat = Controller.getIsRepeatState();
@@ -115,42 +116,38 @@ class PlaybackToolClass {
     if (isRepeat === false) {
       Controller.changeIsRepeatState(true);
       this.repeat(2, 5);
-
-      return true;
     }
     else {
       Controller.changeIsRepeatState(false);
-
-      return false;
     }
   }
 
-  audioFastRewind() {
+  audioFastRewind(): void {
     if (this.trackList.length == 0) return;
 
     this.fastRewind();
   }
 
-  audioFastForward() {
+  audioFastForward(): void {
     if (this.trackList.length == 0) return;
 
     this.fastForward();
   }
 
-  audioSkipPrev() {
+  audioSkipPrev(): void {
     if (this.trackList.length == 0) return;
 
     const isPause = Controller.getIsPauseState();
     this.stop(!isPause);
   }
 
-  audioSkipNext() {
+  audioSkipNext(): void {
     if (this.trackList.length == 0) return;
 
     this.skipNext();
   }
 
-  stopAudioSources() {
+  stopAudioSources(): void {
     this.sourceInfo.forEach((source) => {
       try {
         source.bufferSourceNode.stop();
@@ -163,7 +160,7 @@ class PlaybackToolClass {
     this.audioContext.suspend();
   }
 
-  updateSourceInfo(sourceId: number, trackId: number, sectionId: number) {
+  updateSourceInfo(sourceId: number, trackId: number, sectionId: number): void {
     const bufferSourceNode = this.audioContext.createBufferSource();
     bufferSourceNode.buffer = this.sourceList[sourceId].buffer;
 
@@ -175,18 +172,20 @@ class PlaybackToolClass {
     this.sourceInfo.push({ trackId: trackId, sectionId: sectionId, bufferSourceNode: bufferSourceNode });
   }
 
-  playTimer() {
-    const volumeBar = document.getElementById("audio-meter-fill");
-    const analyser = this.audioContext.createAnalyser();
-    analyser.smoothingTimeConstant = 0.3;
-    analyser.fftSize = 1024;
+  createAndConnectAnalyser(): void {
+    this.analyser = this.audioContext.createAnalyser();
+    this.analyser.smoothingTimeConstant = 0.3;
+    this.analyser.fftSize = 1024;
     this.sourceInfo.forEach((source) => {
       try {
-        source.bufferSourceNode.connect(analyser);
+        source.bufferSourceNode.connect(this.analyser);
       } catch (e) { }
     });
-    analyser.connect(this.audioContext.destination);
+    this.analyser.connect(this.audioContext.destination);
+  }
 
+  playTimer(): void {
+    const volumeBar = document.getElementById("audio-meter-fill");
 
     let playTimer = setInterval(() => {
       if (Controller.getIsPauseState()) {
@@ -201,7 +200,7 @@ class PlaybackToolClass {
       const widthPixel = WidthUtil.getPerPixel(TIMER_TIME, maxTrackPlayTime);
 
       const array = new Float32Array(1024);
-      analyser.getFloatTimeDomainData(array);
+      this.analyser.getFloatTimeDomainData(array);
       if (!volumeBar) return;
       const colors = ['rgb(153, 194, 198)', 'rgb(110,204,136)', 'rgb(214,171,34)', 'rgb(209,81,16)']
       let decibel = AudioUtil.getDecibel(array);
@@ -233,16 +232,15 @@ class PlaybackToolClass {
     this.sourceInfo = [];
 
     this.trackList.forEach((track: Track) => {
-      if (track.trackSectionList.length != 0) {
+      if (track.trackSectionList.length !== 0) {
 
-        if (this.soloTrackIdx !== 0 && this.soloTrackIdx !== track.id) {
-          return;
+        if (this.soloTrackList.length !== 0) { 
+          const soloTrackIdx = this.soloTrackList.indexOf(track.id);
+          if(soloTrackIdx === -1) return;
         }
 
-        const idx = this.mutedTrackList.indexOf(track.id);
-        if (idx > -1) {
-          return;
-        }
+        const mutedTrackIdx = this.mutedTrackList.indexOf(track.id);
+        if (mutedTrackIdx > -1) return;
 
         track.trackSectionList.forEach((trackSection: TrackSection) => {
           this.updateSourceInfo(trackSection.sourceId, trackSection.trackId, trackSection.id);
@@ -273,13 +271,14 @@ class PlaybackToolClass {
       }
     });
     this.audioContext.resume();
+    this.createAndConnectAnalyser();
   }
 
-  pause() {
+  pause(): void {
     this.audioContext.suspend();
   }
 
-  stop(restart: boolean) {
+  stop(restart: boolean): void {
     try {
       this.audioContext.close();
       this.audioContext = new AudioContext();
@@ -302,7 +301,7 @@ class PlaybackToolClass {
   }
 
   //동작 안됨.
-  repeat(markerStart: number, markerEnd: number) {
+  repeat(markerStart: number, markerEnd: number): void {
     Controller.changeMarkerNumberTime(markerStart);
     const isPause = Controller.getIsPauseState();
     if (isPause === false) {
@@ -310,11 +309,14 @@ class PlaybackToolClass {
     }
   }
 
-  fastRewind() {
+  fastRewind(): void {
     let markerTime = Controller.getMarkerTime();
 
     this.stopAudioSources();
     this.sourceInfo = [];
+
+    this.createAndConnectAnalyser();
+
     const maxTrackPlayTime = Controller.getMaxTrackPlayTime();
     const widthPixel = WidthUtil.getPerPixel(QUANTUM * 1000, maxTrackPlayTime);
     Controller.setMarkerWidth(-widthPixel);
@@ -328,10 +330,11 @@ class PlaybackToolClass {
     }
 
     this.trackList.forEach((track: Track) => {
-      if (track.trackSectionList.length != 0) {
+      if (track.trackSectionList.length !== 0) {
 
-        if (this.soloTrackIdx !== 0 && this.soloTrackIdx !== track.id) {
-          return;
+        if (this.soloTrackList.length !== 0) { 
+          const soloTrackIdx = this.soloTrackList.indexOf(track.id);
+          if(soloTrackIdx === -1) return;
         }
 
         const idx = this.mutedTrackList.indexOf(track.id);
@@ -379,13 +382,17 @@ class PlaybackToolClass {
       }
     });
     this.audioContext.resume();
+    this.createAndConnectAnalyser();
   }
 
-  fastForward() {
+  fastForward(): void {
     let markerTime = Controller.getMarkerTime();
 
     this.stopAudioSources();
     this.sourceInfo = [];
+
+    this.createAndConnectAnalyser();
+
     const maxTrackPlayTime = Controller.getMaxTrackPlayTime();
     const widthPixel = WidthUtil.getPerPixel(QUANTUM * 1000, maxTrackPlayTime);
     Controller.setMarkerWidth(widthPixel);
@@ -394,14 +401,15 @@ class PlaybackToolClass {
 
     const isPause = Controller.getIsPauseState();
     if (isPause) {
-      //일시정지상태였다면 점프만 해두고 시작안하면 되니까....
       return;
     }
 
     this.trackList.forEach((track: Track) => {
-      if (track.trackSectionList.length != 0) {
-        if (this.soloTrackIdx !== 0 && this.soloTrackIdx !== track.id) {
-          return;
+      if (track.trackSectionList.length !== 0) {
+
+        if (this.soloTrackList.length !== 0) { 
+          const soloTrackIdx = this.soloTrackList.indexOf(track.id);
+          if(soloTrackIdx === -1) return;
         }
 
         const idx = this.mutedTrackList.indexOf(track.id);
@@ -445,15 +453,16 @@ class PlaybackToolClass {
       }
     });
     this.audioContext.resume();
+    this.createAndConnectAnalyser();
   }
 
-  skipNext() {
+  skipNext(): void {
     try {
       this.audioContext.close();
       this.audioContext = new AudioContext();
       this.audioContext.suspend();
 
-      //loop가 있든 말든 상관없이 맨 마지막에 멈추게 하는 게 구현은 편할 듯.
+      //loop가 걸려있든 아니든 상관없이 맨 마지막에 멈추게 하는 게 구현은 편할 것.
       Controller.changeIsPauseState(true);
 
       setTimeout(() => {

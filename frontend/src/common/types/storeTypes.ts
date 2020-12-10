@@ -1,4 +1,4 @@
-import { Source, Track, AudioSourceInfoInTrack, TrackSection } from '@model';
+import { Source, Track, AudioSourceInfoInTrack, TrackSection, SectionDragStartData } from '@model';
 import { ModalStateType } from '@types';
 
 enum CursorType {
@@ -27,8 +27,6 @@ enum StoreChannelType {
   CURSOR_MODE_CHANNEL = 'CURSOR_MODE_CHANNEL',
   EDIT_MENU_CHANNEL = 'EDIT_MENU_CHANNEL',
   PLAY_OR_PAUSE_CHANNEL = 'PLAY_OR_PAUSE_CHANNEL',
-  IS_REPEAT_CHANNEL = 'IS_REPEAT_CHANNEL',
-  SOLO_CHANNEL = 'SOLO_CHANNEL',
   MAX_TRACK_PLAY_TIME_CHANNEL = 'MAX_TRACK_PLAY_TIME_CHANNEL',
   CURRENT_SCROLL_AMOUNT_CHANNEL = 'CURRENT_SCROLL_AMOUNT_CHANNEL',
   TRACK_LIST_CHANNEL = 'TRACK_LIST_CHANNEL'
@@ -56,6 +54,7 @@ interface StoreStateType {
   maxTrackWidth: number;
   maxTrackPlayTime: number;
   currentScrollAmount: number;
+  sectionDragStartData: SectionDragStartData | null;
 }
 
 interface StoreObserverData {

@@ -1,8 +1,8 @@
-import { Source, Track, TrackSection } from '@model';
+import { Source, Track, TrackSection, SectionDragStartData } from '@model';
 import { store } from '@store';
 import { ModalType, FocusInfo, CursorType, SectionDataType } from '@types';
 import { CommandManager, MoveCommand } from '@command';
-import { CopyUtil, SectionEffectListUtil, TimeUtil } from '@util';
+import { CopyUtil, SectionEffectListUtil, TimeUtil, WidthUtil } from '@util';
 import playbackTool from '@components/PlaybackTools/PlaybackToolClass';
 
 const getTrackSection = (trackId: number, trackSectionId: number): TrackSection | undefined => {
@@ -128,45 +128,22 @@ const setTrack = (track: Track): void => {
   store.setTrack(track);
 };
 
-const addTrackSectionFromSource = (sourceId: number, trackId: number): void => {
-  const getSourceById = (sourceId: number): Source | undefined => {
-    const { sourceList } = store.getState();
-    const source = sourceList.find((source) => source.id === sourceId);
-    return source;
-  };
+const createTrackSectionFromSource = (sourceId: number): TrackSection | undefined => {
+  const { sourceList } = store.getState();
+  const source = sourceList.find((source) => source.id === sourceId);
 
-  const calculateTrackStartTime = (trackId: number): number | undefined => {
-    const targetTrack = getTrack(trackId);
-    if (!targetTrack) return;
+  if (!source) return;
+  const newTrackSection = new TrackSection({
+    id: 0,
+    sourceId,
+    trackId: 0,
+    channelStartTime: 0,
+    channelEndTime: source.duration,
+    trackStartTime: 0
+  });
 
-    const { trackSectionList } = targetTrack;
-    let trackStartTime = 0;
-    if (trackSectionList.length > 0) {
-      const lastTrackSection = trackSectionList[trackSectionList.length - 1];
-      trackStartTime = lastTrackSection.channelEndTime;
-    }
-
-    return trackStartTime;
-  };
-
-  const addNewTrackSection = (trackId: number, source: Source, trackStartTime: number) => {
-    if (!source || trackStartTime === undefined) return;
-
-    const newTrackSection = new TrackSection({
-      id: 0,
-      sourceId: source.id,
-      trackId: trackId,
-      channelStartTime: 0,
-      channelEndTime: source.duration,
-      trackStartTime: trackStartTime
-    });
-
-    addTrackSection(trackId, newTrackSection);
-  };
-
-  const pipe = (f, g, h) => (x, y) => h(y, f(x), g(y));
-  pipe(getSourceById, calculateTrackStartTime, addNewTrackSection)(sourceId, trackId);
-};
+  return newTrackSection;
+}
 
 const addTrackSection = (trackId: number, trackSection: TrackSection): void => {
   store.setTrackSection(trackId, trackSection);
@@ -368,16 +345,12 @@ const setClipBoard = (): boolean => {
   return true;
 };
 
-const moveCommand = (prevTrackId: number, currentTrackId: number, sectionId: number, movingCursorTime: number, prevCursorTime: number) => {
+const moveCommand = (prevTrackId: number, currentTrackId: number, trackSection: TrackSection, movingCursorTime: number, prevCursorTime: number) => {
   const { trackList } = store.getState();
   const prevTrack = trackList.find((track) => track.id === prevTrackId);
   const currentTrack = trackList.find((track) => track.id === currentTrackId);
 
   if (!prevTrack || !currentTrack) return;
-
-  const trackSection = prevTrack.trackSectionList.find((section) => section.id === sectionId);
-
-  if (!trackSection) return;
 
   const command = new MoveCommand(CopyUtil.copyTrack(prevTrack), CopyUtil.copyTrack(currentTrack), trackSection, movingCursorTime, prevCursorTime);
   CommandManager.execute(command);
@@ -406,14 +379,27 @@ const changeCurrentScrollAmount = (newCurrentScrollAmount: number): void => {
   store.setCurrentScrollAmount(newCurrentScrollAmount);
 };
 
+const getCurrentScrollAmount = (): number => {
+  const { currentScrollAmount } = store.getState();
+
+  return currentScrollAmount;
+}
+
+const getCurrentScrollTime = (): number => {
+  const { currentScrollAmount, maxTrackWidth, maxTrackPlayTime } = store.getState();
+
+  const secondPerPixel = WidthUtil.getSecondPerPixel(maxTrackWidth, maxTrackPlayTime);
+
+  return secondPerPixel * currentScrollAmount;
+}
+
 const audioCursorPlay = () => {
   playbackTool.audioCursorPlay();
 };
 
 const audioPlayOrPause = (): void => {
-  const ret = playbackTool.audioPlayOrPause();
-
-  store.changePlayOrPauseIcon(ret);
+  const audioPlayType = playbackTool.audioPlayOrPause();
+  store.changePlayOrPauseIcon(audioPlayType);
 };
 
 const audioStop = (): void => {
@@ -421,9 +407,7 @@ const audioStop = (): void => {
 };
 
 const audioRepeat = (): void => {
-  const ret = playbackTool.audioRepeat();
-
-  store.changeRepeatIconColor(ret);
+  playbackTool.audioRepeat();
 };
 
 const changeIsRepeatState = (isRepeatState: boolean): void => {
@@ -460,24 +444,29 @@ const unsetMute = (trackId: number) => {
 };
 
 const setSolo = (trackId: number) => {
-  store.soloPlay(trackId);
   playbackTool.setSolo(trackId);
 };
 
-const unsetSolo = () => {
-  playbackTool.unsetSolo();
+const unsetSolo = (trackId: number) => {
+  playbackTool.unsetSolo(trackId);
 };
 
-const getCurrentScrollAmount = () : number => {
-  const { currentScrollAmount } = store.getState();
-  return currentScrollAmount;
+const changeSectionDragStartData = (sectionDragStartData: SectionDragStartData): void => {
+  store.setSectionDragStartData(sectionDragStartData);
 };
+
+const getSectionDragStartData = (): SectionDragStartData | null => {
+  const { sectionDragStartData } = store.getState();
+
+  return sectionDragStartData;
+};
+
 
 export default {
   getTrackSection,
   getSource,
   getSourceAndTrackSection,
-  addTrackSectionFromSource,
+  createTrackSectionFromSource,
   getSectionData,
   getSourceList,
   addSource,
@@ -532,5 +521,8 @@ export default {
   changeMaxTrackPlayTime,
   changeCurrentScrollAmount,
   getMaxTrackWidth,
-  getCurrentScrollAmount
+  getCurrentScrollTime,
+  getCurrentScrollAmount,
+  changeSectionDragStartData,
+  getSectionDragStartData
 };

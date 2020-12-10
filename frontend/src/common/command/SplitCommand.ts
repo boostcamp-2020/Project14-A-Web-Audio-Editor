@@ -20,7 +20,7 @@ class SplitCommand extends Command {
   execute() {
     const trackAreaElement = document.querySelector('.audio-track-area');
     if(!trackAreaElement) return;
-  
+
     const maxTrackPlayTime = Controller.getMaxTrackPlayTime();
     const trackAreaLeftX = trackAreaElement.getBoundingClientRect().left;
     const trackAreaRightX = trackAreaElement.getBoundingClientRect().right;
@@ -34,7 +34,7 @@ class SplitCommand extends Command {
   splitTrackSection(timeOfCursorPosition: number): TrackSection[] {
     const channelSplitOffset = timeOfCursorPosition - this.targetTrackSection.trackStartTime;
     const channelSplitTime = this.targetTrackSection.channelStartTime + channelSplitOffset;
-    
+
     const leftTrackSection = CopyUtil.copySection(this.targetTrackSection);
     leftTrackSection.id = 0;
     leftTrackSection.channelEndTime = channelSplitTime;
@@ -52,7 +52,7 @@ class SplitCommand extends Command {
   updateSplitedSections(leftTrackSection: TrackSection, rightTrackSection: TrackSection): void {
     const targetTrackSectionIndex = this.beforeTrack.trackSectionList.findIndex(trackSection => trackSection.id === this.targetTrackSection.id);
     if (targetTrackSectionIndex === -1) return;
-    
+
     const trackId = this.beforeTrack.id;
     Controller.removeSection(trackId, targetTrackSectionIndex);
     Controller.addTrackSection(trackId, leftTrackSection);

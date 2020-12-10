@@ -50,6 +50,18 @@ audi-audio-track:not(:defined) {
 
             pointer-events: none;
         }
+
+        .audio-track-afterimage {
+            display:none;
+            height: calc(100% - 20px);
+            border-radius: 5px;
+            top:10px;
+            left: 0px;
+            border: 1px dashed gray;
+            background-color: rgba(40,40,40, 0.5);
+            position: absolute;
+            pointer-events: none;
+        }
     }
     
     &:last-of-type{
@@ -63,7 +75,7 @@ audi-audio-track:not(:defined) {
         transform: translate3d(-50%, -50%, 0);
         text-align:center;
         z-index: 50;
-
+        pointer-events: none;
         span{
             color:rgb(158, 158, 158)
         }

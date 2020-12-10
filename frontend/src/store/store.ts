@@ -1,5 +1,5 @@
 import { StoreStateType, CursorType } from '@types';
-import { Track, Source, TrackSection } from '@model';
+import { Track, Source, TrackSection, SectionDragStartData } from '@model';
 import { StoreChannelType, ModalType, ModalStateType, FocusInfo } from '@types';
 import { storeChannel } from '@store';
 
@@ -31,7 +31,8 @@ const store = new (class Store {
       isRepeat: false,
       maxTrackWidth: 0,
       maxTrackPlayTime: 300,
-      currentScrollAmount: 0
+      currentScrollAmount: 0,
+      sectionDragStartData: null
     };
   }
 
@@ -245,14 +246,6 @@ const store = new (class Store {
     this.state = { ...this.state, isRepeat: isRepeat };
   }
 
-  changeRepeatIconColor(isRepeat: boolean) {
-    storeChannel.publish(StoreChannelType.IS_REPEAT_CHANNEL, isRepeat);
-  }
-
-  soloPlay(trackId: number) {
-    storeChannel.publish(StoreChannelType.SOLO_CHANNEL, trackId);
-  }
-
   setMaxTrackPlayTime(newMaxTrackPlayTime: number): void {
     const { maxTrackPlayTime } = this.state;
     if (maxTrackPlayTime >= newMaxTrackPlayTime) return;
@@ -267,6 +260,10 @@ const store = new (class Store {
 
     this.state = { ...this.state, currentScrollAmount: newCurrentScrollAmount };
     storeChannel.publish(StoreChannelType.CURRENT_SCROLL_AMOUNT_CHANNEL, newCurrentScrollAmount);
+  }
+
+  setSectionDragStartData(newDragStartData: SectionDragStartData): void {
+    this.state = { ...this.state, sectionDragStartData: newDragStartData };
   }
 })();
 

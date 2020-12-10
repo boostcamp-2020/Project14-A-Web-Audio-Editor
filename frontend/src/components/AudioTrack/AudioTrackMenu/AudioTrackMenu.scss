@@ -20,11 +20,9 @@ audi-track-menu{
             display: flex;
             justify-content: center;
         }
-
+      
         audi-icon-button{
             margin-right: 5px;
-            cursor: pointer;
-
             &:last-of-type{
                 margin-right: 0;
             }

@@ -1,5 +1,5 @@
 import './PlaybackTools.scss';
-import { EventUtil, PlayBarUtil, AudioUtil, WidthUtil } from '@util';
+import { EventUtil } from '@util';
 import { EventType, EventKeyType, StoreChannelType } from '@types';
 import { storeChannel } from '@store';
 import { Controller } from '@controllers';
@@ -32,12 +32,9 @@ import { Controller } from '@controllers';
     render() {
       this.innerHTML = `
                 <div class="playback-tools">
-                  ${this.iconlist.reduce(
-        (acc, icon, idx) =>
-          acc +
-          `<audi-icon-button id="${icon}" class="delegation" color="white" icontype="${icon}" size="32px" event-key="${this.eventKeyList[idx]}"></audi-icon-button>`,
-        ''
-      )}
+                ${this.iconlist.reduce((acc, icon, idx) =>{
+                    const checkRepeat = Controller.getIsRepeatState() && (icon==='repeat');
+                    return acc + `<audi-icon-button id="${icon}" class="${checkRepeat?'clicked':''}" color="white" icontype="${icon}" size="32px" data-event-key="${this.eventKeyList[idx]}"></audi-icon-button>`},'')}
                 </div>
             `;
     }
@@ -94,7 +91,7 @@ import { Controller } from '@controllers';
     }
 
     audioPlayOrPauseListener() {
-      Controller.audioPlayOrPause(); 
+      Controller.audioPlayOrPause();
     }
 
     audioStopListener() {
@@ -106,6 +103,8 @@ import { Controller } from '@controllers';
 
     audioRepeatListener() {
       Controller.audioRepeat();
+
+      this.render()
     }
 
     audioFastRewindListener() {
@@ -126,16 +125,12 @@ import { Controller } from '@controllers';
 
     subscribe(): void {
       storeChannel.subscribe(StoreChannelType.PLAY_OR_PAUSE_CHANNEL, this.changePlayOrPauseIcon, this);
-      storeChannel.subscribe(StoreChannelType.IS_REPEAT_CHANNEL, this.changeRepeatIconColor, this);//repeat에 대한 정보를 render를 한다고 하면..
     }
 
     changePlayOrPauseIcon(iconType: number) {
       if(iconType === 0) {
         return;
       }
-      // const isRepeat = Controller.getIsRepeatState();
-      // if(isRepeat) this.changeRepeatIconColor(isRepeat);
-
       else if(iconType === 1) {
         this.iconlist[0] = 'pause';
       }
@@ -143,19 +138,6 @@ import { Controller } from '@controllers';
         this.iconlist[0] = 'play';
       }
       this.render();
-    }
-
-    //수정 예정
-    changeRepeatIconColor(isRepeat: boolean) {
-      const repeatIcon = document.querySelector('#repeat');
-      if(!repeatIcon) return;
-
-      if(isRepeat){
-        repeatIcon.classList.add('clicked');
-      }
-      else {
-        repeatIcon.classList.remove('clicked');
-      }
     }
   };
   customElements.define('audi-playback-tools', PlaybackTools);
