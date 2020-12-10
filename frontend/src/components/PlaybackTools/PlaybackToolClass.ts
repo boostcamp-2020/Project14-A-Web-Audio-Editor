@@ -14,6 +14,7 @@ class PlaybackToolClass {
   private sourceInfo: AudioSourceInfoInTrack[];
   private mutedTrackList: Number[];
   private soloTrackList: Number[];
+  private analyser: AnalyserNode|null;
 
   constructor() {
     this.audioContext = new AudioContext();
@@ -22,6 +23,7 @@ class PlaybackToolClass {
     this.sourceInfo = [];
     this.mutedTrackList = [];
     this.soloTrackList = [];
+    this.analyser = null;
     this.subscribe();
   }
 
@@ -76,7 +78,6 @@ class PlaybackToolClass {
     }
   }
 
-  //커서로 선택 시 play 되는거. 재생 중일때만 불림.
   audioCursorPlay() {
     this.play();
   }
@@ -176,18 +177,20 @@ class PlaybackToolClass {
     this.sourceInfo.push({ trackId: trackId, sectionId: sectionId, bufferSourceNode: bufferSourceNode });
   }
 
-  playTimer() {
-    const volumeBar = document.getElementById("audio-meter-fill");
-    const analyser = this.audioContext.createAnalyser();
-    analyser.smoothingTimeConstant = 0.3;
-    analyser.fftSize = 1024;
+  createAndConnectAnalyser() {
+    this.analyser = this.audioContext.createAnalyser();
+    this.analyser.smoothingTimeConstant = 0.3;
+    this.analyser.fftSize = 1024;
     this.sourceInfo.forEach((source) => {
       try {
-        source.bufferSourceNode.connect(analyser);
+        source.bufferSourceNode.connect(this.analyser);
       } catch (e) { }
     });
-    analyser.connect(this.audioContext.destination);
+    this.analyser.connect(this.audioContext.destination);
+  }
 
+  playTimer() {
+    const volumeBar = document.getElementById("audio-meter-fill");
 
     let playTimer = setInterval(() => {
       if (Controller.getIsPauseState()) {
@@ -202,7 +205,7 @@ class PlaybackToolClass {
       const widthPixel = WidthUtil.getPerPixel(TIMER_TIME, maxTrackPlayTime);
 
       const array = new Float32Array(1024);
-      analyser.getFloatTimeDomainData(array);
+      this.analyser.getFloatTimeDomainData(array);
       if (!volumeBar) return;
       const colors = ['rgb(153, 194, 198)', 'rgb(110,204,136)', 'rgb(214,171,34)', 'rgb(209,81,16)']
       let decibel = AudioUtil.getDecibel(array);
@@ -273,6 +276,7 @@ class PlaybackToolClass {
       }
     });
     this.audioContext.resume();
+    this.createAndConnectAnalyser();
   }
 
   pause() {
@@ -315,6 +319,9 @@ class PlaybackToolClass {
 
     this.stopAudioSources();
     this.sourceInfo = [];
+
+    this.createAndConnectAnalyser();
+
     const maxTrackPlayTime = Controller.getMaxTrackPlayTime();
     const widthPixel = WidthUtil.getPerPixel(QUANTUM * 1000, maxTrackPlayTime);
     Controller.setMarkerWidth(-widthPixel);
@@ -380,6 +387,7 @@ class PlaybackToolClass {
       }
     });
     this.audioContext.resume();
+    this.createAndConnectAnalyser();
   }
 
   fastForward() {
@@ -387,6 +395,9 @@ class PlaybackToolClass {
 
     this.stopAudioSources();
     this.sourceInfo = [];
+
+    this.createAndConnectAnalyser();
+
     const maxTrackPlayTime = Controller.getMaxTrackPlayTime();
     const widthPixel = WidthUtil.getPerPixel(QUANTUM * 1000, maxTrackPlayTime);
     Controller.setMarkerWidth(widthPixel);
@@ -395,7 +406,6 @@ class PlaybackToolClass {
 
     const isPause = Controller.getIsPauseState();
     if (isPause) {
-      //일시정지상태였다면 점프만 해두고 시작안하면 되니까....
       return;
     }
 
@@ -448,6 +458,7 @@ class PlaybackToolClass {
       }
     });
     this.audioContext.resume();
+    this.createAndConnectAnalyser();
   }
 
   skipNext() {
@@ -456,7 +467,7 @@ class PlaybackToolClass {
       this.audioContext = new AudioContext();
       this.audioContext.suspend();
 
-      //loop가 있든 말든 상관없이 맨 마지막에 멈추게 하는 게 구현은 편할 듯.
+      //loop가 걸려있든 아니든 상관없이 맨 마지막에 멈추게 하는 게 구현은 편할 것.
       Controller.changeIsPauseState(true);
 
       setTimeout(() => {
