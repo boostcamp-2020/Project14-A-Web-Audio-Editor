@@ -478,6 +478,36 @@ const popTrackWithIndex = (): Track | undefined => {
   return removedTrack;
 };
 
+const removeTrackById = (trackId: number): Track | undefined => {
+  const { trackList } = store.getState();
+  const trackToRemove = trackList.find((track) => track.id === trackId);
+
+  if(!trackToRemove) return;
+  const newTrackList = trackList.filter((track) => track.id !== trackId);
+  
+  store.setTrackList(newTrackList);
+  return trackToRemove;
+}
+
+const insertTrack = (removeIdx: number, track: Track): void => {
+  const { trackList } = store.getState();
+
+  let newTrackList: Track[] = [];
+  if(removeIdx === 0){
+    trackList.unshift(track);
+    newTrackList = trackList;
+  }else if(removeIdx === trackList.length - 1){
+    trackList.push(track);
+    newTrackList = trackList;
+  }else{
+    const leftTrackList = trackList.slice(0,removeIdx);
+    const rightTrackList = trackList.slice(removeIdx, trackList.length);
+    newTrackList = [...leftTrackList, track, ...rightTrackList];
+  }
+
+  store.setTrackList(newTrackList);
+}
+
 export default {
   getTrackSection,
   getSource,
@@ -542,5 +572,7 @@ export default {
   changeSectionDragStartData,
   getSectionDragStartData,
   popTrackWithIndex,
-  pushTrackWidthIndex
+  pushTrackWidthIndex,
+  removeTrackById,
+  insertTrack
 };
