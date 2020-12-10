@@ -54,19 +54,19 @@ import { Controller } from "@controllers";
         Controller.deleteCommand();
       }
       else if (e.which === KeyBoard.LEFT && !isCtrl) {
-        // console.log('왼쪽');
+        Controller.audioFastRewind();
       }
       else if (e.which === KeyBoard.RIGHT && !isCtrl) {
-        // console.log('오른쪽');
+        Controller.audioFastForward();
       }
       else if (e.which === KeyBoard.LEFT_BRACKET && !isCtrl) {
-        // console.log('시작지점');
+        Controller.audioSkipPrev();
       }
       else if (e.which === KeyBoard.RIGHT_BRACKET && !isCtrl) {
-        // console.log('마지막지점');
+        Controller.audioSkipNext();
       }
       else if (e.which === KeyBoard.SPACE && !isCtrl) {
-        // console.log('스페이스바');
+        Controller.audioPlayOrPause();
       }
       else if (e.which === KeyBoard.C && isCtrl) {
         Controller.setClipBoard();

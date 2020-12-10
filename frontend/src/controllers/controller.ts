@@ -4,6 +4,7 @@ import { ModalType, FocusInfo, CursorType, SectionDataType } from '@types';
 import CommandManager from '@command/CommandManager';
 import { DeleteCommand, PasteCommand, SplitCommand, MoveCommand } from '@command';
 import { CopyUtil, SectionEffectListUtil, TimeUtil } from '@util';
+import playbackTool from '@components/PlaybackTools/PlaybackToolClass';
 
 const getTrackSection = (trackId: number, trackSectionId: number): TrackSection | undefined => {
   const { trackList } = store.getState();
@@ -158,8 +159,7 @@ const addTrackSectionFromSource = (sourceId: number, trackId: number): void => {
       trackId: trackId,
       channelStartTime: 0,
       channelEndTime: source.duration,
-      trackStartTime: trackStartTime,
-      audioStartTime: 0
+      trackStartTime: trackStartTime
     });
 
     addTrackSection(trackId, newTrackSection);
@@ -280,15 +280,21 @@ const pauseChangeMarkerNumberTime = (playingTime: number): void => {
   store.setMarkerNumberTime(newMarkerNumberTime);
 };
 
-const changeCursorMarkerNumberTime = (newMarkerNumberTime: number): void => {
-  store.setMarkerNumberTime(newMarkerNumberTime);
-};
+const changeMarkerNumberTime = (markerTime:number) => {
+  store.setMarkerNumberTime(markerTime);
+}
+
+//지워도 될 것.
+// const changeCursorMarkerNumberTime = (newMarkerNumberTime: number): void => {
+//   store.setCursorNumberTime(newMarkerNumberTime);
+// };
 
 const getMarkerTime = (): number => {
   const { markerNumberTime } = store.getState();
   return markerNumberTime;
 };
 
+//markerEventUtil에서 이 함수로 바꿈.
 const changeCursorNumberTime = (cursorNumberTime: number): void => {
   store.setCursorNumberTime(cursorNumberTime);
 };
@@ -454,6 +460,68 @@ const changeCurrentScrollAmount = (newCurrentScrollAmount: number): void => {
   store.setCurrentScrollAmount(newCurrentScrollAmount);
 }
 
+const audioCursorPlay = () => {
+ playbackTool.audioCursorPlay(); 
+}
+
+const audioPlayOrPause = ():void => {
+  const ret = playbackTool.audioPlayOrPause();
+
+  store.changePlayOrPauseIcon(ret);
+}
+
+const audioStop = ():void => {
+  playbackTool.audioStop();
+}
+
+const audioRepeat = ():void => {
+  const ret = playbackTool.audioRepeat(); 
+
+  store.changeRepeatIconColor(ret);
+}
+
+const changeIsRepeatState = (isRepeatState: boolean): void => {
+  store.setIsRepeatState(isRepeatState);
+};
+
+const getIsRepeatState = (): boolean => {
+  const { isRepeat } = store.getState();
+  return isRepeat;
+};
+
+const audioFastRewind = () => {
+  playbackTool.audioFastRewind();
+}
+
+const audioFastForward = () => {
+  playbackTool.audioFastForward();
+}
+
+const audioSkipPrev = () => {
+  playbackTool.audioSkipPrev();
+}
+
+const audioSkipNext = () => {
+  playbackTool.audioSkipNext();
+}
+
+const setMute = (trackId:number) => {
+  playbackTool.setMute(trackId);
+}
+
+const unsetMute = (trackId:number) => {
+  playbackTool.unsetMute(trackId);
+}
+
+const setSolo = (trackId:number) => {
+  store.soloPlay(trackId);
+  playbackTool.setSolo(trackId);
+}
+
+const unsetSolo = () => {
+  playbackTool.unsetSolo();
+}
+
 export default {
   getTrackSection,
   getSource,
@@ -485,7 +553,7 @@ export default {
   pauseChangeMarkerNumberTime,
   getMarkerTime,
   changeCursorNumberTime,
-  changeCursorMarkerNumberTime,
+  // changeCursorMarkerNumberTime,
   setMarkerWidth,
   getIsPauseState,
   changeIsPauseState,
@@ -501,6 +569,21 @@ export default {
   moveCommand,
   splitTrackSection,
   getSourceBySourceId,
+  changeMarkerNumberTime,
+  audioPlayOrPause,
+  audioStop,
+  audioFastRewind,
+  audioFastForward,
+  audioSkipPrev,
+  audioSkipNext,
+  audioCursorPlay,
+  audioRepeat,
+  changeIsRepeatState,
+  getIsRepeatState,
+  setMute,
+  unsetMute,
+  setSolo,
+  unsetSolo,
   changeMaxTrackWidth,
   changeMaxTrackPlayTime,
   changeCurrentScrollAmount

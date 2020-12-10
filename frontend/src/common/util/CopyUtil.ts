@@ -7,9 +7,8 @@ const copySection = (trackSection: TrackSection): TrackSection => {
     trackId: trackSection.trackId,
     channelStartTime: trackSection.channelStartTime,
     channelEndTime: trackSection.channelEndTime,
-    trackStartTime: trackSection.trackStartTime,
+    trackStartTime: trackSection.trackStartTime
     // effectList: trackSection.effectList,    // Effect 기능 구현시 추가
-    audioStartTime: trackSection.audioStartTime
   });
 
   return newTrackSection;

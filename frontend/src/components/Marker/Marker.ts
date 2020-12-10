@@ -33,6 +33,8 @@ import { StoreChannelType } from '@types';
         return;
       }
 
+      //0이 아닐 때는 더하는 식으로 진행된다.
+      //하지만.. 마지막 위치일 때는 더해지면 안된다고..
       const prevCurrentPosition = Number(markerElement?.style.left.split('px')[0]);
       let currentPosition = prevCurrentPosition + newCurrentPosition;
       if (currentPosition < 0) currentPosition = 0;

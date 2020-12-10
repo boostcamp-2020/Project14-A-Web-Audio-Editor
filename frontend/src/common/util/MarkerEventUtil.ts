@@ -14,7 +14,8 @@ const mousemoveMarkerListener: Function = (element: HTMLElement, elementLeftX: n
   if (minute < 0 && second < 0) return;
   Controller.changeCurrentPosition(offesetOfCursorPosition);
   Controller.changeCursorStringTime(minute, second, milsecond);
-  Controller.changeCursorMarkerNumberTime(timeOfCursorPosition);
+  Controller.changeCursorNumberTime(timeOfCursorPosition);
+  //Controller.changeCursorMarkerNumberTime(timeOfCursorPosition);
 };
 
 const clickMarkerListener = (element: HTMLElement) => (e: Event): void => {
@@ -22,9 +23,11 @@ const clickMarkerListener = (element: HTMLElement) => (e: Event): void => {
   const [currentPosition, cursorNumberTime] = Controller.getCurrentPosition();
 
   Controller.changeMarkerPlayStringTime(cursorNumberTime);
+  Controller.changeMarkerNumberTime(cursorNumberTime);
 
   if (!Controller.getIsPauseState()) {
-    //play 함수 실행
+
+    Controller.audioCursorPlay();
   }
 
   if (currentPosition < 0) return;

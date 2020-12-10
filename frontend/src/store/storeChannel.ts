@@ -9,15 +9,13 @@ class StoreChannel{
         this.observers = new Map();
     }
 
-    publish(channel: StoreChannelType, data: any): void {
+    publish(channel: StoreChannelType, data: any): void {    
         this.channels.set(channel, data);        
         this.notify(channel);
     }
 
     subscribe(channel: StoreChannelType, callback: Function, bindObj: Object): void {
         let observerDatas: StoreObserverData[] | undefined = this.observers.get(channel);
-
-        // if(!observerDatas) observerDatas = [{callback, bindObj}];
 
         if(!observerDatas) { 
             observerDatas = [{callback, bindObj}]

@@ -28,6 +28,7 @@ const store = new (class Store {
       markerNumberTime: 0,
       cursorNumberTime: 0,
       isPause: true,
+      isRepeat: false,
       maxTrackWidth: 0,
       maxTrackPlayTime: 300,
       currentScrollAmount: 0
@@ -167,7 +168,9 @@ const store = new (class Store {
   setMarkerNumberTime(newMarkerNumberTime: number): void {
     const { markerNumberTime } = this.state;
 
-    if (markerNumberTime === newMarkerNumberTime) return;
+    if (markerNumberTime === newMarkerNumberTime){ 
+      return;
+    };
 
     this.state = { ...this.state, markerNumberTime: newMarkerNumberTime };
   }
@@ -227,11 +230,29 @@ const store = new (class Store {
   }
 
   setMaxTrackWidth(newMaxTrackWidth: number): void {
-    const { maxTrackWidth } = this.state;
+    const { 
+    
+    } = this.state;
     if (maxTrackWidth >= newMaxTrackWidth) return;
 
     this.state = { ...this.state, maxTrackWidth: newMaxTrackWidth };
     storeChannel.publish(StoreChannelType.MAX_TRACK_WIDTH_CHANNEL, newMaxTrackWidth);
+  }
+
+  changePlayOrPauseIcon(iconType:number) {
+    storeChannel.publish(StoreChannelType.PLAY_OR_PAUSE_CHANNEL, iconType);
+  }
+
+  setIsRepeatState(isRepeat:boolean) {
+    this.state = { ...this.state, isRepeat: isRepeat};
+  }
+
+  changeRepeatIconColor(isRepeat:boolean) {
+    storeChannel.publish(StoreChannelType.IS_REPEAT_CHANNEL, isRepeat);
+  }
+
+  soloPlay(trackId:number) {
+    storeChannel.publish(StoreChannelType.SOLO_CHANNEL, trackId);
   }
 
   setMaxTrackPlayTime(newMaxTrackPlayTime: number): void {
