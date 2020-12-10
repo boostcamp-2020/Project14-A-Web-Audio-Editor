@@ -40,7 +40,7 @@ class PlaybackToolClass {
     this.sourceList = sourceList;
   }
 
-  setMute(trackId: number) {
+  setMute(trackId: number): void {
     this.mutedTrackList.push(trackId);
 
     const isPause = Controller.getIsPauseState();
@@ -49,7 +49,7 @@ class PlaybackToolClass {
     }
   }
 
-  unsetMute(trackId: number) {
+  unsetMute(trackId: number): void {
     const idx = this.mutedTrackList.indexOf(trackId);
     if (idx > -1) this.mutedTrackList.splice(idx, 1)
 
@@ -59,7 +59,7 @@ class PlaybackToolClass {
     }
   }
 
-  setSolo(trackId: number) {
+  setSolo(trackId: number): void {
     this.soloTrackList.push(trackId);
 
     const isPause = Controller.getIsPauseState();
@@ -68,7 +68,7 @@ class PlaybackToolClass {
     }
   }
 
-  unsetSolo(trackId: number) {
+  unsetSolo(trackId: number): void {
     const idx = this.soloTrackList.indexOf(trackId);
     if (idx > -1) this.soloTrackList.splice(idx, 1)
 
@@ -78,7 +78,7 @@ class PlaybackToolClass {
     }
   }
 
-  audioCursorPlay() {
+  audioCursorPlay(): void {
     this.play();
   }
 
@@ -101,15 +101,14 @@ class PlaybackToolClass {
     }
   }
 
-  audioStop() {
+  audioStop(): void {
     if (this.trackList.length == 0) return;
 
     Controller.changeIsPauseState(true);
-
     this.stop(false);
   }
 
-  audioRepeat() {
+  audioRepeat(): void {
     if (this.trackList.length == 0) return;
 
     const isRepeat = Controller.getIsRepeatState();
@@ -117,42 +116,38 @@ class PlaybackToolClass {
     if (isRepeat === false) {
       Controller.changeIsRepeatState(true);
       this.repeat(2, 5);
-
-      return true;
     }
     else {
       Controller.changeIsRepeatState(false);
-
-      return false;
     }
   }
 
-  audioFastRewind() {
+  audioFastRewind(): void {
     if (this.trackList.length == 0) return;
 
     this.fastRewind();
   }
 
-  audioFastForward() {
+  audioFastForward(): void {
     if (this.trackList.length == 0) return;
 
     this.fastForward();
   }
 
-  audioSkipPrev() {
+  audioSkipPrev(): void {
     if (this.trackList.length == 0) return;
 
     const isPause = Controller.getIsPauseState();
     this.stop(!isPause);
   }
 
-  audioSkipNext() {
+  audioSkipNext(): void {
     if (this.trackList.length == 0) return;
 
     this.skipNext();
   }
 
-  stopAudioSources() {
+  stopAudioSources(): void {
     this.sourceInfo.forEach((source) => {
       try {
         source.bufferSourceNode.stop();
@@ -165,7 +160,7 @@ class PlaybackToolClass {
     this.audioContext.suspend();
   }
 
-  updateSourceInfo(sourceId: number, trackId: number, sectionId: number) {
+  updateSourceInfo(sourceId: number, trackId: number, sectionId: number): void {
     const bufferSourceNode = this.audioContext.createBufferSource();
     bufferSourceNode.buffer = this.sourceList[sourceId].buffer;
 
@@ -177,7 +172,7 @@ class PlaybackToolClass {
     this.sourceInfo.push({ trackId: trackId, sectionId: sectionId, bufferSourceNode: bufferSourceNode });
   }
 
-  createAndConnectAnalyser() {
+  createAndConnectAnalyser(): void {
     this.analyser = this.audioContext.createAnalyser();
     this.analyser.smoothingTimeConstant = 0.3;
     this.analyser.fftSize = 1024;
@@ -189,7 +184,7 @@ class PlaybackToolClass {
     this.analyser.connect(this.audioContext.destination);
   }
 
-  playTimer() {
+  playTimer(): void {
     const volumeBar = document.getElementById("audio-meter-fill");
 
     let playTimer = setInterval(() => {
@@ -279,11 +274,11 @@ class PlaybackToolClass {
     this.createAndConnectAnalyser();
   }
 
-  pause() {
+  pause(): void {
     this.audioContext.suspend();
   }
 
-  stop(restart: boolean) {
+  stop(restart: boolean): void {
     try {
       this.audioContext.close();
       this.audioContext = new AudioContext();
@@ -306,7 +301,7 @@ class PlaybackToolClass {
   }
 
   //동작 안됨.
-  repeat(markerStart: number, markerEnd: number) {
+  repeat(markerStart: number, markerEnd: number): void {
     Controller.changeMarkerNumberTime(markerStart);
     const isPause = Controller.getIsPauseState();
     if (isPause === false) {
@@ -314,7 +309,7 @@ class PlaybackToolClass {
     }
   }
 
-  fastRewind() {
+  fastRewind(): void {
     let markerTime = Controller.getMarkerTime();
 
     this.stopAudioSources();
@@ -390,7 +385,7 @@ class PlaybackToolClass {
     this.createAndConnectAnalyser();
   }
 
-  fastForward() {
+  fastForward(): void {
     let markerTime = Controller.getMarkerTime();
 
     this.stopAudioSources();
@@ -461,7 +456,7 @@ class PlaybackToolClass {
     this.createAndConnectAnalyser();
   }
 
-  skipNext() {
+  skipNext(): void {
     try {
       this.audioContext.close();
       this.audioContext = new AudioContext();

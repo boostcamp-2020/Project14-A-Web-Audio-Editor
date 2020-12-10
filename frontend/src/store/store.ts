@@ -245,10 +245,6 @@ const store = new (class Store {
     this.state = { ...this.state, isRepeat: isRepeat };
   }
 
-  changeRepeatIconColor(isRepeat: boolean) {
-    storeChannel.publish(StoreChannelType.IS_REPEAT_CHANNEL, isRepeat);
-  }
-
   setMaxTrackPlayTime(newMaxTrackPlayTime: number): void {
     const { maxTrackPlayTime } = this.state;
     if (maxTrackPlayTime >= newMaxTrackPlayTime) return;

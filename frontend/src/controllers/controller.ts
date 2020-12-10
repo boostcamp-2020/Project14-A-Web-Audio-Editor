@@ -470,9 +470,7 @@ const audioStop = (): void => {
 }
 
 const audioRepeat = (): void => {
-  const isRepeat = playbackTool.audioRepeat();
-
-  store.changeRepeatIconColor(isRepeat);
+  playbackTool.audioRepeat();
 }
 
 const changeIsRepeatState = (isRepeatState: boolean): void => {
