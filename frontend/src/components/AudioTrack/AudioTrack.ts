@@ -1,9 +1,9 @@
 import { Controller } from '@controllers';
-import { EventKeyType, EventType, StoreChannelType } from "@types";
-import { EventUtil } from "@util";
-import { storeChannel } from "@store";
-import { TrackSection } from "@model";
-import "./AudioTrack.scss";
+import { EventKeyType, EventType, StoreChannelType } from '@types';
+import { EventUtil, TimeUtil } from '@util';
+import { storeChannel } from '@store';
+import { TrackSection } from '@model';
+import './AudioTrack.scss';
 
 (() => {
   const AudioTrack = class extends HTMLElement {
@@ -13,6 +13,7 @@ import "./AudioTrack.scss";
     private trackSectionList: TrackSection[];
     private trackAreaElement: HTMLDivElement | null;
     private trackScrollAreaElement: HTMLDivElement | null;
+    private trackWidth: number;
 
     constructor() {
       super();
@@ -22,6 +23,7 @@ import "./AudioTrack.scss";
       this.trackSectionList = [];
       this.trackAreaElement = null;
       this.trackScrollAreaElement = null;
+      this.trackWidth = 0;
     }
 
     static get observedAttributes(): string[] {
@@ -52,8 +54,8 @@ import "./AudioTrack.scss";
 
     render(): void {
       this.innerHTML = `
-                    <div class="audio-track-container" event-key=${EventKeyType.FOCUS_RESET_CLICK}>
-                      <div class="audio-track-area" event-key=${EventKeyType.FOCUS_RESET_CLICK}>
+                    <div class="audio-track-container" event-key=${EventKeyType.FOCUS_RESET_CLICK + this.trackId}>
+                      <div data-track-id=${this.trackId} class="audio-track-area" event-key=${EventKeyType.AUDIO_TRACK_AREA_MULTIPLE + this.trackId}>
                         ${this.getTrackSectionList()}
                         <div class="audio-track-message"><span>Drag & Drop</span></div>
                         <div class="audio-track-dropzone hide" event-key=${EventKeyType.AUDIO_TRACK_DRAGOVER_DROP + this.trackId}></div>
@@ -64,9 +66,10 @@ import "./AudioTrack.scss";
     }
 
     getTrackSectionList(): string {
-      return this.trackSectionList.reduce((acc, trackSection) =>
-        acc += `<audi-track-section data-id=${trackSection.id} data-track-id=${trackSection.trackId}></audi-track-section>`
-        , "");
+      return this.trackSectionList.reduce(
+        (acc, trackSection) => (acc += `<audi-track-section data-id=${trackSection.id} data-track-id=${trackSection.trackId}></audi-track-section>`),
+        ''
+      );
     }
 
     initElement(): void {
@@ -74,6 +77,7 @@ import "./AudioTrack.scss";
       this.trackDropzoneElement = this.querySelector('.audio-track-dropzone');
       this.trackAreaElement = this.querySelector('.audio-track-area');
       this.trackScrollAreaElement = document.querySelector('.audi-main-audio-track-scroll-area');
+      this.trackWidth = this.trackAreaElement?.getBoundingClientRect().right - this.trackAreaElement?.getBoundingClientRect().left;
     }
 
     initEvent(): void {
@@ -85,11 +89,36 @@ import "./AudioTrack.scss";
       });
 
       EventUtil.registerEventToRoot({
+        eventTypes: [EventType.click, EventType.dragover, EventType.drop],
+        eventKey: EventKeyType.AUDIO_TRACK_AREA_MULTIPLE + this.trackId,
+        listeners: [this.focusResetListener, this.dragoverAudioTrackListener, this.dropAudioTrackListener],
+        bindObj: this
+      });
+
+      EventUtil.registerEventToRoot({
         eventTypes: [EventType.click],
-        eventKey: EventKeyType.FOCUS_RESET_CLICK,
+        eventKey: EventKeyType.FOCUS_RESET_CLICK + this.trackId,
         listeners: [this.focusResetListener],
         bindObj: this
       });
+    }
+
+    dragoverAudioTrackListener(e): void {
+      e.preventDefault();
+    }
+
+    dropAudioTrackListener(e): void {
+      e.preventDefault();
+      e.stopPropagation();
+
+      const { sectionId, prevTrackId, prevCursorTime, offsetLeft } = JSON.parse(e.dataTransfer.getData('text/plain'));
+      const currentCursorPosition = e.pageX;
+
+      const currentTrackId: number = Number(e.target.dataset.trackId);
+
+      const movingCursorTime = TimeUtil.calculateTimeOfCursorPosition(offsetLeft, currentCursorPosition, this.trackWidth);
+
+      Controller.moveCommand(prevTrackId, currentTrackId, sectionId, movingCursorTime, prevCursorTime);
     }
 
     focusResetListener(e): void {
@@ -101,14 +130,14 @@ import "./AudioTrack.scss";
 
     trackDragoverListener(e): void {
       e.preventDefault();
-      e.dataTransfer.dropEffect = "link";
+      e.dataTransfer.dropEffect = 'link';
     }
 
     trackDropListener(e): void {
       e.preventDefault();
       e.stopPropagation();
 
-      const sourceId = e.dataTransfer.getData("text/plain");
+      const sourceId = e.dataTransfer.getData('text/plain');
       Controller.addTrackSectionFromSource(Number(sourceId), this.trackId);
     }
 
@@ -123,7 +152,7 @@ import "./AudioTrack.scss";
     }
 
     hideMessage(): void {
-      if(!this.trackMessageElement) return;
+      if (!this.trackMessageElement) return;
       this.trackMessageElement.classList.add('hide');
     }
 
@@ -149,32 +178,35 @@ import "./AudioTrack.scss";
       this.trackDropzoneElement?.classList.add('hide');
     }
 
-    trackSectionListObserverCallback({trackId, trackSectionList}): void {
-      if(trackId !== this.trackId || !this.trackScrollAreaElement) return;
+    trackSectionListObserverCallback({ trackId, trackSectionList }): void {
+      if (trackId !== this.trackId || !this.trackScrollAreaElement) return;
 
       this.trackSectionList = trackSectionList;
       this.render();
       this.initElement();
       this.messageDisplayHandler();
       Controller.changeMaxTrackWidth(this.trackScrollAreaElement.scrollWidth);
+      Controller.changeMaxTrackPlayTime(trackSectionList);
     }
 
     messageDisplayHandler(): void {
-      if(!this.trackMessageElement) return;
+      if (!this.trackMessageElement) return;
 
-      if(this.trackSectionList.length > 0)
-        this.trackMessageElement.classList.add('hide');
-      else
-        this.trackMessageElement.classList.remove('hide');
+      if (this.trackSectionList.length > 0) this.trackMessageElement.classList.add('hide');
+      else this.trackMessageElement.classList.remove('hide');
     }
 
     maxTrackWidthObserverCallback(maxTrackWidth: number): void {
       this.resizeTrackArea(maxTrackWidth);
     }
 
-    resizeTrackArea(width: number){     
-      if(!this.trackAreaElement) return;
-      this.trackAreaElement.style.width = `${width}px`;
+    resizeTrackArea(maxTrackWidth: number){     
+      if(!this.trackAreaElement || !this.trackScrollAreaElement) return;
+
+      const scrollAreaWidth = this.trackScrollAreaElement.getBoundingClientRect().right - this.trackScrollAreaElement.getBoundingClientRect().left;
+      const ratio = maxTrackWidth / scrollAreaWidth;
+
+      this.trackAreaElement.style.width =  `${100 * ratio}%`;
     }
   };
 

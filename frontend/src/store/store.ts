@@ -29,7 +29,9 @@ const store = new (class Store {
       cursorNumberTime: 0,
       isPause: true,
       isRepeat: false,
-      maxTrackWidth: 0
+      maxTrackWidth: 0,
+      maxTrackPlayTime: 300,
+      currentScrollAmount: 0
     };
   }
 
@@ -228,8 +230,9 @@ const store = new (class Store {
   }
 
   setMaxTrackWidth(newMaxTrackWidth: number): void {
-    const { maxTrackWidth } = this.state;
-
+    const { 
+    
+    } = this.state;
     if (maxTrackWidth >= newMaxTrackWidth) return;
 
     this.state = { ...this.state, maxTrackWidth: newMaxTrackWidth };
@@ -250,6 +253,22 @@ const store = new (class Store {
 
   soloPlay(trackId:number) {
     storeChannel.publish(StoreChannelType.SOLO_CHANNEL, trackId);
+  }
+
+  setMaxTrackPlayTime(newMaxTrackPlayTime: number): void {
+    const { maxTrackPlayTime } = this.state;
+    if(maxTrackPlayTime >= newMaxTrackPlayTime) return;
+
+    this.state = {...this.state, maxTrackPlayTime: newMaxTrackPlayTime};
+    storeChannel.publish(StoreChannelType.MAX_TRACK_PLAY_TIME_CHANNEL, newMaxTrackPlayTime);
+  }
+
+  setCurrentScrollAmount(newCurrentScrollAmount: number): void {
+    const { currentScrollAmount } = this.state;
+    if(currentScrollAmount === newCurrentScrollAmount) return;
+
+    this.state = {...this.state, currentScrollAmount: newCurrentScrollAmount};
+    storeChannel.publish(StoreChannelType.CURRENT_SCROLL_AMOUNT_CHANNEL, newCurrentScrollAmount);
   }
 })();
 

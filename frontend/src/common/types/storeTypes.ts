@@ -28,7 +28,9 @@ enum StoreChannelType {
   EDIT_MENU_CHANNEL = 'EDIT_MENU_CHANNEL',
   PLAY_OR_PAUSE_CHANNEL = 'PLAY_OR_PAUSE_CHANNEL',
   IS_REPEAT_CHANNEL = 'IS_REPEAT_CHANNEL',
-  SOLO_CHANNEL = 'SOLO_CHANNEL'
+  SOLO_CHANNEL = 'SOLO_CHANNEL',
+  MAX_TRACK_PLAY_TIME_CHANNEL = 'MAX_TRACK_PLAY_TIME_CHANNEL',
+  CURRENT_SCROLL_AMOUNT_CHANNEL = 'CURRENT_SCROLL_AMOUNT_CHANNEL'
 }
 
 interface StoreStateType {
@@ -51,6 +53,8 @@ interface StoreStateType {
   isPause: boolean;
   isRepeat: boolean;
   maxTrackWidth: number;
+  maxTrackPlayTime: number;
+  currentScrollAmount: number;
 }
 
 interface StoreObserverData {

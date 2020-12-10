@@ -1,5 +1,5 @@
 import './PlaybackTools.scss';
-import { EventUtil } from '@util';
+import { EventUtil, PlayBarUtil, AudioUtil, WidthUtil } from '@util';
 import { EventType, EventKeyType, StoreChannelType } from '@types';
 import { storeChannel } from '@store';
 import { Controller } from '@controllers';
@@ -8,7 +8,7 @@ import { Controller } from '@controllers';
   const PlaybackTools = class extends HTMLElement {
     public iconlist: string[];
     public eventKeyList: string[];
-
+    
     constructor() {
       super();
       this.iconlist = ['play', 'stop', 'repeat', 'fastRewind', 'fastForward', 'skipPrev', 'skipNext'];
@@ -33,11 +33,11 @@ import { Controller } from '@controllers';
       this.innerHTML = `
                 <div class="playback-tools">
                   ${this.iconlist.reduce(
-                    (acc, icon, idx) =>
-                      acc +
-                      `<audi-icon-button id="${icon}" color="white" icontype="${icon}" size="32px" data-event-key="${this.eventKeyList[idx]}"></audi-icon-button>`,
-                    ''
-                  )}
+        (acc, icon, idx) =>
+          acc +
+          `<audi-icon-button id="${icon}" color="white" icontype="${icon}" size="32px" data-event-key="${this.eventKeyList[idx]}"></audi-icon-button>`,
+        ''
+      )}
                 </div>
             `;
     }
@@ -160,4 +160,5 @@ import { Controller } from '@controllers';
   };
   customElements.define('audi-playback-tools', PlaybackTools);
 })();
-export {};
+
+export { };

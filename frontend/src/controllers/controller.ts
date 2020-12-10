@@ -1,16 +1,53 @@
 import { Source, Track, TrackSection } from '@model';
-import { store } from "@store";
-import { ModalType, FocusInfo, CursorType, SectionDataType } from "@types";
+import { store } from '@store';
+import { ModalType, FocusInfo, CursorType, SectionDataType } from '@types';
 import CommandManager from '@command/CommandManager';
-import { DeleteCommand, PasteCommand, SplitCommand } from '@command';
+import { DeleteCommand, PasteCommand, SplitCommand, MoveCommand } from '@command';
 import { CopyUtil, SectionEffectListUtil, TimeUtil } from '@util';
 import playbackTool from '@components/PlaybackTools/PlaybackToolClass';
 
+const getTrackSection = (trackId: number, trackSectionId: number): TrackSection | undefined => {
+  const { trackList } = store.getState();
+  const track = trackList.find((track) => track.id === trackId);
+  if (!track) return;
+
+  const { trackSectionList } = track;
+  const trackSection = trackSectionList.find((trackSection) => trackSection.id === trackSectionId);
+  if (!trackSection) return;
+  return trackSection;
+};
+
+const getSource = (trackId: number, trackSectionId: number): Source | undefined => {
+  const { sourceList } = store.getState();
+  const trackSection = getTrackSection(trackId, trackSectionId);
+
+  if (!trackSection) return;
+  const source = sourceList.find((source) => source.id === trackSection.sourceId);
+  if (!source) return;
+
+  return source;
+};
+
+const getSourceAndTrackSection = (trackId: number, trackSectionId: number): { source: Source; trackSection: TrackSection } | undefined => {
+  const { trackList, sourceList } = store.getState();
+  const track = trackList.find((track) => track.id === trackId);
+  if (!track) return;
+
+  const { trackSectionList } = track;
+  const trackSection = trackSectionList.find((trackSection) => trackSection.id === trackSectionId);
+  if (!trackSection) return;
+
+  const source = sourceList.find((source) => source.id === trackSection.sourceId);
+  if (!source) return;
+
+  return { source, trackSection };
+};
+
 const getSectionData = (trackId: number, trackSectionId: number): SectionDataType | undefined => {
-  const getSourceAndTrackSection = (trackId: number, trackSectionId: number): {source: Source, trackSection: TrackSection} | undefined =>{
+  const getSourceAndTrackSection = (trackId: number, trackSectionId: number): { source: Source; trackSection: TrackSection } | undefined => {
     const { trackList, sourceList } = store.getState();
     const track = trackList.find((track) => track.id === trackId);
-    if(!track) return;
+    if (!track) return;
 
     const { trackSectionList } = track;
     const trackSection = trackSectionList.find((trackSection) => trackSection.id === trackSectionId);
@@ -20,10 +57,10 @@ const getSectionData = (trackId: number, trackSectionId: number): SectionDataTyp
     if (!source) return;
 
     return { source, trackSection };
-  }
+  };
 
-  const parseSectionData = ({ source, trackSection }: {source: Source, trackSection: TrackSection}): SectionDataType | undefined => {
-    if(!source || !trackSection) return;
+  const parseSectionData = ({ source, trackSection }: { source: Source; trackSection: TrackSection }): SectionDataType | undefined => {
+    if (!source || !trackSection) return;
 
     const { parsedChannelData, duration } = source;
     const { channelStartTime, channelEndTime } = trackSection;
@@ -38,18 +75,18 @@ const getSectionData = (trackId: number, trackSectionId: number): SectionDataTyp
       sectionChannelData: sectionChannelData,
       duration: channelEndTime - channelStartTime
     };
-  }
-  
-  const pipe = (f,g) => (x,y) => g(f(x,y));
+  };
+
+  const pipe = (f, g) => (x, y) => g(f(x, y));
   return pipe(getSourceAndTrackSection, parseSectionData)(trackId, trackSectionId);
 };
 
-const getSourceBySourceId = (sourceId: number): Source | undefined=> {
+const getSourceBySourceId = (sourceId: number): Source | undefined => {
   const { sourceList } = store.getState();
   const source = sourceList.find((source) => source.id === sourceId);
 
   return source;
-}
+};
 
 const getSourceList = (): Source[] => {
   const { sourceList } = store.getState();
@@ -97,24 +134,24 @@ const addTrackSectionFromSource = (sourceId: number, trackId: number): void => {
     const { sourceList } = store.getState();
     const source = sourceList.find((source) => source.id === sourceId);
     return source;
-  }
+  };
 
   const calculateTrackStartTime = (trackId: number): number | undefined => {
     const targetTrack = getTrack(trackId);
-    if(!targetTrack) return;
+    if (!targetTrack) return;
 
     const { trackSectionList } = targetTrack;
     let trackStartTime = 0;
-    if(trackSectionList.length > 0){
+    if (trackSectionList.length > 0) {
       const lastTrackSection = trackSectionList[trackSectionList.length - 1];
       trackStartTime = lastTrackSection.channelEndTime;
     }
 
     return trackStartTime;
-  }
+  };
 
   const addNewTrackSection = (trackId: number, source: Source, trackStartTime: number) => {
-    if(!source || trackStartTime === undefined) return;
+    if (!source || trackStartTime === undefined) return;
 
     const newTrackSection = new TrackSection({
       id: 0,
@@ -124,13 +161,13 @@ const addTrackSectionFromSource = (sourceId: number, trackId: number): void => {
       channelEndTime: source.duration,
       trackStartTime: trackStartTime
     });
-    
-    addTrackSection(trackId, newTrackSection);
-  }
 
-  const pipe = (f,g,h) => (x,y) => h(y, f(x), g(y));
+    addTrackSection(trackId, newTrackSection);
+  };
+
+  const pipe = (f, g, h) => (x, y) => h(y, f(x), g(y));
   pipe(getSourceById, calculateTrackStartTime, addNewTrackSection)(sourceId, trackId);
-}
+};
 
 const addTrackSection = (trackId: number, trackSection: TrackSection): void => {
   store.setTrackSection(trackId, trackSection);
@@ -314,7 +351,7 @@ const changePlayStringTime = (passedTime: number): void => {
 };
 
 const changeMarkerPlayStringTime = (cursorNumberTime: number): void => {
-  const [minute, second, milsecond] = TimeUtil.getSplitTime(cursorNumberTime);
+  const [minute, second, milsecond] = TimeUtil.splitTime(cursorNumberTime);
 
   const newPlayStringTime = TimeUtil.getStringTime(minute, second, milsecond);
 
@@ -381,20 +418,47 @@ const pasteCommand = () => {
   CommandManager.execute(command);
 };
 
+const moveCommand = (prevTrackId: number, currentTrackId: number, sectionId: number, movingCursorTime: number, prevCursorTime: number) => {
+  const { trackList } = store.getState();
+  const prevTrack = trackList.find((track) => track.id === prevTrackId);
+  const currentTrack = trackList.find((track) => track.id === currentTrackId);
+
+  if (!prevTrack || !currentTrack) return;
+
+  const trackSection = prevTrack.trackSectionList.find((section) => section.id === sectionId);
+
+  if (!trackSection) return;
+
+  const command = new MoveCommand(CopyUtil.copyTrack(prevTrack), CopyUtil.copyTrack(currentTrack), trackSection, movingCursorTime, prevCursorTime);
+  CommandManager.execute(command);
+};
+
 const splitTrackSection = (cursorPosition: number, trackId: number, sectionId: number): void => {
   const track = getTrack(trackId);
-  const trackSection = track?.trackSectionList.find(section => section.id === sectionId);
+  const trackSection = track?.trackSectionList.find((section) => section.id === sectionId);
   if (!trackSection || !track) return;
 
-  const splitCommand = new SplitCommand(cursorPosition, CopyUtil.copyTrack(track), CopyUtil.copySection(trackSection))
+  const splitCommand = new SplitCommand(cursorPosition, CopyUtil.copyTrack(track), CopyUtil.copySection(trackSection));
   CommandManager.execute(splitCommand);
 };
 
-const changeMaxTrackWidth = (newMaxTrackWidth: number) => {
-  const { maxTrackWidth } = store.getState();
-  if (maxTrackWidth >= newMaxTrackWidth) return;
-  store.setMaxTrackWidth(newMaxTrackWidth);
-};
+const changeMaxTrackWidth = (maxTrackWidth: number): void => {
+  store.setMaxTrackWidth(maxTrackWidth);
+}
+
+const changeMaxTrackPlayTime = (trackSectionList: TrackSection[]): void => {
+  const trackPlaytime = trackSectionList.reduce((acc, trackSection)=> acc += trackSection.length, 0);
+  store.setMaxTrackPlayTime(trackPlaytime);
+}
+
+const getMaxTrackPlayTime = () => {
+  const { maxTrackPlayTime } = store.getState();
+  return maxTrackPlayTime;
+}
+
+const changeCurrentScrollAmount = (newCurrentScrollAmount: number): void => {
+  store.setCurrentScrollAmount(newCurrentScrollAmount);
+}
 
 const audioCursorPlay = () => {
  playbackTool.audioCursorPlay(); 
@@ -459,6 +523,9 @@ const unsetSolo = () => {
 }
 
 export default {
+  getTrackSection,
+  getSource,
+  getSourceAndTrackSection,
   addTrackSectionFromSource,
   getSectionData,
   getSourceList,
@@ -496,9 +563,10 @@ export default {
   deleteCommand,
   undoCommand,
   redoCommand,
-  changeMaxTrackWidth,
+  getMaxTrackPlayTime,
   cutCommand,
   pasteCommand,
+  moveCommand,
   splitTrackSection,
   getSourceBySourceId,
   changeMarkerNumberTime,
@@ -515,5 +583,8 @@ export default {
   setMute,
   unsetMute,
   setSolo,
-  unsetSolo
+  unsetSolo,
+  changeMaxTrackWidth,
+  changeMaxTrackPlayTime,
+  changeCurrentScrollAmount
 };
