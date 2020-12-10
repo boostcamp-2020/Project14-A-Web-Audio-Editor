@@ -8,3 +8,4 @@ export * as SectionEffectListUtil from './SectionEffectListUtil';
 export * as TimeUtil from './TimeUtil';
 export { saveFile } from './compressor';
 export * as ValidUtil from './ValidUtil'
+export * as DragUtil from './DragUtil';

@@ -1,6 +1,6 @@
 import { Controller } from '@controllers';
 import { EventKeyType, EventType, StoreChannelType } from '@types';
-import { EventUtil, TimeUtil, WidthUtil, ValidUtil } from '@util';
+import { EventUtil, TimeUtil, WidthUtil, ValidUtil, DragUtil } from '@util';
 import { storeChannel } from '@store';
 import { TrackSection, SectionDragStartData } from '@model';
 import './AudioTrack.scss';
@@ -56,14 +56,12 @@ import './AudioTrack.scss';
         console.log(e);
       }
     }
-
     render(): void {
       this.innerHTML = `
                     <div class="audio-track-container" event-key=${EventKeyType.FOCUS_RESET_CLICK + this.trackId}>
                       <div data-track-id=${this.trackId} class="audio-track-area" event-key=${EventKeyType.AUDIO_TRACK_AREA_MULTIPLE + this.trackId}>
                         ${this.getTrackSectionList()}
                         <div class="audio-track-message"><span>Drag & Drop</span></div>
-                        <div class="audio-track-dropzone hide" event-key=${EventKeyType.AUDIO_TRACK_DRAGOVER_DROP + this.trackId}></div>
                         <div id="section-cut-line-${this.trackId}" class="cut-line"></div>
                         <div id="afterimage-${this.trackId}" class="audio-track-afterimage" event-key=${EventKeyType.AUDIO_TRACK_AFTERIMAGE_DROP + this.trackId}></div>
                       </div>      
@@ -89,13 +87,6 @@ import './AudioTrack.scss';
 
     initEvent(): void {
       EventUtil.registerEventToRoot({
-        eventTypes: [EventType.dragover, EventType.drop, EventType.dragenter, EventType.dragleave],
-        eventKey: EventKeyType.AUDIO_TRACK_DRAGOVER_DROP + this.trackId,
-        listeners: [this.trackDragoverListener, this.trackDropListener, this.trackDragenterListener, this.trackDragleaveListener],
-        bindObj: this
-      });
-
-      EventUtil.registerEventToRoot({
         eventTypes: [EventType.click, EventType.dragover, EventType.dragleave, EventType.drop, EventType.dragenter],
         eventKey: EventKeyType.AUDIO_TRACK_AREA_MULTIPLE + this.trackId,
         listeners: [this.focusResetListener, this.dragoverAudioTrackListener, this.dragleaveAudioTrackListener, this.dropAudioTrackListener, this.dragenterAudioTrackListener],
@@ -116,10 +107,10 @@ import './AudioTrack.scss';
 
       if (!this.trackAreaElement || trackSectionElements.length === 0) return;
       const maxTrackPlayTime = Controller.getMaxTrackPlayTime();
-      const secondPerPixer = WidthUtil.getPixelPerSecond(this.trackWidth, maxTrackPlayTime);
+      const secondPerPixel = WidthUtil.getPixelPerSecond(this.trackWidth, maxTrackPlayTime);
       this.trackSectionList.forEach((section, idx) => {
 
-        const marginValue = (section.trackStartTime - prevEndOffset) * secondPerPixer;
+        const marginValue = (section.trackStartTime - prevEndOffset) * secondPerPixel;
         if (!trackSectionElements[idx]) return;
         trackSectionElements[idx].style.marginLeft = `${marginValue}px`;
         prevEndOffset = section.trackStartTime + section.length;
@@ -147,52 +138,26 @@ import './AudioTrack.scss';
 
     dragoverAudioTrackListener(e): void {
       e.preventDefault();
-
-      if (!this.sectionDragData || !this.afterimageElement) return;
-      const { trackSection, prevCursorTime, offsetLeft } = this.sectionDragData;
-      const maxTrackPlayTime = Controller.getMaxTrackPlayTime();
-      const secondPerPixer = WidthUtil.getPixelPerSecond(this.trackWidth, maxTrackPlayTime);
-      const currentCursorPosition = e.pageX;
-      const movingCursorTime = TimeUtil.calculateTimeOfCursorPosition(offsetLeft, currentCursorPosition, this.trackWidth, maxTrackPlayTime);
-
-      let newTrackStartTime = movingCursorTime - (prevCursorTime - trackSection.trackStartTime);
-      const newTrackEndTime = newTrackStartTime + trackSection.length;
-      if (ValidUtil.checkEnterTrack(trackSection, this.trackSectionList, newTrackStartTime, newTrackEndTime)) {
-        this.afterimageElement.style.display = 'none';
-        this.afterimageElement.style.left = `0px`;
-        this.afterimageElement.style.width = `0px`;
-        return;
-      } else {
-        this.afterimageElement.style.display = 'block';
-      }
-
-      if (newTrackStartTime < 0) {
-        newTrackStartTime = 0;
-      }
-
       if (!this.afterimageElement) return;
 
-      this.afterimageElement.style.left = `${newTrackStartTime * secondPerPixer}px`;
-      this.afterimageElement.style.width = `${trackSection.length * secondPerPixer}px`;
+      const scrollAmount = Controller.getCurrentScrollAmount();
+      const currentCursorPosition = e.pageX + scrollAmount;
+
+      DragUtil.showAfterimage(this.afterimageElement, this.trackId, this.trackWidth, currentCursorPosition);
     }
 
     dropAudioTrackListener(e): void {
       e.preventDefault();
       e.stopPropagation();
+
       if (!this.afterimageElement) return;
       this.afterimageElement.style.display = 'none';
 
-      if (!this.sectionDragData) return;
-      const { trackSection, prevCursorTime, offsetLeft } = this.sectionDragData;
-
-      const currentCursorPosition = e.pageX;
-      const maxTrackPlayTime = Controller.getMaxTrackPlayTime();
+      const scrollAmount = Controller.getCurrentScrollAmount();
+      const currentCursorPosition = e.pageX + scrollAmount;
       const currentTrackId: number = Number(e.target.dataset.trackId);
 
-      const movingCursorTime = TimeUtil.calculateTimeOfCursorPosition(offsetLeft, currentCursorPosition, this.trackWidth, maxTrackPlayTime);
-
-      Controller.resetFocus();
-      Controller.moveCommand(trackSection.trackId, currentTrackId, trackSection.id, movingCursorTime, prevCursorTime);
+      DragUtil.dropTrackSection(currentTrackId, currentCursorPosition, this.trackWidth);
     }
 
     focusResetListener(e): void {
@@ -200,35 +165,6 @@ import './AudioTrack.scss';
       if (!ctrlIsPressed) {
         Controller.resetFocus();
       }
-    }
-
-    trackDragoverListener(e): void {
-      e.preventDefault();
-      e.dataTransfer.dropEffect = 'link';
-    }
-
-    trackDropListener(e): void {
-      e.preventDefault();
-      e.stopPropagation();
-
-      const sourceId = e.dataTransfer.getData('text/plain');
-      Controller.addTrackSectionFromSource(Number(sourceId), this.trackId);
-    }
-
-    trackDragenterListener(e): void {
-      e.preventDefault();
-      this.trackDropzoneElement?.classList.add('focus');
-    }
-
-    trackDragleaveListener(e): void {
-      e.preventDefault();
-      if (!this.trackDropzoneElement) return;
-      this.trackDropzoneElement?.classList.remove('focus');
-    }
-
-    hideMessage(): void {
-      if (!this.trackMessageElement) return;
-      this.trackMessageElement.classList.add('hide');
     }
 
     subscribe(): void {

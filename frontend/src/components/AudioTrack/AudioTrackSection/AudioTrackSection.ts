@@ -1,6 +1,6 @@
 import { Controller } from '@controllers';
 import { CursorType, EventKeyType, EventType, StoreChannelType, SectionDataType } from '@types';
-import { EventUtil, TimeUtil, ValidUtil, WidthUtil } from '@util';
+import { EventUtil, TimeUtil, ValidUtil, WidthUtil, DragUtil } from '@util';
 import { storeChannel } from '@store';
 import './AudioTrackSection.scss';
 
@@ -161,57 +161,20 @@ import './AudioTrackSection.scss';
 
     trackSectiondragoverListener(e): void {
       e.preventDefault();
-      if (!this.trackAfterimageElement || !this.trackContainerElement) return;
-      const dragData = Controller.getSectionDragStartData();
-
-      if (!dragData) return;
-      const { trackSection, prevCursorTime, offsetLeft } = dragData;
-
-      const maxTrackPlayTime = Controller.getMaxTrackPlayTime();
-      const secondPerPixer = WidthUtil.getPixelPerSecond(this.trackContainerWidth, maxTrackPlayTime);
-      const currentCursorPosition = e.pageX;
-
-      const track = Controller.getTrack(this.trackId);
-
-      const movingCursorTime = TimeUtil.calculateTimeOfCursorPosition(offsetLeft, currentCursorPosition, this.trackContainerWidth, maxTrackPlayTime);
-
-      if (!trackSection || !track) return;
-
-      let newTrackStartTime = movingCursorTime - (prevCursorTime - trackSection.trackStartTime);
-      const newTrackEndTime = newTrackStartTime + trackSection.length;
-      if (ValidUtil.checkEnterTrack(trackSection, track.trackSectionList, newTrackStartTime, newTrackEndTime)) {
-        this.trackAfterimageElement.style.display = 'none';
-        this.trackAfterimageElement.style.left = `0px`;
-        this.trackAfterimageElement.style.width = `0px`;
-        return;
-      } else {
-        this.trackAfterimageElement.style.display = 'block';
-      }
-
-      if (newTrackStartTime < 0) {
-        newTrackStartTime = 0;
-      }
-
       if (!this.trackAfterimageElement) return;
 
-      this.trackAfterimageElement.style.left = `${newTrackStartTime * secondPerPixer}px`;
-      this.trackAfterimageElement.style.width = `${trackSection.length * secondPerPixer}px`;
+      const currentCursorPosition = e.pageX + this.currentScrollAmount;
+
+      DragUtil.showAfterimage(this.trackAfterimageElement, this.trackId, this.trackContainerWidth, currentCursorPosition);
     }
 
     trackSectiondropListener(e): void {
       e.preventDefault();
       e.stopPropagation();
 
-      const dragData = Controller.getSectionDragStartData();
+      const currentCursorPosition = e.pageX + this.currentScrollAmount;
 
-      if (!dragData) return;
-      const { trackSection, prevCursorTime, offsetLeft } = dragData;
-      const currentCursorPosition = e.pageX;
-      const maxTrackPlayTime = Controller.getMaxTrackPlayTime();
-
-      const movingCursorTime = TimeUtil.calculateTimeOfCursorPosition(offsetLeft, currentCursorPosition, this.trackContainerWidth, maxTrackPlayTime);
-      Controller.resetFocus();
-      Controller.moveCommand(trackSection.trackId, this.trackId, trackSection.id, movingCursorTime, prevCursorTime);
+      DragUtil.dropTrackSection(this.trackId, currentCursorPosition, this.trackContainerWidth);
     }
 
     trackSectiondragStartListener(e): void {
@@ -222,11 +185,17 @@ import './AudioTrackSection.scss';
       const prevCursorPosition = e.pageX;
       const prevCursorTime = TimeUtil.calculateTimeOfCursorPosition(offsetLeft, prevCursorPosition, this.trackContainerWidth, maxTrackPlayTime);
       const trackSection = Controller.getTrackSection(this.trackId, this.sectionId);
-      if (!trackSection) return;
 
-      const sectionDragStartData = { trackSection, prevCursorTime, offsetLeft };
+      if (!trackSection) return;
+      const currentScrollTime = Controller.getCurrentScrollTime();
+      const sectionDragStartData = { trackSection, prevCursorTime: prevCursorTime + currentScrollTime, offsetLeft };
+
       Controller.changeSectionDragStartData(sectionDragStartData);
       e.dataTransfer.effectAllowed = 'move';
+
+      const dragImage = document.createElement('div');
+      dragImage.style.visibility = 'hidden';
+      e.dataTransfer.setDragImage(dragImage, 0, 0);
     }
 
     trackSectionClickListener(e): void {
@@ -252,7 +221,6 @@ import './AudioTrackSection.scss';
 
     trackSectionMouseMoveListener(e): void {
       if (!this.trackContainerElement || this.cursorMode !== CursorType.CUT_MODE) return;
-
       const cursorPosition = e.pageX;
       const trackContainerLeftX = this.trackContainerElement.getBoundingClientRect().left;
       const cursorOffset = cursorPosition - trackContainerLeftX;

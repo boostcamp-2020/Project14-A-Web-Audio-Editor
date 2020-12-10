@@ -75,7 +75,7 @@ audi-audio-track:not(:defined) {
         transform: translate3d(-50%, -50%, 0);
         text-align:center;
         z-index: 50;
-
+        pointer-events: none;
         span{
             color:rgb(158, 158, 158)
         }
