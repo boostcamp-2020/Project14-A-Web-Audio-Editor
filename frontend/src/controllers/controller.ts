@@ -461,12 +461,21 @@ const getSectionDragStartData = (): SectionDragStartData | null => {
   return sectionDragStartData;
 };
 
-const popTrackWithIndex = (): void => {
+const pushTrackWidthIndex = (newTrack: Track): void => {
   const { trackList, trackIndex } = store.getState();
-  trackList.pop();
+  const newTrackList = trackList.concat(newTrack);
+
+  store.setTrackList(newTrackList);
+  store.setTrackIndex(trackIndex + 1);
+}
+
+const popTrackWithIndex = (): Track | undefined => {
+  const { trackList, trackIndex } = store.getState();
+  const removedTrack = trackList.pop();
   
   store.setTrackList(trackList);
   store.setTrackIndex(trackIndex - 1);
+  return removedTrack;
 };
 
 export default {
@@ -532,5 +541,6 @@ export default {
   getCurrentScrollAmount,
   changeSectionDragStartData,
   getSectionDragStartData,
-  popTrackWithIndex
+  popTrackWithIndex,
+  pushTrackWidthIndex
 };
