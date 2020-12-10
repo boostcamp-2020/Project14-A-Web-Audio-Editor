@@ -156,14 +156,16 @@ import { Controller } from '@controllers';
       if(iconType === 0) {
         return;
       }
+      // const isRepeat = Controller.getIsRepeatState();
+      // if(isRepeat) this.changeRepeatIconColor(isRepeat);
+
       else if(iconType === 1) {
         this.iconlist[0] = 'pause';
-        this.render();
       }
       else if(iconType===2) {
         this.iconlist[0] = 'play';
-        this.render();
       }
+      this.render();
     }
 
     changeRepeatIconColor(isRepeat: boolean) {

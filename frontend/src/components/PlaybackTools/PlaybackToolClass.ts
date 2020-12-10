@@ -115,13 +115,13 @@ class PlaybackToolClass {
         
         if(isRepeat === false) {
           Controller.changeIsRepeatState(true);
-          this.repeat();
+          this.repeat(2, 5);
 
           return true;
         }
         else {
           Controller.changeIsRepeatState(false);
-          
+
           return false;
         }
     }
@@ -165,7 +165,6 @@ class PlaybackToolClass {
     }
 
     updateSourceInfo(sourceId: number, trackId: number, sectionId: number) {
-
         const bufferSourceNode = this.audioContext.createBufferSource();
         bufferSourceNode.buffer = this.sourceList[sourceId].buffer;
 
@@ -233,9 +232,9 @@ class PlaybackToolClass {
                     this.sourceInfo[sourceIdx].bufferSourceNode.start(waitTime, audioStartTime, playDuration);
                 }
             });
-        }
-    });
-    this.audioContext.resume();
+          }
+      });
+      this.audioContext.resume();
     }
  
     pause() {
@@ -265,8 +264,13 @@ class PlaybackToolClass {
         }
     }
     
-    repeat() {
-      
+    //동작 안됨.
+    repeat(markerStart:number, markerEnd:number) {
+      Controller.changeMarkerNumberTime(markerStart);
+      const isPause = Controller.getIsPauseState();
+      if(isPause === false) {
+        this.play();
+      }
     }
 
     fastRewind() {
