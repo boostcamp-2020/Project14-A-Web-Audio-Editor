@@ -1,19 +1,14 @@
-import { icons } from '../IconButton/icons';
-import { ModalType, EventType, EventKeyType, EffectList } from '@types';
+import { ModalType, EventType, EventKeyType, EffectList, IconType } from '@types';
 import { Controller } from '@controllers';
 import { EventUtil } from '@util';
 import './SectionEffectList.scss';
 
 (() => {
   const SectionEffectList = class extends HTMLElement {
-    private size: string;
-    private color: string;
     private effectList: EffectList[];
 
     constructor() {
       super();
-      this.size = '20px';
-      this.color = 'white';
       this.effectList = [];
     }
 
@@ -36,17 +31,7 @@ import './SectionEffectList.scss';
                     <div class="effect-list-title-wrap">
                       <div class="effect-list-title">
                         <div>Effect</div>
-                        <svg
-                          class="icon"
-                          xmlns="http://www.w3.org/2000/svg"
-                          viewBox="0 0 24 24"
-                          role="img"
-                          width="${this.size}"
-                          height="${this.size}"
-                          event-key="${EventKeyType.EFFECT_LIST_OPEN_MODAL_BTN_CLICK}"
-                        > 
-                          <path fillRule="evenodd" fill="${this.color}" d="${icons.menu}"></path>
-                        </svg>   
+                        <audi-icon-button id="${IconType.listAdd}" color="white" icontype="${IconType.listAdd}" data-event-key=${EventKeyType.EFFECT_LIST_OPEN_MODAL_BTN_CLICK}></audi-icon-button> 
                       </div>
                     </div>
                     <ul class="effect-list-wrap">
@@ -67,16 +52,7 @@ import './SectionEffectList.scss';
           <li class="effect-container">
             <div class="effect"> 
               <div>${effect.name}</div>
-              <svg
-                class="icon"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                role="img"
-                width="${this.size}"
-                height="${this.size}"
-              > 
-                <path fillRule="evenodd" fill="${this.color}" d="${icons.delete}"></path>
-              </svg>   
+              <audi-icon-button icontype=${IconType.delete}></audi-icon-button> 
             </div>
           </li>
         `),
@@ -105,4 +81,4 @@ import './SectionEffectList.scss';
   customElements.define('audi-section-effect-list', SectionEffectList);
 })();
 
-export {};
+export { };
