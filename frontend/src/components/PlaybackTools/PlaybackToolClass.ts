@@ -237,7 +237,7 @@ class PlaybackToolClass {
     this.sourceInfo = [];
 
     this.trackList.forEach((track: Track) => {
-      if (track.trackSectionList.length != 0) {
+      if (track.trackSectionList.length !== 0) {
 
         if (this.soloTrackList.length !== 0) { 
           const soloTrackIdx = this.soloTrackList.indexOf(track.id);
@@ -335,7 +335,7 @@ class PlaybackToolClass {
     }
 
     this.trackList.forEach((track: Track) => {
-      if (track.trackSectionList.length != 0) {
+      if (track.trackSectionList.length !== 0) {
 
         if (this.soloTrackList.length !== 0) { 
           const soloTrackIdx = this.soloTrackList.indexOf(track.id);
@@ -410,7 +410,7 @@ class PlaybackToolClass {
     }
 
     this.trackList.forEach((track: Track) => {
-      if (track.trackSectionList.length != 0) {
+      if (track.trackSectionList.length !== 0) {
 
         if (this.soloTrackList.length !== 0) { 
           const soloTrackIdx = this.soloTrackList.indexOf(track.id);
