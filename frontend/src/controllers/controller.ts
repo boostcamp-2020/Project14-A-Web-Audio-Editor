@@ -489,21 +489,14 @@ const removeTrackById = (trackId: number): Track | undefined => {
   return trackToRemove;
 }
 
-const insertTrack = (removeIdx: number, track: Track): void => {
+const insertTrack = (insertIdx: number, trackToInsert: Track): void => {
   const { trackList } = store.getState();
-
-  let newTrackList: Track[] = [];
-  if(removeIdx === 0){
-    trackList.unshift(track);
-    newTrackList = trackList;
-  }else if(removeIdx === trackList.length - 1){
-    trackList.push(track);
-    newTrackList = trackList;
-  }else{
-    const leftTrackList = trackList.slice(0,removeIdx);
-    const rightTrackList = trackList.slice(removeIdx, trackList.length);
-    newTrackList = [...leftTrackList, track, ...rightTrackList];
-  }
+  
+  const newTrackList = Array(trackList.length + 1).fill(0).map(( _, idx) => {
+    if(idx < insertIdx) return trackList[idx];
+    if(idx > insertIdx) return trackList[idx - 1];
+    return trackToInsert;
+  });
 
   store.setTrackList(newTrackList);
 }

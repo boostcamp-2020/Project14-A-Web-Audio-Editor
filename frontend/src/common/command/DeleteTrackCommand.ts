@@ -16,10 +16,9 @@ class DeleteTrackCommand extends Command {
         this.removedTrack;
     }
 
-    execute(){
+    execute(): void {
         try{
-            const trackList = Controller.getTrackList();
-            this.removeIdx = trackList.findIndex((track) => track.id === this.trackId);
+            this.removeIdx = this.calculateRemoveIdx();
             this.removedTrack = Controller.removeTrackById(this.trackId);
             
             this.publishNewTrackList();
@@ -28,11 +27,16 @@ class DeleteTrackCommand extends Command {
         }
     }
 
-    undo(){
+    calculateRemoveIdx(): number {
+        const trackList = Controller.getTrackList();
+        return trackList.findIndex((track) => track.id === this.trackId);
+    }
+
+    undo(): void {
         try{
             if(!this.removedTrack) return;
-
             Controller.insertTrack(this.removeIdx, this.removedTrack);
+
             this.publishNewTrackList();
         }catch(e){
             console.log(e);
@@ -41,7 +45,7 @@ class DeleteTrackCommand extends Command {
 
     publishNewTrackList(): void {
         const newTrackList = Controller.getTrackList();
-        
+
         storeChannel.publish(StoreChannelType.TRACK_CHANNEL, newTrackList);
         storeChannel.publish(StoreChannelType.TRACK_LIST_CHANNEL, newTrackList);
         newTrackList.forEach((track) => {
