@@ -460,9 +460,9 @@ const audioCursorPlay = () => {
 }
 
 const audioPlayOrPause = (): void => {
-  const ret = playbackTool.audioPlayOrPause();
+  const audioPlayType = playbackTool.audioPlayOrPause();
 
-  store.changePlayOrPauseIcon(ret);
+  store.changePlayOrPauseIcon(audioPlayType);
 }
 
 const audioStop = (): void => {
@@ -470,9 +470,9 @@ const audioStop = (): void => {
 }
 
 const audioRepeat = (): void => {
-  const ret = playbackTool.audioRepeat();
+  const isRepeat = playbackTool.audioRepeat();
 
-  store.changeRepeatIconColor(ret);
+  store.changeRepeatIconColor(isRepeat);
 }
 
 const changeIsRepeatState = (isRepeatState: boolean): void => {
