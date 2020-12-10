@@ -1,4 +1,4 @@
-import { Source, Track, TrackSection } from '@model';
+import { Source, Track, TrackSection, SectionDragStartData } from '@model';
 import { store } from '@store';
 import { ModalType, FocusInfo, CursorType, SectionDataType } from '@types';
 import CommandManager from '@command/CommandManager';
@@ -517,6 +517,16 @@ const unsetSolo = () => {
   playbackTool.unsetSolo();
 }
 
+const changeSectionDragStartData = (sectionDragStartData: SectionDragStartData): void => {
+  store.setSectionDragStartData(sectionDragStartData);
+}
+
+const getSectionDragStartData = (): SectionDragStartData | null => {
+  const { sectionDragStartData } = store.getState();
+
+  return sectionDragStartData;
+}
+
 export default {
   getTrackSection,
   getSource,
@@ -580,5 +590,7 @@ export default {
   unsetSolo,
   changeMaxTrackWidth,
   changeMaxTrackPlayTime,
-  changeCurrentScrollAmount
+  changeCurrentScrollAmount,
+  changeSectionDragStartData,
+  getSectionDragStartData
 };
