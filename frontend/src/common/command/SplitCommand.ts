@@ -78,5 +78,6 @@ export class SplitCommand extends ICommand {
       trackSectionList: newTrack.trackSectionList
     });
 
+    storeChannel.publish(StoreChannelType.TRACK_CHANNEL, newTrack.trackSectionList);
   }
 }

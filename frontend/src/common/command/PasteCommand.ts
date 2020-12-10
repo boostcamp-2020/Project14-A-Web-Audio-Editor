@@ -44,6 +44,8 @@ export class PasteCommand extends ICommand {
       trackId: newTrack.id,
       trackSectionList: newTrack.trackSectionList
     });
+
+    storeChannel.publish(StoreChannelType.TRACK_CHANNEL, newTrack.trackSectionList);
   };
 
 }
