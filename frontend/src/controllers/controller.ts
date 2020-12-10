@@ -280,14 +280,9 @@ const pauseChangeMarkerNumberTime = (playingTime: number): void => {
   store.setMarkerNumberTime(newMarkerNumberTime);
 };
 
-const changeMarkerNumberTime = (markerTime:number) => {
+const changeMarkerNumberTime = (markerTime: number) => {
   store.setMarkerNumberTime(markerTime);
 }
-
-//지워도 될 것.
-// const changeCursorMarkerNumberTime = (newMarkerNumberTime: number): void => {
-//   store.setCursorNumberTime(newMarkerNumberTime);
-// };
 
 const getMarkerTime = (): number => {
   const { markerNumberTime } = store.getState();
@@ -447,7 +442,7 @@ const changeMaxTrackWidth = (maxTrackWidth: number): void => {
 }
 
 const changeMaxTrackPlayTime = (trackSectionList: TrackSection[]): void => {
-  const trackPlaytime = trackSectionList.reduce((acc, trackSection)=> acc += trackSection.length, 0);
+  const trackPlaytime = trackSectionList.reduce((acc, trackSection) => acc += trackSection.length, 0);
   store.setMaxTrackPlayTime(trackPlaytime);
 }
 
@@ -461,21 +456,21 @@ const changeCurrentScrollAmount = (newCurrentScrollAmount: number): void => {
 }
 
 const audioCursorPlay = () => {
- playbackTool.audioCursorPlay(); 
+  playbackTool.audioCursorPlay();
 }
 
-const audioPlayOrPause = ():void => {
+const audioPlayOrPause = (): void => {
   const ret = playbackTool.audioPlayOrPause();
 
   store.changePlayOrPauseIcon(ret);
 }
 
-const audioStop = ():void => {
+const audioStop = (): void => {
   playbackTool.audioStop();
 }
 
-const audioRepeat = ():void => {
-  const ret = playbackTool.audioRepeat(); 
+const audioRepeat = (): void => {
+  const ret = playbackTool.audioRepeat();
 
   store.changeRepeatIconColor(ret);
 }
@@ -505,15 +500,15 @@ const audioSkipNext = () => {
   playbackTool.audioSkipNext();
 }
 
-const setMute = (trackId:number) => {
+const setMute = (trackId: number) => {
   playbackTool.setMute(trackId);
 }
 
-const unsetMute = (trackId:number) => {
+const unsetMute = (trackId: number) => {
   playbackTool.unsetMute(trackId);
 }
 
-const setSolo = (trackId:number) => {
+const setSolo = (trackId: number) => {
   store.soloPlay(trackId);
   playbackTool.setSolo(trackId);
 }
@@ -553,7 +548,6 @@ export default {
   pauseChangeMarkerNumberTime,
   getMarkerTime,
   changeCursorNumberTime,
-  // changeCursorMarkerNumberTime,
   setMarkerWidth,
   getIsPauseState,
   changeIsPauseState,

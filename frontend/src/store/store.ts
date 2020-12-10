@@ -168,7 +168,7 @@ const store = new (class Store {
   setMarkerNumberTime(newMarkerNumberTime: number): void {
     const { markerNumberTime } = this.state;
 
-    if (markerNumberTime === newMarkerNumberTime){ 
+    if (markerNumberTime === newMarkerNumberTime) {
       return;
     };
 
@@ -223,51 +223,49 @@ const store = new (class Store {
 
   setCursorMode(newCursorMode: CursorType): void {
     const { cursorMode } = this.state;
-    if(cursorMode === newCursorMode) return;
+    if (cursorMode === newCursorMode) return;
 
-    this.state = {...this.state, cursorMode: newCursorMode};
+    this.state = { ...this.state, cursorMode: newCursorMode };
     storeChannel.publish(StoreChannelType.CURSOR_MODE_CHANNEL, newCursorMode);
   }
 
   setMaxTrackWidth(newMaxTrackWidth: number): void {
-    const { 
-    
-    } = this.state;
+    const { maxTrackWidth } = this.state;
     if (maxTrackWidth >= newMaxTrackWidth) return;
 
     this.state = { ...this.state, maxTrackWidth: newMaxTrackWidth };
     storeChannel.publish(StoreChannelType.MAX_TRACK_WIDTH_CHANNEL, newMaxTrackWidth);
   }
 
-  changePlayOrPauseIcon(iconType:number) {
+  changePlayOrPauseIcon(iconType: number) {
     storeChannel.publish(StoreChannelType.PLAY_OR_PAUSE_CHANNEL, iconType);
   }
 
-  setIsRepeatState(isRepeat:boolean) {
-    this.state = { ...this.state, isRepeat: isRepeat};
+  setIsRepeatState(isRepeat: boolean) {
+    this.state = { ...this.state, isRepeat: isRepeat };
   }
 
-  changeRepeatIconColor(isRepeat:boolean) {
+  changeRepeatIconColor(isRepeat: boolean) {
     storeChannel.publish(StoreChannelType.IS_REPEAT_CHANNEL, isRepeat);
   }
 
-  soloPlay(trackId:number) {
+  soloPlay(trackId: number) {
     storeChannel.publish(StoreChannelType.SOLO_CHANNEL, trackId);
   }
 
   setMaxTrackPlayTime(newMaxTrackPlayTime: number): void {
     const { maxTrackPlayTime } = this.state;
-    if(maxTrackPlayTime >= newMaxTrackPlayTime) return;
+    if (maxTrackPlayTime >= newMaxTrackPlayTime) return;
 
-    this.state = {...this.state, maxTrackPlayTime: newMaxTrackPlayTime};
+    this.state = { ...this.state, maxTrackPlayTime: newMaxTrackPlayTime };
     storeChannel.publish(StoreChannelType.MAX_TRACK_PLAY_TIME_CHANNEL, newMaxTrackPlayTime);
   }
 
   setCurrentScrollAmount(newCurrentScrollAmount: number): void {
     const { currentScrollAmount } = this.state;
-    if(currentScrollAmount === newCurrentScrollAmount) return;
+    if (currentScrollAmount === newCurrentScrollAmount) return;
 
-    this.state = {...this.state, currentScrollAmount: newCurrentScrollAmount};
+    this.state = { ...this.state, currentScrollAmount: newCurrentScrollAmount };
     storeChannel.publish(StoreChannelType.CURRENT_SCROLL_AMOUNT_CHANNEL, newCurrentScrollAmount);
   }
 })();
