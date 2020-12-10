@@ -1,4 +1,4 @@
-import { Controller } from '@controllers';
+import { Controller, CommandController } from '@controllers';
 import { CursorType, EventKeyType, EventType, StoreChannelType, SectionDataType } from '@types';
 import { EventUtil, TimeUtil, ValidUtil, WidthUtil, DragUtil } from '@util';
 import { storeChannel } from '@store';
@@ -13,10 +13,12 @@ import './AudioTrackSection.scss';
     private canvasWidth: number;
     private canvasHeight: number;
     private maxTrackPlayTime: number;
+    private maxTrackWidth: number;
     private currentScrollAmount: number;
     private trackCanvasElement: HTMLCanvasElement | undefined | null;
     private trackContainerElement: HTMLElement | null;
     private trackAreaElement: HTMLElement | null;
+    private trackScrollAreaElement: HTMLElement | null;
     private cutLineElement: HTMLElement | undefined | null;
     private trackContainerWidth: number;
     private trackAfterimageElement: HTMLElement | null;
@@ -29,11 +31,13 @@ import './AudioTrackSection.scss';
       this.cursorMode;
       this.canvasWidth = 0;
       this.canvasHeight = 0;
+      this.maxTrackWidth = 0;
       this.maxTrackPlayTime = 0;
       this.currentScrollAmount = 0;
       this.trackCanvasElement;
       this.trackContainerElement = null;
       this.trackAreaElement = null;
+      this.trackScrollAreaElement = null;
       this.cutLineElement;
       this.trackContainerWidth = 0;
       this.trackAfterimageElement = null;
@@ -79,13 +83,19 @@ import './AudioTrackSection.scss';
     initProperty(): void {
       this.cursorMode = Controller.getCursorMode();
       this.sectionData = Controller.getSectionData(this.trackId, this.sectionId);
+      this.maxTrackWidth = Controller.getMaxTrackWidth();
       this.maxTrackPlayTime = Controller.getMaxTrackPlayTime();
+      this.currentScrollAmount = Controller.getCurrentScrollAmount();
       this.trackCanvasElement = this.querySelector<HTMLCanvasElement>('.audio-track-section');
       this.cutLineElement = document.getElementById(`section-cut-line-${this.trackId}`);
       this.trackContainerElement = document.querySelector('.audi-main-audio-track-container');
       this.trackAreaElement = document.querySelector('.audio-track-area');
-      this.trackContainerWidth = this.trackContainerElement?.getBoundingClientRect().right - this.trackContainerElement?.getBoundingClientRect().left;
-      this.trackAfterimageElement = document.querySelector(`#afterimage-${this.trackId}`)
+      this.trackScrollAreaElement = document.querySelector('.audi-main-audio-track-scroll-area');
+      this.trackAfterimageElement = document.querySelector(`#afterimage-${this.trackId}`);
+      
+      if(this.trackContainerElement){
+        this.trackContainerWidth = this.trackContainerElement.getBoundingClientRect().right - this.trackContainerElement.getBoundingClientRect().left;
+      }
     }
 
     drawTrackSection(): void {
@@ -95,14 +105,20 @@ import './AudioTrackSection.scss';
       this.calculateCanvasSize(duration);
       this.resizeCanvas();
       this.drawCanvas(sectionChannelData);
+      this.resizeTrackArea();
     }
 
     calculateCanvasSize(duration: number): void {
       if (!this.trackContainerElement || !this.trackAreaElement) return;
 
-      const trackWidth = this.trackAreaElement.getBoundingClientRect().right - this.trackContainerElement.getBoundingClientRect().left;
+      const trackWidth = this.trackAreaElement.getBoundingClientRect().right - this.trackAreaElement.getBoundingClientRect().left;
       const trackHeight = this.trackAreaElement.clientHeight;
-      this.canvasWidth = trackWidth / (this.maxTrackPlayTime / duration);
+      
+      if(this.maxTrackWidth > trackWidth)
+        this.canvasWidth = this.maxTrackWidth / (this.maxTrackPlayTime / duration);
+      else
+        this.canvasWidth = trackWidth / (this.maxTrackPlayTime / duration);
+      
       this.canvasHeight = trackHeight;;
     }
 
@@ -140,6 +156,15 @@ import './AudioTrackSection.scss';
         }
       }
       canvasCtx.stroke();
+    }
+
+    resizeTrackArea(){
+      if(!this.trackScrollAreaElement || !this.trackAreaElement) return;
+
+      const scrollAreaWidth = this.trackScrollAreaElement.getBoundingClientRect().right - this.trackScrollAreaElement.getBoundingClientRect().left;
+      const ratio = this.maxTrackWidth / scrollAreaWidth;
+
+      this.trackAreaElement.style.width =  `${100 * ratio}%`;
     }
 
     initEvent(): void {
@@ -181,9 +206,9 @@ import './AudioTrackSection.scss';
       if (!this.trackContainerElement) return;
       const offsetLeft = this.trackContainerElement.getBoundingClientRect().left;
 
-      const maxTrackPlayTime = Controller.getMaxTrackPlayTime();
+      this.maxTrackPlayTime = Controller.getMaxTrackPlayTime();
       const prevCursorPosition = e.pageX;
-      const prevCursorTime = TimeUtil.calculateTimeOfCursorPosition(offsetLeft, prevCursorPosition, this.trackContainerWidth, maxTrackPlayTime);
+      const prevCursorTime = TimeUtil.calculateTimeOfCursorPosition(offsetLeft, prevCursorPosition, this.trackContainerWidth, this.maxTrackPlayTime);
       const trackSection = Controller.getTrackSection(this.trackId, this.sectionId);
 
       if (!trackSection) return;
@@ -216,7 +241,7 @@ import './AudioTrackSection.scss';
 
     cutModeClickHandler(e): void {
       const cursorPosition = e.pageX;
-      Controller.splitTrackSection(cursorPosition, this.trackId, this.sectionId);
+      CommandController.excuteSplitCommand(cursorPosition, this.trackId, this.sectionId);
     }
 
     trackSectionMouseMoveListener(e): void {
@@ -250,7 +275,6 @@ import './AudioTrackSection.scss';
     subscribe(): void {
       storeChannel.subscribe(StoreChannelType.CURSOR_MODE_CHANNEL, this.cursorModeObserverCallback, this);
       storeChannel.subscribe(StoreChannelType.CURRENT_SCROLL_AMOUNT_CHANNEL, this.currentScrollAmountObserverCallback, this);
-      // storeChannel.subscribe(StoreChannelType.MAX_TRACK_PLAY_TIME_CHANNEL, this.maxTrackPlayTimeObserverCallback, this);
     }
 
     cursorModeObserverCallback(newCursorMode) {
@@ -260,10 +284,6 @@ import './AudioTrackSection.scss';
     currentScrollAmountObserverCallback(newCurrentScrollAmount: number): void {
       this.currentScrollAmount = newCurrentScrollAmount;
     }
-
-    // maxTrackPlayTimeObserverCallback(maxTrackPlayTime: number): void {
-    //   this.maxTrackPlayTime = maxTrackPlayTime;
-    // }
 
     initState(): void {
       const focusList = Controller.getFocusList();

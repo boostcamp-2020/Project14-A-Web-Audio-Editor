@@ -31,6 +31,8 @@ enum EventKeyType {
   EFFECT_LIST_OPEN_MODAL_BTN_CLICK = 'EFFECT_LIST_OPEN_MODAL_BTN_CLICK',
   AUDIO_TRACK_MULTIPLE = 'AUDIO_TRACK_MULTIPLE',
   AUDIO_TRACK_AREA_MULTIPLE = 'AUDIO_TRACK_AREA_MULTIPLE',
+  TRACK_ADD_MENU_CLICK = 'TRACK_ADD_MENU_CLICK',
+  TRACK_LIST_SCROLL = 'TRACK_LIST_SCROLL',
   AUDIO_TRACK_AFTERIMAGE_DROP = 'AUDIO_TRACK_AFTERIMAGE_DROP'
 }
 
@@ -48,7 +50,8 @@ enum EventType {
   input = 'input',
   mousemove = 'mousemove',
   mousedown = 'mousedown',
-  mouseout = 'mouseout'
+  mouseout = 'mouseout',
+  scroll = 'scroll'
 }
 
 const eventTypes = [
@@ -65,7 +68,8 @@ const eventTypes = [
   'mousemove',
   'dragend',
   'mousedown',
-  'mouseout'
+  'mouseout',
+  'scroll'
 ];
 
 interface EventTargetDataType {

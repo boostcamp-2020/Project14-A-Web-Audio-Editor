@@ -15,6 +15,8 @@ import './AudioTrack.scss';
     private trackScrollAreaElement: HTMLDivElement | null;
     private afterimageElement: HTMLDivElement | null;
     private trackWidth: number;
+    private maxTrackWidth: number;
+    private maxTrackPlayTime: number;
     private sectionDragData: SectionDragStartData | null;
 
     constructor() {
@@ -27,6 +29,8 @@ import './AudioTrack.scss';
       this.trackScrollAreaElement = null;
       this.afterimageElement = null;
       this.trackWidth = 0;
+      this.maxTrackWidth = 0;
+      this.maxTrackPlayTime = 0;
       this.sectionDragData = null;
     }
 
@@ -56,6 +60,7 @@ import './AudioTrack.scss';
         console.log(e);
       }
     }
+    
     render(): void {
       this.innerHTML = `
                     <div class="audio-track-container" event-key=${EventKeyType.FOCUS_RESET_CLICK + this.trackId}>
@@ -69,7 +74,7 @@ import './AudioTrack.scss';
                 `;
     }
 
-    getTrackSectionList(): string {
+    getTrackSectionList(): string {     
       return this.trackSectionList.reduce(
         (acc, trackSection) => (acc += `<audi-track-section data-id=${trackSection.id} data-track-id=${trackSection.trackId}></audi-track-section>`),
         ''
@@ -77,12 +82,17 @@ import './AudioTrack.scss';
     }
 
     initElement(): void {
+      this.maxTrackWidth = Controller.getMaxTrackWidth();
+      this.maxTrackPlayTime = Controller.getMaxTrackPlayTime();
       this.trackMessageElement = this.querySelector('.audio-track-message');
       this.trackDropzoneElement = this.querySelector('.audio-track-dropzone');
       this.trackAreaElement = this.querySelector('.audio-track-area');
       this.trackScrollAreaElement = document.querySelector('.audi-main-audio-track-scroll-area');
       this.afterimageElement = this.querySelector(`#afterimage-${this.trackId}`);
-      this.trackWidth = this.trackAreaElement?.getBoundingClientRect().right - this.trackAreaElement?.getBoundingClientRect().left;
+      
+      if(this.trackAreaElement){
+        this.trackWidth = this.trackAreaElement.getBoundingClientRect().right - this.trackAreaElement.getBoundingClientRect().left;
+      }
     }
 
     initEvent(): void {
@@ -122,7 +132,6 @@ import './AudioTrack.scss';
       e.stopPropagation();
       if (!this.afterimageElement) return;
       this.sectionDragData = Controller.getSectionDragStartData();
-
       this.afterimageElement.style.display = 'block';
     }
 
@@ -171,6 +180,7 @@ import './AudioTrack.scss';
       storeChannel.subscribe(StoreChannelType.TRACK_DRAG_STATE_CHANNEL, this.trackDragStateObserverCallback, this);
       storeChannel.subscribe(StoreChannelType.TRACK_SECTION_LIST_CHANNEL, this.trackSectionListObserverCallback, this);
       storeChannel.subscribe(StoreChannelType.MAX_TRACK_WIDTH_CHANNEL, this.maxTrackWidthObserverCallback, this);
+      storeChannel.subscribe(StoreChannelType.MAX_TRACK_PLAY_TIME_CHANNEL, this.maxTrackPlayTimeObserverCallback, this);
     }
 
     trackDragStateObserverCallback(isTrackDraggable): void {
@@ -197,8 +207,13 @@ import './AudioTrack.scss';
       this.initElement();
       this.initPosition();
       this.messageDisplayHandler();
-      Controller.changeMaxTrackWidth(this.trackScrollAreaElement.scrollWidth);
+
+      const scrollWidth = this.trackScrollAreaElement.scrollWidth;
+      Controller.changeMaxTrackWidth(scrollWidth);  
       Controller.changeMaxTrackPlayTime(trackSectionList);
+
+      if(this.maxTrackWidth === scrollWidth)
+        this.resizeTrackArea(scrollWidth);
     }
 
     messageDisplayHandler(): void {
@@ -209,6 +224,7 @@ import './AudioTrack.scss';
     }
 
     maxTrackWidthObserverCallback(maxTrackWidth: number): void {
+      this.maxTrackWidth = maxTrackWidth;
       this.resizeTrackArea(maxTrackWidth);
     }
 
@@ -219,6 +235,10 @@ import './AudioTrack.scss';
       const ratio = maxTrackWidth / scrollAreaWidth;
 
       this.trackAreaElement.style.width = `${100 * ratio}%`;
+    }
+
+    maxTrackPlayTimeObserverCallback(maxTrackPlayTime: number): void {
+      this.maxTrackPlayTime = maxTrackPlayTime;
     }
   };
 

@@ -1,11 +1,11 @@
-import ICommand from './ICommand';
+import { Command } from '@command';
 import { Track, TrackSection } from '@model';
 import { StoreChannelType } from '@types';
 import { storeChannel } from '@store';
 import { CopyUtil, ValidUtil } from '@util';
 import { Controller } from '@controllers';
 
-export class MoveCommand extends ICommand {
+class MoveCommand extends Command {
   private prevTrack: Track;
   private currentTrack: Track;
   private trackSection: TrackSection;
@@ -68,3 +68,5 @@ export class MoveCommand extends ICommand {
     storeChannel.publish(StoreChannelType.TRACK_CHANNEL, this.currentTrack.trackSectionList);
   }
 }
+
+export default MoveCommand;

@@ -1,11 +1,11 @@
-import ICommand from './ICommand'
+import { Command } from '@command';
 import { Controller } from '@controllers'
 import { StoreChannelType } from '@types'
 import { storeChannel } from '@store'
 import { TrackSection, Track } from '@model'
 import { CopyUtil } from '@util'
 
-export class PasteCommand extends ICommand {
+class PasteCommand extends Command {
   private beforeTrack: Track;
   private addTrackSection: TrackSection;
 
@@ -47,6 +47,6 @@ export class PasteCommand extends ICommand {
 
     storeChannel.publish(StoreChannelType.TRACK_CHANNEL, newTrack.trackSectionList);
   };
-
 }
 
+export default PasteCommand;

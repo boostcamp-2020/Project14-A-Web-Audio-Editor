@@ -2,7 +2,7 @@ import { getDifferenceWidth } from './WidthUtil';
 import { splitTime, calculateTimeOfCursorPosition } from './TimeUtil';
 import { Controller } from '@controllers';
 
-const mousemoveMarkerListener: Function = (element: HTMLElement, elementLeftX: number, elementWidth: number, currentScrollAmount: number, trackPlayTime: number) => (e: Event): void => {
+const mousemoveMarkerListener: Function = (element: HTMLElement, elementLeftX: number, elementWidth: number, currentScrollAmount: number, trackPlayTime: number) => (e: MouseEvent): void => {
   if (!element) return;
 
   const cursorPosition = e.pageX;

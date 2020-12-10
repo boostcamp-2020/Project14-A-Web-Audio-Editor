@@ -22,8 +22,8 @@ import { EventUtil } from '@util';
       this.innerHTML = `
               <div id="editor-menu">
                 <div class="icon-wrap">
-                  <audi-icon-button id="upload" color="white" icontype="upload" size="32px" data-event-key=${EventKeyType.EDITOR_MENU_OPEN_UPLOAD_BTN_CLICK}></audi-icon-button>
-                  <audi-icon-button id="save" color="white" icontype="save" size="32px" data-event-key=${EventKeyType.EDITOR_MENU_OPEN_DOWNLOAD_BTN_CLICK}></audi-icon-button>
+                  <audi-icon-button id="upload" class="delegation" color="white" icontype="upload" size="32px" event-key=${EventKeyType.EDITOR_MENU_OPEN_UPLOAD_BTN_CLICK}></audi-icon-button>
+                  <audi-icon-button id="save" class="delegation" color="white" icontype="save" size="32px" event-key=${EventKeyType.EDITOR_MENU_OPEN_DOWNLOAD_BTN_CLICK}></audi-icon-button>
                 </div>
                 <audi-edit-tools></audi-edit-tools>
                 <audi-playback-tools></audi-playback-tools>
@@ -43,11 +43,8 @@ import { EventUtil } from '@util';
       if (!saveButton) return;
 
       const trackList = Controller.getTrackList();
-
       const possibleSave = trackList.find(track => track.trackSectionList.length > 0);
-
       if (!possibleSave) saveButton.classList.add('disabled')
-
     }
 
     initEvent(): void {
@@ -84,8 +81,6 @@ import { EventUtil } from '@util';
       this.initEvent();
     }
   };
-
-
 
   customElements.define('audi-editor-menu', EditorMenu);
 })();

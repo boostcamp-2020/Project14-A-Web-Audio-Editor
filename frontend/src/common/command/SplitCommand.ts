@@ -1,14 +1,13 @@
-import ICommand from './ICommand';
+import { Command } from '@command';
 import { Controller } from '@controllers';
 import { StoreChannelType } from '@types';
 import { storeChannel } from '@store';
 import { Track, TrackSection } from '@model';
-import { CopyUtil } from '@util';
+import { CopyUtil, TimeUtil } from '@util';
 
-export class SplitCommand extends ICommand {
+class SplitCommand extends Command {
   private beforeTrack: Track;
   private cursorPosition: number;
-  private trackContainerElement: HTMLDivElement | null;
   private targetTrackSection: TrackSection;
 
   constructor(cursorPosition: number, currentTrack: Track, targetTrackSection: TrackSection) {
@@ -16,29 +15,20 @@ export class SplitCommand extends ICommand {
     this.cursorPosition = cursorPosition;
     this.beforeTrack = currentTrack;
     this.targetTrackSection = targetTrackSection;
-    this.trackContainerElement = document.querySelector('.audi-main-audio-track-container');
   }
 
   execute() {
-    if (!this.trackContainerElement) return;
+    const trackAreaElement = document.querySelector('.audio-track-area');
+    if(!trackAreaElement) return;
 
     const maxTrackPlayTime = Controller.getMaxTrackPlayTime();
-    const timeOfCursorPosition = this.calculateTimeOfCursorPosition(this.trackContainerElement, maxTrackPlayTime);
+    const trackAreaLeftX = trackAreaElement.getBoundingClientRect().left;
+    const trackAreaRightX = trackAreaElement.getBoundingClientRect().right;
+    const trackAreaWidth = trackAreaRightX - trackAreaLeftX;
+
+    const timeOfCursorPosition = TimeUtil.calculateTimeOfCursorPosition(trackAreaLeftX, this.cursorPosition, trackAreaWidth, maxTrackPlayTime);
     const [leftTrackSection, rightTrackSection] = this.splitTrackSection(timeOfCursorPosition);
     this.updateSplitedSections(leftTrackSection, rightTrackSection);
-  }
-
-  calculateTimeOfCursorPosition(trackContainerElement: HTMLDivElement, maxTrackPlayTime: number): number {
-    const trackContainerLeftX = trackContainerElement.getBoundingClientRect().left;
-    const trackContainerRightX = trackContainerElement.getBoundingClientRect().right;
-    const trackContainerWidth = trackContainerRightX - trackContainerLeftX;
-
-    const trackPixelsPerSecond = parseFloat((trackContainerWidth / maxTrackPlayTime).toFixed(2));
-    const secondsPerTrackPixel = parseFloat((1 / trackPixelsPerSecond).toFixed(2));
-    const cursorOffset = this.cursorPosition - trackContainerLeftX;
-    const timeOfCursorPosition = secondsPerTrackPixel * cursorOffset;
-
-    return timeOfCursorPosition;
   }
 
   splitTrackSection(timeOfCursorPosition: number): TrackSection[] {
@@ -81,3 +71,5 @@ export class SplitCommand extends ICommand {
     storeChannel.publish(StoreChannelType.TRACK_CHANNEL, newTrack.trackSectionList);
   }
 }
+
+export default SplitCommand;

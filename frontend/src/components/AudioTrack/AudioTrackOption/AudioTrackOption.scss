@@ -5,7 +5,7 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    height: 150px;
+    height: 175px;
     padding: 10px;
     margin: 20px 0;
     border: 1px solid variables.$white-color;
@@ -31,9 +31,9 @@
     }
 }
 
-@media screen and (max-width: 1280px) {
+@media screen and (max-width: 1680px) {
     .audio-track-option-container{
-        height: 100px;
+        height: 125px;
         margin: 10px 0;
         padding: 5px;
 

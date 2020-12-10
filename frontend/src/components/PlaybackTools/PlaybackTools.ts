@@ -32,9 +32,9 @@ import { Controller } from '@controllers';
     render() {
       this.innerHTML = `
                 <div class="playback-tools">
-                  ${this.iconlist.reduce((acc, icon, idx) =>{
+                ${this.iconlist.reduce((acc, icon, idx) =>{
                     const checkRepeat = Controller.getIsRepeatState() && (icon==='repeat');
-          return acc + `<audi-icon-button id="${icon}" class="${checkRepeat?'clicked':''}" color="white" icontype="${icon}" size="32px" data-event-key="${this.eventKeyList[idx]}"></audi-icon-button>`},'')}
+                    return acc + `<audi-icon-button id="${icon}" class="${checkRepeat?'clicked':''}" color="white" icontype="${icon}" size="32px" data-event-key="${this.eventKeyList[idx]}"></audi-icon-button>`},'')}
                 </div>
             `;
     }

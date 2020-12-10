@@ -1,7 +1,7 @@
-import CommandManager from '@command/CommandManager';
+import { CommandManager } from '@command';
 import { CursorType, StoreChannelType, EventKeyType, EventType, IconType } from "@types";
 import { storeChannel } from '@store';
-import { Controller } from '@controllers'
+import { Controller, CommandController } from '@controllers'
 import { EventUtil } from '@util';
 import './EditTools.scss'
 
@@ -41,7 +41,7 @@ import './EditTools.scss'
     render() {
       this.innerHTML = `
               <div class="edit-tools">
-                ${this.iconlist.reduce((acc, icon) => acc + `<audi-icon-button id="${icon}" color="white" icontype="${icon}" size="32px" data-event-key=${EventKeyType.EDIT_TOOLS_CLICK + icon}></audi-icon-button>`, '')}
+                ${this.iconlist.reduce((acc, icon) => acc + `<audi-icon-button id="${icon}" color="white" icontype="${icon}" class="delegation" size="32px" event-key=${EventKeyType.EDIT_TOOLS_CLICK + icon}></audi-icon-button>`, '')}
               </div>
             `;
     }
@@ -175,23 +175,23 @@ import './EditTools.scss'
     }
 
     cutListener(e) {
-      Controller.cutCommand();
+      CommandController.excuteCutCommand();
     }
 
     pasteListener(e) {
-      Controller.pasteCommand();
+      CommandController.excutePasteCommand();
     }
 
     deleteListener(): void {
-      Controller.deleteCommand();
+      CommandController.excuteDeleteCommand();
     }
 
     undoListener(): void {
-      Controller.undoCommand();
+      CommandController.excuteUndoCommand();
     }
 
     redoListener(): void {
-      Controller.redoCommand();
+      CommandController.excuteRedoCommand();
     }
 
     subscribe(): void {
