@@ -1,7 +1,6 @@
 import { Source, Track, TrackSection, SectionDragStartData } from '@model';
 import { store } from '@store';
 import { ModalType, FocusInfo, CursorType, SectionDataType } from '@types';
-import { CommandManager, MoveCommand } from '@command';
 import { CopyUtil, SectionEffectListUtil, TimeUtil, WidthUtil } from '@util';
 import playbackTool from '@components/PlaybackTools/PlaybackToolClass';
 
@@ -345,17 +344,6 @@ const setClipBoard = (): boolean => {
   return true;
 };
 
-const moveCommand = (prevTrackId: number, currentTrackId: number, trackSection: TrackSection, movingCursorTime: number, prevCursorTime: number) => {
-  const { trackList } = store.getState();
-  const prevTrack = trackList.find((track) => track.id === prevTrackId);
-  const currentTrack = trackList.find((track) => track.id === currentTrackId);
-
-  if (!prevTrack || !currentTrack) return;
-
-  const command = new MoveCommand(CopyUtil.copyTrack(prevTrack), CopyUtil.copyTrack(currentTrack), trackSection, movingCursorTime, prevCursorTime);
-  CommandManager.execute(command);
-};
-
 const changeMaxTrackWidth = (maxTrackWidth: number): void => {
   store.setMaxTrackWidth(maxTrackWidth);
 };
@@ -500,7 +488,6 @@ export default {
   changeMarkerPlayStringTime,
   removeSection,
   getMaxTrackPlayTime,
-  moveCommand,
   getSourceBySourceId,
   changeMarkerNumberTime,
   audioPlayOrPause,
