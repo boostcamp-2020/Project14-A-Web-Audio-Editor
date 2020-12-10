@@ -1,4 +1,4 @@
-import { Source, Track, AudioSourceInfoInTrack, TrackSection } from '@model';
+import { Source, Track, AudioSourceInfoInTrack, TrackSection, SectionDragStartData } from '@model';
 import { ModalStateType } from '@types';
 
 enum CursorType {
@@ -55,6 +55,7 @@ interface StoreStateType {
   maxTrackWidth: number;
   maxTrackPlayTime: number;
   currentScrollAmount: number;
+  sectionDragStartData: SectionDragStartData | null;
 }
 
 interface StoreObserverData {
