@@ -460,9 +460,9 @@ const audioCursorPlay = () => {
 }
 
 const audioPlayOrPause = (): void => {
-  const ret = playbackTool.audioPlayOrPause();
+  const audioPlayType = playbackTool.audioPlayOrPause();
 
-  store.changePlayOrPauseIcon(ret);
+  store.changePlayOrPauseIcon(audioPlayType);
 }
 
 const audioStop = (): void => {
@@ -470,9 +470,7 @@ const audioStop = (): void => {
 }
 
 const audioRepeat = (): void => {
-  const ret = playbackTool.audioRepeat();
-
-  store.changeRepeatIconColor(ret);
+  playbackTool.audioRepeat();
 }
 
 const changeIsRepeatState = (isRepeatState: boolean): void => {
@@ -509,12 +507,11 @@ const unsetMute = (trackId: number) => {
 }
 
 const setSolo = (trackId: number) => {
-  store.soloPlay(trackId);
   playbackTool.setSolo(trackId);
 }
 
-const unsetSolo = () => {
-  playbackTool.unsetSolo();
+const unsetSolo = (trackId: number) => {
+  playbackTool.unsetSolo(trackId);
 }
 
 export default {

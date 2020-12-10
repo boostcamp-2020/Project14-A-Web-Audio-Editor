@@ -44,7 +44,6 @@ import './AudioTrackOption.scss';
       try {
         this.render();
         this.initEvent();
-        this.subscribe();
       } catch (e) {
         console.log(e);
       }
@@ -85,45 +84,27 @@ import './AudioTrackOption.scss';
       }
     }
 
-    subscribe(): void {
-      storeChannel.subscribe(StoreChannelType.SOLO_CHANNEL, this.setSoloState, this);
-    }
-
-    setSoloState(trackId:number): void {
-      if(trackId === Number(this.dataset.trackId)) {
-        this.isSolo = true;
-      }
-      else {
-        this.isSolo = false;
-      }
-
-      this.render();
-    }
-
-    soloClickListener(): void {
-      const trackId = Number(this.dataset.trackId);
-      
+    soloClickListener(): void {      
       if(!this.isSolo) {
-        Controller.setSolo(trackId);
+        this.isSolo = true;
+        Controller.setSolo(this.trackId);
       }
       else {
         this.isSolo = false;
-        Controller.unsetSolo();
+        Controller.unsetSolo(this.trackId);
       }
 
       this.render();
     }
 
     muteClickListener(): void {
-      const trackId = Number(this.dataset.trackId);
-
       if(!this.isMute) {
         this.isMute = true;
-        Controller.setMute(trackId);
+        Controller.setMute(this.trackId);
       }
       else {
         this.isMute = false;
-        Controller.unsetMute(trackId);
+        Controller.unsetMute(this.trackId);
       }
 
       this.render();
