@@ -7,8 +7,6 @@
     <img src="https://img.shields.io/badge/javascript-ES6+-yellow?logo=javascript"/>
     <img src="https://img.shields.io/badge/typescript-v4.0.2-blue?logo=typescript&logoColor=007ACC" />
     <img src="https://img.shields.io/badge/node.js-v15.2.1-green?logo=node.js"/>
-    <img src="https://img.shields.io/badge/mysql-v5.7.32-blue?logo=mysql"/>
-    <img src="https://img.shields.io/badge/SQLite-v3.33.0-003B57?logo=SQLite&logoColor=003B57"/>
    </p>
 </div>
 
