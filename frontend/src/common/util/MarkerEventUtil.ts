@@ -4,10 +4,10 @@ import { Controller } from '@controllers';
 
 const mousemoveMarkerListener: Function = (element: HTMLElement, elementLeftX: number, elementWidth: number, currentScrollAmount: number, trackPlayTime: number) => (e: Event): void => {
   if (!element) return;
-  
+
   const cursorPosition = e.pageX;
   const scrolledCursorPosition = cursorPosition + currentScrollAmount
-  const timeOfCursorPosition = calculateTimeOfCursorPosition(elementLeftX, scrolledCursorPosition, elementWidth, trackPlayTime); 
+  const timeOfCursorPosition = calculateTimeOfCursorPosition(elementLeftX, scrolledCursorPosition, elementWidth, trackPlayTime);
   const [minute, second, milsecond] = splitTime(timeOfCursorPosition);
   const offesetOfCursorPosition = getDifferenceWidth(elementLeftX, cursorPosition);
 
@@ -15,7 +15,6 @@ const mousemoveMarkerListener: Function = (element: HTMLElement, elementLeftX: n
   Controller.changeCurrentPosition(offesetOfCursorPosition);
   Controller.changeCursorStringTime(minute, second, milsecond);
   Controller.changeCursorNumberTime(timeOfCursorPosition);
-  //Controller.changeCursorMarkerNumberTime(timeOfCursorPosition);
 };
 
 const clickMarkerListener = (element: HTMLElement) => (e: Event): void => {
