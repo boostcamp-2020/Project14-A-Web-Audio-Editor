@@ -2,7 +2,7 @@ import ICommand from './ICommand';
 import { Track, TrackSection } from '@model';
 import { StoreChannelType } from '@types';
 import { storeChannel } from '@store';
-import { CopyUtil } from '@util';
+import { CopyUtil, ValidUtil } from '@util';
 import { Controller } from '@controllers';
 
 export class MoveCommand extends ICommand {
@@ -29,7 +29,7 @@ export class MoveCommand extends ICommand {
     let newTrackStartTime = this.movingCursorTime - (this.prevCursorTime - this.trackSection.trackStartTime);
     const newTrackEndTime = newTrackStartTime + this.trackSection.length;
 
-    // if (this.checkEnterTrack(this.currentTrack.trackSectionList, newTrackStartTime, newTrackEndTime)) return;
+    if (ValidUtil.checkEnterTrack(this.trackSection, this.currentTrack.trackSectionList, newTrackStartTime, newTrackEndTime)) return;
 
     if (newTrackStartTime < 0) {
       newTrackStartTime = 0;
@@ -58,18 +58,7 @@ export class MoveCommand extends ICommand {
       trackSectionList: this.currentTrack.trackSectionList
     });
 
-    storeChannel.publish(StoreChannelType.TRACK_CHANNEL, this.prevTrack.trackSectionList);
-    storeChannel.publish(StoreChannelType.TRACK_CHANNEL, this.currentTrack.trackSectionList);
   }
 
-  checkEnterTrack(trackSectioList, newTrackStartTime, newTrackEndTime): boolean {
-    const nearLeftSection = trackSectioList.some(
-      (section) => section.trackStartTime <= newTrackStartTime && section.trackStartTime + section.length >= newTrackStartTime
-    );
-    const nearRightSection = trackSectioList.some(
-      (section) => section.trackStartTime <= newTrackEndTime && section.trackStartTime + section.length >= newTrackEndTime
-    );
 
-    return nearLeftSection || nearRightSection;
-  }
 }
