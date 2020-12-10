@@ -34,7 +34,7 @@ import { Controller } from '@controllers';
                 <div class="playback-tools">
                 ${this.iconlist.reduce((acc, icon, idx) =>{
                     const checkRepeat = Controller.getIsRepeatState() && (icon==='repeat');
-                    return acc + `<audi-icon-button id="${icon}" class="${checkRepeat?'clicked':''}" color="white" icontype="${icon}" size="32px" data-event-key="${this.eventKeyList[idx]}"></audi-icon-button>`},'')}
+                    return acc + `<audi-icon-button id="${icon}" class="${checkRepeat?'clicked':''} delegation" color="white" icontype="${icon}" size="32px" event-key="${this.eventKeyList[idx]}"></audi-icon-button>`},'')}
                 </div>
             `;
     }

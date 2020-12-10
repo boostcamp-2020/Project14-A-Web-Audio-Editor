@@ -89,10 +89,15 @@ import './AudioTrack.scss';
       this.trackAreaElement = this.querySelector('.audio-track-area');
       this.trackScrollAreaElement = document.querySelector('.audi-main-audio-track-scroll-area');
       this.afterimageElement = this.querySelector(`#afterimage-${this.trackId}`);
-      
+      this.trackWidth = this.calculateTrackWidth();
+    }
+
+    calculateTrackWidth(): number{
+      let trackWidth = 0;
       if(this.trackAreaElement){
-        this.trackWidth = this.trackAreaElement.getBoundingClientRect().right - this.trackAreaElement.getBoundingClientRect().left;
+        trackWidth = this.trackAreaElement.getBoundingClientRect().right - this.trackAreaElement.getBoundingClientRect().left;
       }
+      return trackWidth;
     }
 
     initEvent(): void {
@@ -116,10 +121,12 @@ import './AudioTrack.scss';
       const trackSectionElements: NodeListOf<HTMLElement> = this.querySelectorAll('audi-track-section');
 
       if (!this.trackAreaElement || trackSectionElements.length === 0) return;
-      const maxTrackPlayTime = Controller.getMaxTrackPlayTime();
-      const secondPerPixel = WidthUtil.getPixelPerSecond(this.trackWidth, maxTrackPlayTime);
+      
+      this.trackWidth = this.calculateTrackWidth();
+      this.maxTrackPlayTime = Controller.getMaxTrackPlayTime();
+      const secondPerPixel = WidthUtil.getPixelPerSecond(this.trackWidth, this.maxTrackPlayTime);
+      
       this.trackSectionList.forEach((section, idx) => {
-
         const marginValue = (section.trackStartTime - prevEndOffset) * secondPerPixel;
         if (!trackSectionElements[idx]) return;
         trackSectionElements[idx].style.marginLeft = `${marginValue}px`;
@@ -177,26 +184,9 @@ import './AudioTrack.scss';
     }
 
     subscribe(): void {
-      storeChannel.subscribe(StoreChannelType.TRACK_DRAG_STATE_CHANNEL, this.trackDragStateObserverCallback, this);
       storeChannel.subscribe(StoreChannelType.TRACK_SECTION_LIST_CHANNEL, this.trackSectionListObserverCallback, this);
       storeChannel.subscribe(StoreChannelType.MAX_TRACK_WIDTH_CHANNEL, this.maxTrackWidthObserverCallback, this);
       storeChannel.subscribe(StoreChannelType.MAX_TRACK_PLAY_TIME_CHANNEL, this.maxTrackPlayTimeObserverCallback, this);
-    }
-
-    trackDragStateObserverCallback(isTrackDraggable): void {
-      if (isTrackDraggable) {
-        this.activeTrackDropzone();
-        return;
-      }
-      this.inactiveTrackDropzone();
-    }
-
-    activeTrackDropzone(): void {
-      this.trackDropzoneElement?.classList.remove('hide');
-    }
-
-    inactiveTrackDropzone(): void {
-      this.trackDropzoneElement?.classList.add('hide');
     }
 
     trackSectionListObserverCallback({ trackId, trackSectionList }): void {
@@ -205,7 +195,6 @@ import './AudioTrack.scss';
       this.trackSectionList = trackSectionList;
       this.render();
       this.initElement();
-      this.initPosition();
       this.messageDisplayHandler();
 
       const scrollWidth = this.trackScrollAreaElement.scrollWidth;
@@ -214,6 +203,7 @@ import './AudioTrack.scss';
 
       if(this.maxTrackWidth === scrollWidth)
         this.resizeTrackArea(scrollWidth);
+      this.initPosition();
     }
 
     messageDisplayHandler(): void {
