@@ -1,6 +1,6 @@
 import './App.scss';
 import { EventDataType, eventTypes, EventTargetDataType, KeyBoard, CursorType } from '@types';
-import { Controller } from "@controllers";
+import { Controller, CommandController } from "@controllers";
 
 (() => {
   const App = class extends HTMLElement {
@@ -51,7 +51,7 @@ import { Controller } from "@controllers";
         Controller.setCursorMode(CursorType.SELECT_MODE);
       }
       else if (e.which === KeyBoard.DELETE && !isCtrl) {
-        Controller.deleteCommand();
+        CommandController.excuteDeleteCommand();
       }
       else if (e.which === KeyBoard.LEFT && !isCtrl) {
         Controller.audioFastRewind();
@@ -72,16 +72,16 @@ import { Controller } from "@controllers";
         Controller.setClipBoard();
       }
       else if (e.which === KeyBoard.X && isCtrl) {
-        Controller.cutCommand();
+        CommandController.excuteCutCommand();
       }
       else if (e.which === KeyBoard.V && isCtrl) {
-        Controller.pasteCommand();
+        CommandController.excutePasteCommand();
       }
       else if (e.which === KeyBoard.Z && isCtrl) {
-        Controller.undoCommand();
+        CommandController.excuteUndoCommand();
       }
       else if (e.which === KeyBoard.Y && isCtrl) {
-        Controller.redoCommand();
+        CommandController.excuteRedoCommand();
       }
     }
 

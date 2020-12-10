@@ -1,7 +1,7 @@
 import { Source, Track, TrackSection } from '@model';
 import { store } from '@store';
 import { ModalType, FocusInfo, CursorType, SectionDataType } from '@types';
-import { CommandManager, DeleteCommand, PasteCommand, SplitCommand, MoveCommand } from '@command';
+import { CommandManager, MoveCommand } from '@command';
 import { CopyUtil, SectionEffectListUtil, TimeUtil } from '@util';
 import playbackTool from '@components/PlaybackTools/PlaybackToolClass';
 
@@ -356,23 +356,6 @@ const removeSection = (trackId: number, sectionIndex: number) => {
   store.removeSection(trackId, sectionIndex);
 };
 
-const deleteCommand = () => {
-  const { focusList } = store.getState();
-  if (focusList.length === 0) return;
-  const command = new DeleteCommand();
-  CommandManager.execute(command);
-};
-
-const undoCommand = () => {
-  if (CommandManager.undoList.length === 0) return;
-  CommandManager.undo();
-};
-
-const redoCommand = () => {
-  if (CommandManager.redoList.length === 0) return;
-  CommandManager.redo();
-};
-
 const setClipBoard = (): boolean => {
   const { focusList } = store.getState();
 
@@ -383,33 +366,6 @@ const setClipBoard = (): boolean => {
   store.setClipBoard(newSection);
 
   return true;
-};
-
-const cutCommand = () => {
-  if (!setClipBoard()) return;
-
-  const command = new DeleteCommand();
-  CommandManager.execute(command);
-};
-
-const pasteCommand = () => {
-  const { focusList, trackList, clipBoard } = store.getState();
-
-  if (focusList.length !== 1) return false;
-
-  const track = trackList.find((track) => track.id === focusList[0].trackSection.trackId);
-  if (!track || !clipBoard) return;
-
-  const copyTrack = CopyUtil.copyTrack(track);
-  const copySection = CopyUtil.copySection(clipBoard);
-  const focusSection = focusList[0].trackSection;
-
-  copySection.trackStartTime = focusSection.trackStartTime + focusSection.length;
-  copySection.trackId = focusSection.trackId;
-
-  const command = new PasteCommand(copyTrack, copySection);
-
-  CommandManager.execute(command);
 };
 
 const moveCommand = (prevTrackId: number, currentTrackId: number, sectionId: number, movingCursorTime: number, prevCursorTime: number) => {
@@ -425,15 +381,6 @@ const moveCommand = (prevTrackId: number, currentTrackId: number, sectionId: num
 
   const command = new MoveCommand(CopyUtil.copyTrack(prevTrack), CopyUtil.copyTrack(currentTrack), trackSection, movingCursorTime, prevCursorTime);
   CommandManager.execute(command);
-};
-
-const splitTrackSection = (cursorPosition: number, trackId: number, sectionId: number): void => {
-  const track = getTrack(trackId);
-  const trackSection = track?.trackSectionList.find((section) => section.id === sectionId);
-  if (!trackSection || !track) return;
-
-  const splitCommand = new SplitCommand(cursorPosition, CopyUtil.copyTrack(track), CopyUtil.copySection(trackSection));
-  CommandManager.execute(splitCommand);
 };
 
 const changeMaxTrackWidth = (maxTrackWidth: number): void => {
@@ -461,7 +408,7 @@ const changeCurrentScrollAmount = (newCurrentScrollAmount: number): void => {
 
 const audioCursorPlay = () => {
   playbackTool.audioCursorPlay();
-}v
+};
 
 const audioPlayOrPause = (): void => {
   const ret = playbackTool.audioPlayOrPause();
@@ -563,14 +510,8 @@ export default {
   changePlayStringTime,
   changeMarkerPlayStringTime,
   removeSection,
-  deleteCommand,
-  undoCommand,
-  redoCommand,
   getMaxTrackPlayTime,
-  cutCommand,
-  pasteCommand,
   moveCommand,
-  splitTrackSection,
   getSourceBySourceId,
   changeMarkerNumberTime,
   audioPlayOrPause,

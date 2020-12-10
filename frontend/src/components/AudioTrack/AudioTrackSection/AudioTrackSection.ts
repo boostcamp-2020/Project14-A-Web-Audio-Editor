@@ -1,4 +1,4 @@
-import { Controller } from '@controllers';
+import { Controller, CommandController } from '@controllers';
 import { CursorType, EventKeyType, EventType, StoreChannelType, SectionDataType } from '@types';
 import { EventUtil, TimeUtil } from '@util';
 import { storeChannel } from '@store';
@@ -210,7 +210,7 @@ import './AudioTrackSection.scss';
 
     cutModeClickHandler(e): void {
       const cursorPosition = e.pageX;
-      Controller.splitTrackSection(cursorPosition, this.trackId, this.sectionId);
+      CommandController.excuteSplitCommand(cursorPosition, this.trackId, this.sectionId);
     }
 
     trackSectionMouseMoveListener(e): void {
