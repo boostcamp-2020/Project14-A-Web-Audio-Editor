@@ -1,6 +1,6 @@
 import { EventKeyType, EventType, StoreChannelType } from '@types';
 import { storeChannel } from '@store';
-import { Source } from '@model';
+import { Source, SectionDragStartData } from '@model';
 import { EventUtil } from '@util';
 import { Controller } from '@controllers';
 import './SourceList.scss';
@@ -73,22 +73,31 @@ import './SourceList.scss';
 
     initEvent(): void {
       EventUtil.registerEventToRoot({
-        eventTypes: [EventType.dragstart, EventType.dragend],
+        eventTypes: [EventType.dragstart],
         eventKey: EventKeyType.SOURCE_LIST_MULTIPLE,
-        listeners: [this.sourceListDragstartListener, this.sourceListDragendListener],
+        listeners: [this.sourceListDragstartListener],
         bindObj: this
       });
     }
 
     sourceListDragstartListener(e): void {
-      e.dataTransfer.setData('text/plain', e.target.dataset.id);
-      e.dataTransfer.dropEffect = 'link';
+      const dragImage = document.createElement('div');
+      dragImage.style.visibility = 'hidden';
+      e.dataTransfer.setDragImage(dragImage, 0, 0);
 
-      Controller.changeTrackDragState(true);
-    }
+      const sourceId = Number(e.target.dataset.id);
 
-    sourceListDragendListener(e): void {
-      Controller.changeTrackDragState(false);
+      const trackSection = Controller.createTrackSectionFromSource(sourceId);
+      if (!trackSection) return;
+      const trackContainerElement = document.querySelector('.audio-track-container');;
+
+      if (!trackContainerElement) return;
+
+      const offsetLeft = trackContainerElement.getBoundingClientRect().left;
+
+      const sectionDragStartData = new SectionDragStartData({ trackSection, offsetLeft });
+      Controller.changeSectionDragStartData(sectionDragStartData);
+
     }
 
     subscribe(): void {
@@ -112,4 +121,4 @@ import './SourceList.scss';
   customElements.define('audi-source-list', SourceList);
 })();
 
-export {};
+export { };

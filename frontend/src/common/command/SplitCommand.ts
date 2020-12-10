@@ -20,7 +20,7 @@ export class SplitCommand extends ICommand {
   }
 
   execute() {
-    if(!this.trackContainerElement) return;
+    if (!this.trackContainerElement) return;
 
     const maxTrackPlayTime = Controller.getMaxTrackPlayTime();
     const timeOfCursorPosition = this.calculateTimeOfCursorPosition(this.trackContainerElement, maxTrackPlayTime);
@@ -28,7 +28,7 @@ export class SplitCommand extends ICommand {
     this.updateSplitedSections(leftTrackSection, rightTrackSection);
   }
 
-  calculateTimeOfCursorPosition(trackContainerElement: HTMLDivElement, maxTrackPlayTime: number): number{
+  calculateTimeOfCursorPosition(trackContainerElement: HTMLDivElement, maxTrackPlayTime: number): number {
     const trackContainerLeftX = trackContainerElement.getBoundingClientRect().left;
     const trackContainerRightX = trackContainerElement.getBoundingClientRect().right;
     const trackContainerWidth = trackContainerRightX - trackContainerLeftX;
@@ -44,7 +44,7 @@ export class SplitCommand extends ICommand {
   splitTrackSection(timeOfCursorPosition: number): TrackSection[] {
     const channelSplitOffset = timeOfCursorPosition - this.targetTrackSection.trackStartTime;
     const channelSplitTime = this.targetTrackSection.channelStartTime + channelSplitOffset;
-    
+
     const leftTrackSection = CopyUtil.copySection(this.targetTrackSection);
     leftTrackSection.id = 0;
     leftTrackSection.channelEndTime = channelSplitTime;
@@ -62,7 +62,7 @@ export class SplitCommand extends ICommand {
   updateSplitedSections(leftTrackSection: TrackSection, rightTrackSection: TrackSection): void {
     const targetTrackSectionIndex = this.beforeTrack.trackSectionList.findIndex(trackSection => trackSection.id === this.targetTrackSection.id);
     if (targetTrackSectionIndex === -1) return;
-    
+
     const trackId = this.beforeTrack.id;
     Controller.removeSection(trackId, targetTrackSectionIndex);
     Controller.addTrackSection(trackId, leftTrackSection);

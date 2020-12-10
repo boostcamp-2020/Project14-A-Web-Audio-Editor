@@ -1,5 +1,9 @@
 @use '@style/variables.scss' as variables;
 
+audi-icon-button {
+  cursor: pointer;
+}
+
 .icon:hover {
   path {
     fill: variables.$green-color;
