@@ -74,13 +74,13 @@ import './AudioTrackOption.scss';
 
       switch(type){
         case TrackOptionType.solo:
-          this.soloClickHandler();
+          this.soloClickListener();
           break;
         case TrackOptionType.mute:
-          this.muteClickHandler();
+          this.muteClickListener();
           break;
         case TrackOptionType.delete:
-          this.deleteClickHandler();
+          this.deleteClickListener();
           break;
       }
     }
@@ -100,7 +100,7 @@ import './AudioTrackOption.scss';
       this.render();
     }
 
-    soloClickHandler(): void {
+    soloClickListener(): void {
       const trackId = Number(this.dataset.trackId);
       
       if(!this.isSolo) {
@@ -114,7 +114,7 @@ import './AudioTrackOption.scss';
       this.render();
     }
 
-    muteClickHandler(): void {
+    muteClickListener(): void {
       const trackId = Number(this.dataset.trackId);
 
       if(!this.isMute) {
@@ -129,7 +129,7 @@ import './AudioTrackOption.scss';
       this.render();
     }
 
-    deleteClickHandler(): void {
+    deleteClickListener(): void {
       console.log('delete');
     }
   };
