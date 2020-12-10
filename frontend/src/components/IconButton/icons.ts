@@ -51,8 +51,8 @@ const iconInfo = {
   paste: '붙여넣기(Ctrl + V)',
   cut: '잘라내기(Ctrl + X)',
   delete: '삭제하기(Delete)',
-  redo: 'Redo(Ctrl + Z)',
-  undo: 'Undo(Ctrl + Y)',
+  redo: 'Redo(Ctrl + Y)',
+  undo: 'Undo(Ctrl + Z)',
   blade: '자르기 도구(C)',
   link: '이어붙이기',
   none: ''
