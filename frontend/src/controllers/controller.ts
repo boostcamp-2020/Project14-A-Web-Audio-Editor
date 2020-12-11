@@ -279,7 +279,7 @@ const getIsPauseState = (): boolean => {
   return isPause;
 };
 
-const setMarkerWidth = (markerWidth: number): void => {
+const setMarkerWidth = (markerWidth: number|number[]): void => {
   store.setMarkerWidth(markerWidth);
 };
 

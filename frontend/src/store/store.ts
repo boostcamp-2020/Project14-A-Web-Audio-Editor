@@ -184,7 +184,7 @@ const store = new (class Store {
     this.state = { ...this.state, isPause: isPauseState };
   }
 
-  setMarkerWidth(newMarkerWidth: number): void {
+  setMarkerWidth(newMarkerWidth: number|number[]): void {
     storeChannel.publish(StoreChannelType.CURRENT_POSITION_CHANNEL, newMarkerWidth);
   }
 
