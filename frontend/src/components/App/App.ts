@@ -51,7 +51,7 @@ import { Controller, CommandController } from "@controllers";
         Controller.setCursorMode(CursorType.SELECT_MODE);
       }
       else if (e.which === KeyBoard.DELETE && !isCtrl) {
-        CommandController.excuteDeleteCommand();
+        CommandController.executeDeleteCommand();
       }
       else if (e.which === KeyBoard.LEFT && !isCtrl) {
         Controller.audioFastRewind();
@@ -72,16 +72,16 @@ import { Controller, CommandController } from "@controllers";
         Controller.setClipBoard();
       }
       else if (e.which === KeyBoard.X && isCtrl) {
-        CommandController.excuteCutCommand();
+        CommandController.executeCutCommand();
       }
       else if (e.which === KeyBoard.V && isCtrl) {
-        CommandController.excutePasteCommand();
+        CommandController.executePasteCommand();
       }
       else if (e.which === KeyBoard.Z && isCtrl) {
-        CommandController.excuteUndoCommand();
+        CommandController.executeUndoCommand();
       }
       else if (e.which === KeyBoard.Y && isCtrl) {
-        CommandController.excuteRedoCommand();
+        CommandController.executeRedoCommand();
       }
     }
 

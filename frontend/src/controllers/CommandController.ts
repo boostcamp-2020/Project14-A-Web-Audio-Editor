@@ -1,19 +1,20 @@
 import { store } from '@store';
 import { CopyUtil} from '@util';
 import { Controller } from "@controllers";
-import { CommandManager, DeleteCommand, PasteCommand, SplitCommand, AddTrackCommand } from '@command';
+import { CommandManager, DeleteCommand, PasteCommand, SplitCommand, AddTrackCommand, DeleteTrackCommand } from '@command';
+import { check } from 'prettier';
 
-const excuteUndoCommand = () => {
+const executeUndoCommand = () => {
     if (CommandManager.undoList.length === 0) return;
     CommandManager.undo();
 };
   
-const excuteRedoCommand = () => {
+const executeRedoCommand = () => {
     if (CommandManager.redoList.length === 0) return;
     CommandManager.redo();
 };
 
-const excuteDeleteCommand = () => {
+const executeDeleteCommand = () => {
     const { focusList } = store.getState();
 
     if (focusList.length === 0) return;
@@ -21,14 +22,14 @@ const excuteDeleteCommand = () => {
     CommandManager.execute(command);
 };
 
-const excuteCutCommand = () => {
+const executeCutCommand = () => {
     if (!Controller.setClipBoard()) return;
   
     const command = new DeleteCommand();
     CommandManager.execute(command);
   };
   
-const excutePasteCommand = () => {
+const executePasteCommand = () => {
     const { focusList, trackList, clipBoard } = store.getState();
   
     if (focusList.length !== 1) return false;
@@ -48,7 +49,7 @@ const excutePasteCommand = () => {
     CommandManager.execute(command);
 };
 
-const excuteSplitCommand = (cursorPosition: number, trackId: number, sectionId: number): void => {
+const executeSplitCommand = (cursorPosition: number, trackId: number, sectionId: number): void => {
     const track = Controller.getTrack(trackId);
     const trackSection = track?.trackSectionList.find((section) => section.id === sectionId);
     if (!trackSection || !track) return;
@@ -57,17 +58,35 @@ const excuteSplitCommand = (cursorPosition: number, trackId: number, sectionId: 
     CommandManager.execute(splitCommand);
 };
 
-const excuteAddTrackCommand = (): void => {
+const executeAddTrackCommand = (): void => {
     const addTrackCommand = new AddTrackCommand();
     CommandManager.execute(addTrackCommand);
 }
 
+const executeDeleteTrackCommand = (trackId: number): void => {
+    if(isMinLengthOfTrackList()) {
+        alert("트랙은 최소 3개 이상 존재해야합니다.");
+        return;
+    }
+    
+    const deleteTrackCommand = new DeleteTrackCommand(trackId);
+    CommandManager.execute(deleteTrackCommand);
+};
+
+const isMinLengthOfTrackList = (): Boolean => {
+    const { trackList } = store.getState();
+    const minLength = 3;
+
+    return trackList.length === minLength;
+}
+
 export default {
-    excuteUndoCommand,
-    excuteRedoCommand,
-    excuteDeleteCommand,
-    excuteCutCommand,
-    excutePasteCommand,
-    excuteSplitCommand,
-    excuteAddTrackCommand
+    executeUndoCommand,
+    executeRedoCommand,
+    executeDeleteCommand,
+    executeCutCommand,
+    executePasteCommand,
+    executeSplitCommand,
+    executeAddTrackCommand,
+    executeDeleteTrackCommand
 }

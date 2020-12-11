@@ -241,7 +241,7 @@ import './AudioTrackSection.scss';
 
     cutModeClickHandler(e): void {
       const cursorPosition = e.pageX;
-      CommandController.excuteSplitCommand(cursorPosition, this.trackId, this.sectionId);
+      CommandController.executeSplitCommand(cursorPosition, this.trackId, this.sectionId);
     }
 
     trackSectionMouseMoveListener(e): void {
