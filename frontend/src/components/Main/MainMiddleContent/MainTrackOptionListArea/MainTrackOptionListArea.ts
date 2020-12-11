@@ -37,8 +37,6 @@ import './MainTrackOptionListArea.scss';
 
     trackListObserverCallback(newTrackList: Track[]): void {
         try{
-            console.log(newTrackList);
-            
             this.trackList = newTrackList;
             this.render();
         }catch(e){

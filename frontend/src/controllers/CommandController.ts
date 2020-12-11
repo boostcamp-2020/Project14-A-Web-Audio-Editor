@@ -2,7 +2,7 @@ import { store } from '@store';
 import { CopyUtil } from '@util';
 import { Controller } from "@controllers";
 import { TrackSection } from '@model';
-import { CommandManager, DeleteCommand, PasteCommand, SplitCommand, AddTrackCommand, MoveCommand } from '@command';
+import { CommandManager, DeleteCommand, PasteCommand, SplitCommand, AddTrackCommand, DeleteTrackCommand, MoveCommand } from '@command';
 
 const executeUndoCommand = () => {
     const { isPause } = store.getState();
@@ -13,6 +13,7 @@ const executeUndoCommand = () => {
 const executeRedoCommand = () => {
     const { isPause } = store.getState();
     if (CommandManager.redoList.length === 0 || !isPause) return;
+
     CommandManager.redo();
 };
 
@@ -75,9 +76,10 @@ const executeSplitCommand = (cursorPosition: number, trackId: number, sectionId:
 const executeAddTrackCommand = (): void => {
     const { isPause } = store.getState();
     if (!isPause) return;
+
     const addTrackCommand = new AddTrackCommand();
     CommandManager.execute(addTrackCommand);
-}
+};
 
 const executeMoveCommand = (prevTrackId: number, currentTrackId: number, trackSection: TrackSection, movingCursorTime: number, prevCursorTime: number) => {
     const { trackList, isPause } = store.getState();
@@ -90,6 +92,26 @@ const executeMoveCommand = (prevTrackId: number, currentTrackId: number, trackSe
     const command = new MoveCommand(CopyUtil.copyTrack(prevTrack), CopyUtil.copyTrack(currentTrack), trackSection, movingCursorTime, prevCursorTime);
     CommandManager.execute(command);
 };
+  
+const executeDeleteTrackCommand = (trackId: number): void => {
+    const { isPause } = store.getState();
+    if (!isPause) return;
+  
+    if(isMinLengthOfTrackList()) {
+        alert("트랙은 최소 3개 이상 존재해야합니다.");
+        return;
+    }
+  
+    const deleteTrackCommand = new DeleteTrackCommand(trackId);
+    CommandManager.execute(deleteTrackCommand);
+};
+
+const isMinLengthOfTrackList = (): Boolean => {
+    const { trackList } = store.getState();
+    const minLength = 3;
+
+    return trackList.length === minLength;
+};
 
 export default {
     executeUndoCommand,
@@ -99,5 +121,6 @@ export default {
     executePasteCommand,
     executeSplitCommand,
     executeAddTrackCommand,
-    executeMoveCommand
+    executeMoveCommand,
+    executeDeleteTrackCommand
 }

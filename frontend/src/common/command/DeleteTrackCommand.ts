@@ -4,25 +4,39 @@ import { Track } from '@model';
 import { storeChannel } from '@store';
 import { StoreChannelType } from '@types';
 
-class AddTrackCommand extends Command {
-    constructor(){
+class DeleteTrackCommand extends Command {
+    private trackId : number;
+    private removeIdx: number;
+    private removedTrack: Track | undefined;
+
+    constructor(trackId: number){
         super();
+        this.trackId = trackId;
+        this.removeIdx = 0;
+        this.removedTrack;
     }
 
-    execute(){
+    execute(): void {
         try{
-            const newTrack = new Track({id: 0, trackSectionList: []});
-            Controller.setTrack(newTrack);
-
+            this.removeIdx = this.calculateRemoveIdx();
+            this.removedTrack = Controller.removeTrackById(this.trackId);
+            
             this.publishNewTrackList();
         }catch(e){
             console.log(e);
         }
     }
 
-    undo(){
+    calculateRemoveIdx(): number {
+        const trackList = Controller.getTrackList();
+        return trackList.findIndex((track) => track.id === this.trackId);
+    }
+
+    undo(): void {
         try{
-            Controller.popTrackWithIndex();
+            if(!this.removedTrack) return;
+            Controller.insertTrack(this.removeIdx, this.removedTrack);
+
             this.publishNewTrackList();
         }catch(e){
             console.log(e);
@@ -43,4 +57,4 @@ class AddTrackCommand extends Command {
     }
 }
 
-export default AddTrackCommand;
+export default DeleteTrackCommand;

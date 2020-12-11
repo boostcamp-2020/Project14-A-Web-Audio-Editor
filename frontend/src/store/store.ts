@@ -198,7 +198,7 @@ const store = new (class Store {
     this.state = { ...this.state, isPause: isPauseState };
   }
 
-  setMarkerWidth(newMarkerWidth: number): void {
+  setMarkerWidth(newMarkerWidth: number|number[]): void {
     storeChannel.publish(StoreChannelType.CURRENT_POSITION_CHANNEL, newMarkerWidth);
   }
 
@@ -278,6 +278,14 @@ const store = new (class Store {
 
   setSectionDragStartData(newDragStartData: SectionDragStartData): void {
     this.state = { ...this.state, sectionDragStartData: newDragStartData };
+  }
+
+  setTrackList(newTrackList: Track[]): void {
+    this.state = {...this.state, trackList: newTrackList};
+  }
+
+  setTrackIndex(newTrackIndex: number): void {
+    this.state =  {...this.state, trackIndex: newTrackIndex};
   }
 })();
 
