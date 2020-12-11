@@ -1,24 +1,34 @@
-import { getCursorPosition } from './PlayBarUtil';
+import { getDifferenceWidth } from './WidthUtil';
+import { splitTime, calculateTimeOfCursorPosition } from './TimeUtil';
 import { Controller } from '@controllers';
 
-const mousemoveMarkerListener: Function = (element: HTMLElement, defaultStartX: number, mainWidth: number) => (e: Event): void => {
+const mousemoveMarkerListener: Function = (element: HTMLElement, elementLeftX: number, elementWidth: number, currentScrollAmount: number, trackPlayTime: number) => (e: MouseEvent): void => {
   if (!element) return;
-  const cursorPosition = e.pageX;
 
-  const [minute, second, milsecond, location, totalCursorTime] = getCursorPosition(defaultStartX, cursorPosition, mainWidth);
+  const cursorPosition = e.pageX;
+  const scrolledCursorPosition = cursorPosition + currentScrollAmount
+  const timeOfCursorPosition = calculateTimeOfCursorPosition(elementLeftX, scrolledCursorPosition, elementWidth, trackPlayTime);
+  const [minute, second, milsecond] = splitTime(timeOfCursorPosition);
+  const offesetOfCursorPosition = getDifferenceWidth(elementLeftX, cursorPosition);
 
   if (minute < 0 && second < 0) return;
-  Controller.changeCurrentPosition(location);
-  Controller.changeCursorTime(minute.toString(), second.toString(), milsecond.toString());
-  Controller.changeTotalCursorTime(totalCursorTime);
+  Controller.changeCurrentPosition(offesetOfCursorPosition);
+  Controller.changeCursorStringTime(minute, second, milsecond);
+  Controller.changeCursorNumberTime(timeOfCursorPosition);
 };
 
 const clickMarkerListener = (element: HTMLElement) => (e: Event): void => {
   if (!element) return;
-  const [currentPosition, totalCursorTime] = Controller.getCurrentPosition();
+  const [currentPosition, cursorNumberTime] = Controller.getCurrentPosition();
 
-  Controller.cursorChangeMarkerTime(totalCursorTime);
-  Controller.resetPlayTime(totalCursorTime);
+  Controller.changeMarkerPlayStringTime(cursorNumberTime);
+  Controller.changeMarkerNumberTime(cursorNumberTime);
+
+  if (!Controller.getIsPauseState()) {
+
+    Controller.audioCursorPlay();
+  }
+
   if (currentPosition < 0) return;
   element.style.left = `${currentPosition}px`;
 };

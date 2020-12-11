@@ -1,0 +1,46 @@
+@use '@style/variables.scss'as variables;
+
+#audio-meter-container {
+    display: flex;
+    flex-direction: column;
+    background-color: black;
+}
+
+#audio-meter-bar {
+    display: flex;
+    flex-direction: column;
+    height: 12px;
+    border: 1px solid gray;
+    border-radius: 3px;
+    margin: 10px 0;
+    background-color: variables.$theme-color;
+}
+
+#audio-meter-fill {
+    margin: auto 0;
+    height: 100%;
+    border-radius: 3px;
+    width: 0px;
+    box-shadow: 0 0 3px rgba(0,0,0,.25),
+        inset 1px 1px 1px rgba(255,255,255,.75),
+        inset -1px -1px 1px rgba(0,0,0,.4);
+    bottom: 0;
+    color: rgba(0,0,0,.75);
+}
+
+.decibel-markers{
+    display: flex;
+    margin-top: auto;
+    white-space: nowrap;
+    font-size: 12px;
+    width: calc(100% - 10px);
+
+    & .decibel-level {
+        width: calc(100% / 19);
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        align-items: center;
+        color: rgb(160,160,160);
+    }
+}

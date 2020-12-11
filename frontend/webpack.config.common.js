@@ -1,28 +1,9 @@
 const path = require('path');
-const fs = require('fs');
-const dotenv = require('dotenv');
-const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
-const parseEnvKeys = (env) => {
-  const currentPath = path.join(__dirname);
-  const basePath = `${currentPath}/env/.env`;
-  const envPath = `${basePath}.${env.ENVIRONMENT}`;
-  const finalPath = fs.existsSync(envPath) ? envPath : basePath;
-  const fileEnv = dotenv.config({
-    path: finalPath
-  }).parsed;
-
-  return Object.keys(fileEnv).reduce((keys, key) => {
-    keys[`process.env.${key}`] = JSON.stringify(fileEnv[key]);
-    return keys;
-  }, {});
-};
-
 module.exports = (env) => {
-  const envKeys = parseEnvKeys(env);
 
   return {
     resolve: {
@@ -73,13 +54,12 @@ module.exports = (env) => {
         hash: true
       }),
       new CleanWebpackPlugin(),
-      new webpack.DefinePlugin(envKeys),
       new MiniCssExtractPlugin({
         filename: '[name].css'
       })
     ],
     output: {
-      path: path.join(__dirname, '../backend/public'),
+      path: path.join(__dirname, './dist'),
       publicPath: '/',
       filename: '[name].js'
     }

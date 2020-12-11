@@ -7,8 +7,6 @@
     <img src="https://img.shields.io/badge/javascript-ES6+-yellow?logo=javascript"/>
     <img src="https://img.shields.io/badge/typescript-v4.0.2-blue?logo=typescript&logoColor=007ACC" />
     <img src="https://img.shields.io/badge/node.js-v15.2.1-green?logo=node.js"/>
-    <img src="https://img.shields.io/badge/mysql-v5.7.32-blue?logo=mysql"/>
-    <img src="https://img.shields.io/badge/SQLite-v3.33.0-003B57?logo=SQLite&logoColor=003B57"/>
    </p>
 </div>
 
@@ -20,24 +18,14 @@
 
 ## [🎨UI Prototype](https://ovenapp.io/view/q5bGJWiAvVedUkqksVhGGjf8NpimvrDb/)
 
-## [🎼Project URL](http://49.50.163.212/)
+## [🎼Project URL](http://www.audi-editor.ml/)
 
 ## [🥝WIKI](https://github.com/boostcamp-2020/Project14-A-Web-Audio-Editor/wiki)
 
 ## 💻실행방법
+- 프로젝트 배포 링크 : [audi-editor.ml](audi-editor.ml)
 
-frontend/env 폴더에 .env.development에 밑의 코드를 적은 파일을 생성합니다.
-```
-ENVIRONMENT=development
-```
-그 후 다음과 같은 명령어들을 실행합니다.
-```
-cd backend
-npm install
-
-cd ../frontend
-npm install
-npm run dev
-
-localhost:5500으로 접속
-```
+- Frontend
+  - 패키지 설치 : npm i
+  - 개발모드 웹팩 개발 서버 실행 : npm run dev
+  - 프로덕션모드 빌드 실행 : npm run build

@@ -1,4 +1,4 @@
-import { Source, Track, AudioSourceInfoInTrack, TrackSection } from '@model';
+import { Source, Track, AudioSourceInfoInTrack, TrackSection, SectionDragStartData, SelectTrackData } from '@model';
 import { ModalStateType } from '@types';
 
 enum CursorType {
@@ -8,7 +8,7 @@ enum CursorType {
 
 interface FocusInfo {
   trackSection: TrackSection;
-  element: HTMLElement;
+  element: HTMLCanvasElement;
 }
 
 enum StoreChannelType {
@@ -22,12 +22,20 @@ enum StoreChannelType {
   EDIT_TOOLS_CHANNEL = 'EDIT_TOOLS_CHANNEL',
   MARKER_TIME_CHANNEL = 'MARKER_TIME_CHANNEL',
   IS_PAUSE_CHANNEL = 'IS_PAUSE_CHANNEL',
-  PLAY_TIME_CHANNEL = 'PLAY_TIME_CHANNEL'
+  PLAY_TIME_CHANNEL = 'PLAY_TIME_CHANNEL',
+  MAX_TRACK_WIDTH_CHANNEL = 'MAX_TRACK_WIDTH_CHANNEL',
+  CURSOR_MODE_CHANNEL = 'CURSOR_MODE_CHANNEL',
+  EDIT_MENU_CHANNEL = 'EDIT_MENU_CHANNEL',
+  PLAY_OR_PAUSE_CHANNEL = 'PLAY_OR_PAUSE_CHANNEL',
+  MAX_TRACK_PLAY_TIME_CHANNEL = 'MAX_TRACK_PLAY_TIME_CHANNEL',
+  CURRENT_SCROLL_AMOUNT_CHANNEL = 'CURRENT_SCROLL_AMOUNT_CHANNEL',
+  TRACK_LIST_CHANNEL = 'TRACK_LIST_CHANNEL',
+  SELECT_AUDIO_TRACK = 'SELECT_AUDIO_TRACK',
 }
 
 interface StoreStateType {
-  cursorTime: string;
-  playTime: string;
+  cursorStringTime: string;
+  playStringTime: string;
   sourceList: Source[];
   modalState: ModalStateType;
   isTrackDraggable: Boolean;
@@ -40,9 +48,15 @@ interface StoreStateType {
   trackIndex: number;
   sectionIndex: number;
   clipBoard: TrackSection | null;
-  markerTime: number;
-  totalCursorTime: number;
+  markerNumberTime: number;
+  cursorNumberTime: number;
   isPause: boolean;
+  isRepeat: boolean;
+  maxTrackWidth: number;
+  maxTrackPlayTime: number;
+  currentScrollAmount: number;
+  sectionDragStartData: SectionDragStartData | null;
+  selectTrackData: SelectTrackData;
 }
 
 interface StoreObserverData {
@@ -50,4 +64,8 @@ interface StoreObserverData {
   bindObj: Object;
 }
 
-export { StoreStateType, StoreChannelType, StoreObserverData, CursorType, FocusInfo };
+interface EffectList {
+  name: string;
+}
+
+export { StoreStateType, StoreChannelType, StoreObserverData, CursorType, FocusInfo, EffectList };

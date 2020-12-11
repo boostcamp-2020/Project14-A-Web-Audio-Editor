@@ -1,5 +1,5 @@
 import { IconType } from '@types';
-import icons from './icons';
+import { icons, iconInfo } from './icons';
 import './IconButton.scss';
 
 (() => {
@@ -7,7 +7,6 @@ import './IconButton.scss';
     private icontype: IconType | null;
     private color: string;
     private size: string;
-    private eventKey: string;
     private isDoneInit: Boolean;
 
     constructor() {
@@ -15,7 +14,6 @@ import './IconButton.scss';
       this.icontype = null;
       this.color = 'white';
       this.size = '20px';
-      this.eventKey = '';
       this.isDoneInit = false;
     }
 
@@ -24,9 +22,9 @@ import './IconButton.scss';
     }
 
     attributeChangedCallback(attrName: string, oldVal: string, newVal: string): void {
-      if(oldVal === newVal) return;
+      if (oldVal === newVal) return;
 
-      switch(attrName){
+      switch (attrName) {
         case 'icontype':
           this.icontype = IconType[newVal];
           break;
@@ -36,12 +34,9 @@ import './IconButton.scss';
         case 'size':
           this.size = newVal;
           break;
-        case 'data-event-key':
-          this.eventKey = newVal;
-          break;
       }
       this[attrName] = newVal;
-      if(this.isDoneInit)
+      if (this.isDoneInit)
         this.render();
     }
 
@@ -52,7 +47,7 @@ import './IconButton.scss';
 
     render(): void {
       this.innerHTML = `
-              <div>
+              <div class="icon-buttion-wrap">
                   <svg
                   class="icon"
                   xmlns="http://www.w3.org/2000/svg"
@@ -60,22 +55,23 @@ import './IconButton.scss';
                   role="img"
                   width="${this.size}"
                   height="${this.size}"
-                  event-key=${this.eventKey}
+                  event-delegation
                 >
                   ${this.getIcon()}
                 </svg>
+                <div class="icon-info">${this.icontype ? iconInfo[this.icontype] : ''} </div>
               </div>
             `;
     }
 
-    getIcon(){
-      if(!this.color || !this.icontype) return;
+    getIcon() {
+      if (!this.color || !this.icontype) return;
 
-      switch(this.icontype){
+      switch (this.icontype) {
         case IconType.record_on:
-          return  `<circle event-key="${this.eventKey}" xmlns="http://www.w3.org/2000/svg" cx="12" cy="12" r="8" fill=${this.color}></circle>`;
+          return `<circle event-delegation xmlns="http://www.w3.org/2000/svg" cx="12" cy="12" r="8" fill=${this.color}></circle>`;
         case IconType.zoomIn:
-          return `<path event-key="${this.eventKey}" fillRule="evenodd" fill="${this.color}" d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path>
+          return `<path event-delegation fillRule="evenodd" fill="${this.color}" d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path>
           <path d="M12 10h-2v2H9v-2H7V9h2V7h1v2h2v1z" fill="${this.color}"></path>`;
         case IconType.blade:
           return `<g transform="translate(0.000000,245.000000) scale(0.100000,-0.100000)" fill="${this.color}" stroke="none">
@@ -83,7 +79,7 @@ import './IconButton.scss';
             <path d="M575 1870 c-64 -65 -68 -71 -59 -97 11 -32 54 -43 80 -22 13 10 23 4 64 -37 44 -44 49 -54 52 -98 3 -66 23 -86 86 -86 44 0 52 -4 95 -48 45 -45 46 -49 35 -78 -21 -56 10 -87 66 -66 29 11 33 10 78 -35 32 -32 48 -56 48 -73 0 -43 35 -88 77 -99 21 -6 43 -11 48 -11 6 0 33 -22 60 -50 40 -41 46 -52 36 -64 -17 -20 -10 -66 11 -80 13 -8 26 -7 50 2 31 12 34 11 80 -35 44 -43 48 -52 48 -93 0 -65 16 -82 83 -88 50 -4 59 -9 102 -52 45 -46 46 -49 32 -71 -28 -45 16 -94 61 -70 24 13 132 129 132 142 0 43 -48 62 -91 37 -18 -12 -25 -8 -69 39 -46 48 -50 55 -50 102 0 65 -16 81 -83 81 -48 0 -55 3 -99 47 -47 46 -47 47 -31 74 23 39 5 79 -35 79 -15 0 -33 -5 -39 -11 -25 -25 -114 63 -120 116 -7 65 -51 105 -117 105 -11 0 -42 21 -67 46 -46 45 -47 48 -32 70 34 53 -18 105 -71 71 -22 -15 -25 -14 -68 31 -42 43 -46 52 -50 105 -3 32 -10 63 -16 69 -7 7 -38 14 -71 16 -55 4 -62 8 -105 51 -41 42 -45 49 -32 61 23 18 20 67 -3 80 -34 18 -45 12 -116 -60z"/>
           </g>`;
         default:
-          return `<path event-key="${this.eventKey}" fillRule="evenodd" fill="${this.color}" d="${icons[IconType[this.icontype]]}"></path>`;
+          return `<path event-delegation fillRule="evenodd" fill="${this.color}" d="${icons[IconType[this.icontype]]}"></path>`;
       }
     }
   };

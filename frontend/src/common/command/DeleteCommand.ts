@@ -1,8 +1,9 @@
-import ICommand from './ICommand'
+import { Command } from '@command';
 import { Controller } from '@controllers'
 import { TrackSection } from '@model'
+import { CopyUtil } from '@util'
 
-export default class DeleteCommand extends ICommand {
+class DeleteCommand extends Command {
   private deleteList: TrackSection[];
 
   constructor() {
@@ -17,17 +18,7 @@ export default class DeleteCommand extends ICommand {
     if (focusList.length === 0) return;
     this.deleteList = focusList.map(focus => {
       const trackSection = focus.trackSection;
-      return new TrackSection({
-        id: trackSection.id,
-        sourceId: trackSection.sourceId,
-        trackId: trackSection.trackId,
-        channelStartTime: trackSection.channelStartTime,
-        channelEndTime: trackSection.channelEndTime,
-        parsedChannelStartTime: trackSection.parsedChannelStartTime,
-        parsedChannelEndTime: trackSection.parsedChannelEndTime,
-        trackStartTime: trackSection.trackStartTime,
-        audioStartTime: trackSection.audioStartTime
-      })
+      return CopyUtil.copySection(trackSection);
     });
   }
 
@@ -59,3 +50,4 @@ export default class DeleteCommand extends ICommand {
   };
 }
 
+export default DeleteCommand;

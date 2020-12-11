@@ -5,6 +5,7 @@ $green-color:rgb(22, 185, 22);
     flex-direction:$f-dir;
     align-items:center;
     justify-content: space-between;
+    flex-wrap: nowrap;
 }
 
 .time-info-outer-wrap {
@@ -43,4 +44,39 @@ $green-color:rgb(22, 185, 22);
     }
 
     color:white;
+}
+
+@media screen and (max-width: 1680px) {
+    .time-info-wrap {
+        .play-time {
+            font-size: 20px; 
+        }
+
+        .other-time {
+            flex-basis:50%;
+            .total-time, .cursor-time {
+                @include my-flex();
+                margin:0 4px;
+    
+                font-size: 9px;
+            }
+        } 
+    }
+}
+
+@media screen and (max-width: 1360px) {
+    .time-info-wrap {
+        .play-time {
+            font-size: 15px; 
+        }
+
+        .other-time {
+            flex-basis:50%;
+            .total-time, .cursor-time {
+                @include my-flex();
+                margin:0 4px;
+                font-size: 2px;
+            }
+        } 
+    }
 }

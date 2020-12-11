@@ -1,6 +1,6 @@
 import './App.scss';
 import { EventDataType, eventTypes, EventTargetDataType, KeyBoard, CursorType } from '@types';
-import { Controller } from "@controllers";
+import { Controller, CommandController } from "@controllers";
 
 (() => {
   const App = class extends HTMLElement {
@@ -38,7 +38,6 @@ import { Controller } from "@controllers";
     }
 
     KeyDownListener(e): void {
-      const { } = Controller
       const isCtrl = Controller.getCtrlIsPressed();
 
       if (e.which === KeyBoard.CTRL) {
@@ -52,35 +51,45 @@ import { Controller } from "@controllers";
         Controller.setCursorMode(CursorType.SELECT_MODE);
       }
       else if (e.which === KeyBoard.DELETE && !isCtrl) {
-        Controller.deleteCommand();
+        CommandController.executeDeleteCommand();
       }
       else if (e.which === KeyBoard.LEFT && !isCtrl) {
-        // console.log('왼쪽');
+        e.preventDefault()
+        Controller.audioFastRewind();
       }
       else if (e.which === KeyBoard.RIGHT && !isCtrl) {
-        // console.log('오른쪽');
+        e.preventDefault()
+        Controller.audioFastForward();
+      }
+      else if (e.which === KeyBoard.LEFT_BRACKET && !isCtrl) {
+        Controller.audioSkipPrev();
+      }
+      else if (e.which === KeyBoard.RIGHT_BRACKET && !isCtrl) {
+        Controller.audioSkipNext();
       }
       else if (e.which === KeyBoard.SPACE && !isCtrl) {
-        // console.log('스페이스바');
+        e.preventDefault()
+        Controller.audioPlayOrPause();
       }
       else if (e.which === KeyBoard.C && isCtrl) {
         Controller.setClipBoard();
       }
       else if (e.which === KeyBoard.X && isCtrl) {
-        // console.log('잘라내기');
+        CommandController.executeCutCommand();
       }
       else if (e.which === KeyBoard.V && isCtrl) {
-        // console.log('붙여넣기');
+        CommandController.executePasteCommand();
       }
       else if (e.which === KeyBoard.Z && isCtrl) {
-        Controller.undoCommand();
+        CommandController.executeUndoCommand();
       }
       else if (e.which === KeyBoard.Y && isCtrl) {
-        Controller.redoCommand();
+        CommandController.executeRedoCommand();
       }
     }
 
     ctrlKeyUpListener(e): void {
+      e.preventDefault()
       if (e.which === KeyBoard.CTRL) {
         Controller.setCtrlIsPressed(false);
       }
@@ -88,10 +97,11 @@ import { Controller } from "@controllers";
 
     eventListenerForRegistrant(e): void {
       const { target } = e;
-      if (!target || !this.isEventTarget(target) || !this.eventListenerCollectors) return;
+      if (!target || !this.isEventTarget(target) && !this.isDelegationEvent(target)) return;
 
       const eventType = e.type;
-      const eventKey = target.getAttribute('event-key');
+      const eventKey = this.parseEventKey(target);
+      if (!eventKey) return;
 
       this.excuteEventListenerForTarget(eventType, eventKey, e);
     }
@@ -99,6 +109,22 @@ import { Controller } from "@controllers";
     isEventTarget(eventTarget: HTMLElement): Boolean {
       const eventKey = eventTarget.getAttribute('event-key');
       return eventKey ? true : false;
+    }
+
+    isDelegationEvent(eventTarget: HTMLElement): Boolean {
+      const eventDelegation = eventTarget.getAttribute('event-delegation');
+      return eventDelegation === '' ? true : false;
+    }
+
+    parseEventKey(eventTarget: HTMLElement) {
+      const eventDelegation = eventTarget.getAttribute('event-delegation');
+
+      if (eventDelegation === '') {
+        const newEventTarget = eventTarget.closest('.delegation');
+        return newEventTarget?.getAttribute('event-key');
+      } else {
+        return eventTarget.getAttribute('event-key');
+      }
     }
 
     excuteEventListenerForTarget(eventType: string, eventKey: string, e: Event): void {

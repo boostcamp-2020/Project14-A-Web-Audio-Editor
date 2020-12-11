@@ -1,5 +1,9 @@
 @use '@style/variables.scss' as variables;
 
+audi-icon-button {
+  cursor: pointer;
+}
+
 .icon:hover {
   path {
     fill: variables.$green-color;
@@ -18,4 +22,31 @@
   path {
       fill: variables.$green-color
     }
+}
+
+.icon-buttion-wrap {
+  position: relative;
+  &:hover {
+    .icon-info{
+      transition-property: visibility;
+      transition-delay: 0.3s;
+      visibility: visible;
+    }
+  }
+}
+.icon-info {
+  visibility: hidden;
+  position:absolute;
+  left: -20%;
+  width: fit-content;
+  padding: 3px 5px;
+  z-index: 1000;
+  
+  color:white;
+  border: 0.5px solid gray;
+  border-radius: 3px;
+  background-color:rgb(80,80,80);
+
+  white-space:nowrap;
+  font-size: 15px;
 }

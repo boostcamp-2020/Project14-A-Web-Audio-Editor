@@ -1,7 +1,7 @@
-import CommandManager from '@command/CommandManager';
+import { CommandManager } from '@command';
 import { CursorType, StoreChannelType, EventKeyType, EventType, IconType } from "@types";
 import { storeChannel } from '@store';
-import { Controller } from '@controllers'
+import { Controller, CommandController } from '@controllers'
 import { EventUtil } from '@util';
 import './EditTools.scss'
 
@@ -32,7 +32,7 @@ import './EditTools.scss'
 
     connectedCallback() {
       this.render();
-      this.init()
+      this.initElement()
       this.initState();
       this.initEvent();
       this.subscribe();
@@ -41,12 +41,12 @@ import './EditTools.scss'
     render() {
       this.innerHTML = `
               <div class="edit-tools">
-                ${this.iconlist.reduce((acc, icon) => acc + `<audi-icon-button id="${icon}" color="white" icontype="${icon}" size="32px" data-event-key=${EventKeyType.EDIT_TOOLS_CLICK + icon}></audi-icon-button>`, '')}
+                ${this.iconlist.reduce((acc, icon) => acc + `<audi-icon-button id="${icon}" color="white" icontype="${icon}" class="delegation" size="32px" event-key=${EventKeyType.EDIT_TOOLS_CLICK + icon}></audi-icon-button>`, '')}
               </div>
             `;
     }
 
-    init() {
+    initElement() {
       this.cursorElement = this.querySelector('#cursor');
       this.bladeElement = this.querySelector('#blade');
       this.copyElement = this.querySelector('#copy');
@@ -58,10 +58,50 @@ import './EditTools.scss'
     }
 
     initState() {
-      this.cursorState();
-      this.focusState();
-      this.clipBoardState();
-      this.commandState();
+      this.initCursorState();
+      this.initFocusState();
+      this.initClipBoardState();
+      this.initCommandState();
+    }
+
+    initCursorState() {
+      const cursorMode = Controller.getCursorMode();
+      if (cursorMode === CursorType.SELECT_MODE) {
+        this.cursorElement?.classList.add('selected');
+      } else {
+        this.bladeElement?.classList.add('selected');
+      }
+    }
+
+    initFocusState() {
+      const focusList = Controller.getFocusList();
+      if (focusList.length === 0) {
+        this.copyElement?.classList.add('disabled');
+        this.cutElement?.classList.add('disabled');
+        this.deleteElement?.classList.add('disabled');
+      } else if (focusList.length > 1) {
+        this.copyElement?.classList.add('disabled');
+        this.cutElement?.classList.add('disabled');
+      }
+    }
+
+    initClipBoardState() {
+      const clipBoard = Controller.getClipBoard();
+      const focusList = Controller.getFocusList();
+
+      if (focusList.length > 1 || !clipBoard) {
+        this.pasteElement?.classList.add('disabled');
+      }
+    }
+
+    initCommandState() {
+      const { undoList, redoList } = CommandManager;
+      if (undoList.length === 0) {
+        this.undoElement?.classList.add('disabled');
+      }
+      if (redoList.length === 0) {
+        this.redoElement?.classList.add('disabled');
+      }
     }
 
     initEvent() {
@@ -85,11 +125,11 @@ import './EditTools.scss'
         listeners: [this.undoListener],
         bindObj: this
       });
-      
+
       EventUtil.registerEventToRoot({
         eventTypes: [EventType.click],
         eventKey: EventKeyType.EDIT_TOOLS_CLICK + IconType.blade,
-        listeners: [this.cutCursorListener],
+        listeners: [this.cuttingCursorListener],
         bindObj: this
       });
 
@@ -99,60 +139,34 @@ import './EditTools.scss'
         listeners: [this.redoListener],
         bindObj: this
       });
-    
+
       EventUtil.registerEventToRoot({
         eventTypes: [EventType.click],
         eventKey: EventKeyType.EDIT_TOOLS_CLICK + IconType.copy,
         listeners: [this.copyListener],
         bindObj: this
       });
-    }
-    
-    cursorState() {
-      const cursorMode = Controller.getCursorMode();
-      if (cursorMode === CursorType.SELECT_MODE) {
-        this.cursorElement?.classList.add('selected');
-      } else {
-        this.bladeElement?.classList.add('selected');
-      }
-    }
 
-    focusState() {
-      const focusList = Controller.getFocusList();
-      if (focusList.length === 0) {
-        this.copyElement?.classList.add('disabled');
-        this.cutElement?.classList.add('disabled');
-        this.deleteElement?.classList.add('disabled');
-      } else if (focusList.length > 1) {
-        this.copyElement?.classList.add('disabled');
-        this.cutElement?.classList.add('disabled');
-      }
-    }
+      EventUtil.registerEventToRoot({
+        eventTypes: [EventType.click],
+        eventKey: EventKeyType.EDIT_TOOLS_CLICK + IconType.cut,
+        listeners: [this.cutListener],
+        bindObj: this
+      });
 
-    clipBoardState() {
-      const clipBoard = Controller.getClipBoard();
-      const focusList = Controller.getFocusList();
-
-      if (focusList.length > 1 || !clipBoard) {
-        this.pasteElement?.classList.add('disabled');
-      }
-    }
-
-    commandState() {
-      const { undoList, redoList } = CommandManager;
-      if (undoList.length === 0) {
-        this.undoElement?.classList.add('disabled');
-      }
-      if (redoList.length === 0) {
-        this.redoElement?.classList.add('disabled');
-      }
+      EventUtil.registerEventToRoot({
+        eventTypes: [EventType.click],
+        eventKey: EventKeyType.EDIT_TOOLS_CLICK + IconType.paste,
+        listeners: [this.pasteListener],
+        bindObj: this
+      });
     }
 
     selectCursorListener(e) {
       Controller.setCursorMode(CursorType.SELECT_MODE);
     }
 
-    cutCursorListener(e) {
+    cuttingCursorListener(e) {
       Controller.setCursorMode(CursorType.CUT_MODE);
     }
 
@@ -160,30 +174,38 @@ import './EditTools.scss'
       Controller.setClipBoard();
     }
 
+    cutListener(e) {
+      CommandController.executeCutCommand();
+    }
+
+    pasteListener(e) {
+      CommandController.executePasteCommand();
+    }
+
+    deleteListener(): void {
+      CommandController.executeDeleteCommand();
+    }
+
+    undoListener(): void {
+      CommandController.executeUndoCommand();
+    }
+
+    redoListener(): void {
+      CommandController.executeRedoCommand();
+    }
+
     subscribe(): void {
       storeChannel.subscribe(StoreChannelType.EDIT_TOOLS_CHANNEL, this.updateEditTools, this);
+      storeChannel.subscribe(StoreChannelType.CURSOR_MODE_CHANNEL, this.updateEditTools, this);
     }
 
     updateEditTools(): void {
       this.render();
-      this.init();
+      this.initElement();
       this.initState();
-      this.initEvent();
-    }
-
-    deleteListener(): void {
-      Controller.deleteCommand();
-    }
-
-    undoListener(): void {
-      Controller.undoCommand();
-    }
-
-    redoListener(): void {
-      Controller.redoCommand();
     }
   };
-      
+
   customElements.define('audi-edit-tools', EditTools);
 })()
 

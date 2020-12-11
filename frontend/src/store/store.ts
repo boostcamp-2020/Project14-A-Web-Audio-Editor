@@ -1,5 +1,5 @@
 import { StoreStateType, CursorType } from '@types';
-import { Track, Source, TrackSection } from '@model';
+import { Track, Source, TrackSection, SectionDragStartData, SelectTrackData } from '@model';
 import { StoreChannelType, ModalType, ModalStateType, FocusInfo } from '@types';
 import { storeChannel } from '@store';
 
@@ -8,8 +8,8 @@ const store = new (class Store {
 
   constructor() {
     this.state = {
-      cursorTime: '00:00:000',
-      playTime: '00:00:000',
+      cursorStringTime: '00:00:000',
+      playStringTime: '00:00:000',
       sourceList: [],
       modalState: {
         modalType: ModalType.upload,
@@ -20,14 +20,20 @@ const store = new (class Store {
       focusList: [],
       ctrlIsPressed: false,
       cursorMode: CursorType.SELECT_MODE,
-      trackIndex: 3,
-      sectionIndex: 0,
+      trackIndex: 4,
+      sectionIndex: 1,
       clipBoard: null,
       audioSourceInfoInTrackList: [],
       currentPosition: 0,
-      markerTime: 0,
-      totalCursorTime: 0,
-      isPause: true
+      markerNumberTime: 0,
+      cursorNumberTime: 0,
+      isPause: true,
+      isRepeat: false,
+      maxTrackWidth: 0,
+      maxTrackPlayTime: 300,
+      currentScrollAmount: 0,
+      sectionDragStartData: null,
+      selectTrackData: new SelectTrackData({ trackId: 0, selectedTime: 0 }),
     };
   }
 
@@ -35,13 +41,26 @@ const store = new (class Store {
     return Array(numOfTracks)
       .fill(0)
       .reduce((acc, cur, idx) => {
-        const track = new Track({ id: idx, trackSectionList: [] });
+        const track = new Track({ id: idx + 1, trackSectionList: [] });
         return acc.concat(track);
       }, []);
   }
 
   getState(): StoreStateType {
     return this.state;
+  }
+
+  resetSelectTrackData(): void {
+    const { selectTrackData } = this.state;
+    selectTrackData.trackId = 0;
+    selectTrackData.selectedTime = 0;
+
+    storeChannel.publish(StoreChannelType.SELECT_AUDIO_TRACK, selectTrackData);
+  }
+
+  setSelectTrackData(trackId: number, selectedTime: number): void {
+    this.state = { ...this.state, selectTrackData: { trackId, selectedTime } };
+    storeChannel.publish(StoreChannelType.SELECT_AUDIO_TRACK, this.state.selectTrackData);
   }
 
   setSource(source: Source): void {
@@ -64,15 +83,13 @@ const store = new (class Store {
     storeChannel.publish(StoreChannelType.MODAL_STATE_CHANNEL, newModalState);
   }
 
-  setCursorTime(newMinute: string, newSecond: string, newMilsecond): void {
-    const { cursorTime } = this.state;
-    const [minute, second, milsecond] = cursorTime.split(':');
+  setCursorStringTime(newCursorStringTime: string): void {
+    const { cursorStringTime } = this.state;
 
-    if (minute === newMinute && second === newSecond && milsecond === newMilsecond) return;
+    if (cursorStringTime === newCursorStringTime) return;
 
-    const newCursorTime: string = `${newMinute.padStart(2, '0')}:${newSecond.padStart(2, '0')}:${newMilsecond.padStart(3, '0')}`;
-    this.state = { ...this.state, cursorTime: newCursorTime };
-    storeChannel.publish(StoreChannelType.CURSOR_TIME_CHANNEL, newCursorTime);
+    this.state = { ...this.state, cursorStringTime: newCursorStringTime };
+    storeChannel.publish(StoreChannelType.CURSOR_TIME_CHANNEL, newCursorStringTime);
   }
 
   setTrackDragState(newIsTrackDraggable: Boolean): void {
@@ -86,10 +103,15 @@ const store = new (class Store {
   setTrack(newTrack: Track): void {
     const { trackList } = this.state;
 
-    newTrack.id = trackList.length;
-    const newAudioTrackList = trackList.concat(newTrack);
+    const track = trackList.find((track) => track.id === newTrack.id);
+    if (track) {
+      track.trackSectionList = [...newTrack.trackSectionList];
+    } else {
+      newTrack.id = this.state.trackIndex++;
+      const newAudioTrackList = trackList.concat(newTrack);
 
-    this.state = { ...this.state, trackList: newAudioTrackList };
+      this.state = { ...this.state, trackList: newAudioTrackList };
+    }
   }
 
   setTrackSection(trackId: number, newTrackSection: TrackSection): void {
@@ -98,7 +120,9 @@ const store = new (class Store {
     if (!track) return;
 
     const { trackSectionList } = track;
-    newTrackSection.id = this.state.sectionIndex++;
+    if (newTrackSection.id === 0) {
+      newTrackSection.id = this.state.sectionIndex++;
+    }
 
     const newTrackSectionList = trackSectionList.concat(newTrackSection).sort((a, b) => a.trackStartTime - b.trackStartTime);
 
@@ -114,8 +138,8 @@ const store = new (class Store {
       trackId: trackId,
       trackSectionList: newTrackSectionList
     });
-
     storeChannel.publish(StoreChannelType.TRACK_CHANNEL, newTrackList);
+    storeChannel.publish(StoreChannelType.EDIT_MENU_CHANNEL, null);
   }
 
   setCurrentPosition(newCurrentPosition: number): void {
@@ -135,7 +159,7 @@ const store = new (class Store {
     const newfocusList = focusList.concat(newFocusInfo);
 
     this.state = { ...this.state, focusList: newfocusList };
-    storeChannel.publish(StoreChannelType.EDIT_TOOLS_CHANNEL, '');
+    storeChannel.publish(StoreChannelType.EDIT_TOOLS_CHANNEL, null);
   }
 
   removeFocus(removeIndex: number) {
@@ -143,48 +167,50 @@ const store = new (class Store {
     const newfocusList = [...focusList];
     newfocusList.splice(removeIndex, 1);
     this.state = { ...this.state, focusList: newfocusList };
-    storeChannel.publish(StoreChannelType.EDIT_TOOLS_CHANNEL, '');
+    storeChannel.publish(StoreChannelType.EDIT_TOOLS_CHANNEL, null);
   }
 
   resetFocus(): void {
     this.state = { ...this.state, focusList: [] };
-    storeChannel.publish(StoreChannelType.EDIT_TOOLS_CHANNEL, '');
+    storeChannel.publish(StoreChannelType.EDIT_TOOLS_CHANNEL, null);
   }
 
   setClipBoard(newSection: TrackSection): void {
     this.state.clipBoard = newSection;
-    storeChannel.publish(StoreChannelType.EDIT_TOOLS_CHANNEL, '');
+    storeChannel.publish(StoreChannelType.EDIT_TOOLS_CHANNEL, null);
   }
 
-  setMarkerTime(newMarkerTime: number): void {
-    const { markerTime } = this.state;
+  setMarkerNumberTime(newMarkerNumberTime: number): void {
+    const { markerNumberTime } = this.state;
 
-    if (markerTime === newMarkerTime) return;
+    if (markerNumberTime === newMarkerNumberTime) {
+      return;
+    };
 
-    this.state = { ...this.state, markerTime: newMarkerTime };
+    this.state = { ...this.state, markerNumberTime: newMarkerNumberTime };
   }
 
-  setTotalCursorTime(newTotalCursorTime: number): void {
-    this.state = { ...this.state, totalCursorTime: newTotalCursorTime };
+  setCursorNumberTime(newCursorNumberTime: number): void {
+    this.state = { ...this.state, cursorNumberTime: newCursorNumberTime };
   }
 
   setIsPauseState(isPauseState: boolean): void {
     this.state = { ...this.state, isPause: isPauseState };
   }
 
-  setMarkerWidth(newMarkerWidth: number): void {
+  setMarkerWidth(newMarkerWidth: number|number[]): void {
     storeChannel.publish(StoreChannelType.CURRENT_POSITION_CHANNEL, newMarkerWidth);
   }
 
-  setPlayTime(newPlayTime): void {
-    this.state = { ...this.state, playTime: newPlayTime };
-    storeChannel.publish(StoreChannelType.PLAY_TIME_CHANNEL, newPlayTime);
+  setPlayStringTime(newPlayStringTime): void {
+    this.state = { ...this.state, playStringTime: newPlayStringTime };
+    storeChannel.publish(StoreChannelType.PLAY_TIME_CHANNEL, newPlayStringTime);
   }
 
   removeSection(trackId: number, sectionIndex: number): void {
     const { trackList } = this.state;
 
-    const track = trackList.find(track => track.id === trackId)
+    const track = trackList.find((track) => track.id === trackId);
     if (!track) return;
 
     const { trackSectionList } = track;
@@ -194,23 +220,72 @@ const store = new (class Store {
     newTrackSectionList.splice(sectionIndex, 1);
 
     const newTrack = new Track({ ...track, trackSectionList: newTrackSectionList });
-    const newTrackList: Array<Track> = trackList.reduce<Track[]>((acc, track) =>
-        (track.id === trackId) ? acc.concat(newTrack) : acc.concat(track),
-        []);
+    const newTrackList: Array<Track> = trackList.reduce<Track[]>(
+      (acc, track) => (track.id === trackId ? acc.concat(newTrack) : acc.concat(track)),
+      []
+    );
 
     this.state = { ...this.state, trackList: newTrackList };
 
     storeChannel.publish(StoreChannelType.TRACK_SECTION_LIST_CHANNEL, {
-        trackId: trackId,
-        trackSectionList: newTrackSectionList
+      trackId: trackId,
+      trackSectionList: newTrackSectionList
     });
 
     storeChannel.publish(StoreChannelType.TRACK_CHANNEL, newTrackList);
+    storeChannel.publish(StoreChannelType.EDIT_MENU_CHANNEL, null);
   }
 
-  setCursorMode(newType: CursorType): void {
-    this.state.cursorMode = newType;
-    storeChannel.publish(StoreChannelType.EDIT_TOOLS_CHANNEL, '');
+  setCursorMode(newCursorMode: CursorType): void {
+    const { cursorMode } = this.state;
+    if (cursorMode === newCursorMode) return;
+
+    this.state = { ...this.state, cursorMode: newCursorMode };
+    storeChannel.publish(StoreChannelType.CURSOR_MODE_CHANNEL, newCursorMode);
+  }
+
+  setMaxTrackWidth(newMaxTrackWidth: number): void {
+    const { maxTrackWidth } = this.state;
+    if (maxTrackWidth >= newMaxTrackWidth) return;
+
+    this.state = { ...this.state, maxTrackWidth: newMaxTrackWidth };
+    storeChannel.publish(StoreChannelType.MAX_TRACK_WIDTH_CHANNEL, newMaxTrackWidth);
+  }
+
+  changePlayOrPauseIcon(iconType: number) {
+    storeChannel.publish(StoreChannelType.PLAY_OR_PAUSE_CHANNEL, iconType);
+  }
+
+  setIsRepeatState(isRepeat: boolean) {
+    this.state = { ...this.state, isRepeat: isRepeat };
+  }
+
+  setMaxTrackPlayTime(newMaxTrackPlayTime: number): void {
+    const { maxTrackPlayTime } = this.state;
+    if (maxTrackPlayTime >= newMaxTrackPlayTime) return;
+
+    this.state = { ...this.state, maxTrackPlayTime: newMaxTrackPlayTime };
+    storeChannel.publish(StoreChannelType.MAX_TRACK_PLAY_TIME_CHANNEL, newMaxTrackPlayTime);
+  }
+
+  setCurrentScrollAmount(newCurrentScrollAmount: number): void {
+    const { currentScrollAmount } = this.state;
+    if (currentScrollAmount === newCurrentScrollAmount) return;
+
+    this.state = { ...this.state, currentScrollAmount: newCurrentScrollAmount };
+    storeChannel.publish(StoreChannelType.CURRENT_SCROLL_AMOUNT_CHANNEL, newCurrentScrollAmount);
+  }
+
+  setSectionDragStartData(newDragStartData: SectionDragStartData): void {
+    this.state = { ...this.state, sectionDragStartData: newDragStartData };
+  }
+
+  setTrackList(newTrackList: Track[]): void {
+    this.state = {...this.state, trackList: newTrackList};
+  }
+
+  setTrackIndex(newTrackIndex: number): void {
+    this.state =  {...this.state, trackIndex: newTrackIndex};
   }
 })();
 
