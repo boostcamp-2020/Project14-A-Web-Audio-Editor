@@ -26,7 +26,6 @@
     "clean-webpack-plugin": "^3.0.0",
     "core-js": "^3.6.5",
     "css-loader": "^4.3.0",
-    "dotenv": "^8.2.0",
     "eslint": "^7.13.0",
     "eslint-config-airbnb": "^18.2.1",
     "eslint-config-prettier": "^6.15.0",
@@ -48,8 +47,8 @@
     "webpack-merge": "^5.4.0"
   },
   "scripts": {
-    "dev": "webpack-dev-server --env.ENVIRONMENT=development",
-    "build": "webpack --mode production --devtool hidden-source-map --env.ENVIRONMENT=production",
+    "dev": "webpack-dev-server",
+    "build": "webpack --mode production --devtool hidden-source-map",
     "test": "jest"
   },
   "eslintConfig": {
