@@ -1,15 +1,14 @@
 import { Controller } from '@controllers';
 import { EventKeyType, EventType, StoreChannelType } from '@types';
-import { EventUtil, TimeUtil, WidthUtil, ValidUtil, DragUtil } from '@util';
+import { EventUtil, WidthUtil, DragUtil } from '@util';
 import { storeChannel } from '@store';
-import { TrackSection, SectionDragStartData } from '@model';
+import { TrackSection, SectionDragStartData, SelectTrackData } from '@model';
 import './AudioTrack.scss';
 
 (() => {
   const AudioTrack = class extends HTMLElement {
     private trackId: number;
     private trackMessageElement: HTMLDivElement | null;
-    private trackDropzoneElement: HTMLDivElement | null;
     private trackSectionList: TrackSection[];
     private trackAreaElement: HTMLDivElement | null;
     private trackScrollAreaElement: HTMLDivElement | null;
@@ -23,7 +22,6 @@ import './AudioTrack.scss';
       super();
       this.trackId = 0;
       this.trackMessageElement = null;
-      this.trackDropzoneElement = null;
       this.trackSectionList = [];
       this.trackAreaElement = null;
       this.trackScrollAreaElement = null;
@@ -60,7 +58,7 @@ import './AudioTrack.scss';
         console.log(e);
       }
     }
-    
+
     render(): void {
       this.innerHTML = `
                     <div class="audio-track-container" event-key=${EventKeyType.FOCUS_RESET_CLICK + this.trackId}>
@@ -69,12 +67,13 @@ import './AudioTrack.scss';
                         <div class="audio-track-message"><span>Drag & Drop</span></div>
                         <div id="section-cut-line-${this.trackId}" class="cut-line"></div>
                         <div id="afterimage-${this.trackId}" class="audio-track-afterimage" event-key=${EventKeyType.AUDIO_TRACK_AFTERIMAGE_DROP + this.trackId}></div>
-                      </div>      
+                        <div id="track-select-line-${this.trackId}" class="track-select-line"></div>
+                        </div>      
                     </div>
                 `;
     }
 
-    getTrackSectionList(): string {     
+    getTrackSectionList(): string {
       return this.trackSectionList.reduce(
         (acc, trackSection) => (acc += `<audi-track-section data-id=${trackSection.id} data-track-id=${trackSection.trackId}></audi-track-section>`),
         ''
@@ -85,16 +84,15 @@ import './AudioTrack.scss';
       this.maxTrackWidth = Controller.getMaxTrackWidth();
       this.maxTrackPlayTime = Controller.getMaxTrackPlayTime();
       this.trackMessageElement = this.querySelector('.audio-track-message');
-      this.trackDropzoneElement = this.querySelector('.audio-track-dropzone');
       this.trackAreaElement = this.querySelector('.audio-track-area');
       this.trackScrollAreaElement = document.querySelector('.audi-main-audio-track-scroll-area');
       this.afterimageElement = this.querySelector(`#afterimage-${this.trackId}`);
       this.trackWidth = this.calculateTrackWidth();
     }
 
-    calculateTrackWidth(): number{
+    calculateTrackWidth(): number {
       let trackWidth = 0;
-      if(this.trackAreaElement){
+      if (this.trackAreaElement) {
         trackWidth = this.trackAreaElement.getBoundingClientRect().right - this.trackAreaElement.getBoundingClientRect().left;
       }
       return trackWidth;
@@ -104,7 +102,7 @@ import './AudioTrack.scss';
       EventUtil.registerEventToRoot({
         eventTypes: [EventType.click, EventType.dragover, EventType.dragleave, EventType.drop, EventType.dragenter],
         eventKey: EventKeyType.AUDIO_TRACK_AREA_MULTIPLE + this.trackId,
-        listeners: [this.focusResetListener, this.dragoverAudioTrackListener, this.dragleaveAudioTrackListener, this.dropAudioTrackListener, this.dragenterAudioTrackListener],
+        listeners: [this.trackClickListener, this.dragoverAudioTrackListener, this.dragleaveAudioTrackListener, this.dropAudioTrackListener, this.dragenterAudioTrackListener],
         bindObj: this
       });
 
@@ -121,11 +119,11 @@ import './AudioTrack.scss';
       const trackSectionElements: NodeListOf<HTMLElement> = this.querySelectorAll('audi-track-section');
 
       if (!this.trackAreaElement || trackSectionElements.length === 0) return;
-      
+
       this.trackWidth = this.calculateTrackWidth();
       this.maxTrackPlayTime = Controller.getMaxTrackPlayTime();
       const secondPerPixel = WidthUtil.getPixelPerSecond(this.trackWidth, this.maxTrackPlayTime);
-      
+
       this.trackSectionList.forEach((section, idx) => {
         const marginValue = (section.trackStartTime - prevEndOffset) * secondPerPixel;
         if (!trackSectionElements[idx]) return;
@@ -176,10 +174,33 @@ import './AudioTrack.scss';
       DragUtil.dropTrackSection(currentTrackId, currentCursorPosition, this.trackWidth);
     }
 
+    trackClickListener(e): void {
+      const ctrlIsPressed = Controller.getCtrlIsPressed();
+      if (!ctrlIsPressed) {
+        Controller.resetFocus();
+
+        if (!this.trackAreaElement) return;
+        const cursorPosition = e.pageX;
+        const trackAreaElementLeftX = this.trackAreaElement.getBoundingClientRect().left;
+        this.maxTrackPlayTime = Controller.getMaxTrackPlayTime();
+        const secondPerPixel = WidthUtil.getPixelPerSecond(this.trackWidth, this.maxTrackPlayTime);
+
+        const cursorOffset = cursorPosition - trackAreaElementLeftX;
+        const selectedTime = cursorOffset / secondPerPixel;
+        const selectLine = document.getElementById(`track-select-line-${this.trackId}`);
+        if (!selectLine) return;
+        selectLine.style.display = 'block';
+        selectLine.style.left = `${cursorOffset}px`;
+
+        Controller.changeSelectTrackData(this.trackId, selectedTime);
+      }
+    }
+
     focusResetListener(e): void {
       const ctrlIsPressed = Controller.getCtrlIsPressed();
       if (!ctrlIsPressed) {
         Controller.resetFocus();
+        Controller.changeSelectTrackData(0, 0);
       }
     }
 
@@ -187,6 +208,7 @@ import './AudioTrack.scss';
       storeChannel.subscribe(StoreChannelType.TRACK_SECTION_LIST_CHANNEL, this.trackSectionListObserverCallback, this);
       storeChannel.subscribe(StoreChannelType.MAX_TRACK_WIDTH_CHANNEL, this.maxTrackWidthObserverCallback, this);
       storeChannel.subscribe(StoreChannelType.MAX_TRACK_PLAY_TIME_CHANNEL, this.maxTrackPlayTimeObserverCallback, this);
+      storeChannel.subscribe(StoreChannelType.SELECT_AUDIO_TRACK, this.selectTrackDataObserverCallback, this);
     }
 
     trackSectionListObserverCallback({ trackId, trackSectionList }): void {
@@ -198,10 +220,10 @@ import './AudioTrack.scss';
       this.messageDisplayHandler();
 
       const scrollWidth = this.trackScrollAreaElement.scrollWidth;
-      Controller.changeMaxTrackWidth(scrollWidth);  
+      Controller.changeMaxTrackWidth(scrollWidth);
       Controller.changeMaxTrackPlayTime(trackSectionList);
 
-      if(this.maxTrackWidth === scrollWidth)
+      if (this.maxTrackWidth === scrollWidth)
         this.resizeTrackArea(scrollWidth);
       this.initPosition();
     }
@@ -216,6 +238,14 @@ import './AudioTrack.scss';
     maxTrackWidthObserverCallback(maxTrackWidth: number): void {
       this.maxTrackWidth = maxTrackWidth;
       this.resizeTrackArea(maxTrackWidth);
+    }
+
+    selectTrackDataObserverCallback(selectTrackData: SelectTrackData): void {
+      if (selectTrackData.trackId !== this.trackId) {
+        const selectLine = document.getElementById(`track-select-line-${this.trackId}`);
+        if (!selectLine) return;
+        selectLine.style.display = 'none';
+      }
     }
 
     resizeTrackArea(maxTrackWidth: number) {

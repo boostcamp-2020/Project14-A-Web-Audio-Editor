@@ -1,4 +1,4 @@
-import { Controller } from '@controllers';
+import { Controller, CommandController } from '@controllers';
 import { WidthUtil, TimeUtil, ValidUtil } from '@util';
 
 const showAfterimage = (afterimage: HTMLElement, trackId: number, trackContainerWidth: number, currentCursorPosition: number): void => {
@@ -63,7 +63,7 @@ const dropTrackSection = (trackId: number, currentCursorPosition: number, trackC
   const movingCursorTime = TimeUtil.calculateTimeOfCursorPosition(offsetLeft, currentCursorPosition, trackContainerWidth, maxTrackPlayTime);
 
   Controller.resetFocus();
-  Controller.moveCommand(dragData.trackSection.trackId, trackId, dragData.trackSection, movingCursorTime, prevCursorTime);
+  CommandController.executeMoveCommand(dragData.trackSection.trackId, trackId, dragData.trackSection, movingCursorTime, prevCursorTime);
 }
 
 

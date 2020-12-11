@@ -23,21 +23,6 @@ audi-audio-track:not(:defined) {
         box-sizing: border-box;
         overflow: visible;
         
-        .audio-track-dropzone{
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(60,60,60, 0.4);
-            border: 1px dotted #ffffff;
-            z-index: 100;
-            
-            &.focus{
-                background-color: rgba(43, 130, 211, 0.5);
-                box-shadow: rgb(43, 130, 211) 0 0 15px 5px;
-            }
-        }
         .cut-line {
             position: absolute;
             width: 1px;
@@ -60,6 +45,20 @@ audi-audio-track:not(:defined) {
             border: 1px dashed gray;
             background-color: rgba(40,40,40, 0.5);
             position: absolute;
+            pointer-events: none;
+        }
+
+        .track-select-line {
+            position: absolute;
+            display:none;
+            width: 1px;
+            height: 100%;
+
+            top:0;
+            left: 0px;
+            border-left: 1px dashed white;
+            z-index: 999;
+
             pointer-events: none;
         }
     }

@@ -1,5 +1,5 @@
 import { StoreStateType, CursorType } from '@types';
-import { Track, Source, TrackSection, SectionDragStartData } from '@model';
+import { Track, Source, TrackSection, SectionDragStartData, SelectTrackData } from '@model';
 import { StoreChannelType, ModalType, ModalStateType, FocusInfo } from '@types';
 import { storeChannel } from '@store';
 
@@ -32,7 +32,8 @@ const store = new (class Store {
       maxTrackWidth: 0,
       maxTrackPlayTime: 300,
       currentScrollAmount: 0,
-      sectionDragStartData: null
+      sectionDragStartData: null,
+      selectTrackData: new SelectTrackData({ trackId: 0, selectedTime: 0 }),
     };
   }
 
@@ -47,6 +48,19 @@ const store = new (class Store {
 
   getState(): StoreStateType {
     return this.state;
+  }
+
+  resetSelectTrackData(): void {
+    const { selectTrackData } = this.state;
+    selectTrackData.trackId = 0;
+    selectTrackData.selectedTime = 0;
+
+    storeChannel.publish(StoreChannelType.SELECT_AUDIO_TRACK, selectTrackData);
+  }
+
+  setSelectTrackData(trackId: number, selectedTime: number): void {
+    this.state = { ...this.state, selectTrackData: { trackId, selectedTime } };
+    storeChannel.publish(StoreChannelType.SELECT_AUDIO_TRACK, this.state.selectTrackData);
   }
 
   setSource(source: Source): void {

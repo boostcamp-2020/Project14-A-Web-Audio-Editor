@@ -54,9 +54,11 @@ import { Controller, CommandController } from "@controllers";
         CommandController.executeDeleteCommand();
       }
       else if (e.which === KeyBoard.LEFT && !isCtrl) {
+        e.preventDefault()
         Controller.audioFastRewind();
       }
       else if (e.which === KeyBoard.RIGHT && !isCtrl) {
+        e.preventDefault()
         Controller.audioFastForward();
       }
       else if (e.which === KeyBoard.LEFT_BRACKET && !isCtrl) {
@@ -66,6 +68,7 @@ import { Controller, CommandController } from "@controllers";
         Controller.audioSkipNext();
       }
       else if (e.which === KeyBoard.SPACE && !isCtrl) {
+        e.preventDefault()
         Controller.audioPlayOrPause();
       }
       else if (e.which === KeyBoard.C && isCtrl) {
@@ -86,6 +89,7 @@ import { Controller, CommandController } from "@controllers";
     }
 
     ctrlKeyUpListener(e): void {
+      e.preventDefault()
       if (e.which === KeyBoard.CTRL) {
         Controller.setCtrlIsPressed(false);
       }
@@ -94,10 +98,10 @@ import { Controller, CommandController } from "@controllers";
     eventListenerForRegistrant(e): void {
       const { target } = e;
       if (!target || !this.isEventTarget(target) && !this.isDelegationEvent(target)) return;
-      
+
       const eventType = e.type;
       const eventKey = this.parseEventKey(target);
-      if(!eventKey) return;
+      if (!eventKey) return;
 
       this.excuteEventListenerForTarget(eventType, eventKey, e);
     }
@@ -108,19 +112,19 @@ import { Controller, CommandController } from "@controllers";
     }
 
     isDelegationEvent(eventTarget: HTMLElement): Boolean {
-      const eventDelegation = eventTarget.getAttribute('event-delegation');      
+      const eventDelegation = eventTarget.getAttribute('event-delegation');
       return eventDelegation === '' ? true : false;
     }
 
-    parseEventKey(eventTarget: HTMLElement){
+    parseEventKey(eventTarget: HTMLElement) {
       const eventDelegation = eventTarget.getAttribute('event-delegation');
 
-      if(eventDelegation === ''){
+      if (eventDelegation === '') {
         const newEventTarget = eventTarget.closest('.delegation');
         return newEventTarget?.getAttribute('event-key');
-      }else{
+      } else {
         return eventTarget.getAttribute('event-key');
-      }   
+      }
     }
 
     excuteEventListenerForTarget(eventType: string, eventKey: string, e: Event): void {

@@ -1,7 +1,6 @@
 import { Source, Track, TrackSection, SectionDragStartData } from '@model';
 import { store } from '@store';
 import { ModalType, FocusInfo, CursorType, SectionDataType } from '@types';
-import { CommandManager, MoveCommand } from '@command';
 import { CopyUtil, SectionEffectListUtil, TimeUtil, WidthUtil } from '@util';
 import playbackTool from '@components/PlaybackTools/PlaybackToolClass';
 
@@ -175,7 +174,6 @@ const getFocusList = () => {
 
 const toggleFocus = (trackId: number, sectionId: number, selectedElement: HTMLCanvasElement): void => {
   const { trackList, focusList, ctrlIsPressed, cursorMode } = store.getState();
-
   if (cursorMode !== CursorType.SELECT_MODE) return;
 
   const track = trackList.find((track) => track.id === trackId);
@@ -199,6 +197,8 @@ const toggleFocus = (trackId: number, sectionId: number, selectedElement: HTMLCa
 
 const addFocus = (trackSection: TrackSection, selectedElement: HTMLCanvasElement): void => {
   selectedElement.classList.add('focused-section');
+  store.resetSelectTrackData();
+
   const newFocusInfo: FocusInfo = {
     trackSection: trackSection,
     element: selectedElement
@@ -236,6 +236,7 @@ const setCursorMode = (newCursorType: CursorType) => {
     trackContainerElement.classList.remove('cursor-change');
   } else if (newCursorType === CursorType.CUT_MODE) {
     resetFocus();
+    store.resetSelectTrackData();
     trackContainerElement.classList.add('cursor-change');
   }
   store.setCursorMode(newCursorType);
@@ -265,7 +266,6 @@ const getMarkerTime = (): number => {
   return markerNumberTime;
 };
 
-//markerEventUtil에서 이 함수로 바꿈.
 const changeCursorNumberTime = (cursorNumberTime: number): void => {
   store.setCursorNumberTime(cursorNumberTime);
 };
@@ -343,17 +343,6 @@ const setClipBoard = (): boolean => {
   store.setClipBoard(newSection);
 
   return true;
-};
-
-const moveCommand = (prevTrackId: number, currentTrackId: number, trackSection: TrackSection, movingCursorTime: number, prevCursorTime: number) => {
-  const { trackList } = store.getState();
-  const prevTrack = trackList.find((track) => track.id === prevTrackId);
-  const currentTrack = trackList.find((track) => track.id === currentTrackId);
-
-  if (!prevTrack || !currentTrack) return;
-
-  const command = new MoveCommand(CopyUtil.copyTrack(prevTrack), CopyUtil.copyTrack(currentTrack), trackSection, movingCursorTime, prevCursorTime);
-  CommandManager.execute(command);
 };
 
 const changeMaxTrackWidth = (maxTrackWidth: number): void => {
@@ -461,13 +450,28 @@ const getSectionDragStartData = (): SectionDragStartData | null => {
   return sectionDragStartData;
 };
 
+const changeSelectTrackData = (trackId: number, selectedTime: number): void => {
+  const track = getTrack(trackId);
+  const trackSection = track?.trackSectionList.find(section => section.trackStartTime <= selectedTime && selectedTime <= section.trackStartTime + section.length)
+  if (trackSection) {
+    store.setSelectTrackData(0, 0);
+    return;
+  }
+  store.setSelectTrackData(trackId, selectedTime);
+};
+
+const getSelectTrackData = () => {
+  const { selectTrackData } = store.getState();
+  return selectTrackData;
+};
+  
 const pushTrackWidthIndex = (newTrack: Track): void => {
   const { trackList, trackIndex } = store.getState();
   const newTrackList = trackList.concat(newTrack);
 
   store.setTrackList(newTrackList);
   store.setTrackIndex(trackIndex + 1);
-}
+};
 
 const popTrackWithIndex = (): Track | undefined => {
   const { trackList, trackIndex } = store.getState();
@@ -487,7 +491,7 @@ const removeTrackById = (trackId: number): Track | undefined => {
   
   store.setTrackList(newTrackList);
   return trackToRemove;
-}
+};
 
 const insertTrack = (insertIdx: number, trackToInsert: Track): void => {
   const { trackList } = store.getState();
@@ -499,7 +503,7 @@ const insertTrack = (insertIdx: number, trackToInsert: Track): void => {
   });
 
   store.setTrackList(newTrackList);
-}
+};
 
 export default {
   getTrackSection,
@@ -539,7 +543,6 @@ export default {
   changeMarkerPlayStringTime,
   removeSection,
   getMaxTrackPlayTime,
-  moveCommand,
   getSourceBySourceId,
   changeMarkerNumberTime,
   audioPlayOrPause,
@@ -564,6 +567,8 @@ export default {
   getCurrentScrollAmount,
   changeSectionDragStartData,
   getSectionDragStartData,
+  changeSelectTrackData,
+  getSelectTrackData,
   popTrackWithIndex,
   pushTrackWidthIndex,
   removeTrackById,
