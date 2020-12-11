@@ -6,6 +6,7 @@ import { Controller } from '@controllers';
 
 const TIMER_TIME = 34;
 const QUANTUM = 3;
+const INF = 987654321;
 
 class PlaybackToolClass {
   private audioContext: AudioContext;
@@ -15,6 +16,9 @@ class PlaybackToolClass {
   private mutedTrackList: Number[];
   private soloTrackList: Number[];
   private analyser: AnalyserNode|null;
+  private maxPlayTime: number;
+  private loopStartTime: number;
+  private loopEndTime: number;
 
   constructor() {
     this.audioContext = new AudioContext();
@@ -24,6 +28,10 @@ class PlaybackToolClass {
     this.mutedTrackList = [];
     this.soloTrackList = [];
     this.analyser = null;
+    this.maxPlayTime = INF;
+
+    this.loopStartTime = 0;
+    this.loopEndTime = 0;
     this.subscribe();
   }
 
@@ -115,7 +123,6 @@ class PlaybackToolClass {
 
     if (isRepeat === false) {
       Controller.changeIsRepeatState(true);
-      this.repeat(2, 5);
     }
     else {
       Controller.changeIsRepeatState(false);
@@ -172,6 +179,20 @@ class PlaybackToolClass {
     this.sourceInfo.push({ trackId: trackId, sectionId: sectionId, bufferSourceNode: bufferSourceNode });
   }
 
+  setMaxPlayTime(): void {
+    let tempMaxPlayTime = 0;
+    this.trackList.forEach((track: Track) => {
+      track.trackSectionList.forEach((trackSection: TrackSection) => {
+        let time = trackSection.trackStartTime + trackSection.length;
+        if(time > tempMaxPlayTime){
+          tempMaxPlayTime = time;
+        }
+      });
+    });
+
+    this.maxPlayTime = tempMaxPlayTime;
+  }
+
   createAndConnectAnalyser(): void {
     this.analyser = this.audioContext.createAnalyser();
     this.analyser.smoothingTimeConstant = 0.3;
@@ -183,11 +204,44 @@ class PlaybackToolClass {
     });
     this.analyser.connect(this.audioContext.destination);
   }
+  
+  checkMarkerIsAtMaxPlayTime(): boolean {
+    if(Controller.getMarkerTime() >= this.maxPlayTime){
+      return true;
+    }
+    return false;
+  }
+
+  checkMarkerIsAtRepeatEndTime(): boolean {
+    //재생바 부분 반영되면 값 가져와서 사용    
+    const loopEndTime = this.maxPlayTime;
+    if(Controller.getMarkerTime() >= loopEndTime){
+      return true;
+    }
+    return false;
+  }
+
+  stopAtMaxPlayTime() {
+    Controller.changeIsPauseState(false);
+    Controller.audioPlayOrPause();
+  }
 
   playTimer(): void {
     const volumeBar = document.getElementById("audio-meter-fill");
 
     let playTimer = setInterval(() => {
+      if(Controller.getIsRepeatState()) {
+        if(this.checkMarkerIsAtRepeatEndTime()){
+          this.repeat();
+        }
+      }
+      else {
+        if(this.checkMarkerIsAtMaxPlayTime()) {
+          this.stopAtMaxPlayTime();
+          clearInterval(playTimer);  
+        }
+      }
+
       if (Controller.getIsPauseState()) {
         if (volumeBar) {
           setTimeout(() => {
@@ -231,9 +285,9 @@ class PlaybackToolClass {
     this.stopAudioSources();
     this.sourceInfo = [];
 
+    this.setMaxPlayTime();
     this.trackList.forEach((track: Track) => {
       if (track.trackSectionList.length !== 0) {
-
         if (this.soloTrackList.length !== 0) { 
           const soloTrackIdx = this.soloTrackList.indexOf(track.id);
           if(soloTrackIdx === -1) return;
@@ -300,13 +354,15 @@ class PlaybackToolClass {
     }
   }
 
-  //동작 안됨.
-  repeat(markerStart: number, markerEnd: number): void {
-    Controller.changeMarkerNumberTime(markerStart);
-    const isPause = Controller.getIsPauseState();
-    if (isPause === false) {
-      this.play();
-    }
+  repeat(): void {
+    const maxTrackPlayTime = Controller.getMaxTrackPlayTime();
+    const widthPixel = WidthUtil.getPixelPerSecond(this.calculateTrackWidth(), maxTrackPlayTime);
+    
+    Controller.setMarkerWidth([widthPixel * this.loopStartTime, 1]);
+    Controller.changeMarkerPlayStringTime(this.loopStartTime);
+    Controller.changeMarkerNumberTime(this.loopStartTime);
+    
+    this.play();
   }
 
   fastRewind(): void {
@@ -329,6 +385,7 @@ class PlaybackToolClass {
       return;
     }
 
+    this.setMaxPlayTime();
     this.trackList.forEach((track: Track) => {
       if (track.trackSectionList.length !== 0) {
 
@@ -352,7 +409,7 @@ class PlaybackToolClass {
           const sourceIdx = this.sourceInfo.length - 1;
 
           if (markerTime - QUANTUM <= trackSection.trackStartTime) {
-            if (markerTime - QUANTUM < 0) waitTime = 0;
+            if (markerTime - QUANTUM < 0) waitTime = trackSection.trackStartTime;
             else waitTime = this.audioContext.currentTime + trackSection.trackStartTime - markerTime + QUANTUM;
             audioStartTime = trackSection.channelStartTime;
             playDuration = trackSection.length;
@@ -404,6 +461,7 @@ class PlaybackToolClass {
       return;
     }
 
+    this.setMaxPlayTime();
     this.trackList.forEach((track: Track) => {
       if (track.trackSectionList.length !== 0) {
 
@@ -462,22 +520,33 @@ class PlaybackToolClass {
       this.audioContext = new AudioContext();
       this.audioContext.suspend();
 
-      //loop가 걸려있든 아니든 상관없이 맨 마지막에 멈추게 하는 게 구현은 편할 것.
+      //loop여부 관계없이 맨 마지막에 멈추게 하는 게 구현은 편할 것.
       Controller.changeIsPauseState(true);
+      this.setMaxPlayTime();
 
       setTimeout(() => {
-        //수정 필요.
-        //마지막 시간(5분)
-        Controller.changeMarkerPlayStringTime(300);
-        //마커 시간을 맨 끝으로
-        Controller.changeMarkerNumberTime(300);
-        //마커 길이를 맨 끝으로
-        Controller.setMarkerWidth(500);
+        const maxTrackPlayTime = Controller.getMaxTrackPlayTime();
+        this.setMaxPlayTime();
+
+        const widthPixel = WidthUtil.getPixelPerSecond(this.calculateTrackWidth(), maxTrackPlayTime);
+        Controller.setMarkerWidth([widthPixel * this.maxPlayTime, 1]);
+        Controller.changeMarkerPlayStringTime(this.maxPlayTime);
+        Controller.changeMarkerNumberTime(this.maxPlayTime);
       }, TIMER_TIME + 1);
     }
     catch (e) {
       console.log(e);
     }
+  }
+
+  //AudioTrack에 있는 함수.
+  calculateTrackWidth(): number{
+    let trackWidth = 0;
+    const trackAreaElement = document.querySelector('.audio-track-area');
+    if(trackAreaElement){
+      trackWidth = trackAreaElement.getBoundingClientRect().right - trackAreaElement.getBoundingClientRect().left;
+    }
+    return trackWidth;
   }
 }
 
