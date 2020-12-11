@@ -23,35 +23,9 @@
 ## [🥝WIKI](https://github.com/boostcamp-2020/Project14-A-Web-Audio-Editor/wiki)
 
 ## 💻실행방법
+- 프로젝트 배포 링크 : [audi-editor.ml](audi-editor.ml)
 
 - Frontend
   - 패키지 설치 : npm i
   - 개발모드 웹팩 개발 서버 실행 : npm run dev
   - 프로덕션모드 빌드 실행 : npm run build
-    - 프로젝트 빌드 스크립트에 따라 frontend/env 폴더에 환경변수 파일이 필요합니다. 
-    - 개발모드 : .env.development
-    - 프로덕션모드 : .env.production
-    ```
-    API_SERVER_URL=http://localhost:5000  //필요한 환경변수를 정의해줍니다
-    ...
-
-    ```
-
-- Backend
-  - 패키지 설치 : npm i
-  - 개발모드 nodemon 서버 실행 : npm run start:dev
-  - 프로덕션모드 빌드 실행 : npm run build (현재 바벨 트랜스파일링을 진행중인데 제거할 예정입니다)
-    - 프로젝트 빌드 스크립트에 따라 backend/ 폴더에 환경변수 파일이 필요합니다. 
-    - 모드선택 : .env
-    ```
-      NODE_ENV=development or production
-    ```
-    - 개발모드 : .env.development
-    - 프로덕션모드 : .env.production
-      - sqlite 환경변수 
-    ```
-      DATABASE_TYPE=sqlite
-      DATABASE_DROP_SCHEMA=true
-      DATABASE_SYNCHRONIZE=true
-      DATABASE_LOGGING=all
-    ```
