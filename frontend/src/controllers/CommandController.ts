@@ -64,7 +64,10 @@ const executeAddTrackCommand = (): void => {
 }
 
 const executeDeleteTrackCommand = (trackId: number): void => {
-    if(isMinLengthOfTrackList()) return;
+    if(isMinLengthOfTrackList()) {
+        alert("트랙은 최소 3개 이상 존재해야합니다.");
+        return;
+    }
     
     const deleteTrackCommand = new DeleteTrackCommand(trackId);
     CommandManager.execute(deleteTrackCommand);
