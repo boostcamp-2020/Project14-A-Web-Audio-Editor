@@ -16,7 +16,7 @@
 | <img src="https://avatars2.githubusercontent.com/u/35261724?s=460&u=514bbf937b4638c75c39ea1c89b13f42241001da&v=4" width=200> | <img src="https://avatars3.githubusercontent.com/u/7006837?s=460&u=5b6e7c433169c0c7b4ca093bfd1dbae6dc998c0b&v=4" width=200>           | <img src="https://user-images.githubusercontent.com/32856129/99922657-0bf59700-2d75-11eb-94c0-50df40daffa0.jpg" width=200>          |<img src="https://avatars0.githubusercontent.com/u/55783203?s=460&u=20b5c88d7b77a6c81c1272e066ec34943daf0c92&v=4" width=200>  |
 
 ## 📢프로젝트 소개
-🎶**AUDI(AUdio eDItor)**🎶는 클라이언트 기반 웹 음성 편집기 서비스입니다!
+🎶 **AUDI(AUdio eDItor)** 🎶는 클라이언트 기반 웹 음성 편집기 서비스입니다!
 
 언제 어디서나 **웹 브라우저와 네트워크 연결**만 가능하다면 오디오 및 음성 파형 편집을 시작할 수 있습니다!
 
