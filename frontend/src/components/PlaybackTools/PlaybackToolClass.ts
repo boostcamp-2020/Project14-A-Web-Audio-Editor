@@ -222,7 +222,6 @@ class PlaybackToolClass {
   }
 
   stopAtMaxPlayTime() {
-    Controller.changeIsPauseState(false);
     Controller.audioPlayOrPause();
   }
 
@@ -521,7 +520,6 @@ class PlaybackToolClass {
       this.audioContext.suspend();
 
       //loop여부 관계없이 맨 마지막에 멈추게 하는 게 구현은 편할 것.
-      Controller.changeIsPauseState(true);
       this.setMaxPlayTime();
 
       setTimeout(() => {
@@ -532,6 +530,7 @@ class PlaybackToolClass {
         Controller.setMarkerWidth([widthPixel * this.maxPlayTime, 1]);
         Controller.changeMarkerPlayStringTime(this.maxPlayTime);
         Controller.changeMarkerNumberTime(this.maxPlayTime);
+
       }, TIMER_TIME + 1);
     }
     catch (e) {
