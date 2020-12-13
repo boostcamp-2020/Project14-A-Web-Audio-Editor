@@ -505,6 +505,11 @@ const insertTrack = (insertIdx: number, trackToInsert: Track): void => {
   store.setTrackList(newTrackList);
 };
 
+const showEffectSetting = (effectIdx:number) => {
+  //sectionEffectList를 hide 시킨 후 idx에 해당하는 effect setting 형태 보여줌.
+  console.log(effectIdx);
+}
+
 export default {
   getTrackSection,
   getSource,
@@ -572,5 +577,6 @@ export default {
   popTrackWithIndex,
   pushTrackWidthIndex,
   removeTrackById,
-  insertTrack
+  insertTrack,
+  showEffectSetting
 };
