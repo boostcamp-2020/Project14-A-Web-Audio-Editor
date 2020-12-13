@@ -24,36 +24,11 @@ class MoveCommand extends Command {
   execute(): void {
     const sectionIndex = this.prevTrack.trackSectionList.findIndex((section) => section.id === this.trackSection.id);
 
-    let newTrackStartTime = this.movingCursorTime - (this.prevCursorTime - this.trackSection.trackStartTime);
+    const newTrackStartTime = this.movingCursorTime - (this.prevCursorTime - this.trackSection.trackStartTime);
 
-    if (newTrackStartTime < 0) {
-      newTrackStartTime = 0;
-    }
+    const { startTime, endTime } = DragUtil.getRenewTrackTimes(this.currentTrack, this.trackSection, newTrackStartTime);
 
-    let newTrackEndTime = newTrackStartTime + this.trackSection.length;
-
-    let resultValid = ValidUtil.checkEnterTrack(this.trackSection, this.currentTrack.trackSectionList, newTrackStartTime, newTrackEndTime);
-    if (resultValid.leftValid && !resultValid.rightValid) {
-      const prevSection = DragUtil.getPrevTrackSection(this.currentTrack.id, this.trackSection.id, newTrackStartTime);
-      if (prevSection) {
-        const prevEndTime = prevSection.trackStartTime + prevSection.length
-        if (newTrackStartTime - prevEndTime < prevSection.length / 4) {
-          newTrackStartTime = prevEndTime;
-          newTrackEndTime = this.trackSection.length;
-        }
-      }
-    } else if (!resultValid.leftValid && resultValid.rightValid) {
-      const nextSection = DragUtil.getNextTrackSection(this.currentTrack.id, this.trackSection.id, newTrackStartTime, newTrackEndTime);
-      if (nextSection) {
-        const nextStartTime = nextSection.trackStartTime;
-        if (newTrackEndTime - nextStartTime < nextSection.length / 4) {
-          newTrackEndTime = nextStartTime;
-          newTrackStartTime = newTrackEndTime - this.trackSection.length;
-        }
-      }
-    }
-
-    resultValid = ValidUtil.checkEnterTrack(this.trackSection, this.currentTrack.trackSectionList, newTrackStartTime, newTrackEndTime);
+    const resultValid = ValidUtil.checkEnterTrack(this.trackSection, this.currentTrack.trackSectionList, startTime, endTime);
 
     if (resultValid.leftValid || resultValid.rightValid) return;
 
@@ -62,7 +37,7 @@ class MoveCommand extends Command {
     const newTrackSection = CopyUtil.copySection(this.trackSection);
 
     newTrackSection.trackId = this.currentTrack.id;
-    newTrackSection.trackStartTime = newTrackStartTime + currentScrollTime;
+    newTrackSection.trackStartTime = startTime + currentScrollTime;
 
     if (newTrackSection.id !== 0) {
       Controller.removeSection(this.prevTrack.id, sectionIndex);

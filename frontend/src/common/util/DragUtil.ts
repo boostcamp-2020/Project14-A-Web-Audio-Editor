@@ -1,5 +1,5 @@
 import { Controller, CommandController } from '@controllers';
-import { TrackSection } from '@model';
+import { Track, TrackSection } from '@model';
 import { WidthUtil, TimeUtil, ValidUtil } from '@util';
 
 const showAfterimage = (afterimage: HTMLElement, trackId: number, trackContainerWidth: number, currentCursorPosition: number): void => {
@@ -27,33 +27,11 @@ const showAfterimage = (afterimage: HTMLElement, trackId: number, trackContainer
 
   if (!dragData.trackSection || !track) return;
 
-  let newTrackStartTime = movingCursorTime - (prevCursorTime - dragData.trackSection.trackStartTime);
+  const newTrackStartTime = movingCursorTime - (prevCursorTime - dragData.trackSection.trackStartTime);
 
-  if (newTrackStartTime < 0) {
-    newTrackStartTime = 0;
-  }
-  let newTrackEndTime = newTrackStartTime + dragData.trackSection.length;
-  let resultValid = ValidUtil.checkEnterTrack(dragData.trackSection, track.trackSectionList, newTrackStartTime, newTrackEndTime);
-  if (resultValid.leftValid && !resultValid.rightValid) {
-    const prevSection = getPrevTrackSection(trackId, dragData.trackSection.id, newTrackStartTime);
-    if (prevSection) {
-      const prevEndTime = prevSection.trackStartTime + prevSection.length
-      if (newTrackStartTime - prevEndTime < prevSection.length / 4) {
-        newTrackStartTime = prevEndTime;
-        newTrackEndTime = dragData.trackSection.length;
-      }
-    }
-  } else if (!resultValid.leftValid && resultValid.rightValid) {
-    const nextSection = getNextTrackSection(trackId, dragData.trackSection.id, newTrackStartTime, newTrackEndTime);
-    if (nextSection) {
-      const nextStartTime = nextSection.trackStartTime;
-      if (newTrackEndTime - nextStartTime < nextSection.length / 4) {
-        newTrackEndTime = nextStartTime;
-        newTrackStartTime = newTrackEndTime - dragData.trackSection.length;
-      }
-    }
-  }
-  resultValid = ValidUtil.checkEnterTrack(dragData.trackSection, track.trackSectionList, newTrackStartTime, newTrackEndTime);
+  const { startTime, endTime } = getRenewTrackTimes(track, dragData.trackSection, newTrackStartTime);
+
+  const resultValid = ValidUtil.checkEnterTrack(dragData.trackSection, track.trackSectionList, startTime, endTime);
 
   if (resultValid.leftValid || resultValid.rightValid) {
     afterimage.style.display = 'none';
@@ -64,7 +42,7 @@ const showAfterimage = (afterimage: HTMLElement, trackId: number, trackContainer
     afterimage.style.display = 'block';
   }
 
-  afterimage.style.left = `${newTrackStartTime * secondPerPixel}px`;
+  afterimage.style.left = `${startTime * secondPerPixel}px`;
   afterimage.style.width = `${dragData.trackSection.length * secondPerPixel}px`;
 }
 
@@ -113,5 +91,34 @@ const getNextTrackSection = (trackId: number, sectionId: number, trackStartTime:
   return nextTrackSection
 }
 
+const getRenewTrackTimes = (currentTrack: Track, dragedTrackSection: TrackSection, newTrackStartTime: number) => {
+  if (newTrackStartTime < 0) {
+    newTrackStartTime = 0;
+  }
+  let newTrackEndTime = newTrackStartTime + dragedTrackSection.length;
+  let resultValid = ValidUtil.checkEnterTrack(dragedTrackSection, currentTrack.trackSectionList, newTrackStartTime, newTrackEndTime);
+  if (resultValid.leftValid && !resultValid.rightValid) {
+    const prevSection = getPrevTrackSection(currentTrack.id, dragedTrackSection.id, newTrackStartTime);
+    if (prevSection) {
+      const prevEndTime = prevSection.trackStartTime + prevSection.length
+      if (newTrackStartTime - prevEndTime < prevSection.length / 4) {
+        newTrackStartTime = prevEndTime;
+        newTrackEndTime = dragedTrackSection.length;
+      }
+    }
+  } else if (!resultValid.leftValid && resultValid.rightValid) {
+    const nextSection = getNextTrackSection(currentTrack.id, dragedTrackSection.id, newTrackStartTime, newTrackEndTime);
+    if (nextSection) {
+      const nextStartTime = nextSection.trackStartTime;
+      if (newTrackEndTime - nextStartTime < nextSection.length / 4) {
+        newTrackEndTime = nextStartTime;
+        newTrackStartTime = newTrackEndTime - dragedTrackSection.length;
+      }
+    }
+  }
 
-export { showAfterimage, dropTrackSection, getPrevTrackSection, getNextTrackSection };
+  return { startTime: newTrackStartTime, endTime: newTrackEndTime }
+}
+
+
+export { showAfterimage, dropTrackSection, getPrevTrackSection, getNextTrackSection, getRenewTrackTimes };
