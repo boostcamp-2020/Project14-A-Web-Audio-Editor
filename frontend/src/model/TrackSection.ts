@@ -4,11 +4,14 @@ class TrackSection {
     public id: number;
     public trackId: number;
     public sourceId: number;
+    public sectionColor: string;
     public channelStartTime: number;
     public channelEndTime: number;
     public trackStartTime: number;
     public length: number;
     public effectList: object[];
+
+    static DEFAULT_SECTION_COLOR = '#2196f3';
 
     constructor({
         id,
@@ -17,11 +20,13 @@ class TrackSection {
         channelStartTime,
         channelEndTime,
         trackStartTime,
-        effectList = []
+        effectList = [],
+        sectionColor = TrackSection.DEFAULT_SECTION_COLOR,
     }) {
         this.id = id;
         this.trackId = trackId;
         this.sourceId = sourceId;
+        this.sectionColor = sectionColor;
         this.channelStartTime = channelStartTime;
         this.channelEndTime = channelEndTime;
         this.trackStartTime = trackStartTime;
