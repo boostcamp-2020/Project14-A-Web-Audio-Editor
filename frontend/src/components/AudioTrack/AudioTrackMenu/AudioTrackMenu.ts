@@ -3,6 +3,7 @@ import { EventUtil } from '@util';
 import { CommandController } from '@controllers';
 import { storeChannel } from '@store';
 import './AudioTrackMenu.scss';
+import { relative } from 'path';
 
 (() => {
   const AudioTrackMenu = class extends HTMLElement {
@@ -93,8 +94,9 @@ import './AudioTrackMenu.scss';
 
     trackMenuClickListener(e): void {
       const iconBtnElement = e.target.closest('audi-icon-button')
-      const { type } = iconBtnElement.dataset;
-      
+      const type = iconBtnElement?.dataset.type;
+      if(!type) return;
+   
       switch(type){
         case TrackMenuType.ADD_TRACK:
           this.trackAddMenuClickListener(e);
