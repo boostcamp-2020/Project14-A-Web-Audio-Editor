@@ -2,7 +2,7 @@ import { Command } from '@command';
 import { Track, TrackSection } from '@model';
 import { StoreChannelType } from '@types';
 import { storeChannel } from '@store';
-import { CopyUtil, ValidUtil } from '@util';
+import { CopyUtil, ValidUtil, DragUtil } from '@util';
 import { Controller } from '@controllers';
 
 class MoveCommand extends Command {
@@ -30,14 +30,36 @@ class MoveCommand extends Command {
       newTrackStartTime = 0;
     }
 
-    const newTrackEndTime = newTrackStartTime + this.trackSection.length;
+    let newTrackEndTime = newTrackStartTime + this.trackSection.length;
 
-    if (ValidUtil.checkEnterTrack(this.trackSection, this.currentTrack.trackSectionList, newTrackStartTime, newTrackEndTime)) return;
+    let resultValid = ValidUtil.checkEnterTrack(this.trackSection, this.currentTrack.trackSectionList, newTrackStartTime, newTrackEndTime);
+    if (resultValid.leftValid && !resultValid.rightValid) {
+      const prevSection = DragUtil.getPrevTrackSection(this.currentTrack.id, this.trackSection.id, newTrackStartTime);
+      if (prevSection) {
+        const prevEndTime = prevSection.trackStartTime + prevSection.length
+        if (newTrackStartTime - prevEndTime < prevSection.length / 4) {
+          newTrackStartTime = prevEndTime;
+          newTrackEndTime = this.trackSection.length;
+        }
+      }
+    } else if (!resultValid.leftValid && resultValid.rightValid) {
+      const nextSection = DragUtil.getNextTrackSection(this.currentTrack.id, this.trackSection.id, newTrackStartTime, newTrackEndTime);
+      if (nextSection) {
+        const nextStartTime = nextSection.trackStartTime;
+        if (newTrackEndTime - nextStartTime < nextSection.length / 4) {
+          newTrackEndTime = nextStartTime;
+          newTrackStartTime = newTrackEndTime - this.trackSection.length;
+        }
+      }
+    }
+
+    resultValid = ValidUtil.checkEnterTrack(this.trackSection, this.currentTrack.trackSectionList, newTrackStartTime, newTrackEndTime);
+
+    if (resultValid.leftValid || resultValid.rightValid) return;
 
     const currentScrollTime = Controller.getCurrentScrollTime() || 0;
 
     const newTrackSection = CopyUtil.copySection(this.trackSection);
-
 
     newTrackSection.trackId = this.currentTrack.id;
     newTrackSection.trackStartTime = newTrackStartTime + currentScrollTime;

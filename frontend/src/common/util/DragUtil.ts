@@ -1,4 +1,5 @@
 import { Controller, CommandController } from '@controllers';
+import { TrackSection } from '@model';
 import { WidthUtil, TimeUtil, ValidUtil } from '@util';
 
 const showAfterimage = (afterimage: HTMLElement, trackId: number, trackContainerWidth: number, currentCursorPosition: number): void => {
@@ -31,9 +32,30 @@ const showAfterimage = (afterimage: HTMLElement, trackId: number, trackContainer
   if (newTrackStartTime < 0) {
     newTrackStartTime = 0;
   }
-  const newTrackEndTime = newTrackStartTime + dragData.trackSection.length;
+  let newTrackEndTime = newTrackStartTime + dragData.trackSection.length;
+  let resultValid = ValidUtil.checkEnterTrack(dragData.trackSection, track.trackSectionList, newTrackStartTime, newTrackEndTime);
+  if (resultValid.leftValid && !resultValid.rightValid) {
+    const prevSection = getPrevTrackSection(trackId, dragData.trackSection.id, newTrackStartTime);
+    if (prevSection) {
+      const prevEndTime = prevSection.trackStartTime + prevSection.length
+      if (newTrackStartTime - prevEndTime < prevSection.length / 4) {
+        newTrackStartTime = prevEndTime;
+        newTrackEndTime = dragData.trackSection.length;
+      }
+    }
+  } else if (!resultValid.leftValid && resultValid.rightValid) {
+    const nextSection = getNextTrackSection(trackId, dragData.trackSection.id, newTrackStartTime, newTrackEndTime);
+    if (nextSection) {
+      const nextStartTime = nextSection.trackStartTime;
+      if (newTrackEndTime - nextStartTime < nextSection.length / 4) {
+        newTrackEndTime = nextStartTime;
+        newTrackStartTime = newTrackEndTime - dragData.trackSection.length;
+      }
+    }
+  }
+  resultValid = ValidUtil.checkEnterTrack(dragData.trackSection, track.trackSectionList, newTrackStartTime, newTrackEndTime);
 
-  if (ValidUtil.checkEnterTrack(dragData.trackSection, track.trackSectionList, newTrackStartTime, newTrackEndTime)) {
+  if (resultValid.leftValid || resultValid.rightValid) {
     afterimage.style.display = 'none';
     afterimage.style.left = `0px`;
     afterimage.style.width = `0px`;
@@ -67,5 +89,29 @@ const dropTrackSection = (trackId: number, currentCursorPosition: number, trackC
   CommandController.executeMoveCommand(dragData.trackSection.trackId, trackId, dragData.trackSection, movingCursorTime, prevCursorTime);
 }
 
+const getPrevTrackSection = (trackId: number, sectionId: number, trackStartTime: number): TrackSection | undefined => {
+  const track = Controller.getTrack(trackId);
+  if (!track) return;
 
-export { showAfterimage, dropTrackSection };
+  const prevTrackSection = track.trackSectionList.find(section =>
+    section.id !== sectionId &&
+    section.trackStartTime <= trackStartTime &&
+    trackStartTime < section.trackStartTime + section.length
+  )
+  return prevTrackSection
+}
+
+const getNextTrackSection = (trackId: number, sectionId: number, trackStartTime: number, trackEndTime: number): TrackSection | undefined => {
+  const track = Controller.getTrack(trackId);
+  if (!track) return;
+
+  const nextTrackSection = track.trackSectionList.find(section =>
+    section.id !== sectionId &&
+    trackStartTime <= section.trackStartTime &&
+    section.trackStartTime < trackEndTime
+  )
+  return nextTrackSection
+}
+
+
+export { showAfterimage, dropTrackSection, getPrevTrackSection, getNextTrackSection };
