@@ -2,7 +2,7 @@
 > **No 라이브러리! No 프레임워크! Only Vanilla JS!**
 
 <div style="width:100%; display:flex; flex-direction: column; justify-content:center; align-items: center;">
-  <img src="https://ifh.cc/g/PMbxMG.png" width=800/>
+  <img src="https://ifh.cc/g/jF1w7e.png" width=800/>
    <p align-"center">
     <img src="https://img.shields.io/badge/javascript-ES6+-yellow?logo=javascript"/>
     <img src="https://img.shields.io/badge/typescript-v4.0.2-blue?logo=typescript&logoColor=007ACC" />
