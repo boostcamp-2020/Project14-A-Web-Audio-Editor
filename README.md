@@ -22,7 +22,7 @@
 
 [✨지금 바로 편집하러 가보세요!✨](http://www.audi-editor.ml/)
 
-## 📚Tech Stack
+## 📚[Tech Stack](https://github.com/boostcamp-2020/Project14-A-Web-Audio-Editor/wiki/Tech-Stack)
 ![](https://ifh.cc/g/vP9INy.jpg)
 
 ## [🎼기능 소개](https://www.notion.so/AUDI-52e167692e7944579ddedd90a66d0e53)
