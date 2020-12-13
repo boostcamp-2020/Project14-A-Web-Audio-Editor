@@ -51,6 +51,7 @@ module.exports = (env) => {
         template: './public/index.html',
         filename: 'index.html',
         chunks: ['index'],
+        favicon: './public/favicon.ico',
         hash: true
       }),
       new CleanWebpackPlugin(),
