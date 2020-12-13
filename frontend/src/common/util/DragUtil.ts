@@ -3,8 +3,9 @@ import { WidthUtil, TimeUtil, ValidUtil } from '@util';
 
 const showAfterimage = (afterimage: HTMLElement, trackId: number, trackContainerWidth: number, currentCursorPosition: number): void => {
   const dragData = Controller.getSectionDragStartData();
+  const isPause = Controller.getIsPauseState();
 
-  if (!dragData) return;
+  if (!dragData || !isPause) return;
 
   const maxTrackPlayTime = Controller.getMaxTrackPlayTime();
   const secondPerPixel = WidthUtil.getPixelPerSecond(trackContainerWidth, maxTrackPlayTime);
