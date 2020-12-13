@@ -32,10 +32,12 @@
 ## [🥝WIKI](https://github.com/boostcamp-2020/Project14-A-Web-Audio-Editor/wiki)
 저희의 활동이 궁금하시다면 WIKI로 와주세요!
 
-## 💻실행방법
-- 프로젝트 배포 링크 : [audi-editor.ml](audi-editor.ml)
+## 프로젝트 배포 링크 : [audi-editor.ml](audi-editor.ml)
 
-- Frontend
-  - 패키지 설치 : npm i
-  - 개발모드 웹팩 개발 서버 실행 : npm run dev
-  - 프로덕션모드 빌드 실행 : npm run build
+## 💻실행방법
+```
+cd frontend/
+
+npm install
+npm run dev
+```
