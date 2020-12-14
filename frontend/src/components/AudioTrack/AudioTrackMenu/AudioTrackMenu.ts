@@ -173,7 +173,7 @@ import { relative } from 'path';
         this.activeColorChangeMenu();
         return
       }
-      this.inaciveColorChangeMenu();
+      this.inactiveColorChangeMenu();
     }
 
     activeColorChangeMenu(){
@@ -181,7 +181,7 @@ import { relative } from 'path';
       this.colorChangeBtnElement.classList.remove('disabled');
     }
 
-    inaciveColorChangeMenu(){
+    inactiveColorChangeMenu(){
       if(!this.colorChangeBtnElement) return;
       this.colorChangeBtnElement.classList.add('disabled');
     }
