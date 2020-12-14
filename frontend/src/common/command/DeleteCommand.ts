@@ -24,30 +24,32 @@ class DeleteCommand extends Command {
 
     this.deleteSectionList = focusList.map(focus => {
       const trackSection = focus.trackSection;
-      if (!trackIdSet.has(trackSection.id)) {
+      if (!trackIdSet.has(trackSection.trackId)) {
         const track = Controller.getTrack(trackSection.trackId);
         if (track)
           this.beforeTrackList.push(CopyUtil.copyTrack(track));
+        trackIdSet.add(trackSection.trackId);
       }
       return CopyUtil.copySection(trackSection);
     });
   }
 
   execute() {
-    const trackList = Controller.getTrackList();
     Controller.resetFocus();
+    const deleteTrackList = this.beforeTrackList.map(track => CopyUtil.copyTrack(track));
 
-    this.deleteSectionList.forEach(trackSection => {
-      const track = trackList.find(track => trackSection.trackId === track.id);
+    this.deleteSectionList.forEach(deleteSection => {
+      const deleteTrack = deleteTrackList.find(track => deleteSection.trackId === track.id);
+      if (!deleteTrack) return;
 
-      if (!track) return;
-
-      const index = track.trackSectionList.findIndex(section => section.id === trackSection.id);
-
-      if (index === -1) return
-
-      Controller.removeSection(track.id, index);
+      const deleteSectionIndex = deleteTrack.trackSectionList.findIndex(section => section.id === deleteSection.id);
+      deleteTrack.trackSectionList.splice(deleteSectionIndex, 1);
     });
+
+    deleteTrackList.forEach(track => {
+      Controller.setTrack(track);
+      this.publishChannel(track);
+    })
   };
 
   undo() {
@@ -55,7 +57,6 @@ class DeleteCommand extends Command {
       Controller.setTrack(track);
       this.publishChannel(track);
     })
-
   };
 
   publishChannel(track) {
