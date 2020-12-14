@@ -58,6 +58,8 @@ interface StoreStateType {
   currentScrollAmount: number;
   sectionDragStartData: SectionDragStartData | null;
   selectTrackData: SelectTrackData;
+  loopStartTime: number;
+  loopEndTime: number;
 }
 
 interface StoreObserverData {
