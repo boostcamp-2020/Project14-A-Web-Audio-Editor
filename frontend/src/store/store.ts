@@ -34,6 +34,8 @@ const store = new (class Store {
       currentScrollAmount: 0,
       sectionDragStartData: null,
       selectTrackData: new SelectTrackData({ trackId: 0, selectedTime: 0 }),
+      loopStartTime: 0,
+      loopEndTime: 300
     };
   }
 
@@ -189,8 +191,7 @@ const store = new (class Store {
 
     if (markerNumberTime === newMarkerNumberTime) {
       return;
-    };
-
+    }
     this.state = { ...this.state, markerNumberTime: newMarkerNumberTime };
   }
 
@@ -202,7 +203,7 @@ const store = new (class Store {
     this.state = { ...this.state, isPause: isPauseState };
   }
 
-  setMarkerWidth(newMarkerWidth: number|number[]): void {
+  setMarkerWidth(newMarkerWidth: number | number[]): void {
     storeChannel.publish(StoreChannelType.CURRENT_POSITION_CHANNEL, newMarkerWidth);
   }
 
@@ -285,12 +286,20 @@ const store = new (class Store {
   }
 
   setTrackList(newTrackList: Track[]): void {
-    this.state = {...this.state, trackList: newTrackList};
+    this.state = { ...this.state, trackList: newTrackList };
   }
 
   setTrackIndex(newTrackIndex: number): void {
-    this.state =  {...this.state, trackIndex: newTrackIndex};
+    this.state = { ...this.state, trackIndex: newTrackIndex };
   }
+
+  setLoopStartTime = (newLoopStartTime: number): void => {
+    this.state = { ...this.state, loopStartTime: newLoopStartTime };
+  };
+
+  setLoopEndTime = (newLoopEndTime: number): void => {
+    this.state = { ...this.state, loopEndTime: newLoopEndTime };
+  };
 })();
 
 export { store };
