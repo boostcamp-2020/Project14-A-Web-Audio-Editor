@@ -3,7 +3,7 @@ import { EffectTitleType, StoreChannelType } from '@types';
 import { Source, Track, TrackSection, AudioSourceInfoInTrack, Effect } from '@model';
 import { storeChannel } from '@store';
 import { Controller } from '@controllers';
-import { CompressorProperties, FilterProperties, GainProperties, ReverbProperties } from '../../model/EffectProperties';
+import { GainProperties, CompressorProperties, FilterProperties, ReverbProperties} from '@model';
 
 const TIMER_TIME = 34;
 const QUANTUM = 3;
@@ -199,16 +199,16 @@ class PlaybackToolClass {
     })
     
     //test1. gain
-    const tempGain = new GainProperties({gain:2});
-    // mySection?.effectList.push(new Effect({name:'gain', properties:tempGain}));
+    //const tempGain = new GainProperties({gain:4});
+    //mySection?.effectList.push(new Effect({name:'gain', properties:tempGain}));
 
     //test2. compressor
-    const tempCompressor = new CompressorProperties({});
-    // mySection?.effectList.push(new Effect({name:'compressor', properties:tempCompressor}));
+    //const tempCompressor = new CompressorProperties({});
+    //mySection?.effectList.push(new Effect({name:'compressor', properties:tempCompressor}));
 
     //test3. filter
-    const tempFilter = new FilterProperties({type:'lowpass'});
-    // mySection?.effectList.push(new Effect({name:'filter', properties:tempFilter}));
+    //const tempFilter = new FilterProperties({type:'lowpass'});
+    //mySection?.effectList.push(new Effect({name:'filter', properties:tempFilter}));
 
     //test4. reverb
     const tempReverb = new ReverbProperties({});
@@ -219,7 +219,7 @@ class PlaybackToolClass {
         case 'gain':
           const gainNode = this.audioContext.createGain();
 
-          gainNode.gain.value = effect.properties.gain;
+          gainNode.gain.value = effect.properties.getProperty('gain');
 
           bufferSourceNode.connect(gainNode);
           gainNode.connect(outputNode);
@@ -228,11 +228,11 @@ class PlaybackToolClass {
         case 'compressor':
           const compressorNode = this.audioContext.createDynamicsCompressor();
 
-          compressorNode.threshold.setValueAtTime(effect.properties.threshold, 0);
-          compressorNode.attack.setValueAtTime(effect.properties.attack, 0);
-          compressorNode.release.setValueAtTime(effect.properties.release, 0);
-          compressorNode.ratio.setValueAtTime(effect.properties.ratio, 0);
-          compressorNode.knee.setValueAtTime(effect.properties.knee, 0);
+          compressorNode.threshold.setValueAtTime(effect.properties.getProperty('threshold'), 0);
+          compressorNode.attack.setValueAtTime(effect.properties.getProperty('attack'), 0);
+          compressorNode.release.setValueAtTime(effect.properties.getProperty('release'), 0);
+          compressorNode.ratio.setValueAtTime(effect.properties.getProperty('ratio'), 0);
+          compressorNode.knee.setValueAtTime(effect.properties.getProperty('knee'), 0);
 
           bufferSourceNode.connect(compressorNode);
           compressorNode.connect(outputNode);
@@ -241,9 +241,9 @@ class PlaybackToolClass {
         case 'filter':
           const filterNode = this.audioContext.createBiquadFilter();
 
-          filterNode.type = effect.properties.type;
-          filterNode.frequency.value = effect.properties.frequency;
-          filterNode.Q.value = effect.properties.Q;
+          filterNode.type = effect.properties.getType();
+          filterNode.frequency.value = effect.properties.getProperty('frequency');
+          filterNode.Q.value = effect.properties.getProperty('Q');
 
           bufferSourceNode.connect(filterNode);
           filterNode.connect(outputNode);
@@ -254,9 +254,9 @@ class PlaybackToolClass {
           const wetGainNode = this.audioContext.createGain();
           const dryGainNode = this.audioContext.createGain();
       
-          const time = effect.properties.time;
-          const decay = effect.properties.decay;
-          const mix = effect.properties.mix;
+          const time = effect.properties.getProperty('time');
+          const decay = effect.properties.getProperty('decay');
+          const mix = effect.properties.getProperty('mix');
 
           bufferSourceNode.connect(dryGainNode);
           dryGainNode.connect(outputNode);
