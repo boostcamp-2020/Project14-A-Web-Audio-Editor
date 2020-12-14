@@ -71,7 +71,8 @@ const getSectionData = (trackId: number, trackSectionId: number): SectionDataTyp
 
     return {
       sectionChannelData: sectionChannelData,
-      duration: channelEndTime - channelStartTime
+      duration: channelEndTime - channelStartTime,
+      sectionColor: trackSection.sectionColor 
     };
   };
 

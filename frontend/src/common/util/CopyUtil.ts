@@ -7,7 +7,8 @@ const copySection = (trackSection: TrackSection): TrackSection => {
     trackId: trackSection.trackId,
     channelStartTime: trackSection.channelStartTime,
     channelEndTime: trackSection.channelEndTime,
-    trackStartTime: trackSection.trackStartTime
+    trackStartTime: trackSection.trackStartTime,
+    sectionColor: trackSection.sectionColor
     // effectList: trackSection.effectList,    // Effect 기능 구현시 추가
   });
 
@@ -23,8 +24,9 @@ const copyTrack = (track: Track): Track => {
   return newTrack;
 };
 
-const copyTrackList = (trackList: Track[]) => {
-  const newTrackList = trackList.map(track => copyTrack(track))
+
+const copyTrackList = (trackList: Track[]): Track[] => {
+  const newTrackList = trackList.map((track)=> copyTrack(track));
   return newTrackList;
 }
 

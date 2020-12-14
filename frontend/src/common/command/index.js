@@ -4,5 +4,6 @@ export { default as DeleteCommand } from './DeleteCommand';
 export { default as PasteCommand } from './PasteCommand';
 export { default as SplitCommand } from './SplitCommand';
 export { default as MoveCommand } from './MoveCommand';
-export { default as AddTrackCommand} from './AddTrackCommand';
-export { default as DeleteTrackCommand} from './DeleteTrackCommand';
+export { default as AddTrackCommand } from './AddTrackCommand';
+export { default as DeleteTrackCommand } from './DeleteTrackCommand';
+export { default as ColorChangeCommand } from './ColorChangeCommand'

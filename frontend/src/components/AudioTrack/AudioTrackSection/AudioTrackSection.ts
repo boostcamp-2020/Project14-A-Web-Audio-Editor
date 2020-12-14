@@ -101,10 +101,11 @@ import './AudioTrackSection.scss';
     drawTrackSection(): void {
       if (!this.sectionData || !this.trackCanvasElement || !this.trackContainerElement) return;
 
-      const { sectionChannelData, duration } = this.sectionData;
+      const { sectionChannelData, duration, sectionColor } = this.sectionData;
+      
       this.calculateCanvasSize(duration);
       this.resizeCanvas();
-      this.drawCanvas(sectionChannelData);
+      this.drawCanvas(sectionChannelData, sectionColor);
       this.resizeTrackArea();
     }
 
@@ -131,7 +132,7 @@ import './AudioTrackSection.scss';
       this.trackCanvasElement.height = this.canvasHeight;
     }
 
-    drawCanvas(sectionChannelData: number[]): void {
+    drawCanvas(sectionChannelData: number[], sectionColor: string): void {
       if (!this.trackCanvasElement) return;
 
       const canvasCtx = this.trackCanvasElement.getContext('2d');
@@ -141,7 +142,7 @@ import './AudioTrackSection.scss';
       const middleHeight = this.canvasHeight / 2;
       const defaultLineWidth = 1;
 
-      canvasCtx.strokeStyle = '#2196f3';
+      canvasCtx.strokeStyle = sectionColor;
       canvasCtx.lineWidth = defaultLineWidth / (numOfPeaks / 2 / this.canvasWidth);
       canvasCtx.beginPath();
 

@@ -160,6 +160,7 @@ const store = new (class Store {
 
     this.state = { ...this.state, focusList: newfocusList };
     storeChannel.publish(StoreChannelType.EDIT_TOOLS_CHANNEL, null);
+    storeChannel.publish(StoreChannelType.FOCUS_LIST_CHANNEL, newfocusList);
   }
 
   removeFocus(removeIndex: number) {
@@ -168,11 +169,14 @@ const store = new (class Store {
     newfocusList.splice(removeIndex, 1);
     this.state = { ...this.state, focusList: newfocusList };
     storeChannel.publish(StoreChannelType.EDIT_TOOLS_CHANNEL, null);
+    storeChannel.publish(StoreChannelType.FOCUS_LIST_CHANNEL, newfocusList);
   }
 
   resetFocus(): void {
-    this.state = { ...this.state, focusList: [] };
+    const newFocusList = [];
+    this.state = { ...this.state, focusList: newFocusList };
     storeChannel.publish(StoreChannelType.EDIT_TOOLS_CHANNEL, null);
+    storeChannel.publish(StoreChannelType.FOCUS_LIST_CHANNEL, newFocusList);
   }
 
   setClipBoard(newSection: TrackSection): void {

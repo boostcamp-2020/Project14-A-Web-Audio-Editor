@@ -2,7 +2,8 @@ import { store } from '@store';
 import { CopyUtil } from '@util';
 import { Controller } from "@controllers";
 import { TrackSection } from '@model';
-import { CommandManager, DeleteCommand, PasteCommand, SplitCommand, AddTrackCommand, DeleteTrackCommand, MoveCommand } from '@command';
+import { FocusInfo } from '@types';
+import { CommandManager, DeleteCommand, PasteCommand, SplitCommand, AddTrackCommand, DeleteTrackCommand, MoveCommand, ColorChangeCommand } from '@command';
 
 const executeUndoCommand = () => {
     const { isPause } = store.getState();
@@ -113,6 +114,12 @@ const isMinLengthOfTrackList = (): Boolean => {
     return trackList.length === minLength;
 };
 
+const executeColorChangeCommand = (focusList: FocusInfo[], color: string): void => {
+    const trackList = Controller.getTrackList();
+    const colorChangeCommand = new ColorChangeCommand(focusList, color, trackList);
+    CommandManager.execute(colorChangeCommand);
+}
+
 export default {
     executeUndoCommand,
     executeRedoCommand,
@@ -122,5 +129,6 @@ export default {
     executeSplitCommand,
     executeAddTrackCommand,
     executeMoveCommand,
-    executeDeleteTrackCommand
+    executeDeleteTrackCommand,
+    executeColorChangeCommand
 }
