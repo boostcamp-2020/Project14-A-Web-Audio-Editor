@@ -101,7 +101,7 @@ const getRenewTrackTimes = (currentTrack: Track, dragedTrackSection: TrackSectio
     const prevSection = getPrevTrackSection(currentTrack.id, dragedTrackSection.id, newTrackStartTime);
     if (prevSection) {
       const prevEndTime = prevSection.trackStartTime + prevSection.length
-      if (newTrackStartTime - prevEndTime < prevSection.length / 4) {
+      if (newTrackStartTime - prevEndTime < prevSection.length / 3) {
         newTrackStartTime = prevEndTime;
         newTrackEndTime = dragedTrackSection.length;
       }
@@ -110,7 +110,7 @@ const getRenewTrackTimes = (currentTrack: Track, dragedTrackSection: TrackSectio
     const nextSection = getNextTrackSection(currentTrack.id, dragedTrackSection.id, newTrackStartTime, newTrackEndTime);
     if (nextSection) {
       const nextStartTime = nextSection.trackStartTime;
-      if (newTrackEndTime - nextStartTime < nextSection.length / 4) {
+      if (newTrackEndTime - nextStartTime < nextSection.length / 3) {
         newTrackEndTime = nextStartTime;
         newTrackStartTime = newTrackEndTime - dragedTrackSection.length;
       }
