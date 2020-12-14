@@ -72,7 +72,7 @@ const getSectionData = (trackId: number, trackSectionId: number): SectionDataTyp
     return {
       sectionChannelData: sectionChannelData,
       duration: channelEndTime - channelStartTime,
-      sectionColor: trackSection.sectionColor 
+      sectionColor: trackSection.sectionColor
     };
   };
 
@@ -143,7 +143,7 @@ const createTrackSectionFromSource = (sourceId: number): TrackSection | undefine
   });
 
   return newTrackSection;
-}
+};
 
 const addTrackSection = (trackId: number, trackSection: TrackSection): void => {
   store.setTrackSection(trackId, trackSection);
@@ -260,7 +260,7 @@ const pauseChangeMarkerNumberTime = (playingTime: number): void => {
 
 const changeMarkerNumberTime = (markerTime: number) => {
   store.setMarkerNumberTime(markerTime);
-}
+};
 
 const getMarkerTime = (): number => {
   const { markerNumberTime } = store.getState();
@@ -280,41 +280,64 @@ const getIsPauseState = (): boolean => {
   return isPause;
 };
 
-const setMarkerWidth = (markerWidth: number|number[]): void => {
+const setMarkerWidth = (markerWidth: number | number[]): void => {
   store.setMarkerWidth(markerWidth);
 };
 
-const changePlayStringTime = (passedTime: number): void => {
+const changePlayStringTimeFastPlaying = (passedTime: number): void => {
   const { playStringTime } = store.getState();
 
   const [minute, second, milsecond] = playStringTime.split(':');
   let newMinute = Number(minute);
-  let newSecond = Number(second);
-  let newMilsecond = Number(milsecond) + Math.floor(passedTime);
+  let newSecond = Number(second) + passedTime;
+  let newMilsecond = Number(milsecond);
 
-  if (newMilsecond > 0) {
-    if (newMilsecond >= 1000) {
-      newMilsecond -= 1000;
-      newSecond += 1;
-    }
+  if (newSecond >= 60) {
+    newMinute += newMinute / 60;
+    newSecond = newSecond % 60;
+  }
 
-    if (newSecond >= 60) {
-      newSecond -= 60;
-      newMinute += 1;
-    }
-  } else {
-    let totalMilsecond = newMinute * 1000 * 60 + newSecond * 1000 + newMilsecond;
-    if (totalMilsecond < 0) {
-      newMinute = 0;
-      newSecond = 0;
-      newMilsecond = 0;
-    } else {
-      newMinute = Math.floor(totalMilsecond / (1000 * 60));
-      totalMilsecond -= newMinute * 1000 * 60;
-      newSecond = Math.floor(totalMilsecond / 1000);
-      totalMilsecond -= newSecond * 1000;
-      newMilsecond = totalMilsecond;
-    }
+  if (newSecond < 0 && newMinute > 0) {
+    newMinute -= 1;
+    newSecond += 60;
+  }
+
+  if (newMinute <= 0 && newSecond < 0) {
+    newMinute = 0;
+    newSecond = 0;
+  }
+
+  const newPlayStringTime = TimeUtil.getStringTime(newMinute, newSecond, newMilsecond);
+
+  store.setPlayStringTime(newPlayStringTime);
+};
+
+const changePlayStringTime = (passedTime: number): void => {
+  const { playStringTime } = store.getState();
+  const [minute, second, milsecond] = playStringTime.split(':');
+  const [passedTimeSecond, passedTimeMilsecond] = passedTime.toFixed(3).split('.');
+
+  let newMinute = Number(minute);
+  let newSecond = Number(second) + Number(passedTimeSecond);
+  let newMilsecond = Number(milsecond) + Number(passedTimeMilsecond);
+
+  if (newMilsecond >= 1000) {
+    newSecond += 1;
+    newMilsecond = newMilsecond % 1000;
+  }
+
+  if (newSecond >= 60) {
+    newMinute += newSecond / 60;
+    newSecond = newSecond % 60;
+  }
+
+  if (newSecond < 0) {
+    newMinute -= 1;
+    newSecond += 60;
+  }
+
+  if (newMinute < 0) {
+    newMinute = 0;
   }
 
   const newPlayStringTime = TimeUtil.getStringTime(newMinute, newSecond, newMilsecond);
@@ -356,7 +379,7 @@ const getMaxTrackWidth = () => {
 };
 
 const changeMaxTrackPlayTime = (trackSectionList: TrackSection[]): void => {
-  const trackPlaytime = trackSectionList.reduce((acc, trackSection) => acc += trackSection.length, 0);
+  const trackPlaytime = trackSectionList.reduce((acc, trackSection) => (acc += trackSection.length), 0);
   store.setMaxTrackPlayTime(trackPlaytime);
 };
 
@@ -373,7 +396,7 @@ const getCurrentScrollAmount = (): number => {
   const { currentScrollAmount } = store.getState();
 
   return currentScrollAmount;
-}
+};
 
 const getCurrentScrollTime = (): number => {
   const { currentScrollAmount, maxTrackWidth, maxTrackPlayTime } = store.getState();
@@ -381,7 +404,7 @@ const getCurrentScrollTime = (): number => {
   const secondPerPixel = WidthUtil.getSecondPerPixel(maxTrackWidth, maxTrackPlayTime);
 
   return secondPerPixel * currentScrollAmount;
-}
+};
 
 const audioCursorPlay = () => {
   playbackTool.audioCursorPlay();
@@ -453,7 +476,9 @@ const getSectionDragStartData = (): SectionDragStartData | null => {
 
 const changeSelectTrackData = (trackId: number, selectedTime: number): void => {
   const track = getTrack(trackId);
-  const trackSection = track?.trackSectionList.find(section => section.trackStartTime <= selectedTime && selectedTime <= section.trackStartTime + section.length)
+  const trackSection = track?.trackSectionList.find(
+    (section) => section.trackStartTime <= selectedTime && selectedTime <= section.trackStartTime + section.length
+  );
   if (trackSection) {
     store.setSelectTrackData(0, 0);
     return;
@@ -465,7 +490,7 @@ const getSelectTrackData = () => {
   const { selectTrackData } = store.getState();
   return selectTrackData;
 };
-  
+
 const pushTrackWidthIndex = (newTrack: Track): void => {
   const { trackList, trackIndex } = store.getState();
   const newTrackList = trackList.concat(newTrack);
@@ -477,7 +502,7 @@ const pushTrackWidthIndex = (newTrack: Track): void => {
 const popTrackWithIndex = (): Track | undefined => {
   const { trackList, trackIndex } = store.getState();
   const removedTrack = trackList.pop();
-  
+
   store.setTrackList(trackList);
   store.setTrackIndex(trackIndex - 1);
   return removedTrack;
@@ -487,29 +512,45 @@ const removeTrackById = (trackId: number): Track | undefined => {
   const { trackList } = store.getState();
   const trackToRemove = trackList.find((track) => track.id === trackId);
 
-  if(!trackToRemove) return;
+  if (!trackToRemove) return;
   const newTrackList = trackList.filter((track) => track.id !== trackId);
-  
+
   store.setTrackList(newTrackList);
   return trackToRemove;
 };
 
 const insertTrack = (insertIdx: number, trackToInsert: Track): void => {
   const { trackList } = store.getState();
-  
-  const newTrackList = Array(trackList.length + 1).fill(0).map(( _, idx) => {
-    if(idx < insertIdx) return trackList[idx];
-    if(idx > insertIdx) return trackList[idx - 1];
-    return trackToInsert;
-  });
+
+  const newTrackList = Array(trackList.length + 1)
+    .fill(0)
+    .map((_, idx) => {
+      if (idx < insertIdx) return trackList[idx];
+      if (idx > insertIdx) return trackList[idx - 1];
+      return trackToInsert;
+    });
 
   store.setTrackList(newTrackList);
 };
 
-const showEffectSetting = (effectIdx:number) => {
+const showEffectSetting = (effectIdx: number) => {
   //sectionEffectList를 hide 시킨 후 idx에 해당하는 effect setting 형태 보여줌.
   console.log(effectIdx);
-}
+};
+
+const changeLoopStartTime = (playbarMarkerTime: number): void => {
+  store.setLoopStartTime(playbarMarkerTime);
+};
+
+const changeLoopEndTime = (playbarMarkerTime: number): void => {
+  store.setLoopEndTime(playbarMarkerTime);
+};
+
+const getLoopTime = (): number[] => {
+  const { loopStartTime, loopEndTime } = store.getState();
+
+  return [loopStartTime, loopEndTime];
+};
 
 export default {
   getTrackSection,
@@ -579,5 +620,9 @@ export default {
   pushTrackWidthIndex,
   removeTrackById,
   insertTrack,
-  showEffectSetting
+  showEffectSetting,
+  getLoopTime,
+  changeLoopStartTime,
+  changeLoopEndTime,
+  changePlayStringTimeFastPlaying
 };
