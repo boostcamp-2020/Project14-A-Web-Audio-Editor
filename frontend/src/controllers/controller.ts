@@ -416,7 +416,9 @@ const audioPlayOrPause = (): void => {
 };
 
 const audioStop = (): void => {
+  const audioPlayType = 2;
   playbackTool.audioStop();
+  store.changePlayOrPauseIcon(audioPlayType);
 };
 
 const audioRepeat = (): void => {
