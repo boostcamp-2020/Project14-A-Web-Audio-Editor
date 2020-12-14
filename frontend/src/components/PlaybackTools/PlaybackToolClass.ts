@@ -1,10 +1,9 @@
 import { WidthUtil, AudioUtil } from '@util';
 import { EffectTitleType, StoreChannelType } from '@types';
-import { Source, Track, TrackSection, AudioSourceInfoInTrack } from '@model';
+import { Source, Track, TrackSection, AudioSourceInfoInTrack, Effect } from '@model';
 import { storeChannel } from '@store';
 import { Controller } from '@controllers';
 import { CompressorProperties, FilterProperties, GainProperties, ReverbProperties } from '../../model/EffectProperties';
-import { Effect } from '@model';
 
 const TIMER_TIME = 34;
 const QUANTUM = 3;
