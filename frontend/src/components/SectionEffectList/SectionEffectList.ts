@@ -31,7 +31,7 @@ import './SectionEffectList.scss';
                     <div class="effect-list-title-wrap">
                       <div class="effect-list-title">
                         <div>Effect</div>
-                        <audi-icon-button id="${IconType.listAdd}" color="white" icontype="${IconType.listAdd}" data-event-key=${EventKeyType.EFFECT_LIST_OPEN_MODAL_BTN_CLICK}></audi-icon-button> 
+                        <audi-icon-button id="${IconType.listAdd}" class="delegation" color="white" icontype="${IconType.listAdd}" event-key=${EventKeyType.EFFECT_LIST_OPEN_MODAL_BTN_CLICK}></audi-icon-button> 
                       </div>
                     </div>
                     <ul class="effect-list-wrap">
