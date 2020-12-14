@@ -1,7 +1,7 @@
 import { TimeUtil, MarkerEventUtil, EventUtil } from '@util';
 import { EventType, EventKeyType, StoreChannelType } from '@types';
 import { Controller } from '@controllers';
-import { storeChannel } from "@store";
+import { storeChannel } from '@store';
 import './PlayBar.scss';
 
 (() => {
@@ -56,9 +56,9 @@ import './PlayBar.scss';
     }
 
     connectedCallback(): void {
-      try{
+      try {
         this.init();
-      }catch(e){
+      } catch (e) {
         console.log(e);
       }
     }
@@ -113,20 +113,20 @@ import './PlayBar.scss';
       this.markerElement = document.querySelector('.marker');
       this.trackScrollAreaElement = document.querySelector('.audi-main-audio-track-scroll-area');
 
-      if(this.playBarContainerElement){
+      if (this.playBarContainerElement) {
         this.playBarLeftX = this.playBarContainerElement.getBoundingClientRect().left;
         this.playBarWidth = this.playBarContainerElement.getBoundingClientRect().right - this.playBarLeftX;
       }
     }
 
-    spreadPlayTimes(){
-      if(!this.playbarTimeElements || !this.playBarTimeDatas) return;
+    spreadPlayTimes() {
+      if (!this.playbarTimeElements || !this.playBarTimeDatas) return;
 
       const pixelPerSecond = this.playBarWidth / this.maxTrackPlayTime;
       const offsetOfPlayBarTimes = TimeUtil.getOffsetOfPlayBarTimes(this.maxTrackPlayTime);
 
       this.playbarTimeElements.forEach((playbarTimeElement, idx) => {
-        const playBarTimeLeftX = (pixelPerSecond * offsetOfPlayBarTimes) * (idx + 1);
+        const playBarTimeLeftX = pixelPerSecond * offsetOfPlayBarTimes * (idx + 1);
         const ratio = playBarTimeLeftX / this.playBarWidth;
 
         playbarTimeElement.style.left = `${100 * ratio}%`;
@@ -148,7 +148,7 @@ import './PlayBar.scss';
     }
 
     initEvent(): void {
-      if(!this.markerElement) return;
+      if (!this.markerElement) return;
 
       EventUtil.registerEventToRoot({
         eventTypes: [EventType.mousemove, EventType.dblclick, EventType.click, EventType.dragover, EventType.drop],
@@ -166,7 +166,7 @@ import './PlayBar.scss';
       this.addEventListener('dragstart', this.dragStartPlayBarMarkerListener.bind(this));
       window.addEventListener('resize', this.windowResizeListener.bind(this));
     }
-    
+
     dragStartPlayBarMarkerListener(e): void {
       this.markerID = e.target.getAttribute('id').split('-')[2];
       const dragImage = document.createElement('div');
@@ -177,15 +177,21 @@ import './PlayBar.scss';
     dragoverPlayBarListener(e): void {
       e.preventDefault();
       const movingWidth: number = e.pageX - this.playBarLeftX;
+      const currentX = e.pageX + this.currentScrollAmount;
+
+      const maxTrackPlayTime = Controller.getMaxTrackPlayTime();
+      const maxTrackWidth = Controller.getMaxTrackWidth();
+      const playbarMarkerTime = TimeUtil.getNumberTime(this.playBarLeftX, currentX, maxTrackWidth, maxTrackPlayTime);
 
       if (this.markerID === 'left' && this.playbarMarkerElementLeft) {
         this.playbarMarkerElementLeft.style.left = `${movingWidth}px`;
-
         if (this.playbarMarkerBlurZoneElementLeft) {
           const blurZone = this.playBarWidth - movingWidth;
+
           this.playbarMarkerBlurZoneElementLeft.style.width = `${blurZone}px`;
           this.playbarMarkerBlurZoneElementLeft.style.left = `${movingWidth}px`;
         }
+        Controller.changeLoopEndTime(playbarMarkerTime);
         return;
       }
 
@@ -195,6 +201,8 @@ import './PlayBar.scss';
         if (this.playbarMarkerBlurZoneElementRight) {
           this.playbarMarkerBlurZoneElementRight.style.width = `${movingWidth}px`;
         }
+
+        Controller.changeLoopStartTime(playbarMarkerTime);
       }
     }
 
@@ -235,15 +243,15 @@ import './PlayBar.scss';
       return false;
     }
 
-    windowResizeListener(e){
+    windowResizeListener(e) {
       const zoombarControllerElement = document.querySelector<HTMLDivElement>('.audi-zoombar-cotroller');
-      if(!this.playBarContainerElement || !this.trackScrollAreaElement || !zoombarControllerElement) return;
-      
+      if (!this.playBarContainerElement || !this.trackScrollAreaElement || !zoombarControllerElement) return;
+
       this.playBarLeftX = this.playBarContainerElement.getBoundingClientRect().left;
       this.playBarWidth = this.playBarContainerElement.getBoundingClientRect().right - this.playBarLeftX;
 
       const initScrollAmount = 0;
-      
+
       this.trackScrollAreaElement.scrollLeft = initScrollAmount;
       zoombarControllerElement.style.left = `${initScrollAmount}`;
       this.currentScrollAmount = initScrollAmount;
@@ -273,9 +281,9 @@ import './PlayBar.scss';
       this.initEvent();
     }
 
-    resizePlayBarContainer(){     
-      if(!this.playBarContainerElement || !this.trackScrollAreaElement) return;
-      
+    resizePlayBarContainer() {
+      if (!this.playBarContainerElement || !this.trackScrollAreaElement) return;
+
       const scrollAreaWidth = this.trackScrollAreaElement.getBoundingClientRect().right - this.trackScrollAreaElement.getBoundingClientRect().left;
       const ratio = this.maxTrackWidth / scrollAreaWidth;
 
