@@ -23,4 +23,9 @@ const copyTrack = (track: Track): Track => {
   return newTrack;
 };
 
-export { copySection, copyTrack };
+const copyTrackList = (trackList: Track[]) => {
+  const newTrackList = trackList.map(track => copyTrack(track))
+  return newTrackList;
+}
+
+export { copySection, copyTrack, copyTrackList };
