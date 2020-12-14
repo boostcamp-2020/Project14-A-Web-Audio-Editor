@@ -1,4 +1,5 @@
-import { EffectList } from '@types';
+// import { EffectList } from '@types';
+import { Effect } from '@model';
 
 class TrackSection {
     public id: number;
@@ -9,7 +10,7 @@ class TrackSection {
     public channelEndTime: number;
     public trackStartTime: number;
     public length: number;
-    public effectList: object[];
+    public effectList: Effect[];
 
     static DEFAULT_SECTION_COLOR = '#2196f3';
 

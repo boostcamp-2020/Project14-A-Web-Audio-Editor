@@ -246,7 +246,10 @@ import './AudioTrackSection.scss';
     }
 
     trackSectionMouseMoveListener(e): void {
-      if (!this.trackContainerElement || this.cursorMode !== CursorType.CUT_MODE) return;
+      if (!this.trackContainerElement || this.cursorMode !== CursorType.CUT_MODE) {
+        this.hideCutLine();
+        return;
+      }
       const cursorPosition = e.pageX;
       const trackContainerLeftX = this.trackContainerElement.getBoundingClientRect().left;
       const cursorOffset = cursorPosition - trackContainerLeftX;

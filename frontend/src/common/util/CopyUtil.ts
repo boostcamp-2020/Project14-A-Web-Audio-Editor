@@ -24,6 +24,7 @@ const copyTrack = (track: Track): Track => {
   return newTrack;
 };
 
+
 const copyTrackList = (trackList: Track[]): Track[] => {
   const newTrackList = trackList.map((track)=> copyTrack(track));
   return newTrackList;

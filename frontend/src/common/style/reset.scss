@@ -1,3 +1,4 @@
+
 html,
 body,
 div,
@@ -88,12 +89,14 @@ section {
     box-sizing: border-box;
 }
 
+@import url(//fonts.googleapis.com/earlyaccess/notosanskr.css);
+
 body,
 input,
 textarea,
 select,
 button {
-    font-family: Dotum, '돋움', Helvetica, "Apple SD Gothic Neo", sans-serif;
+    font-family: "Noto Sans KR", sans-serif,  Dotum, '돋움', Helvetica, "Apple SD Gothic Neo",;
 }
 
 blockquote,

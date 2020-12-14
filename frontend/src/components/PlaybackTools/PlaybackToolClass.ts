@@ -1,8 +1,10 @@
 import { WidthUtil, AudioUtil } from '@util';
-import { StoreChannelType } from '@types';
+import { EffectTitleType, StoreChannelType } from '@types';
 import { Source, Track, TrackSection, AudioSourceInfoInTrack } from '@model';
 import { storeChannel } from '@store';
 import { Controller } from '@controllers';
+import { CompressorProperties, FilterProperties, GainProperties, ReverbProperties } from '../../model/EffectProperties';
+import { Effect } from '@model';
 
 const TIMER_TIME = 34;
 const QUANTUM = 3;
@@ -41,11 +43,11 @@ class PlaybackToolClass {
   }
 
   trackListObserver(trackList): void {
-    this.trackList = trackList;
+    this.trackList = [...trackList];
   }
 
   sourceListObserver(sourceList): void {
-    this.sourceList = sourceList;
+    this.sourceList = [...sourceList];
   }
 
   setMute(trackId: number): void {
@@ -167,15 +169,122 @@ class PlaybackToolClass {
     this.audioContext.suspend();
   }
 
+  generateImpulseResponse(time:number, decay:number) {
+    const sampleRate = this.audioContext.sampleRate;
+    const length = sampleRate * time;
+    const impulse = this.audioContext.createBuffer(2, length, sampleRate);
+  
+    const leftImpulse = impulse.getChannelData(0);
+    const rightImpulse = impulse.getChannelData(1);
+  
+    for (let i = 0; i < length; i++) {
+      leftImpulse[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / length, decay);
+      rightImpulse[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / length, decay);
+    }
+  
+    return impulse;
+  }
+
   updateSourceInfo(sourceId: number, trackId: number, sectionId: number): void {
     const bufferSourceNode = this.audioContext.createBufferSource();
     bufferSourceNode.buffer = this.sourceList[sourceId].buffer;
 
-    //TODO: effect가 적용된 노드에 대해 effect를 적용하기
-    //trackId와 sectionId는 effectList에 내용이 있을 때 사용된다.
-    //connect가 다르게 된다.
-    bufferSourceNode.connect(this.audioContext.destination);
+    const outputNode = this.audioContext.createGain();
 
+    const myTrack = this.trackList.find((track:Track)=>{
+      return track.id === trackId;
+    })
+    
+    const mySection = myTrack?.trackSectionList.find((section: TrackSection)=>{
+      return section.id === sectionId;
+    })
+    
+    //test1. gain
+    const tempGain = new GainProperties({gain:2});
+    // mySection?.effectList.push(new Effect({name:'gain', properties:tempGain}));
+
+    //test2. compressor
+    const tempCompressor = new CompressorProperties({});
+    // mySection?.effectList.push(new Effect({name:'compressor', properties:tempCompressor}));
+
+    //test3. filter
+    const tempFilter = new FilterProperties({type:'lowpass'});
+    // mySection?.effectList.push(new Effect({name:'filter', properties:tempFilter}));
+
+    //test4. reverb
+    const tempReverb = new ReverbProperties({});
+    mySection?.effectList.push(new Effect({name:'reverb', properties:tempReverb}));
+
+    mySection?.effectList.forEach((effect)=>{
+      switch(effect.name) {
+        case 'gain':
+          const gainNode = this.audioContext.createGain();
+
+          gainNode.gain.value = effect.properties.gain;
+
+          bufferSourceNode.connect(gainNode);
+          gainNode.connect(outputNode);
+          break;
+
+        case 'compressor':
+          const compressorNode = this.audioContext.createDynamicsCompressor();
+
+          compressorNode.threshold.setValueAtTime(effect.properties.threshold, 0);
+          compressorNode.attack.setValueAtTime(effect.properties.attack, 0);
+          compressorNode.release.setValueAtTime(effect.properties.release, 0);
+          compressorNode.ratio.setValueAtTime(effect.properties.ratio, 0);
+          compressorNode.knee.setValueAtTime(effect.properties.knee, 0);
+
+          bufferSourceNode.connect(compressorNode);
+          compressorNode.connect(outputNode);
+          break;
+
+        case 'filter':
+          const filterNode = this.audioContext.createBiquadFilter();
+
+          filterNode.type = effect.properties.type;
+          filterNode.frequency.value = effect.properties.frequency;
+          filterNode.Q.value = effect.properties.Q;
+
+          bufferSourceNode.connect(filterNode);
+          filterNode.connect(outputNode);
+          break;
+
+        case 'reverb':
+          const convolverNode = this.audioContext.createConvolver();
+          const wetGainNode = this.audioContext.createGain();
+          const dryGainNode = this.audioContext.createGain();
+      
+          const time = effect.properties.time;
+          const decay = effect.properties.decay;
+          const mix = effect.properties.mix;
+
+          bufferSourceNode.connect(dryGainNode);
+          dryGainNode.connect(outputNode);
+          dryGainNode.gain.value = 1 - mix;
+          
+          convolverNode.buffer = this.generateImpulseResponse(time, decay);
+          
+          bufferSourceNode.connect(convolverNode);
+          convolverNode.connect(wetGainNode);
+          wetGainNode.connect(outputNode);
+          wetGainNode.gain.value = mix;
+
+          break;
+
+        default:
+          break;
+      }
+    });
+
+    if(mySection?.effectList.length === 0) {
+      bufferSourceNode.connect(outputNode);
+    }
+    else { //삭제
+      mySection?.effectList.pop();
+    }
+
+    outputNode.connect(this.audioContext.destination);
     this.sourceInfo.push({ trackId: trackId, sectionId: sectionId, bufferSourceNode: bufferSourceNode });
   }
 
@@ -222,7 +331,6 @@ class PlaybackToolClass {
   }
 
   stopAtMaxPlayTime() {
-    Controller.changeIsPauseState(false);
     Controller.audioPlayOrPause();
   }
 
@@ -521,7 +629,6 @@ class PlaybackToolClass {
       this.audioContext.suspend();
 
       //loop여부 관계없이 맨 마지막에 멈추게 하는 게 구현은 편할 것.
-      Controller.changeIsPauseState(true);
       this.setMaxPlayTime();
 
       setTimeout(() => {
@@ -532,6 +639,7 @@ class PlaybackToolClass {
         Controller.setMarkerWidth([widthPixel * this.maxPlayTime, 1]);
         Controller.changeMarkerPlayStringTime(this.maxPlayTime);
         Controller.changeMarkerNumberTime(this.maxPlayTime);
+
       }, TIMER_TIME + 1);
     }
     catch (e) {

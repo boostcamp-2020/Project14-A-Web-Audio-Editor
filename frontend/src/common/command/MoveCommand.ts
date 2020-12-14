@@ -2,7 +2,7 @@ import { Command } from '@command';
 import { Track, TrackSection } from '@model';
 import { StoreChannelType } from '@types';
 import { storeChannel } from '@store';
-import { CopyUtil, ValidUtil } from '@util';
+import { CopyUtil, ValidUtil, DragUtil } from '@util';
 import { Controller } from '@controllers';
 
 class MoveCommand extends Command {
@@ -24,23 +24,20 @@ class MoveCommand extends Command {
   execute(): void {
     const sectionIndex = this.prevTrack.trackSectionList.findIndex((section) => section.id === this.trackSection.id);
 
-    let newTrackStartTime = this.movingCursorTime - (this.prevCursorTime - this.trackSection.trackStartTime);
+    const newTrackStartTime = this.movingCursorTime - (this.prevCursorTime - this.trackSection.trackStartTime);
 
-    if (newTrackStartTime < 0) {
-      newTrackStartTime = 0;
-    }
+    const { startTime, endTime } = DragUtil.getRenewTrackTimes(this.currentTrack, this.trackSection, newTrackStartTime);
 
-    const newTrackEndTime = newTrackStartTime + this.trackSection.length;
+    const resultValid = ValidUtil.checkEnterTrack(this.trackSection, this.currentTrack.trackSectionList, startTime, endTime);
 
-    if (ValidUtil.checkEnterTrack(this.trackSection, this.currentTrack.trackSectionList, newTrackStartTime, newTrackEndTime)) return;
+    if (resultValid.leftValid || resultValid.rightValid) return;
 
     const currentScrollTime = Controller.getCurrentScrollTime() || 0;
 
     const newTrackSection = CopyUtil.copySection(this.trackSection);
 
-
     newTrackSection.trackId = this.currentTrack.id;
-    newTrackSection.trackStartTime = newTrackStartTime + currentScrollTime;
+    newTrackSection.trackStartTime = startTime + currentScrollTime;
 
     if (newTrackSection.id !== 0) {
       Controller.removeSection(this.prevTrack.id, sectionIndex);
