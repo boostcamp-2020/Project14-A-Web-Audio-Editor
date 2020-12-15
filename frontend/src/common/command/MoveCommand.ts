@@ -48,15 +48,15 @@ class MoveCommand extends Command {
   }
 
   undo(): void {
-    Controller.setTrack(this.prevTrack);
-    Controller.setTrack(this.currentTrack);
-
     if (this.prevTrack.id !== this.currentTrack.id) {
+      Controller.setTrack(this.prevTrack);
       storeChannel.publish(StoreChannelType.TRACK_SECTION_LIST_CHANNEL, {
         trackId: this.prevTrack.id,
         trackSectionList: this.prevTrack.trackSectionList
       });
     }
+
+    Controller.setTrack(this.currentTrack);
     storeChannel.publish(StoreChannelType.TRACK_SECTION_LIST_CHANNEL, {
       trackId: this.currentTrack.id,
       trackSectionList: this.currentTrack.trackSectionList
