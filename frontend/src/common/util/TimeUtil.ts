@@ -1,4 +1,5 @@
-import { getSecondPerPixel, getDifferenceWidth } from './WidthUtil';
+import { getDifferenceWidth } from './WidthUtil';
+import { ZoomController } from '@controllers'
 
 const SECTION_TIME = 15;
 
@@ -11,10 +12,10 @@ const splitTime = (time: number): number[] => {
 };
 
 const getPlayBarTimes = (time: number): string[] => {
-  const offsetOfPlayBarTimes = getOffsetOfPlayBarTimes(time);
   const timeArray: string[] = [];
+  const playTimeInterval = ZoomController.getCurrentPlayTimeInterval();
 
-  for (let second = 0; second <= time; second += offsetOfPlayBarTimes) {
+  for (let second = 0; second <= time; second += playTimeInterval) {
     const [newMinute, newSecond] = splitTime(second);
 
     const stringTime = `${newMinute.toString().padStart(2, '0')}:${newSecond.toString().padStart(2, '0')}`;
@@ -24,13 +25,9 @@ const getPlayBarTimes = (time: number): string[] => {
   return timeArray;
 };
 
-const getOffsetOfPlayBarTimes = (time: number): number => {
-  const offsetOfPlayBarTimes = Math.round(time / SECTION_TIME);
-  return offsetOfPlayBarTimes;
-}
-
-const getNumberTime = (startX: number, currentX: number, mainWidth: number, time:number): number => {
-  const secondPerPixel = getSecondPerPixel(mainWidth, time);
+const getNumberTime = (startX: number, currentX: number, mainWidth: number, time: number): number => {
+  const pixelPerSecond = ZoomController.getCurrentPixelPerSecond();
+  const secondPerPixel = 1 / pixelPerSecond;
   const differenceWidth = getDifferenceWidth(startX, currentX);
   const cursorNumberTime = secondPerPixel * differenceWidth;
 
@@ -43,12 +40,14 @@ const getStringTime = (minute: number, second: number, milsecond: number): strin
   return stringTime;
 };
 
-const calculateTimeOfCursorPosition = (startX: number, currentX: number, mainWidth: number, time: number): number => {
-  const secondPerPixel = getSecondPerPixel(mainWidth, time);
+const calculateTimeOfCursorPosition = (startX: number, currentX: number): number => {
+  const pixelPerSecond = ZoomController.getCurrentPixelPerSecond();
+  const secondPerPixel = 1 / pixelPerSecond;
+
   const differenceWidth = getDifferenceWidth(startX, currentX);
   const cursorTime = secondPerPixel * differenceWidth;
 
   return cursorTime;
 };
 
-export { getOffsetOfPlayBarTimes, splitTime, getPlayBarTimes, getNumberTime, getStringTime, calculateTimeOfCursorPosition };
+export { splitTime, getPlayBarTimes, getNumberTime, getStringTime, calculateTimeOfCursorPosition };

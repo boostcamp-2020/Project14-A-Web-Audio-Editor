@@ -1,4 +1,4 @@
-import { Controller, CommandController } from '@controllers';
+import { Controller, CommandController, ZoomController } from '@controllers';
 import { CursorType, EventKeyType, EventType, StoreChannelType, SectionDataType } from '@types';
 import { EventUtil, TimeUtil, ValidUtil, WidthUtil, DragUtil } from '@util';
 import { storeChannel } from '@store';
@@ -102,24 +102,20 @@ import './AudioTrackSection.scss';
       if (!this.sectionData || !this.trackCanvasElement || !this.trackContainerElement) return;
 
       const { sectionChannelData, duration, sectionColor } = this.sectionData;
-      
+
       this.calculateCanvasSize(duration);
       this.resizeCanvas();
       this.drawCanvas(sectionChannelData, sectionColor);
-      this.resizeTrackArea();
+      // this.resizeTrackArea();
     }
 
     calculateCanvasSize(duration: number): void {
       if (!this.trackContainerElement || !this.trackAreaElement) return;
+      const pixelPerSecond = ZoomController.getCurrentPixelPerSecond();
 
-      const trackWidth = this.trackAreaElement.getBoundingClientRect().right - this.trackAreaElement.getBoundingClientRect().left;
+      const trackWidth = pixelPerSecond * duration;
       const trackHeight = this.trackAreaElement.clientHeight;
-
-      if (this.maxTrackWidth > trackWidth)
-        this.canvasWidth = this.maxTrackWidth / (this.maxTrackPlayTime / duration);
-      else
-        this.canvasWidth = trackWidth / (this.maxTrackPlayTime / duration);
-
+      this.canvasWidth = trackWidth;
       this.canvasHeight = trackHeight;;
     }
 
@@ -188,7 +184,6 @@ import './AudioTrackSection.scss';
     trackSectiondragoverListener(e): void {
       e.preventDefault();
       if (!this.trackAfterimageElement) return;
-
       const currentCursorPosition = e.pageX + this.currentScrollAmount;
 
       DragUtil.showAfterimage(this.trackAfterimageElement, this.trackId, this.trackContainerWidth, currentCursorPosition);
@@ -208,8 +203,11 @@ import './AudioTrackSection.scss';
       const offsetLeft = this.trackContainerElement.getBoundingClientRect().left;
 
       this.maxTrackPlayTime = Controller.getMaxTrackPlayTime();
-      const prevCursorPosition = e.pageX;
-      const prevCursorTime = TimeUtil.calculateTimeOfCursorPosition(offsetLeft, prevCursorPosition, this.trackContainerWidth, this.maxTrackPlayTime);
+      const currentScrollAmount = Controller.getCurrentScrollAmount();
+
+      const prevCursorPosition = e.pageX + currentScrollAmount;
+
+      const prevCursorTime = TimeUtil.calculateTimeOfCursorPosition(offsetLeft, prevCursorPosition);
       const trackSection = Controller.getTrackSection(this.trackId, this.sectionId);
 
       if (!trackSection) return;

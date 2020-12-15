@@ -19,14 +19,14 @@ class SplitCommand extends Command {
 
   execute() {
     const trackAreaElement = document.querySelector('.audio-track-area');
-    if(!trackAreaElement) return;
+    if (!trackAreaElement) return;
 
     const maxTrackPlayTime = Controller.getMaxTrackPlayTime();
     const trackAreaLeftX = trackAreaElement.getBoundingClientRect().left;
     const trackAreaRightX = trackAreaElement.getBoundingClientRect().right;
     const trackAreaWidth = trackAreaRightX - trackAreaLeftX;
 
-    const timeOfCursorPosition = TimeUtil.calculateTimeOfCursorPosition(trackAreaLeftX, this.cursorPosition, trackAreaWidth, maxTrackPlayTime);
+    const timeOfCursorPosition = TimeUtil.calculateTimeOfCursorPosition(trackAreaLeftX, this.cursorPosition);
     const [leftTrackSection, rightTrackSection] = this.splitTrackSection(timeOfCursorPosition);
     this.updateSplitedSections(leftTrackSection, rightTrackSection);
   }
@@ -68,7 +68,8 @@ class SplitCommand extends Command {
       trackSectionList: newTrack.trackSectionList
     });
 
-    storeChannel.publish(StoreChannelType.TRACK_CHANNEL, newTrack.trackSectionList);
+    const newTrackList = Controller.getTrackList();
+    storeChannel.publish(StoreChannelType.TRACK_CHANNEL, newTrackList);
   }
 }
 

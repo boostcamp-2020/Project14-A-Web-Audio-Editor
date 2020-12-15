@@ -2,7 +2,7 @@ import { WidthUtil, AudioUtil } from '@util';
 import { EffectTitleType, StoreChannelType, EffectType } from '@types';
 import { Source, Track, TrackSection, AudioSourceInfoInTrack, Effect } from '@model';
 import { storeChannel } from '@store';
-import { Controller } from '@controllers';
+import { Controller, ZoomController } from '@controllers';
 import { GainProperties, CompressorProperties, FilterProperties, ReverbProperties} from '@model';
 
 const TIMER_TIME = 100;
@@ -579,7 +579,7 @@ class PlaybackToolClass {
     this.loopStartTime = loopStartTime;
     this.loopEndTime = loopEndTime;
     const maxTrackPlayTime = Controller.getMaxTrackPlayTime();
-    const widthPixel = WidthUtil.getPixelPerSecond(this.calculateTrackWidth(), maxTrackPlayTime);
+    const widthPixel = ZoomController.getCurrentPixelPerSecond();
 
     Controller.initMarkerWidth(widthPixel * this.loopStartTime);
     Controller.changeMarkerPlayStringTime(this.loopStartTime);
@@ -743,7 +743,7 @@ class PlaybackToolClass {
         const maxTrackPlayTime = Controller.getMaxTrackPlayTime();
         this.setMaxPlayTime();
 
-        const widthPixel = WidthUtil.getPixelPerSecond(this.calculateTrackWidth(), maxTrackPlayTime);
+        const widthPixel = ZoomController.getCurrentPixelPerSecond();
         Controller.setMarkerWidth([widthPixel * this.maxPlayTime, 1]);
         Controller.changeMarkerPlayStringTime(this.maxPlayTime);
         Controller.changeMarkerNumberTime(this.maxPlayTime);

@@ -1,6 +1,5 @@
-import { StoreStateType, CursorType } from '@types';
+import { StoreStateType, CursorType, ZoomInfoType, StoreChannelType, ModalType, ModalStateType, FocusInfo } from '@types';
 import { Track, Source, TrackSection, SectionDragStartData, SelectTrackData, Effect } from '@model';
-import { StoreChannelType, ModalType, ModalStateType, FocusInfo } from '@types';
 import { storeChannel } from '@store';
 
 const store = new (class Store {
@@ -30,11 +29,18 @@ const store = new (class Store {
       cursorNumberTime: 0,
       isPause: true,
       isRepeat: false,
+      prevMaxTrackWidth: 0,
       maxTrackWidth: 0,
       maxTrackPlayTime: 300,
       currentScrollAmount: 0,
       sectionDragStartData: null,
       selectTrackData: new SelectTrackData({ trackId: 0, selectedTime: 0 }),
+      zoomInfo: {
+        rate: 1.0,
+        defaultTrackTime: 300,
+        pixelPerSecond: 0,
+        playTimeInterval: 20
+      },
       loopStartTime: 0,
       loopEndTime: 300
     };
@@ -265,9 +271,9 @@ const store = new (class Store {
 
   setMaxTrackWidth(newMaxTrackWidth: number): void {
     const { maxTrackWidth } = this.state;
-    if (maxTrackWidth >= newMaxTrackWidth) return;
+    if (maxTrackWidth === newMaxTrackWidth) return;
 
-    this.state = { ...this.state, maxTrackWidth: newMaxTrackWidth };
+    this.state = { ...this.state, maxTrackWidth: newMaxTrackWidth, prevMaxTrackWidth: maxTrackWidth };
     storeChannel.publish(StoreChannelType.MAX_TRACK_WIDTH_CHANNEL, newMaxTrackWidth);
   }
 
@@ -306,6 +312,17 @@ const store = new (class Store {
   setTrackIndex(newTrackIndex: number): void {
     this.state = { ...this.state, trackIndex: newTrackIndex };
   }
+
+  setZoomPixelPerSecond(newPixelPerSecond: number): void {
+    const { zoomInfo } = this.getState();
+    this.state = { ...this.state, zoomInfo: { ...zoomInfo, pixelPerSecond: newPixelPerSecond } };
+  };
+
+  setZoomRate(newZoomRate: number): void {
+    const { zoomInfo } = this.state;
+    this.state = { ...this.state, zoomInfo: { ...zoomInfo, rate: newZoomRate } };
+    storeChannel.publish(StoreChannelType.ZOOM_RATE_CHANNEL, newZoomRate);
+  };
 
   setLoopStartTime = (newLoopStartTime: number): void => {
     this.state = { ...this.state, loopStartTime: newLoopStartTime };

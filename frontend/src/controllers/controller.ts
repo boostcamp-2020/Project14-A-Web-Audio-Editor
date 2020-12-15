@@ -1,5 +1,6 @@
 import { Source, Track, TrackSection, SectionDragStartData, Effect } from '@model';
 import { store } from '@store';
+import { ZoomController } from '@controllers'
 import { ModalType, FocusInfo, CursorType, SectionDataType } from '@types';
 import { CopyUtil, SectionEffectListUtil, TimeUtil, WidthUtil, SectionEffectSettingUtil } from '@util';
 import playbackTool from '@components/PlaybackTools/PlaybackToolClass';
@@ -383,9 +384,11 @@ const getMaxTrackWidth = () => {
   return maxTrackWidth;
 };
 
-const changeMaxTrackPlayTime = (trackSectionList: TrackSection[]): void => {
-  const trackPlaytime = trackSectionList.reduce((acc, trackSection) => (acc += trackSection.length), 0);
-  store.setMaxTrackPlayTime(trackPlaytime);
+const changeMaxTrackPlayTime = (maxTrackWidth: number): void => {
+  const pixelPerSecond = ZoomController.getCurrentPixelPerSecond();
+  const newMaxTrackPlayTime = maxTrackWidth / pixelPerSecond;
+
+  store.setMaxTrackPlayTime(newMaxTrackPlayTime);
 };
 
 const getMaxTrackPlayTime = () => {
@@ -405,8 +408,8 @@ const getCurrentScrollAmount = (): number => {
 
 const getCurrentScrollTime = (): number => {
   const { currentScrollAmount, maxTrackWidth, maxTrackPlayTime } = store.getState();
-
-  const secondPerPixel = WidthUtil.getSecondPerPixel(maxTrackWidth, maxTrackPlayTime);
+  const pixelPerSecond = ZoomController.getCurrentPixelPerSecond();
+  const secondPerPixel = 1 / pixelPerSecond;
 
   return secondPerPixel * currentScrollAmount;
 };
@@ -528,7 +531,6 @@ const removeTrackById = (trackId: number): Track | undefined => {
 
 const insertTrack = (insertIdx: number, trackToInsert: Track): void => {
   const { trackList } = store.getState();
-
   const newTrackList = Array(trackList.length + 1)
     .fill(0)
     .map((_, idx) => {
@@ -579,6 +581,11 @@ const addEffect = (effect:Effect) => {
   
   store.setTrackSectionEffect();
   store.setEffectIndex(newEffectIndex);
+}
+
+const getPrevMaxTrackWidth = (): number => {
+  const { prevMaxTrackWidth } = store.getState();
+  return prevMaxTrackWidth;
 }
 
 export default {
@@ -650,6 +657,7 @@ export default {
   removeTrackById,
   insertTrack,
   showEffectSetting,
+  getPrevMaxTrackWidth,
   getLoopTime,
   changeLoopStartTime,
   changeLoopEndTime,

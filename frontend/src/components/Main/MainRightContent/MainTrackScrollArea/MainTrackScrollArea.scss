@@ -1,0 +1,12 @@
+audi-main-track-scroll-area{
+  .audi-main-audio-track-scroll-area{
+    height: 100%;
+    overflow-x: scroll;
+    -ms-overflow-style: none; 
+    scrollbar-width: none;
+  
+    &::-webkit-scrollbar {
+        display: none; 
+    }
+  }
+}

@@ -137,8 +137,12 @@ import './SourceUpload.scss';
       const audioBuffer = await AudioUtil.decodeArrayBufferToAudio(arrayBuffer);
       const mergedBuffer = await AudioUtil.mergeChannels(audioBuffer);
       const channelData = mergedBuffer.getChannelData(0);
-      const parsedChannelData = await AudioUtil.parsePeaks(mergedBuffer, 7500);
-      
+
+      const durationPerMinute = audioBuffer.duration / 60;
+      const peaksPerMinute = 2500;
+      const pareseChannelDataLength = Math.round(durationPerMinute * peaksPerMinute)
+      const parsedChannelData = await AudioUtil.parsePeaks(mergedBuffer, pareseChannelDataLength);
+
       this.source = new Source(file, audioBuffer, parsedChannelData, channelData);
     }
 
