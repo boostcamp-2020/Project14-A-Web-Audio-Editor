@@ -1,16 +1,15 @@
 import { IconType, EventType, EventKeyType, TrackMenuType, StoreChannelType, FocusInfo } from '@types';
 import { EventUtil } from '@util';
-import { CommandController } from '@controllers';
+import { CommandController, ZoomController, Controller } from '@controllers';
 import { storeChannel } from '@store';
 import './AudioTrackMenu.scss';
-import { relative } from 'path';
 
 (() => {
   const AudioTrackMenu = class extends HTMLElement {
     private focusList: FocusInfo[];
     private colorChangeBtnElement: HTMLElement | null;
     private colorPickerElement: HTMLInputElement | null;
-    
+
     constructor() {
       super();
       this.focusList = [];
@@ -95,9 +94,9 @@ import { relative } from 'path';
     trackMenuClickListener(e): void {
       const iconBtnElement = e.target.closest('audi-icon-button')
       const type = iconBtnElement?.dataset.type;
-      if(!type) return;
-   
-      switch(type){
+      if (!type) return;
+
+      switch (type) {
         case TrackMenuType.ADD_TRACK:
           this.trackAddMenuClickListener(e);
           break;
@@ -109,7 +108,7 @@ import { relative } from 'path';
           break;
         case TrackMenuType.ZOOM_OUT:
           this.trackZoomOutMenuClickListener(e);
-          break;  
+          break;
       }
     }
 
@@ -123,9 +122,9 @@ import { relative } from 'path';
 
     trackColorChangeMenuClickListener(e): void {
       try {
-        if(this.focusList.length < 0 || !this.colorPickerElement) return;
+        if (this.focusList.length < 0 || !this.colorPickerElement) return;
         this.colorPickerElement.click();
-        
+
       } catch (e) {
         console.log(e);
       }
@@ -135,12 +134,16 @@ import { relative } from 'path';
       const colorPickerInput = e.target;
       const selectColor = colorPickerInput.value;
       CommandController.executeColorChangeCommand(this.focusList, selectColor);
-    } 
+    }
 
 
     trackZoomInMenuClickListener(e): void {
       try {
-
+        const currentZoomRate = ZoomController.getCurrentRate();
+        if (currentZoomRate < 2.5) {
+          Controller.changeCurrentScrollAmount(0);
+          ZoomController.setZoomRate(currentZoomRate + 0.25);
+        }
       } catch (e) {
         console.log(e);
       }
@@ -148,41 +151,46 @@ import { relative } from 'path';
 
     trackZoomOutMenuClickListener(e): void {
       try {
-
+        const currentZoomRate = ZoomController.getCurrentRate();
+        if (currentZoomRate > 1) {
+          Controller.changeCurrentScrollAmount(0);
+          Controller.changeMaxTrackWidth(0);
+          ZoomController.setZoomRate(currentZoomRate - 0.25);
+        }
       } catch (e) {
         console.log(e);
       }
     }
 
     subscribe(): void {
-      storeChannel.subscribe(StoreChannelType.FOCUS_LIST_CHANNEL,this.focusListObserverCallback, this);
+      storeChannel.subscribe(StoreChannelType.FOCUS_LIST_CHANNEL, this.focusListObserverCallback, this);
     }
 
-    focusListObserverCallback(newFocusList: FocusInfo[]){
-      try{
+    focusListObserverCallback(newFocusList: FocusInfo[]) {
+      try {
         this.trackColorChangeMenuActivationHandler(newFocusList);
-      }catch(e){
+      } catch (e) {
         console.log(e);
       }
     }
 
-    trackColorChangeMenuActivationHandler(newFocusList: FocusInfo[]){
+    trackColorChangeMenuActivationHandler(newFocusList: FocusInfo[]) {
       this.focusList = newFocusList;
-      
-      if(newFocusList.length > 0){
+
+      if (newFocusList.length > 0) {
         this.activeColorChangeMenu();
         return
       }
       this.inactiveColorChangeMenu();
     }
 
-    activeColorChangeMenu(){
-      if(!this.colorChangeBtnElement) return;
+    activeColorChangeMenu() {
+      if (!this.colorChangeBtnElement) return;
       this.colorChangeBtnElement.classList.remove('disabled');
     }
 
-    inactiveColorChangeMenu(){
-      if(!this.colorChangeBtnElement) return;
+    inactiveColorChangeMenu() {
+      if (!this.colorChangeBtnElement) return;
       this.colorChangeBtnElement.classList.add('disabled');
     }
   };

@@ -54,6 +54,9 @@ import './AudioTrack.scss';
         this.initEvent();
         this.initPosition();
         this.subscribe();
+
+        const newMaxTrackWidth = this.calculateMaxTrackWidth();
+        this.updateMaxTrackWidth(newMaxTrackWidth);
       } catch (e) {
         console.log(e);
       }
@@ -64,7 +67,7 @@ import './AudioTrack.scss';
                     <div class="audio-track-container" event-key=${EventKeyType.FOCUS_RESET_CLICK + this.trackId}>
                       <div data-track-id=${this.trackId} class="audio-track-area" event-key=${EventKeyType.AUDIO_TRACK_AREA_MULTIPLE + this.trackId}>
                         ${this.getTrackSectionList()}
-                        <div class="audio-track-message"><span>Drag & Drop</span></div>
+                       
                         <div id="section-cut-line-${this.trackId}" class="cut-line"></div>
                         <div id="afterimage-${this.trackId}" class="audio-track-afterimage" event-key=${EventKeyType.AUDIO_TRACK_AFTERIMAGE_DROP + this.trackId}></div>
                         <div id="track-select-line-${this.trackId}" class="track-select-line"></div>
@@ -72,8 +75,11 @@ import './AudioTrack.scss';
                     </div>
                 `;
     }
-
     getTrackSectionList(): string {
+      const initTrack = Controller.getTrack(this.trackId);
+      if (!initTrack) return '';
+      this.trackSectionList = initTrack.trackSectionList;
+
       return this.trackSectionList.reduce(
         (acc, trackSection) => (acc += `<audi-track-section data-id=${trackSection.id} data-track-id=${trackSection.trackId}></audi-track-section>`),
         ''
@@ -213,16 +219,18 @@ import './AudioTrack.scss';
       this.trackSectionList = trackSectionList;
       this.render();
       this.initElement();
-      this.messageDisplayHandler();
       this.initPosition();
 
       const newMaxTrackWidth = this.calculateMaxTrackWidth();
-      this.resizeTrackArea(newMaxTrackWidth);
+      this.updateMaxTrackWidth(newMaxTrackWidth);
+      Controller.changeMaxTrackPlayTime(newMaxTrackWidth);
+    }
 
+    updateMaxTrackWidth(newMaxTrackWidth: number): void {
+      this.resizeTrackArea(newMaxTrackWidth);
       if (this.maxTrackWidth < newMaxTrackWidth) {
         Controller.changeMaxTrackWidth(newMaxTrackWidth);
       }
-      Controller.changeMaxTrackPlayTime(newMaxTrackWidth);
     }
 
     calculateMaxTrackWidth(): number {
@@ -240,13 +248,6 @@ import './AudioTrack.scss';
       const maxTrackWidth = Math.max(this.trackAreaWidth, widthOfTrackSections, this.maxTrackWidth);
 
       return maxTrackWidth;
-    }
-
-    messageDisplayHandler(): void {
-      if (!this.trackMessageElement) return;
-
-      if (this.trackSectionList.length > 0) this.trackMessageElement.classList.add('hide');
-      else this.trackMessageElement.classList.remove('hide');
     }
 
     maxTrackWidthObserverCallback(maxTrackWidth: number): void {

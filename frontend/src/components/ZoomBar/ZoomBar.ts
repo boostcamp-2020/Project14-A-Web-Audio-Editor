@@ -33,6 +33,9 @@ import './ZoomBar.scss';
                 this.initElement();
                 this.initEvent();
                 this.subscribe();
+
+                const maxTrackWidth = Controller.getMaxTrackWidth();
+                this.adjustZoombarController(maxTrackWidth);
             } catch (e) {
                 console.log(e);
             }
