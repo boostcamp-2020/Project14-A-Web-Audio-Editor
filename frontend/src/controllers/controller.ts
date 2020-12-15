@@ -284,27 +284,32 @@ const setMarkerWidth = (markerWidth: number | number[]): void => {
   store.setMarkerWidth(markerWidth);
 };
 
+const initMarkerWidth = (markerWidth: number): void => {
+  store.initMarkerWidth(markerWidth);
+};
+
 const changePlayStringTimeFastPlaying = (passedTime: number): void => {
   const { playStringTime } = store.getState();
 
   const [minute, second, milsecond] = playStringTime.split(':');
+
   let newMinute = Number(minute);
   let newSecond = Number(second) + passedTime;
   let newMilsecond = Number(milsecond);
 
+  if (newMinute <= 0 && newSecond < 0) {
+    newMinute = 0;
+    newSecond = 0;
+  }
+
   if (newSecond >= 60) {
-    newMinute += newMinute / 60;
+    newMinute += Math.floor(newSecond / 60);
     newSecond = newSecond % 60;
   }
 
   if (newSecond < 0 && newMinute > 0) {
     newMinute -= 1;
     newSecond += 60;
-  }
-
-  if (newMinute <= 0 && newSecond < 0) {
-    newMinute = 0;
-    newSecond = 0;
   }
 
   const newPlayStringTime = TimeUtil.getStringTime(newMinute, newSecond, newMilsecond);
@@ -327,7 +332,7 @@ const changePlayStringTime = (passedTime: number): void => {
   }
 
   if (newSecond >= 60) {
-    newMinute += newSecond / 60;
+    newMinute += Math.floor(newSecond / 60);
     newSecond = newSecond % 60;
   }
 
@@ -626,5 +631,6 @@ export default {
   getLoopTime,
   changeLoopStartTime,
   changeLoopEndTime,
-  changePlayStringTimeFastPlaying
+  changePlayStringTimeFastPlaying,
+  initMarkerWidth
 };

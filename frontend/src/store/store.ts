@@ -207,6 +207,10 @@ const store = new (class Store {
     storeChannel.publish(StoreChannelType.CURRENT_POSITION_CHANNEL, newMarkerWidth);
   }
 
+  initMarkerWidth(newMarkerWidth: number): void {
+    storeChannel.publish(StoreChannelType.RESET_MARKER_POSITION_CHANNEL, newMarkerWidth);
+  }
+
   setPlayStringTime(newPlayStringTime): void {
     this.state = { ...this.state, playStringTime: newPlayStringTime };
     storeChannel.publish(StoreChannelType.PLAY_TIME_CHANNEL, newPlayStringTime);

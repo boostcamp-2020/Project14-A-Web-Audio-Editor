@@ -21,6 +21,15 @@ import { StoreChannelType } from '@types';
 
     subscribe(): void {
       storeChannel.subscribe(StoreChannelType.CURRENT_POSITION_CHANNEL, this.updateMarkerPosition, this);
+      storeChannel.subscribe(StoreChannelType.RESET_MARKER_POSITION_CHANNEL, this.initMarkerPosition, this);
+    }
+
+    initMarkerPosition(newCurrentPosition): void {
+      const markerElement: HTMLElement | null = document.querySelector('.marker');
+
+      if (!markerElement) return;
+
+      markerElement.style.left = `${newCurrentPosition}px`;
     }
 
     updateMarkerPosition(newCurrentPosition): void {
@@ -28,23 +37,12 @@ import { StoreChannelType } from '@types';
 
       if (!markerElement) return;
 
-      if (!newCurrentPosition) {
-        markerElement.style.left = `${newCurrentPosition}px`;
-        return;
-      }
-
-      if(newCurrentPosition[1] === 1) {
-        markerElement.style.left = `${newCurrentPosition[0]}px`;
-        return;
-      }
-
       const prevCurrentPosition = Number(markerElement?.style.left.split('px')[0]);
       let currentPosition = prevCurrentPosition + newCurrentPosition;
       if (currentPosition < 0) currentPosition = 0;
       markerElement.style.left = `${currentPosition}px`;
     }
   };
-
   customElements.define('audi-marker', Marker);
 })();
 
