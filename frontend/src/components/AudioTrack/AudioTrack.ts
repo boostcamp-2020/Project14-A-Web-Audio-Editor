@@ -1,4 +1,4 @@
-import { Controller } from '@controllers';
+import { Controller, ZoomController } from '@controllers';
 import { EventKeyType, EventType, StoreChannelType } from '@types';
 import { EventUtil, WidthUtil, DragUtil } from '@util';
 import { storeChannel } from '@store';
@@ -13,7 +13,7 @@ import './AudioTrack.scss';
     private trackAreaElement: HTMLDivElement | null;
     private trackScrollAreaElement: HTMLDivElement | null;
     private afterimageElement: HTMLDivElement | null;
-    private trackWidth: number;
+    private trackAreaWidth: number;
     private maxTrackWidth: number;
     private maxTrackPlayTime: number;
     private sectionDragData: SectionDragStartData | null;
@@ -26,7 +26,7 @@ import './AudioTrack.scss';
       this.trackAreaElement = null;
       this.trackScrollAreaElement = null;
       this.afterimageElement = null;
-      this.trackWidth = 0;
+      this.trackAreaWidth = 0;
       this.maxTrackWidth = 0;
       this.maxTrackPlayTime = 0;
       this.sectionDragData = null;
@@ -68,7 +68,7 @@ import './AudioTrack.scss';
                         <div id="section-cut-line-${this.trackId}" class="cut-line"></div>
                         <div id="afterimage-${this.trackId}" class="audio-track-afterimage" event-key=${EventKeyType.AUDIO_TRACK_AFTERIMAGE_DROP + this.trackId}></div>
                         <div id="track-select-line-${this.trackId}" class="track-select-line"></div>
-                        </div>      
+                      </div>      
                     </div>
                 `;
     }
@@ -87,7 +87,7 @@ import './AudioTrack.scss';
       this.trackAreaElement = this.querySelector('.audio-track-area');
       this.trackScrollAreaElement = document.querySelector('.audi-main-audio-track-scroll-area');
       this.afterimageElement = this.querySelector(`#afterimage-${this.trackId}`);
-      this.trackWidth = this.calculateTrackWidth();
+      this.trackAreaWidth = this.calculateTrackWidth();
     }
 
     calculateTrackWidth(): number {
@@ -119,13 +119,10 @@ import './AudioTrack.scss';
       const trackSectionElements: NodeListOf<HTMLElement> = this.querySelectorAll('audi-track-section');
 
       if (!this.trackAreaElement || trackSectionElements.length === 0) return;
-
-      this.trackWidth = this.calculateTrackWidth();
-      this.maxTrackPlayTime = Controller.getMaxTrackPlayTime();
-      const secondPerPixel = WidthUtil.getPixelPerSecond(this.trackWidth, this.maxTrackPlayTime);
+      const currentPixelPerSecond = ZoomController.getCurrentPixelPerSecond();
 
       this.trackSectionList.forEach((section, idx) => {
-        const marginValue = (section.trackStartTime - prevEndOffset) * secondPerPixel;
+        const marginValue = (section.trackStartTime - prevEndOffset) * currentPixelPerSecond;
         if (!trackSectionElements[idx]) return;
         trackSectionElements[idx].style.marginLeft = `${marginValue}px`;
         prevEndOffset = section.trackStartTime + section.length;
@@ -153,11 +150,10 @@ import './AudioTrack.scss';
     dragoverAudioTrackListener(e): void {
       e.preventDefault();
       if (!this.afterimageElement) return;
-
       const scrollAmount = Controller.getCurrentScrollAmount();
       const currentCursorPosition = e.pageX + scrollAmount;
 
-      DragUtil.showAfterimage(this.afterimageElement, this.trackId, this.trackWidth, currentCursorPosition);
+      DragUtil.showAfterimage(this.afterimageElement, this.trackId, this.trackAreaWidth, currentCursorPosition);
     }
 
     dropAudioTrackListener(e): void {
@@ -171,7 +167,7 @@ import './AudioTrack.scss';
       const currentCursorPosition = e.pageX + scrollAmount;
       const currentTrackId: number = Number(e.target.dataset.trackId);
 
-      DragUtil.dropTrackSection(currentTrackId, currentCursorPosition, this.trackWidth);
+      DragUtil.dropTrackSection(currentTrackId, currentCursorPosition, this.trackAreaWidth);
     }
 
     trackClickListener(e): void {
@@ -183,7 +179,7 @@ import './AudioTrack.scss';
         const cursorPosition = e.pageX;
         const trackAreaElementLeftX = this.trackAreaElement.getBoundingClientRect().left;
         this.maxTrackPlayTime = Controller.getMaxTrackPlayTime();
-        const secondPerPixel = WidthUtil.getPixelPerSecond(this.trackWidth, this.maxTrackPlayTime);
+        const secondPerPixel = ZoomController.getCurrentPixelPerSecond();
 
         const cursorOffset = cursorPosition - trackAreaElementLeftX;
         const selectedTime = cursorOffset / secondPerPixel;
@@ -218,14 +214,32 @@ import './AudioTrack.scss';
       this.render();
       this.initElement();
       this.messageDisplayHandler();
-
-      const scrollWidth = this.trackScrollAreaElement.scrollWidth;
-      Controller.changeMaxTrackWidth(scrollWidth);
-      Controller.changeMaxTrackPlayTime(trackSectionList);
-
-      if (this.maxTrackWidth === scrollWidth)
-        this.resizeTrackArea(scrollWidth);
       this.initPosition();
+
+      const newMaxTrackWidth = this.calculateMaxTrackWidth();
+      this.resizeTrackArea(newMaxTrackWidth);
+
+      if (this.maxTrackWidth < newMaxTrackWidth) {
+        Controller.changeMaxTrackWidth(newMaxTrackWidth);
+      }
+      Controller.changeMaxTrackPlayTime(newMaxTrackWidth);
+    }
+
+    calculateMaxTrackWidth(): number {
+      const trackSectionListElement: NodeListOf<HTMLElement> = this.querySelectorAll('audi-track-section');
+
+      if (!this.trackAreaElement || trackSectionListElement.length === 0) {
+        return Math.max(this.trackAreaWidth, this.maxTrackWidth);
+      }
+
+      const { left: areaLeftX } = this.trackAreaElement.getBoundingClientRect();
+      const lastTrackSectionElement = trackSectionListElement[trackSectionListElement.length - 1];
+      const lastTrackSectionRightX = lastTrackSectionElement.getBoundingClientRect().right;
+
+      const widthOfTrackSections = lastTrackSectionRightX - areaLeftX;
+      const maxTrackWidth = Math.max(this.trackAreaWidth, widthOfTrackSections, this.maxTrackWidth);
+
+      return maxTrackWidth;
     }
 
     messageDisplayHandler(): void {

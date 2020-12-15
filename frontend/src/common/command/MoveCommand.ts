@@ -3,7 +3,7 @@ import { Track, TrackSection } from '@model';
 import { StoreChannelType } from '@types';
 import { storeChannel } from '@store';
 import { CopyUtil, ValidUtil, DragUtil } from '@util';
-import { Controller } from '@controllers';
+import { Controller, ZoomController } from '@controllers';
 
 class MoveCommand extends Command {
   private prevTrack: Track;
@@ -23,8 +23,11 @@ class MoveCommand extends Command {
 
   execute(): void {
     const sectionIndex = this.prevTrack.trackSectionList.findIndex((section) => section.id === this.trackSection.id);
+    const currentScrollAmount = Controller.getCurrentScrollAmount();
+    const currentPixelPerSecond = ZoomController.getCurrentPixelPerSecond()
+    const scrorllAmountTime = currentScrollAmount / currentPixelPerSecond;
 
-    const newTrackStartTime = this.movingCursorTime - (this.prevCursorTime - this.trackSection.trackStartTime);
+    const newTrackStartTime = this.movingCursorTime - (this.prevCursorTime - this.trackSection.trackStartTime) + scrorllAmountTime;
 
     const { startTime, endTime } = DragUtil.getRenewTrackTimes(this.currentTrack, this.trackSection, newTrackStartTime);
 
@@ -32,12 +35,10 @@ class MoveCommand extends Command {
 
     if (resultValid.leftValid || resultValid.rightValid) return;
 
-    const currentScrollTime = Controller.getCurrentScrollTime() || 0;
-
     const newTrackSection = CopyUtil.copySection(this.trackSection);
 
     newTrackSection.trackId = this.currentTrack.id;
-    newTrackSection.trackStartTime = startTime + currentScrollTime;
+    newTrackSection.trackStartTime = startTime;
 
     if (newTrackSection.id !== 0) {
       Controller.removeSection(this.prevTrack.id, sectionIndex);
@@ -55,14 +56,14 @@ class MoveCommand extends Command {
         trackId: this.prevTrack.id,
         trackSectionList: this.prevTrack.trackSectionList
       });
-      storeChannel.publish(StoreChannelType.TRACK_CHANNEL, this.prevTrack.trackSectionList);
     }
-
     storeChannel.publish(StoreChannelType.TRACK_SECTION_LIST_CHANNEL, {
       trackId: this.currentTrack.id,
       trackSectionList: this.currentTrack.trackSectionList
     });
-    storeChannel.publish(StoreChannelType.TRACK_CHANNEL, this.currentTrack.trackSectionList);
+
+    const newTrackList = Controller.getTrackList()
+    storeChannel.publish(StoreChannelType.TRACK_CHANNEL, newTrackList);
   }
 }
 

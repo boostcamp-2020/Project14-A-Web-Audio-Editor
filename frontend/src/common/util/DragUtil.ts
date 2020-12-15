@@ -1,4 +1,4 @@
-import { Controller, CommandController } from '@controllers';
+import { Controller, CommandController, ZoomController } from '@controllers';
 import { Track, TrackSection } from '@model';
 import { WidthUtil, TimeUtil, ValidUtil } from '@util';
 
@@ -8,13 +8,13 @@ const showAfterimage = (afterimage: HTMLElement, trackId: number, trackContainer
 
   if (!dragData || !isPause) return;
 
-  const maxTrackPlayTime = Controller.getMaxTrackPlayTime();
-  const secondPerPixel = WidthUtil.getPixelPerSecond(trackContainerWidth, maxTrackPlayTime);
+  const currentPixelPerSecond = ZoomController.getCurrentPixelPerSecond();
+  const currentScrollAmount = Controller.getCurrentScrollAmount();
   let { offsetLeft, prevCursorTime } = dragData;
 
 
   if (dragData.trackSection.id === 0) {
-    prevCursorTime = currentCursorPosition / secondPerPixel;
+    prevCursorTime = currentCursorPosition / currentPixelPerSecond;
     dragData.prevCursorTime = prevCursorTime;
     dragData.trackSection.trackStartTime = prevCursorTime - (dragData.trackSection.length / 2);
   }
@@ -22,16 +22,16 @@ const showAfterimage = (afterimage: HTMLElement, trackId: number, trackContainer
 
   if (!offsetLeft || !prevCursorTime) return;
   const track = Controller.getTrack(trackId);
-  const movingCursorTime = TimeUtil.calculateTimeOfCursorPosition(offsetLeft, currentCursorPosition, trackContainerWidth, maxTrackPlayTime);
-
-
+  const currentCursorTime = TimeUtil.calculateTimeOfCursorPosition(offsetLeft, currentCursorPosition);
+  const scrorllAmountTime = currentScrollAmount / currentPixelPerSecond;
   if (!dragData.trackSection || !track) return;
 
-  const newTrackStartTime = movingCursorTime - (prevCursorTime - dragData.trackSection.trackStartTime);
+  const newTrackStartTime = currentCursorTime - (prevCursorTime - dragData.trackSection.trackStartTime) + scrorllAmountTime;
 
   const { startTime, endTime } = getRenewTrackTimes(track, dragData.trackSection, newTrackStartTime);
 
   const resultValid = ValidUtil.checkEnterTrack(dragData.trackSection, track.trackSectionList, startTime, endTime);
+
 
   if (resultValid.leftValid || resultValid.rightValid) {
     afterimage.style.display = 'none';
@@ -42,8 +42,9 @@ const showAfterimage = (afterimage: HTMLElement, trackId: number, trackContainer
     afterimage.style.display = 'block';
   }
 
-  afterimage.style.left = `${startTime * secondPerPixel}px`;
-  afterimage.style.width = `${dragData.trackSection.length * secondPerPixel}px`;
+
+  afterimage.style.left = `${(startTime) * currentPixelPerSecond}px`;
+  afterimage.style.width = `${dragData.trackSection.length * currentPixelPerSecond}px`;
 }
 
 const dropTrackSection = (trackId: number, currentCursorPosition: number, trackContainerWidth: number) => {
@@ -51,7 +52,6 @@ const dropTrackSection = (trackId: number, currentCursorPosition: number, trackC
 
   if (!dragData) return;
   const { prevCursorTime, offsetLeft } = dragData;
-  const maxTrackPlayTime = Controller.getMaxTrackPlayTime();
 
   if (dragData.trackSection.id === 0 && prevCursorTime) {
     dragData.trackSection.trackStartTime = prevCursorTime - (dragData.trackSection.length / 2);
@@ -61,10 +61,10 @@ const dropTrackSection = (trackId: number, currentCursorPosition: number, trackC
 
   if (!offsetLeft || !prevCursorTime) return;
 
-  const movingCursorTime = TimeUtil.calculateTimeOfCursorPosition(offsetLeft, currentCursorPosition, trackContainerWidth, maxTrackPlayTime);
+  const currentCursorTime = TimeUtil.calculateTimeOfCursorPosition(offsetLeft, currentCursorPosition);
 
   Controller.resetFocus();
-  CommandController.executeMoveCommand(dragData.trackSection.trackId, trackId, dragData.trackSection, movingCursorTime, prevCursorTime);
+  CommandController.executeMoveCommand(dragData.trackSection.trackId, trackId, dragData.trackSection, currentCursorTime, prevCursorTime);
 }
 
 const getPrevTrackSection = (trackId: number, sectionId: number, trackStartTime: number): TrackSection | undefined => {
@@ -103,7 +103,7 @@ const getRenewTrackTimes = (currentTrack: Track, dragedTrackSection: TrackSectio
       const prevEndTime = prevSection.trackStartTime + prevSection.length
       if (newTrackStartTime - prevEndTime < prevSection.length / 3) {
         newTrackStartTime = prevEndTime;
-        newTrackEndTime = dragedTrackSection.length;
+        newTrackEndTime = newTrackStartTime + dragedTrackSection.length;
       }
     }
   } else if (!resultValid.leftValid && resultValid.rightValid) {
