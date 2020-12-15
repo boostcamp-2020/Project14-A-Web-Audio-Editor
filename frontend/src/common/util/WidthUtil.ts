@@ -1,10 +1,10 @@
 import { ZoomController } from '@controllers';
 
-const getPlayingPixel = (time: number, trackPlayTime: number): number => {
+const getPlayingPixel = (time: number): number => {
   const playBarElement: HTMLElement | null = document.querySelector('audi-playbar');
   if (!playBarElement) return 0;
 
-  const second = time / 1000;
+  const second = time;
   const pixelPerSecond: number = ZoomController.getCurrentPixelPerSecond();
   const playingPixel: number = pixelPerSecond * second;
 
