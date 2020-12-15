@@ -18,8 +18,6 @@ class PlaybackToolClass {
   private soloTrackList: Number[];
   private analyser: AnalyserNode | null;
   private maxPlayTime: number;
-  private loopStartTime: number;
-  private loopEndTime: number;
   private prevCurrentTime: number;
 
   constructor() {
@@ -32,8 +30,6 @@ class PlaybackToolClass {
     this.analyser = null;
     this.maxPlayTime = INF;
 
-    this.loopStartTime = 0;
-    this.loopEndTime = 0;
     this.prevCurrentTime = 0;
     this.subscribe();
   }
@@ -95,8 +91,8 @@ class PlaybackToolClass {
 
   checkRepeatPause(): boolean {
     const markerTime = Controller.getMarkerTime();
-
-    if (markerTime >= this.loopStartTime && markerTime <= this.loopEndTime) {
+    const [loopStartTime, loopEndTime] = Controller.getLoopTime();
+    if (markerTime >= loopStartTime && markerTime <= loopEndTime) {
       return true;
     }
     return false;
@@ -144,6 +140,7 @@ class PlaybackToolClass {
     if (this.trackList.length === 0) return;
 
     const isRepeat = Controller.getIsRepeatState();
+    const isPause = Controller.getIsPauseState();
 
     if (!isRepeat) {
       Controller.changeIsRepeatState(true);
@@ -161,6 +158,8 @@ class PlaybackToolClass {
     }
 
     Controller.changeIsRepeatState(false);
+    if (isPause) return;
+
     this.audioContext.close();
     this.audioContext = new AudioContext();
     this.audioContext.suspend();
@@ -322,8 +321,10 @@ class PlaybackToolClass {
   }
 
   setMaxPlayTime(): void {
+    const [loopStartTime, loopEndTime] = Controller.getLoopTime();
+
     if (Controller.getIsRepeatState()) {
-      this.maxPlayTime = this.loopEndTime;
+      this.maxPlayTime = loopEndTime;
     } else {
       let tempMaxPlayTime = 0;
       this.trackList.forEach((track: Track) => {
@@ -371,10 +372,11 @@ class PlaybackToolClass {
 
   checkMarkerIsBeforeRepeatStartTime() {
     const markerTime = Controller.getMarkerTime();
-
+    const [loopStartTime] = Controller.getLoopTime();
+    
     if (!this.prevCurrentTime) return false;
 
-    if (markerTime < this.loopStartTime) {
+    if (markerTime < loopStartTime) {
       return true;
     }
     return false;
@@ -478,6 +480,7 @@ class PlaybackToolClass {
 
   play(): void {
     const markerTime = Controller.getMarkerTime();
+    const [loopStartTime, loopEndTime] = Controller.getLoopTime();
 
     this.stopAudioSources();
     this.sourceInfo = [];
@@ -505,29 +508,29 @@ class PlaybackToolClass {
           let diff: number = 0;
 
           if (isRepeat && !this.checkRepeatPause()) {
-            if (trackSection.trackStartTime > this.loopEndTime || trackSection.trackStartTime + trackSection.length < this.loopStartTime) {
+            if (trackSection.trackStartTime > loopEndTime || trackSection.trackStartTime + trackSection.length < loopStartTime) {
               return;
-            } else if (trackSection.trackStartTime <= this.loopStartTime && trackSection.trackStartTime + trackSection.length >= this.loopEndTime) {
+            } else if (trackSection.trackStartTime <= loopStartTime && trackSection.trackStartTime + trackSection.length >= loopEndTime) {
               waitTime = 0;
-              audioStartTime = trackSection.channelStartTime + (this.loopStartTime - trackSection.trackStartTime);
-              playDuration = this.loopEndTime - this.loopStartTime;
+              audioStartTime = trackSection.channelStartTime + (loopStartTime - trackSection.trackStartTime);
+              playDuration = loopEndTime - loopStartTime;
 
               this.sourceInfo[sourceIdx].bufferSourceNode.start(waitTime, audioStartTime, playDuration);
-            } else if (trackSection.trackStartTime >= this.loopStartTime) {
-              waitTime = trackSection.trackStartTime - this.loopStartTime;
+            } else if (trackSection.trackStartTime >= loopStartTime) {
+              waitTime = trackSection.trackStartTime - loopStartTime;
               audioStartTime = trackSection.channelStartTime;
 
-              if (trackSection.trackStartTime + trackSection.length <= this.loopEndTime) {
+              if (trackSection.trackStartTime + trackSection.length <= loopEndTime) {
                 playDuration = trackSection.length;
               } else {
-                playDuration = this.loopEndTime - trackSection.trackStartTime;
+                playDuration = loopEndTime - trackSection.trackStartTime;
               }
 
               this.sourceInfo[sourceIdx].bufferSourceNode.start(waitTime, audioStartTime, playDuration);
             } else {
               waitTime = 0;
-              audioStartTime = trackSection.channelStartTime + (this.loopStartTime - trackSection.trackStartTime);
-              playDuration = trackSection.trackStartTime + trackSection.length - this.loopStartTime;
+              audioStartTime = trackSection.channelStartTime + (loopStartTime - trackSection.trackStartTime);
+              playDuration = trackSection.trackStartTime + trackSection.length - loopStartTime;
 
               this.sourceInfo[sourceIdx].bufferSourceNode.start(waitTime, audioStartTime, playDuration);
             }
@@ -583,14 +586,12 @@ class PlaybackToolClass {
   }
 
   repeat(): void {
-    const [loopStartTime, loopEndTime] = Controller.getLoopTime();
-    this.loopStartTime = loopStartTime;
-    this.loopEndTime = loopEndTime;
+    const [loopStartTime] = Controller.getLoopTime();
     const widthPixel = ZoomController.getCurrentPixelPerSecond();
 
-    Controller.initMarkerWidth(widthPixel * this.loopStartTime);
-    Controller.changeMarkerPlayStringTime(this.loopStartTime);
-    Controller.changeMarkerNumberTime(this.loopStartTime);
+    Controller.initMarkerWidth(widthPixel * loopStartTime);
+    Controller.changeMarkerPlayStringTime(loopStartTime);
+    Controller.changeMarkerNumberTime(loopStartTime);
 
     this.play();
   }
