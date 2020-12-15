@@ -15,7 +15,7 @@ enum EffectTitleType {
 enum EffectContentType {
   gain = '<audi-effect-gain data-percentage="100"></audi-effect-gain>',
   compressor = '<audi-effect-compressor></audi-effect-compressor>',
-  reberb = '<audi-effect-reverb></audi-effect-reverb>',
+  reverb = '<audi-effect-reverb></audi-effect-reverb>',
   filter = '<audi-effect-filter></audi-effect-filter>'
 }
 
