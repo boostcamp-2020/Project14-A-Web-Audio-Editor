@@ -3,7 +3,7 @@ import { EffectTitleType, StoreChannelType, EffectType } from '@types';
 import { Source, Track, TrackSection, AudioSourceInfoInTrack, Effect } from '@model';
 import { storeChannel } from '@store';
 import { Controller, ZoomController } from '@controllers';
-import { GainProperties, CompressorProperties, FilterProperties, ReverbProperties} from '@model';
+import { GainProperties, CompressorProperties, FilterProperties, ReverbProperties } from '@model';
 
 const TIMER_TIME = 100;
 const QUANTUM = 3;
@@ -93,6 +93,15 @@ class PlaybackToolClass {
     this.play();
   }
 
+  checkRepeatPause(): boolean {
+    const markerTime = Controller.getMarkerTime();
+
+    if (markerTime >= this.loopStartTime && markerTime <= this.loopEndTime) {
+      return true;
+    }
+    return false;
+  }
+
   audioPlayOrPause(): number {
     if (this.trackList.length === 0) return 0;
     const isPause = Controller.getIsPauseState();
@@ -101,8 +110,11 @@ class PlaybackToolClass {
     if (isPause) {
       Controller.changeIsPauseState(false);
       if (isRepeat) {
-        this.repeat();
-        this.play();
+        if (this.checkRepeatPause()) {
+          this.play();
+        } else {
+          this.repeat();
+        }
         this.moveMarkerInRepeatState();
 
         return 1;
@@ -113,7 +125,6 @@ class PlaybackToolClass {
       return 1;
     } else {
       Controller.changeIsPauseState(true);
-      Controller.changeIsRepeatState(false);
 
       this.pause();
 
@@ -125,7 +136,6 @@ class PlaybackToolClass {
     if (this.trackList.length === 0) return;
 
     Controller.changeIsPauseState(true);
-    Controller.changeIsRepeatState(false);
     this.prevCurrentTime = 0;
     this.stop(false);
   }
@@ -145,7 +155,6 @@ class PlaybackToolClass {
       this.audioContext = new AudioContext();
       this.audioContext.suspend();
       this.repeat();
-      this.play();
       this.moveMarkerInRepeatState();
 
       return;
@@ -225,7 +234,7 @@ class PlaybackToolClass {
 
     const mySection = myTrack?.trackSectionList.find((section: TrackSection) => {
       return section.id === sectionId;
-    })
+    });
 
     //test1. gain
     //const tempGain = new GainProperties({gain:4});
@@ -243,8 +252,8 @@ class PlaybackToolClass {
     // const tempReverb = new ReverbProperties({});
     // mySection?.effectList.push(new Effect({name:'reverb', properties:tempReverb}));
 
-    mySection?.effectList.forEach((effect)=>{
-      switch(effect.name) {
+    mySection?.effectList.forEach((effect) => {
+      switch (effect.name) {
         case EffectType.gain:
           const gainNode = this.audioContext.createGain();
 
@@ -374,10 +383,9 @@ class PlaybackToolClass {
   moveMarkerInRepeatState() {
     const volumeBar = document.getElementById('audio-meter-fill');
     const isRepeat = Controller.getIsRepeatState();
-
+    const isPause = Controller.getIsPauseState();
     if (this.checkMarkerIsAtRepeatEndTime() || this.checkMarkerIsBeforeRepeatStartTime()) {
       this.repeat();
-      this.play();
       this.prevCurrentTime = this.audioContext.currentTime;
     }
 
@@ -417,7 +425,7 @@ class PlaybackToolClass {
 
     this.prevCurrentTime = this.audioContext.currentTime;
 
-    isRepeat && setTimeout(this.moveMarkerInRepeatState.bind(this), TIMER_TIME);
+    !isPause && isRepeat && setTimeout(this.moveMarkerInRepeatState.bind(this), TIMER_TIME);
   }
 
   moveMarkerInPlayState() {
@@ -496,7 +504,7 @@ class PlaybackToolClass {
           let playDuration: number = 0;
           let diff: number = 0;
 
-          if (isRepeat) {
+          if (isRepeat && !this.checkRepeatPause()) {
             if (trackSection.trackStartTime > this.loopEndTime || trackSection.trackStartTime + trackSection.length < this.loopStartTime) {
               return;
             } else if (trackSection.trackStartTime <= this.loopStartTime && trackSection.trackStartTime + trackSection.length >= this.loopEndTime) {
@@ -578,12 +586,13 @@ class PlaybackToolClass {
     const [loopStartTime, loopEndTime] = Controller.getLoopTime();
     this.loopStartTime = loopStartTime;
     this.loopEndTime = loopEndTime;
-    const maxTrackPlayTime = Controller.getMaxTrackPlayTime();
     const widthPixel = ZoomController.getCurrentPixelPerSecond();
 
     Controller.initMarkerWidth(widthPixel * this.loopStartTime);
     Controller.changeMarkerPlayStringTime(this.loopStartTime);
     Controller.changeMarkerNumberTime(this.loopStartTime);
+
+    this.play();
   }
 
   fastRewind(): void {
