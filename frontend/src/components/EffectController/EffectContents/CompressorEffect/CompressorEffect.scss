@@ -1,0 +1,35 @@
+@import '@style/variables';
+
+audi-effect-compressor {
+  width: 100%;
+}
+
+.effect-input {
+  color: white;
+  width: 100%;
+  padding: 10px;
+
+  input {
+    width: 100%;
+    cursor: pointer;
+  }
+}
+
+.property-percentage-input {
+  display: flex;
+
+  & .property-percentage-value {
+    height: 30px;
+    width: 70px;
+    border: 1px solid white;
+    border-radius: 6px;
+
+    text-align: center;
+    line-height: 30px;
+    color: $green-color;
+  }
+}
+
+.effect-option-name {
+  margin: 10px 0;
+}
