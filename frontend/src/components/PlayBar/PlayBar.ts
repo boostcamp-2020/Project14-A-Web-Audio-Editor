@@ -212,7 +212,8 @@ import './PlayBar.scss';
 
     dblclickPlayBarListener(e): void {
       if (!this.playbarMarkerElementLeft || !this.playbarMarkerElementRight || !this.playbarMarkerBlurZoneElement) return;
-
+      const isPause = Controller.getIsPauseState();
+      if (!isPause) return;
       const [currentPosition] = Controller.getCurrentPosition();
       const currentX = e.pageX + this.currentScrollAmount;
 
