@@ -1,7 +1,7 @@
 import './MainRightContent.scss';
 import { Track } from '@model';
 import { Controller } from '@controllers';
-import { EventUtil, MarkerEventUtil } from '@util';
+import { EventUtil, MarkerEventUtil, TimeUtil, WidthUtil } from '@util';
 import { EventType, EventKeyType, StoreChannelType } from '@types';
 import { storeChannel } from "@store";
 
@@ -13,6 +13,7 @@ import { storeChannel } from "@store";
     private markerElement: HTMLElement | null;
     private mainWidth: number;
     private maxTrackPlayTime: number;
+    private currentScrollAmount: number;
 
     constructor() {
       super();
@@ -22,12 +23,13 @@ import { storeChannel } from "@store";
       this.mainWidth = 0;
       this.maxTrackPlayTime = Controller.getMaxTrackPlayTime();
       this.mainAudioTrackContainerEventZone = null;
+      this.currentScrollAmount = Controller.getCurrentScrollAmount();
     }
 
     connectedCallback(): void {
-      try{
+      try {
         this.init();
-      }catch(e){
+      } catch (e) {
         console.log(e);
       }
     }
@@ -36,17 +38,14 @@ import { storeChannel } from "@store";
       this.render();
       this.initElement();
       this.initEvent();
+      this.subscribe();
     }
 
     render(): void {
       this.innerHTML = `
             <section class="audi-main-audio-track-container" event-key=${EventKeyType.FOCUS_RESET_CLICK}>
                 <div class="audi-main-right-top">
-                    <div class="audi-main-audio-track-scroll-area">
-                        <audi-marker></audi-marker>
-                        <audi-playbar></audi-playbar>
-                        <audi-main-track-list-area></audi-main-track-list-area>
-                    </div>
+                    <audi-main-track-scroll-area></audi-main-track-scroll-area>
                     <div class='audi-main-audio-track-container-event-zone hide' event-key=${EventKeyType.AUDIO_TRACK_CONTAINER_MULTIPLE}></div>
                 </div>
                 <div class="audi-main-right-bottom">
@@ -61,7 +60,7 @@ import { storeChannel } from "@store";
       const playbarElement = document.querySelector('.playbar');
       this.mainAudioTrackContainerEventZone = document.querySelector('.audi-main-audio-track-container-event-zone');
 
-      if(!playbarElement || !this.mainAudioTrackContainerEventZone) return;
+      if (!playbarElement || !this.mainAudioTrackContainerEventZone) return;
 
       this.mainWidth = playbarElement?.getBoundingClientRect().right - playbarElement?.getBoundingClientRect().left;
       this.defaultStartX = this.mainAudioTrackContainerEventZone?.getBoundingClientRect().left;
@@ -82,7 +81,7 @@ import { storeChannel } from "@store";
         eventTypes: [EventType.mousemove, EventType.click],
         eventKey: EventKeyType.AUDIO_TRACK_CONTAINER_MULTIPLE,
         listeners: [
-          MarkerEventUtil.mousemoveMarkerListener(this.mainAudioTrackContainerEventZone, this.defaultStartX, this.mainWidth, this.maxTrackPlayTime),
+          this.mousemoveMarkerListener,
           MarkerEventUtil.clickMarkerListener(this.markerElement)
         ],
         bindObj: this.mainAudioTrackContainerEventZone
@@ -96,17 +95,39 @@ import { storeChannel } from "@store";
       }
     }
 
+    mousemoveMarkerListener(e): void {
+      if (!this.mainAudioTrackContainerEventZone) return;
+      const cursorPosition = e.pageX;
+      const scrolledCursorPosition = cursorPosition + this.currentScrollAmount;
+
+
+      const timeOfCursorPosition = TimeUtil.calculateTimeOfCursorPosition(this.defaultStartX, scrolledCursorPosition);
+      const [minute, second, milsecond] = TimeUtil.splitTime(timeOfCursorPosition);
+      const offesetOfCursorPosition = WidthUtil.getDifferenceWidth(this.defaultStartX, cursorPosition);
+
+      if (minute < 0 && second < 0) return;
+      Controller.changeCurrentPosition(offesetOfCursorPosition);
+      Controller.changeCursorStringTime(minute, second, milsecond);
+      Controller.changeCursorNumberTime(timeOfCursorPosition);
+    };
+
     subscribe(): void {
       storeChannel.subscribe(StoreChannelType.MAX_TRACK_PLAY_TIME_CHANNEL, this.maxTrackPlayTimeObserverCallback, this);
+      storeChannel.subscribe(StoreChannelType.CURRENT_SCROLL_AMOUNT_CHANNEL, this.currentScrollAmountObserverCallback, this);
     }
 
     maxTrackPlayTimeObserverCallback(maxTrackPlayTime: number): void {
-      try{
+      try {
         this.maxTrackPlayTime = maxTrackPlayTime;
         this.initEvent();
-      }catch(e){
+      } catch (e) {
         console.log(e);
       }
+    }
+
+    currentScrollAmountObserverCallback(newCurrentScrollAmount: number): void {
+      this.currentScrollAmount = newCurrentScrollAmount;
+      this.initEvent();
     }
   };
 

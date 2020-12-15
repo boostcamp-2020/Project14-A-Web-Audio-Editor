@@ -1,6 +1,6 @@
-import { TimeUtil, MarkerEventUtil, EventUtil } from '@util';
+import { TimeUtil, MarkerEventUtil, EventUtil, WidthUtil } from '@util';
 import { EventType, EventKeyType, StoreChannelType } from '@types';
-import { Controller } from '@controllers';
+import { Controller, ZoomController } from '@controllers';
 import { storeChannel } from "@store";
 import './PlayBar.scss';
 
@@ -56,9 +56,9 @@ import './PlayBar.scss';
     }
 
     connectedCallback(): void {
-      try{
+      try {
         this.init();
-      }catch(e){
+      } catch (e) {
         console.log(e);
       }
     }
@@ -113,20 +113,20 @@ import './PlayBar.scss';
       this.markerElement = document.querySelector('.marker');
       this.trackScrollAreaElement = document.querySelector('.audi-main-audio-track-scroll-area');
 
-      if(this.playBarContainerElement){
+      if (this.playBarContainerElement) {
         this.playBarLeftX = this.playBarContainerElement.getBoundingClientRect().left;
         this.playBarWidth = this.playBarContainerElement.getBoundingClientRect().right - this.playBarLeftX;
       }
     }
 
-    spreadPlayTimes(){
-      if(!this.playbarTimeElements || !this.playBarTimeDatas) return;
+    spreadPlayTimes() {
+      if (!this.playbarTimeElements || !this.playBarTimeDatas || !this.trackScrollAreaElement) return;
 
-      const pixelPerSecond = this.playBarWidth / this.maxTrackPlayTime;
-      const offsetOfPlayBarTimes = TimeUtil.getOffsetOfPlayBarTimes(this.maxTrackPlayTime);
+      const pixelPerSecond = ZoomController.getCurrentPixelPerSecond();
+      const playTimeInterval = ZoomController.getCurrentPlayTimeInterval();
 
       this.playbarTimeElements.forEach((playbarTimeElement, idx) => {
-        const playBarTimeLeftX = (pixelPerSecond * offsetOfPlayBarTimes) * (idx + 1);
+        const playBarTimeLeftX = (pixelPerSecond * playTimeInterval) * (idx + 1);
         const ratio = playBarTimeLeftX / this.playBarWidth;
 
         playbarTimeElement.style.left = `${100 * ratio}%`;
@@ -148,13 +148,13 @@ import './PlayBar.scss';
     }
 
     initEvent(): void {
-      if(!this.markerElement) return;
+      if (!this.markerElement) return;
 
       EventUtil.registerEventToRoot({
         eventTypes: [EventType.mousemove, EventType.dblclick, EventType.click, EventType.dragover, EventType.drop],
         eventKey: EventKeyType.PLAYBAR_MULTIPLE,
         listeners: [
-          MarkerEventUtil.mousemoveMarkerListener(this, this.playBarLeftX, this.playBarWidth, this.currentScrollAmount, this.maxTrackPlayTime),
+          this.mousemoveMarkerListener,
           this.dblclickPlayBarListener,
           MarkerEventUtil.clickMarkerListener(this.markerElement),
           this.dragoverPlayBarListener,
@@ -166,7 +166,23 @@ import './PlayBar.scss';
       this.addEventListener('dragstart', this.dragStartPlayBarMarkerListener.bind(this));
       window.addEventListener('resize', this.windowResizeListener.bind(this));
     }
-    
+
+    mousemoveMarkerListener(e): void {
+      if (!this.trackScrollAreaElement) return;
+      const cursorPosition = e.pageX;
+      const scrolledCursorPosition = cursorPosition + this.currentScrollAmount;
+      const trackScrollAreaLeft = this.trackScrollAreaElement.getBoundingClientRect().left
+      const timeOfCursorPosition = TimeUtil.calculateTimeOfCursorPosition(trackScrollAreaLeft, scrolledCursorPosition);
+
+      const [minute, second, milsecond] = TimeUtil.splitTime(timeOfCursorPosition);
+      const offesetOfCursorPosition = WidthUtil.getDifferenceWidth(trackScrollAreaLeft, cursorPosition);
+
+      if (minute < 0 && second < 0) return;
+      Controller.changeCurrentPosition(offesetOfCursorPosition);
+      Controller.changeCursorStringTime(minute, second, milsecond);
+      Controller.changeCursorNumberTime(timeOfCursorPosition);
+    };
+
     dragStartPlayBarMarkerListener(e): void {
       this.markerID = e.target.getAttribute('id').split('-')[2];
       const dragImage = document.createElement('div');
@@ -235,19 +251,19 @@ import './PlayBar.scss';
       return false;
     }
 
-    windowResizeListener(e){
-      const zoombarControllerElement = document.querySelector<HTMLDivElement>('.audi-zoombar-cotroller');
-      if(!this.playBarContainerElement || !this.trackScrollAreaElement || !zoombarControllerElement) return;
-      
-      this.playBarLeftX = this.playBarContainerElement.getBoundingClientRect().left;
-      this.playBarWidth = this.playBarContainerElement.getBoundingClientRect().right - this.playBarLeftX;
+    windowResizeListener(e) {
+      // const zoombarControllerElement = document.querySelector<HTMLDivElement>('.audi-zoombar-cotroller');
+      // if (!this.playBarContainerElement || !this.trackScrollAreaElement || !zoombarControllerElement) return;
 
-      const initScrollAmount = 0;
-      
-      this.trackScrollAreaElement.scrollLeft = initScrollAmount;
-      zoombarControllerElement.style.left = `${initScrollAmount}`;
-      this.currentScrollAmount = initScrollAmount;
-      this.initEvent();
+      // this.playBarLeftX = this.playBarContainerElement.getBoundingClientRect().left;
+      // this.playBarWidth = this.playBarContainerElement.getBoundingClientRect().right - this.playBarLeftX;
+
+
+
+      // this.trackScrollAreaElement.scrollLeft = initScrollAmount;
+      // zoombarControllerElement.style.left = `${initScrollAmount}`;
+      // this.currentScrollAmount = initScrollAmount;
+      // this.initEvent();
     }
 
     subscribe(): void {
@@ -264,6 +280,7 @@ import './PlayBar.scss';
 
     maxTrackPlayTimeObserverCallback(maxTrackPlayTime: number): void {
       this.maxTrackPlayTime = maxTrackPlayTime;
+
       this.setPlayBarTimeInfo();
       this.render();
       this.initProperty();
@@ -273,9 +290,9 @@ import './PlayBar.scss';
       this.initEvent();
     }
 
-    resizePlayBarContainer(){     
-      if(!this.playBarContainerElement || !this.trackScrollAreaElement) return;
-      
+    resizePlayBarContainer() {
+      if (!this.playBarContainerElement || !this.trackScrollAreaElement) return;
+
       const scrollAreaWidth = this.trackScrollAreaElement.getBoundingClientRect().right - this.trackScrollAreaElement.getBoundingClientRect().left;
       const ratio = this.maxTrackWidth / scrollAreaWidth;
 
@@ -286,10 +303,9 @@ import './PlayBar.scss';
 
     currentScrollAmountObserverCallback(newCurrentScrollAmount: number): void {
       this.currentScrollAmount = newCurrentScrollAmount;
-      this.initEvent();
     }
   };
 
   customElements.define('audi-playbar', PlayBar);
 })();
-export {};
+export { };
