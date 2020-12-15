@@ -1,7 +1,7 @@
-import { Source, Track, TrackSection, SectionDragStartData } from '@model';
+import { Source, Track, TrackSection, SectionDragStartData, Effect } from '@model';
 import { store } from '@store';
 import { ModalType, FocusInfo, CursorType, SectionDataType } from '@types';
-import { CopyUtil, SectionEffectListUtil, TimeUtil, WidthUtil } from '@util';
+import { CopyUtil, SectionEffectListUtil, TimeUtil, WidthUtil, SectionEffectSettingUtil } from '@util';
 import playbackTool from '@components/PlaybackTools/PlaybackToolClass';
 
 const getTrackSection = (trackId: number, trackSectionId: number): TrackSection | undefined => {
@@ -506,9 +506,31 @@ const insertTrack = (insertIdx: number, trackToInsert: Track): void => {
   store.setTrackList(newTrackList);
 };
 
-const showEffectSetting = (effectIdx:number) => {
-  //sectionEffectList를 hide 시킨 후 idx에 해당하는 effect setting 형태 보여줌.
-  console.log(effectIdx);
+const showEffectSetting = (effectType:string) => {
+  SectionEffectSettingUtil.showEffectSetting(effectType);
+}
+
+const addEffect = (effect:Effect) => {
+  const { focusList, trackList, effectIndex } = store.getState();
+
+  let newEffectIndex = effectIndex;
+
+  focusList.forEach((focus)=>{
+    const focusedTrackSectionId = focus.trackSection.id;
+
+    trackList.forEach((track)=>{
+      track.trackSectionList.forEach((trackSection) => {
+        if(trackSection.id === focusedTrackSectionId) {
+          const newEffect = CopyUtil.copyEffect(effect);
+          newEffect.id = newEffectIndex++;
+          trackSection.effectList.push(newEffect);
+        }
+      })
+    });
+  })
+  
+  store.setTrackSectionEffect();
+  store.setEffectIndex(newEffectIndex);
 }
 
 export default {
@@ -579,5 +601,6 @@ export default {
   pushTrackWidthIndex,
   removeTrackById,
   insertTrack,
-  showEffectSetting
+  showEffectSetting,
+  addEffect
 };

@@ -1,5 +1,5 @@
 import { StoreStateType, CursorType } from '@types';
-import { Track, Source, TrackSection, SectionDragStartData, SelectTrackData } from '@model';
+import { Track, Source, TrackSection, SectionDragStartData, SelectTrackData, Effect } from '@model';
 import { StoreChannelType, ModalType, ModalStateType, FocusInfo } from '@types';
 import { storeChannel } from '@store';
 
@@ -22,6 +22,7 @@ const store = new (class Store {
       cursorMode: CursorType.SELECT_MODE,
       trackIndex: 4,
       sectionIndex: 1,
+      effectIndex:1,
       clipBoard: null,
       audioSourceInfoInTrackList: [],
       currentPosition: 0,
@@ -112,6 +113,15 @@ const store = new (class Store {
 
       this.state = { ...this.state, trackList: newAudioTrackList };
     }
+  }
+
+  setTrackSectionEffect() {
+    storeChannel.publish(StoreChannelType.TRACK_CHANNEL, this.state.trackList);
+    storeChannel.publish(StoreChannelType.EDIT_MENU_CHANNEL, null);
+  }
+
+  setEffectIndex(effectIndex:number){
+    this.state.effectIndex = effectIndex;
   }
 
   setTrackSection(trackId: number, newTrackSection: TrackSection): void {
@@ -291,6 +301,7 @@ const store = new (class Store {
   setTrackIndex(newTrackIndex: number): void {
     this.state =  {...this.state, trackIndex: newTrackIndex};
   }
+
 })();
 
 export { store };

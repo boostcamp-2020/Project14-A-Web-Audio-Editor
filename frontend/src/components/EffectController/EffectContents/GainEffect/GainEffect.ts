@@ -35,8 +35,6 @@ import { EventUtil } from '@util';
       }
     }
 
-
-
     initEvent(): void {
       EventUtil.registerEventToRoot({
         eventTypes: [EventType.input],

@@ -1,6 +1,6 @@
 import "./EffectList.scss";
-import { ButtonType, EventKeyType, EventType, ModalType } from "@types";
-import { EventUtil } from "@util";
+import { ButtonType, EventKeyType, EventType, ModalType, EffectType } from "@types";
+import { EventUtil, SectionEffectSettingUtil } from "@util";
 import { Controller } from "@controllers";
 
 (() => {
@@ -92,39 +92,31 @@ import { Controller } from "@controllers";
     }
 
     gainEffectClickListener() {
-      console.log('gain');
       this.closeBtnClickListener();
-      Controller.showEffectSetting(1);
+      Controller.showEffectSetting(EffectType.gain);
     }
     
     fadeInEffectClickListener() {
-      console.log('fade in');
       this.closeBtnClickListener();
-      Controller.showEffectSetting(2);
     }
 
     fadeOutEffectClickListener() {
-      console.log('fade out');
       this.closeBtnClickListener();
-      Controller.showEffectSetting(3);
     }
 
     compressorEffectClickListener() {
-      console.log('compressor');
       this.closeBtnClickListener();
-      Controller.showEffectSetting(4);
+      Controller.showEffectSetting(EffectType.compressor);
     }
 
     filterEffectClickListener() {
-      console.log('filter');
       this.closeBtnClickListener();
-      Controller.showEffectSetting(5);
+      Controller.showEffectSetting(EffectType.filter);
     }
 
     reverbEffectClickListener() {
-      console.log('reverb');
       this.closeBtnClickListener();
-      Controller.showEffectSetting(6);
+      Controller.showEffectSetting(EffectType.reverb);
     }
   };
   
