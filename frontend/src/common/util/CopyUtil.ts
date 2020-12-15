@@ -1,4 +1,5 @@
-import { Source, Track, TrackSection } from '@model';
+import { Source, Track, TrackSection, Effect, EffectProperties, GainProperties, CompressorProperties, FilterProperties, ReverbProperties } from '@model';
+import { EffectTitleType, EffectType } from '../types/effectTypes';
 
 const copySection = (trackSection: TrackSection): TrackSection => {
   const newTrackSection = new TrackSection({
@@ -30,4 +31,46 @@ const copyTrackList = (trackList: Track[]): Track[] => {
   return newTrackList;
 }
 
-export { copySection, copyTrack, copyTrackList };
+const copyEffect = (effect: Effect): Effect =>{
+  const effectName = effect.name;
+  const effectProperties = effect.properties;
+  let newEffectProperties:EffectProperties|null= null;
+
+  switch(effectName) {
+    case EffectType.gain:
+      const gain = effectProperties.getProperty('gain');
+      newEffectProperties = new GainProperties({gain:gain});
+      break;
+    case EffectType.compressor:
+      const threshold = effectProperties.getProperty('threshold');
+      const knee = effectProperties.getProperty('knee');
+      const ratio = effectProperties.getProperty('ratio');
+      const attack = effectProperties.getProperty('attack');
+      const release= effectProperties.getProperty('release');
+      newEffectProperties = new CompressorProperties({threshold:threshold, knee:knee, ratio:ratio, attack:attack, release:release});
+    break;
+    case EffectType.filter:
+      const type = effectProperties.getType();
+      const frequency = effectProperties.getProperty('frequency');
+      const Q = effectProperties.getProperty('Q');
+      newEffectProperties = new FilterProperties({type:type, frequency:frequency, Q:Q});
+      break;
+    case EffectType.reverb:
+      const mix = effectProperties.getProperty('mix');
+      const time = effectProperties.getProperty('time');
+      const decay = effectProperties.getProperty('decay');
+      newEffectProperties = new ReverbProperties({mix:mix, time:time, decay:decay});
+      break;
+    default:
+      break;
+  }
+  
+  const newEffect = new Effect({
+    name:effectName,
+    properties:newEffectProperties
+  });
+
+  return newEffect;
+}
+
+export { copySection, copyTrack, copyTrackList, copyEffect };

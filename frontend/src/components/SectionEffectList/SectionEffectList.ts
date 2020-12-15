@@ -1,11 +1,12 @@
-import { ModalType, EventType, EventKeyType, EffectList, IconType } from '@types';
+import { ModalType, EventType, EventKeyType, IconType } from '@types';
 import { Controller } from '@controllers';
 import { EventUtil } from '@util';
+import { Effect } from '@model';
 import './SectionEffectList.scss';
 
 (() => {
   const SectionEffectList = class extends HTMLElement {
-    private effectList: EffectList[];
+    private effectList: Effect[];
 
     constructor() {
       super();
@@ -36,7 +37,7 @@ import './SectionEffectList.scss';
                     </div>
                     <ul class="effect-list-wrap">
                         ${this.getEffectList()}
-                    </ul>
+                    </ul>  
                 </div>
             `;
     }
@@ -45,6 +46,9 @@ import './SectionEffectList.scss';
       const focusList = Controller.getFocusList();
 
       if (!focusList.length) return '';
+      if (focusList.length > 1) {
+        return `${focusList.length}개 Section 선택`;
+      }
 
       return focusList[0].trackSection.effectList.reduce(
         (acc, effect) =>
@@ -64,10 +68,10 @@ import './SectionEffectList.scss';
       Controller.changeModalState(ModalType.effect, false);
     }
 
-    updateEffectList(newEffect: EffectList): void {
-      this.effectList = [...this.effectList, newEffect];
-      this.render();
-    }
+    // updateEffectList(newEffect: Effect): void {
+    //   this.effectList = [...this.effectList, newEffect];
+    //   this.render();
+    // }
 
     hide(): void {
       this.classList.add('hide');
@@ -75,6 +79,7 @@ import './SectionEffectList.scss';
 
     show(): void {
       this.classList.remove('hide');
+      this.render();
     }
   };
 

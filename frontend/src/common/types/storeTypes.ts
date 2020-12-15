@@ -49,6 +49,7 @@ interface StoreStateType {
   cursorMode: CursorType;
   trackIndex: number;
   sectionIndex: number;
+  effectIndex: number;
   clipBoard: TrackSection | null;
   markerNumberTime: number;
   cursorNumberTime: number;
