@@ -399,7 +399,7 @@ class PlaybackToolClass {
       }
     }
     const maxTrackPlayTime = Controller.getMaxTrackPlayTime();
-    const widthPixel: number = WidthUtil.getPerPixel((this.audioContext.currentTime - this.prevCurrentTime) * 1000, maxTrackPlayTime);
+    const widthPixel: number = WidthUtil.getPlayingPixel((this.audioContext.currentTime - this.prevCurrentTime) * 1000, maxTrackPlayTime);
 
     const array = new Float32Array(1024);
     this.analyser.getFloatTimeDomainData(array);
@@ -448,7 +448,7 @@ class PlaybackToolClass {
       }
     }
     const maxTrackPlayTime = Controller.getMaxTrackPlayTime();
-    const widthPixel: number = WidthUtil.getPerPixel((this.audioContext.currentTime - this.prevCurrentTime) * 1000, maxTrackPlayTime);
+    const widthPixel: number = WidthUtil.getPlayingPixel((this.audioContext.currentTime - this.prevCurrentTime) * 1000, maxTrackPlayTime);
 
     const array = new Float32Array(1024);
     this.analyser.getFloatTimeDomainData(array);
@@ -604,7 +604,7 @@ class PlaybackToolClass {
 
     this.prevCurrentTime = 0;
     const maxTrackPlayTime = Controller.getMaxTrackPlayTime();
-    const widthPixel = WidthUtil.getPerPixel(QUANTUM * 1000, maxTrackPlayTime);
+    const widthPixel = WidthUtil.getPlayingPixel(QUANTUM * 1000, maxTrackPlayTime);
     Controller.setMarkerWidth(-widthPixel);
     Controller.pauseChangeMarkerNumberTime(-QUANTUM);
     Controller.changePlayStringTimeFastPlaying(-QUANTUM);
@@ -677,7 +677,7 @@ class PlaybackToolClass {
     this.sourceInfo = [];
     this.prevCurrentTime = 0;
     const maxTrackPlayTime = Controller.getMaxTrackPlayTime();
-    const widthPixel = WidthUtil.getPerPixel(QUANTUM * 1000, maxTrackPlayTime);
+    const widthPixel = WidthUtil.getPlayingPixel(QUANTUM * 1000, maxTrackPlayTime);
 
     Controller.setMarkerWidth(widthPixel);
     Controller.pauseChangeMarkerNumberTime(QUANTUM);
