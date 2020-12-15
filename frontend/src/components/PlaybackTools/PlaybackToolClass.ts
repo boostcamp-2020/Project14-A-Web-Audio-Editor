@@ -94,11 +94,19 @@ class PlaybackToolClass {
   }
 
   audioPlayOrPause(): number {
-    if (this.trackList.length == 0) return 0;
+    if (this.trackList.length === 0) return 0;
     const isPause = Controller.getIsPauseState();
+    const isRepeat = Controller.getIsRepeatState();
 
     if (isPause) {
       Controller.changeIsPauseState(false);
+      if (isRepeat) {
+        this.repeat();
+        this.play();
+        this.moveMarkerInRepeatState();
+
+        return 1;
+      }
       this.play();
       this.moveMarkerInPlayState();
 
@@ -114,21 +122,25 @@ class PlaybackToolClass {
   }
 
   audioStop(): void {
-    if (this.trackList.length == 0) return;
+    if (this.trackList.length === 0) return;
 
     Controller.changeIsPauseState(true);
     Controller.changeIsRepeatState(false);
+    this.prevCurrentTime = 0;
     this.stop(false);
   }
 
   audioRepeat(): void {
-    if (this.trackList.length == 0) return;
+    if (this.trackList.length === 0) return;
 
     const isRepeat = Controller.getIsRepeatState();
 
     if (!isRepeat) {
       Controller.changeIsRepeatState(true);
 
+      if (Controller.getIsPauseState()) {
+        return;
+      }
       this.audioContext.close();
       this.audioContext = new AudioContext();
       this.audioContext.suspend();
@@ -138,7 +150,13 @@ class PlaybackToolClass {
 
       return;
     }
+
     Controller.changeIsRepeatState(false);
+    this.audioContext.close();
+    this.audioContext = new AudioContext();
+    this.audioContext.suspend();
+    this.play();
+    this.moveMarkerInPlayState();
   }
 
   audioFastRewind(): void {
@@ -343,27 +361,39 @@ class PlaybackToolClass {
   }
 
   stopAtMaxPlayTime() {
-    // Controller.audioPlayOrPause();
     Controller.audioStop();
+  }
+
+  checkMarkerIsBeforeRepeatStartTime() {
+    const markerTime = Controller.getMarkerTime();
+
+    if (!this.prevCurrentTime) return false;
+
+    if (markerTime < this.loopStartTime) {
+      return true;
+    }
+    return false;
   }
 
   moveMarkerInRepeatState() {
     const volumeBar = document.getElementById('audio-meter-fill');
     const isRepeat = Controller.getIsRepeatState();
 
-    if (this.checkMarkerIsAtRepeatEndTime()) {
-      this.play();
+    if (this.checkMarkerIsAtRepeatEndTime() || this.checkMarkerIsBeforeRepeatStartTime()) {
       this.repeat();
+      this.play();
+      this.prevCurrentTime = this.audioContext.currentTime;
     }
+
     if (Controller.getIsPauseState()) {
       if (volumeBar) {
         setTimeout(() => {
           volumeBar.style.width = '0';
-        }, 100);
+        }, TIMER_TIME);
       }
     }
     const maxTrackPlayTime = Controller.getMaxTrackPlayTime();
-    const widthPixel: number = WidthUtil.getPerPixel(TIMER_TIME, maxTrackPlayTime);
+    const widthPixel: number = WidthUtil.getPerPixel((this.audioContext.currentTime - this.prevCurrentTime) * 1000, maxTrackPlayTime);
 
     const array = new Float32Array(1024);
     this.analyser.getFloatTimeDomainData(array);
@@ -387,7 +417,7 @@ class PlaybackToolClass {
 
     Controller.setMarkerWidth(widthPixel);
     Controller.changePlayStringTime(this.audioContext.currentTime - this.prevCurrentTime);
-    Controller.pauseChangeMarkerNumberTime(TIMER_TIME / 1000);
+    Controller.pauseChangeMarkerNumberTime(this.audioContext.currentTime - this.prevCurrentTime);
 
     this.prevCurrentTime = this.audioContext.currentTime;
 
@@ -412,7 +442,7 @@ class PlaybackToolClass {
       }
     }
     const maxTrackPlayTime = Controller.getMaxTrackPlayTime();
-    const widthPixel: number = WidthUtil.getPerPixel(TIMER_TIME, maxTrackPlayTime);
+    const widthPixel: number = WidthUtil.getPerPixel((this.audioContext.currentTime - this.prevCurrentTime) * 1000, maxTrackPlayTime);
 
     const array = new Float32Array(1024);
     this.analyser.getFloatTimeDomainData(array);
@@ -435,7 +465,7 @@ class PlaybackToolClass {
     }
     Controller.setMarkerWidth(widthPixel);
     Controller.changePlayStringTime(this.audioContext.currentTime - this.prevCurrentTime);
-    Controller.pauseChangeMarkerNumberTime(TIMER_TIME / 1000);
+    Controller.pauseChangeMarkerNumberTime(this.audioContext.currentTime - this.prevCurrentTime);
 
     this.prevCurrentTime = this.audioContext.currentTime;
 
@@ -475,7 +505,7 @@ class PlaybackToolClass {
               return;
             } else if (trackSection.trackStartTime <= this.loopStartTime && trackSection.trackStartTime + trackSection.length >= this.loopEndTime) {
               waitTime = 0;
-              audioStartTime = trackSection.channelStartTime;
+              audioStartTime = trackSection.channelStartTime + (this.loopStartTime - trackSection.trackStartTime);
               playDuration = this.loopEndTime - this.loopStartTime;
 
               this.sourceInfo[sourceIdx].bufferSourceNode.start(waitTime, audioStartTime, playDuration);
@@ -520,6 +550,8 @@ class PlaybackToolClass {
     });
     this.audioContext.resume();
     this.createAndConnectAnalyser();
+
+    this.prevCurrentTime = 0;
   }
 
   pause(): void {
@@ -535,7 +567,7 @@ class PlaybackToolClass {
       setTimeout(() => {
         Controller.changeMarkerPlayStringTime(0);
         Controller.changeMarkerNumberTime(0);
-        Controller.setMarkerWidth(0);
+        Controller.initMarkerWidth(0);
 
         if (restart) {
           this.play();
@@ -553,7 +585,7 @@ class PlaybackToolClass {
     const maxTrackPlayTime = Controller.getMaxTrackPlayTime();
     const widthPixel = WidthUtil.getPixelPerSecond(this.calculateTrackWidth(), maxTrackPlayTime);
 
-    Controller.setMarkerWidth([widthPixel * this.loopStartTime, 1]);
+    Controller.initMarkerWidth(widthPixel * this.loopStartTime);
     Controller.changeMarkerPlayStringTime(this.loopStartTime);
     Controller.changeMarkerNumberTime(this.loopStartTime);
   }
@@ -564,7 +596,6 @@ class PlaybackToolClass {
     this.stopAudioSources();
     this.sourceInfo = [];
 
-    this.createAndConnectAnalyser();
     this.prevCurrentTime = 0;
     const maxTrackPlayTime = Controller.getMaxTrackPlayTime();
     const widthPixel = WidthUtil.getPerPixel(QUANTUM * 1000, maxTrackPlayTime);
@@ -636,15 +667,12 @@ class PlaybackToolClass {
 
   fastForward(): void {
     let markerTime = Controller.getMarkerTime();
-
     this.stopAudioSources();
     this.sourceInfo = [];
-
-    this.createAndConnectAnalyser();
-
     this.prevCurrentTime = 0;
     const maxTrackPlayTime = Controller.getMaxTrackPlayTime();
     const widthPixel = WidthUtil.getPerPixel(QUANTUM * 1000, maxTrackPlayTime);
+
     Controller.setMarkerWidth(widthPixel);
     Controller.pauseChangeMarkerNumberTime(QUANTUM);
     Controller.changePlayStringTimeFastPlaying(QUANTUM);
