@@ -1,6 +1,8 @@
 import './TimeInfo.scss';
 import { StoreChannelType } from '@types';
 import { storeChannel } from '@store';
+import { Track, TrackSection } from '@model';
+import { TimeUtil } from '@util';
 
 (() => {
   const TimeInfo = class extends HTMLElement {
@@ -44,6 +46,7 @@ import { storeChannel } from '@store';
     subscribe() {
       storeChannel.subscribe(StoreChannelType.CURSOR_TIME_CHANNEL, this.updateCursorTime, this);
       storeChannel.subscribe(StoreChannelType.PLAY_TIME_CHANNEL, this.updatePlayTime, this);
+      storeChannel.subscribe(StoreChannelType.TOTAL_TIME_CHANNEL, this.updateTotalTime, this);
     }
 
     updateCursorTime(cursorTime) {
@@ -53,6 +56,22 @@ import { storeChannel } from '@store';
 
     updatePlayTime(playTime) {
       this.playTime = playTime;
+      this.render();
+    }
+
+    updateTotalTime(newTrackList: Track[]) {
+      const trackSectionList = newTrackList.filter((track) => track.trackSectionList.length > 0).map((section) => section.trackSectionList);
+      const eachLastTrackList = trackSectionList
+        .reduce((acc, sectionList): TrackSection[] => {
+          acc.push(sectionList[sectionList.length - 1]);
+          return acc;
+        }, [])
+        .map((section) => section.trackStartTime + section.length);
+
+      const maxTrackTime = Math.max(...eachLastTrackList);
+
+      const [minute, second, milsecond] = TimeUtil.splitTime(maxTrackTime);
+      this.totalTime = TimeUtil.getStringTime(minute, second, milsecond);
       this.render();
     }
   };

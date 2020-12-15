@@ -21,7 +21,7 @@ const store = new (class Store {
       cursorMode: CursorType.SELECT_MODE,
       trackIndex: 4,
       sectionIndex: 1,
-      effectIndex:1,
+      effectIndex: 1,
       clipBoard: null,
       audioSourceInfoInTrackList: [],
       currentPosition: 0,
@@ -128,7 +128,7 @@ const store = new (class Store {
     storeChannel.publish(StoreChannelType.EDIT_MENU_CHANNEL, null);
   }
 
-  setEffectIndex(effectIndex:number){
+  setEffectIndex(effectIndex: number) {
     this.state.effectIndex = effectIndex;
   }
 
@@ -158,6 +158,7 @@ const store = new (class Store {
     });
     storeChannel.publish(StoreChannelType.TRACK_CHANNEL, newTrackList);
     storeChannel.publish(StoreChannelType.EDIT_MENU_CHANNEL, null);
+    storeChannel.publish(StoreChannelType.TOTAL_TIME_CHANNEL, newTrackList);
   }
 
   setCurrentPosition(newCurrentPosition: number): void {
@@ -316,13 +317,13 @@ const store = new (class Store {
   setZoomPixelPerSecond(newPixelPerSecond: number): void {
     const { zoomInfo } = this.getState();
     this.state = { ...this.state, zoomInfo: { ...zoomInfo, pixelPerSecond: newPixelPerSecond } };
-  };
+  }
 
   setZoomRate(newZoomRate: number): void {
     const { zoomInfo } = this.state;
     this.state = { ...this.state, zoomInfo: { ...zoomInfo, rate: newZoomRate } };
     storeChannel.publish(StoreChannelType.ZOOM_RATE_CHANNEL, newZoomRate);
-  };
+  }
 
   setLoopStartTime = (newLoopStartTime: number): void => {
     this.state = { ...this.state, loopStartTime: newLoopStartTime };
