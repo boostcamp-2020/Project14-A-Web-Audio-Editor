@@ -31,7 +31,8 @@ enum StoreChannelType {
   CURRENT_SCROLL_AMOUNT_CHANNEL = 'CURRENT_SCROLL_AMOUNT_CHANNEL',
   TRACK_LIST_CHANNEL = 'TRACK_LIST_CHANNEL',
   SELECT_AUDIO_TRACK = 'SELECT_AUDIO_TRACK',
-  FOCUS_LIST_CHANNEL = 'FOCUS_LIST_CHANNEL'
+  FOCUS_LIST_CHANNEL = 'FOCUS_LIST_CHANNEL',
+  RESET_MARKER_POSITION_CHANNEL = 'RESET_MARKER_POSITION_CHANNEL'
 }
 
 interface StoreStateType {
@@ -59,6 +60,8 @@ interface StoreStateType {
   currentScrollAmount: number;
   sectionDragStartData: SectionDragStartData | null;
   selectTrackData: SelectTrackData;
+  loopStartTime: number;
+  loopEndTime: number;
 }
 
 interface StoreObserverData {

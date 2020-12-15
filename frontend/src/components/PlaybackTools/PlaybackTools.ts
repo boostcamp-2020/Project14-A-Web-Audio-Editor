@@ -8,7 +8,7 @@ import { Controller } from '@controllers';
   const PlaybackTools = class extends HTMLElement {
     public iconlist: string[];
     public eventKeyList: string[];
-    
+
     constructor() {
       super();
       this.iconlist = ['play', 'stop', 'repeat', 'fastRewind', 'fastForward', 'skipPrev', 'skipNext'];
@@ -31,11 +31,17 @@ import { Controller } from '@controllers';
 
     render() {
       this.innerHTML = `
-                <div class="playback-tools">
-                ${this.iconlist.reduce((acc, icon, idx) =>{
-                    const checkRepeat = Controller.getIsRepeatState() && (icon==='repeat');
-                    return acc + `<audi-icon-button id="${icon}" class="${checkRepeat?'clicked':''} delegation" color="white" icontype="${icon}" size="32px" event-key="${this.eventKeyList[idx]}"></audi-icon-button>`},'')}
-                </div>
+      <div class="playback-tools">
+      ${this.iconlist.reduce((acc, icon, idx) => {
+        const checkRepeat = Controller.getIsRepeatState() && icon === 'repeat';
+        return (
+          acc +
+          `<audi-icon-button id="${icon}" class="${
+            checkRepeat ? 'clicked' : ''
+          } delegation" color="white" icontype="${icon}" size="32px" event-key="${this.eventKeyList[idx]}"></audi-icon-button>`
+        );
+      }, '')}
+      </div>
             `;
     }
 
@@ -91,6 +97,7 @@ import { Controller } from '@controllers';
     }
 
     audioPlayOrPauseListener() {
+      this.changePlaybarMarkerClass();
       Controller.audioPlayOrPause();
     }
 
@@ -98,13 +105,15 @@ import { Controller } from '@controllers';
       Controller.audioStop();
       this.iconlist[0] = 'play';
 
+      this.changePlaybarMarkerClass();
       this.render();
     }
 
     audioRepeatListener() {
       Controller.audioRepeat();
 
-      this.render()
+      this.changePlaybarMarkerClass();
+      this.render();
     }
 
     audioFastRewindListener() {
@@ -128,19 +137,48 @@ import { Controller } from '@controllers';
     }
 
     changePlayOrPauseIcon(iconType: number) {
-      if(iconType === 0) {
+      if (iconType === 0) {
         return;
-      }
-      else if(iconType === 1) {
+      } else if (iconType === 1) {
         this.iconlist[0] = 'pause';
-      }
-      else if(iconType === 2) {
+      } else if (iconType === 2) {
         this.iconlist[0] = 'play';
       }
       this.render();
+    }
+
+    changePlaybarMarkerClass(): void {
+      const isRepeat = Controller.getIsRepeatState();
+
+      const playbarMarkerLeftElement = document.getElementById('playbar-marker-left');
+      const playbarMarkerRightElement = document.getElementById('playbar-marker-right');
+      const playbarMarkerBlurElement = document.getElementById('playbar-marker-blur-zone');
+      const playbarEventZoneElement = document.querySelector('.playbar-event-zone');
+      const scrollAreaElement = document.querySelector('.audi-main-audio-track-scroll-area');
+
+      if (!playbarEventZoneElement || !scrollAreaElement) return;
+      const playbarEventZoneRightX = playbarEventZoneElement.getBoundingClientRect().right;
+      const scrollAreaRightX = scrollAreaElement.getBoundingClientRect().right;
+
+      if (!playbarMarkerLeftElement || !playbarMarkerRightElement || !playbarMarkerBlurElement) return;
+
+      if (isRepeat) {
+        playbarMarkerLeftElement.classList.remove('hide');
+        playbarMarkerRightElement.classList.remove('hide');
+        playbarMarkerBlurElement.classList.remove('hide');
+      } else {
+        playbarMarkerLeftElement.classList.add('hide');
+        playbarMarkerRightElement.classList.add('hide');
+        playbarMarkerBlurElement.classList.add('hide');
+      }
+
+      //TODO: merge후 재구현할 것
+      if (playbarEventZoneRightX > scrollAreaRightX) {
+        playbarMarkerRightElement.style.left = `${scrollAreaRightX}px`;
+      }
     }
   };
   customElements.define('audi-playback-tools', PlaybackTools);
 })();
 
-export { };
+export {};
