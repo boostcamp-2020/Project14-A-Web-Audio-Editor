@@ -17,8 +17,7 @@ import './PlayBar.scss';
     private playBarContainerElement: HTMLElement | null;
     private playbarMarkerElementLeft: HTMLElement | null;
     private playbarMarkerElementRight: HTMLElement | null;
-    private playbarMarkerBlurZoneElementLeft: HTMLElement | null;
-    private playbarMarkerBlurZoneElementRight: HTMLElement | null;
+    private playbarMarkerBlurZoneElement: HTMLElement | null;
     private playbarTimeElements: NodeListOf<HTMLDivElement> | null;
     private markerElement: HTMLElement | null;
     private trackScrollAreaElement: HTMLDivElement | null;
@@ -36,8 +35,7 @@ import './PlayBar.scss';
       this.playBarContainerElement = null;
       this.playbarMarkerElementLeft = null;
       this.playbarMarkerElementRight = null;
-      this.playbarMarkerBlurZoneElementLeft = null;
-      this.playbarMarkerBlurZoneElementRight = null;
+      this.playbarMarkerBlurZoneElement = null;
       this.playbarTimeElements = null;
       this.markerElement = null;
       this.trackScrollAreaElement = null;
@@ -76,11 +74,10 @@ import './PlayBar.scss';
       this.innerHTML = `
                 <div class='playbar'>
                   <div class='playbar-event-zone' droppable='true' event-key=${EventKeyType.PLAYBAR_MULTIPLE}>
-                    <audi-playbar-marker type='right'></audi-playbar-marker>
                     <audi-playbar-marker type='left'></audi-playbar-marker>
+                    <audi-playbar-marker type='right'></audi-playbar-marker>
                   </div> 
-                  <audi-playbar-marker-blur-zone type='right'></audi-playbar-marker-blur-zone>
-                  <audi-playbar-marker-blur-zone type='left'></audi-playbar-marker-blur-zone>
+                  <audi-playbar-marker-blur-zone></audi-playbar-marker-blur-zone>
                   <div style="display:flex; width: 100%; position: relative">
                     ${this.getPlayBarTimes()}
                   </div>
@@ -107,8 +104,7 @@ import './PlayBar.scss';
       this.playBarContainerElement = this.querySelector('.playbar');
       this.playbarMarkerElementLeft = document.getElementById('playbar-marker-left');
       this.playbarMarkerElementRight = document.getElementById('playbar-marker-right');
-      this.playbarMarkerBlurZoneElementLeft = document.getElementById('playbar-marker-blur-zone-left');
-      this.playbarMarkerBlurZoneElementRight = document.getElementById('playbar-marker-blur-zone-right');
+      this.playbarMarkerBlurZoneElement = document.getElementById('playbar-marker-blur-zone');
       this.playbarTimeElements = this.querySelectorAll('.playbar-time-container');
       this.markerElement = document.querySelector('.marker');
       this.trackScrollAreaElement = document.querySelector('.audi-main-audio-track-scroll-area');
@@ -134,16 +130,9 @@ import './PlayBar.scss';
     }
 
     initPlayBarMarkerLocation(): void {
-      if (
-        this.playbarMarkerElementLeft &&
-        this.playbarMarkerElementRight &&
-        this.playbarMarkerBlurZoneElementLeft &&
-        this.playbarMarkerBlurZoneElementRight
-      ) {
-        this.playbarMarkerElementLeft.style.left = '99.3%';
-        this.playbarMarkerElementRight.style.left = '0px';
-        this.playbarMarkerBlurZoneElementLeft.style.left = '100%';
-        this.playbarMarkerBlurZoneElementRight.style.left = '0px';
+      if (this.playbarMarkerElementLeft && this.playbarMarkerElementRight) {
+        this.playbarMarkerElementLeft.style.left = '0px';
+        this.playbarMarkerElementRight.style.left = '99.3%';
       }
     }
 
@@ -192,57 +181,65 @@ import './PlayBar.scss';
 
     dragoverPlayBarListener(e): void {
       e.preventDefault();
-      const movingWidth: number = e.pageX - this.playBarLeftX;
+      if (!this.playbarMarkerBlurZoneElement || !this.playbarMarkerElementRight || !this.playbarMarkerElementLeft) return;
 
-      if (this.markerID === 'left' && this.playbarMarkerElementLeft) {
-        this.playbarMarkerElementLeft.style.left = `${movingWidth}px`;
+      const movingWidth: number = e.pageX - this.playBarLeftX + this.currentScrollAmount;
+      const currentX = e.pageX + this.currentScrollAmount;
 
-        if (this.playbarMarkerBlurZoneElementLeft) {
-          const blurZone = this.playBarWidth - movingWidth;
-          this.playbarMarkerBlurZoneElementLeft.style.width = `${blurZone}px`;
-          this.playbarMarkerBlurZoneElementLeft.style.left = `${movingWidth}px`;
-        }
-        return;
-      }
+      const maxTrackPlayTime = Controller.getMaxTrackPlayTime();
+      const maxTrackWidth = Controller.getMaxTrackWidth();
+      const playbarMarkerTime = TimeUtil.getNumberTime(this.playBarLeftX, currentX, maxTrackWidth, maxTrackPlayTime);
 
-      if (this.playbarMarkerElementRight) {
+      if (this.markerID === 'right') {
         this.playbarMarkerElementRight.style.left = `${movingWidth}px`;
 
-        if (this.playbarMarkerBlurZoneElementRight) {
-          this.playbarMarkerBlurZoneElementRight.style.width = `${movingWidth}px`;
-        }
+        Controller.changeLoopEndTime(playbarMarkerTime);
+      } else {
+        this.playbarMarkerElementLeft.style.left = `${movingWidth}px`;
+
+        Controller.changeLoopStartTime(playbarMarkerTime);
       }
+
+      this.playbarMarkerBlurZoneElement.style.left = this.playbarMarkerElementLeft.style.left;
+      this.playbarMarkerBlurZoneElement.style.width = `${
+        Number(this.playbarMarkerElementRight.style.left.split('px')[0]) - Number(this.playbarMarkerElementLeft.style.left.split('px')[0])
+      }px`;
     }
 
     dropPlayBarListener(e): void {
       e.preventDefault();
     }
 
-    dblclickPlayBarListener(): void {
-      if (
-        !this.playbarMarkerElementLeft ||
-        !this.playbarMarkerElementRight ||
-        !this.playbarMarkerBlurZoneElementLeft ||
-        !this.playbarMarkerBlurZoneElementRight
-      )
-        return;
+    dblclickPlayBarListener(e): void {
+      if (!this.playbarMarkerElementLeft || !this.playbarMarkerElementRight || !this.playbarMarkerBlurZoneElement) return;
 
       const [currentPosition] = Controller.getCurrentPosition();
-      if (this.compareCloseMarker(currentPosition)) {
-        const blurZone = this.playBarWidth - currentPosition;
-        this.playbarMarkerElementLeft.style.left = `${currentPosition}px`;
-        this.playbarMarkerBlurZoneElementLeft.style.width = `${blurZone}px`;
-        this.playbarMarkerBlurZoneElementLeft.style.left = `${currentPosition}px`;
-        return;
+      const currentX = e.pageX + this.currentScrollAmount;
+
+      const maxTrackPlayTime = Controller.getMaxTrackPlayTime();
+      const maxTrackWidth = Controller.getMaxTrackWidth();
+
+      const playbarMarkerTime = TimeUtil.getNumberTime(this.playBarLeftX, currentX, maxTrackWidth, maxTrackPlayTime);
+
+      if (this.compareCloseMarker(currentPosition + this.currentScrollAmount)) {
+        this.playbarMarkerElementLeft.style.left = `${currentPosition + this.currentScrollAmount}px`;
+
+        Controller.changeLoopStartTime(playbarMarkerTime);
+      } else {
+        this.playbarMarkerElementRight.style.left = `${currentPosition + this.currentScrollAmount}px`;
+
+        Controller.changeLoopEndTime(playbarMarkerTime);
       }
 
-      this.playbarMarkerElementRight.style.left = `${currentPosition}px`;
-      this.playbarMarkerBlurZoneElementRight.style.width = `${currentPosition}px`;
+      this.playbarMarkerBlurZoneElement.style.left = this.playbarMarkerElementLeft.style.left;
+      this.playbarMarkerBlurZoneElement.style.width = `${
+        Number(this.playbarMarkerElementRight.style.left.split('px').join('')) - Number(this.playbarMarkerElementLeft.style.left.split('px').join(''))
+      }px`;
     }
 
     compareCloseMarker(currentPosition: number): boolean {
       const markerLeft = Number(this.playbarMarkerElementLeft?.style.left.split(/px|%/).join(''));
-      const markerRight = Number(this.playbarMarkerElementRight?.style.left.split('px').join(''));
+      const markerRight = Number(this.playbarMarkerElementRight?.style.left.split(/px|%/).join(''));
 
       const offsetLeft = Math.abs(currentPosition - markerLeft);
       const offsetRight = Math.abs(currentPosition - markerRight);

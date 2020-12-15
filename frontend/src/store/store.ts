@@ -1,6 +1,5 @@
-import { StoreStateType, CursorType, ZoomInfoType } from '@types';
-import { Track, Source, TrackSection, SectionDragStartData, SelectTrackData } from '@model';
-import { StoreChannelType, ModalType, ModalStateType, FocusInfo } from '@types';
+import { StoreStateType, CursorType, ZoomInfoType, StoreChannelType, ModalType, ModalStateType, FocusInfo } from '@types';
+import { Track, Source, TrackSection, SectionDragStartData, SelectTrackData, Effect } from '@model';
 import { storeChannel } from '@store';
 
 const store = new (class Store {
@@ -22,6 +21,7 @@ const store = new (class Store {
       cursorMode: CursorType.SELECT_MODE,
       trackIndex: 4,
       sectionIndex: 1,
+      effectIndex:1,
       clipBoard: null,
       audioSourceInfoInTrackList: [],
       currentPosition: 0,
@@ -40,7 +40,9 @@ const store = new (class Store {
         defaultTrackTime: 300,
         pixelPerSecond: 0,
         playTimeInterval: 20
-      }
+      },
+      loopStartTime: 0,
+      loopEndTime: 300
     };
   }
 
@@ -121,6 +123,15 @@ const store = new (class Store {
     }
   }
 
+  setTrackSectionEffect() {
+    storeChannel.publish(StoreChannelType.TRACK_CHANNEL, this.state.trackList);
+    storeChannel.publish(StoreChannelType.EDIT_MENU_CHANNEL, null);
+  }
+
+  setEffectIndex(effectIndex:number){
+    this.state.effectIndex = effectIndex;
+  }
+
   setTrackSection(trackId: number, newTrackSection: TrackSection): void {
     const { trackList } = this.state;
     const track = trackList.find((track) => track.id === trackId);
@@ -196,8 +207,7 @@ const store = new (class Store {
 
     if (markerNumberTime === newMarkerNumberTime) {
       return;
-    };
-
+    }
     this.state = { ...this.state, markerNumberTime: newMarkerNumberTime };
   }
 
@@ -211,6 +221,10 @@ const store = new (class Store {
 
   setMarkerWidth(newMarkerWidth: number | number[]): void {
     storeChannel.publish(StoreChannelType.CURRENT_POSITION_CHANNEL, newMarkerWidth);
+  }
+
+  initMarkerWidth(newMarkerWidth: number): void {
+    storeChannel.publish(StoreChannelType.RESET_MARKER_POSITION_CHANNEL, newMarkerWidth);
   }
 
   setPlayStringTime(newPlayStringTime): void {
@@ -310,6 +324,13 @@ const store = new (class Store {
     storeChannel.publish(StoreChannelType.ZOOM_RATE_CHANNEL, newZoomRate);
   };
 
+  setLoopStartTime = (newLoopStartTime: number): void => {
+    this.state = { ...this.state, loopStartTime: newLoopStartTime };
+  };
+
+  setLoopEndTime = (newLoopEndTime: number): void => {
+    this.state = { ...this.state, loopEndTime: newLoopEndTime };
+  };
 })();
 
 export { store };

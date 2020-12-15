@@ -1,11 +1,11 @@
 import { WidthUtil, AudioUtil } from '@util';
-import { EffectTitleType, StoreChannelType } from '@types';
+import { EffectTitleType, StoreChannelType, EffectType } from '@types';
 import { Source, Track, TrackSection, AudioSourceInfoInTrack, Effect } from '@model';
 import { storeChannel } from '@store';
 import { Controller, ZoomController } from '@controllers';
-import { CompressorProperties, FilterProperties, GainProperties, ReverbProperties } from '../../model/EffectProperties';
+import { GainProperties, CompressorProperties, FilterProperties, ReverbProperties} from '@model';
 
-const TIMER_TIME = 34;
+const TIMER_TIME = 100;
 const QUANTUM = 3;
 const INF = 987654321;
 
@@ -20,6 +20,7 @@ class PlaybackToolClass {
   private maxPlayTime: number;
   private loopStartTime: number;
   private loopEndTime: number;
+  private prevCurrentTime: number;
 
   constructor() {
     this.audioContext = new AudioContext();
@@ -33,6 +34,7 @@ class PlaybackToolClass {
 
     this.loopStartTime = 0;
     this.loopEndTime = 0;
+    this.prevCurrentTime = 0;
     this.subscribe();
   }
 
@@ -60,7 +62,7 @@ class PlaybackToolClass {
 
   unsetMute(trackId: number): void {
     const idx = this.mutedTrackList.indexOf(trackId);
-    if (idx > -1) this.mutedTrackList.splice(idx, 1)
+    if (idx > -1) this.mutedTrackList.splice(idx, 1);
 
     const isPause = Controller.getIsPauseState();
     if (!isPause) {
@@ -79,7 +81,7 @@ class PlaybackToolClass {
 
   unsetSolo(trackId: number): void {
     const idx = this.soloTrackList.indexOf(trackId);
-    if (idx > -1) this.soloTrackList.splice(idx, 1)
+    if (idx > -1) this.soloTrackList.splice(idx, 1);
 
     const isPause = Controller.getIsPauseState();
     if (!isPause) {
@@ -92,18 +94,27 @@ class PlaybackToolClass {
   }
 
   audioPlayOrPause(): number {
-    if (this.trackList.length == 0) return 0;
+    if (this.trackList.length === 0) return 0;
     const isPause = Controller.getIsPauseState();
+    const isRepeat = Controller.getIsRepeatState();
 
     if (isPause) {
       Controller.changeIsPauseState(false);
+      if (isRepeat) {
+        this.repeat();
+        this.play();
+        this.moveMarkerInRepeatState();
+
+        return 1;
+      }
       this.play();
-      this.playTimer()
+      this.moveMarkerInPlayState();
 
       return 1;
-    }
-    else {
+    } else {
       Controller.changeIsPauseState(true);
+      Controller.changeIsRepeatState(false);
+
       this.pause();
 
       return 2;
@@ -111,23 +122,41 @@ class PlaybackToolClass {
   }
 
   audioStop(): void {
-    if (this.trackList.length == 0) return;
+    if (this.trackList.length === 0) return;
 
     Controller.changeIsPauseState(true);
+    Controller.changeIsRepeatState(false);
+    this.prevCurrentTime = 0;
     this.stop(false);
   }
 
   audioRepeat(): void {
-    if (this.trackList.length == 0) return;
+    if (this.trackList.length === 0) return;
 
     const isRepeat = Controller.getIsRepeatState();
 
-    if (isRepeat === false) {
+    if (!isRepeat) {
       Controller.changeIsRepeatState(true);
+
+      if (Controller.getIsPauseState()) {
+        return;
+      }
+      this.audioContext.close();
+      this.audioContext = new AudioContext();
+      this.audioContext.suspend();
+      this.repeat();
+      this.play();
+      this.moveMarkerInRepeatState();
+
+      return;
     }
-    else {
-      Controller.changeIsRepeatState(false);
-    }
+
+    Controller.changeIsRepeatState(false);
+    this.audioContext.close();
+    this.audioContext = new AudioContext();
+    this.audioContext.suspend();
+    this.play();
+    this.moveMarkerInPlayState();
   }
 
   audioFastRewind(): void {
@@ -160,7 +189,7 @@ class PlaybackToolClass {
       try {
         source.bufferSourceNode.stop();
         source.bufferSourceNode.buffer = null;
-      } catch (e) { }
+      } catch (e) {}
     });
 
     this.audioContext.close();
@@ -192,71 +221,70 @@ class PlaybackToolClass {
 
     const myTrack = this.trackList.find((track: Track) => {
       return track.id === trackId;
-    })
+    });
 
     const mySection = myTrack?.trackSectionList.find((section: TrackSection) => {
       return section.id === sectionId;
     })
 
     //test1. gain
-    const tempGain = new GainProperties({ gain: 2 });
-    // mySection?.effectList.push(new Effect({name:'gain', properties:tempGain}));
+    //const tempGain = new GainProperties({gain:4});
+    //mySection?.effectList.push(new Effect({name:'gain', properties:tempGain}));
 
     //test2. compressor
-    const tempCompressor = new CompressorProperties({});
-    // mySection?.effectList.push(new Effect({name:'compressor', properties:tempCompressor}));
+    //const tempCompressor = new CompressorProperties({});
+    //mySection?.effectList.push(new Effect({name:'compressor', properties:tempCompressor}));
 
     //test3. filter
-    const tempFilter = new FilterProperties({ type: 'lowpass' });
-    // mySection?.effectList.push(new Effect({name:'filter', properties:tempFilter}));
+    //const tempFilter = new FilterProperties({type:'lowpass'});
+    //mySection?.effectList.push(new Effect({name:'filter', properties:tempFilter}));
 
     //test4. reverb
-    const tempReverb = new ReverbProperties({});
-    mySection?.effectList.push(new Effect({ name: 'reverb', properties: tempReverb }));
+    // const tempReverb = new ReverbProperties({});
+    // mySection?.effectList.push(new Effect({name:'reverb', properties:tempReverb}));
 
-    mySection?.effectList.forEach((effect) => {
-      switch (effect.name) {
-        case 'gain':
+    mySection?.effectList.forEach((effect)=>{
+      switch(effect.name) {
+        case EffectType.gain:
           const gainNode = this.audioContext.createGain();
 
-          gainNode.gain.value = effect.properties.gain;
+          gainNode.gain.value = effect.properties.getProperty('gain');
 
           bufferSourceNode.connect(gainNode);
           gainNode.connect(outputNode);
           break;
 
-        case 'compressor':
+        case EffectType.compressor:
           const compressorNode = this.audioContext.createDynamicsCompressor();
 
-          compressorNode.threshold.setValueAtTime(effect.properties.threshold, 0);
-          compressorNode.attack.setValueAtTime(effect.properties.attack, 0);
-          compressorNode.release.setValueAtTime(effect.properties.release, 0);
-          compressorNode.ratio.setValueAtTime(effect.properties.ratio, 0);
-          compressorNode.knee.setValueAtTime(effect.properties.knee, 0);
+          compressorNode.threshold.setValueAtTime(effect.properties.getProperty('threshold'), 0);
+          compressorNode.attack.setValueAtTime(effect.properties.getProperty('attack'), 0);
+          compressorNode.release.setValueAtTime(effect.properties.getProperty('release'), 0);
+          compressorNode.ratio.setValueAtTime(effect.properties.getProperty('ratio'), 0);
+          compressorNode.knee.setValueAtTime(effect.properties.getProperty('knee'), 0);
 
           bufferSourceNode.connect(compressorNode);
           compressorNode.connect(outputNode);
           break;
 
-        case 'filter':
+        case EffectType.filter:
           const filterNode = this.audioContext.createBiquadFilter();
 
-          filterNode.type = effect.properties.type;
-          filterNode.frequency.value = effect.properties.frequency;
-          filterNode.Q.value = effect.properties.Q;
+          filterNode.type = effect.properties.getType();
+          filterNode.frequency.value = effect.properties.getProperty('frequency');
+          filterNode.Q.value = effect.properties.getProperty('Q');
 
           bufferSourceNode.connect(filterNode);
           filterNode.connect(outputNode);
           break;
 
-        case 'reverb':
+        case EffectType.reverb:
           const convolverNode = this.audioContext.createConvolver();
           const wetGainNode = this.audioContext.createGain();
           const dryGainNode = this.audioContext.createGain();
-
-          const time = effect.properties.time;
-          const decay = effect.properties.decay;
-          const mix = effect.properties.mix;
+          const time = effect.properties.getProperty('time');
+          const decay = effect.properties.getProperty('decay');
+          const mix = effect.properties.getProperty('mix');
 
           bufferSourceNode.connect(dryGainNode);
           dryGainNode.connect(outputNode);
@@ -279,26 +307,27 @@ class PlaybackToolClass {
     if (mySection?.effectList.length === 0) {
       bufferSourceNode.connect(outputNode);
     }
-    else { //삭제
-      mySection?.effectList.pop();
-    }
 
     outputNode.connect(this.audioContext.destination);
     this.sourceInfo.push({ trackId: trackId, sectionId: sectionId, bufferSourceNode: bufferSourceNode });
   }
 
   setMaxPlayTime(): void {
-    let tempMaxPlayTime = 0;
-    this.trackList.forEach((track: Track) => {
-      track.trackSectionList.forEach((trackSection: TrackSection) => {
-        let time = trackSection.trackStartTime + trackSection.length;
-        if (time > tempMaxPlayTime) {
-          tempMaxPlayTime = time;
-        }
+    if (Controller.getIsRepeatState()) {
+      this.maxPlayTime = this.loopEndTime;
+    } else {
+      let tempMaxPlayTime = 0;
+      this.trackList.forEach((track: Track) => {
+        track.trackSectionList.forEach((trackSection: TrackSection) => {
+          let time = trackSection.trackStartTime + trackSection.length;
+          if (time > tempMaxPlayTime) {
+            tempMaxPlayTime = time;
+          }
+        });
       });
-    });
 
-    this.maxPlayTime = tempMaxPlayTime;
+      this.maxPlayTime = tempMaxPlayTime;
+    }
   }
 
   createAndConnectAnalyser(): void {
@@ -308,7 +337,7 @@ class PlaybackToolClass {
     this.sourceInfo.forEach((source) => {
       try {
         source.bufferSourceNode.connect(this.analyser);
-      } catch (e) { }
+      } catch (e) {}
     });
     this.analyser.connect(this.audioContext.destination);
   }
@@ -321,69 +350,122 @@ class PlaybackToolClass {
   }
 
   checkMarkerIsAtRepeatEndTime(): boolean {
-    //재생바 부분 반영되면 값 가져와서 사용    
-    const loopEndTime = this.maxPlayTime;
-    if (Controller.getMarkerTime() >= loopEndTime) {
+    if (Controller.getMarkerTime() >= this.maxPlayTime) {
       return true;
     }
     return false;
   }
 
   stopAtMaxPlayTime() {
-    Controller.audioPlayOrPause();
+    Controller.audioStop();
   }
 
-  playTimer(): void {
-    const volumeBar = document.getElementById("audio-meter-fill");
+  checkMarkerIsBeforeRepeatStartTime() {
+    const markerTime = Controller.getMarkerTime();
 
-    let playTimer = setInterval(() => {
-      if (Controller.getIsRepeatState()) {
-        if (this.checkMarkerIsAtRepeatEndTime()) {
-          this.repeat();
-        }
-      }
-      else {
-        if (this.checkMarkerIsAtMaxPlayTime()) {
-          this.stopAtMaxPlayTime();
-          clearInterval(playTimer);
-        }
-      }
+    if (!this.prevCurrentTime) return false;
 
-      if (Controller.getIsPauseState()) {
-        if (volumeBar) {
-          setTimeout(() => {
-            volumeBar.style.width = '0';
-          }, TIMER_TIME)
-        }
-        clearInterval(playTimer);
-      }
-      const maxTrackPlayTime = Controller.getMaxTrackPlayTime();
-      const widthPixel = WidthUtil.getPerPixel(TIMER_TIME, maxTrackPlayTime);
+    if (markerTime < this.loopStartTime) {
+      return true;
+    }
+    return false;
+  }
 
-      const array = new Float32Array(1024);
-      this.analyser.getFloatTimeDomainData(array);
-      if (!volumeBar) return;
-      const colors = ['rgb(153, 194, 198)', 'rgb(110,204,136)', 'rgb(214,171,34)', 'rgb(209,81,16)']
-      let decibel = AudioUtil.getDecibel(array);
-      if (decibel < -72) {
-        decibel = -72
-      }
-      const scaledDecibel = (decibel / 72) * 100;
-      const percentage = 100 + scaledDecibel;
-      volumeBar.style.width = `${percentage}%`;
+  moveMarkerInRepeatState() {
+    const volumeBar = document.getElementById('audio-meter-fill');
+    const isRepeat = Controller.getIsRepeatState();
 
-      if (percentage > 98) {
-        volumeBar.style.background = `linear-gradient(to right, ${colors[0]},  ${colors[1]} 70%,  ${colors[2]} 95%,  ${colors[3]} 99%)`;
-      } else if (percentage > 80) {
-        volumeBar.style.background = `linear-gradient(to right, ${colors[0]}, ${colors[1]} 80%,${colors[2]})`;
-      } else {
-        volumeBar.style.background = `linear-gradient(to right, ${colors[0]}, ${colors[1]} 90%)`;
-      }
+    if (this.checkMarkerIsAtRepeatEndTime() || this.checkMarkerIsBeforeRepeatStartTime()) {
+      this.repeat();
+      this.play();
+      this.prevCurrentTime = this.audioContext.currentTime;
+    }
 
-      Controller.setMarkerWidth(widthPixel);
-      Controller.changePlayStringTime(TIMER_TIME);
-      Controller.pauseChangeMarkerNumberTime(TIMER_TIME / 1000);
-    }, TIMER_TIME);
+    if (Controller.getIsPauseState()) {
+      if (volumeBar) {
+        setTimeout(() => {
+          volumeBar.style.width = '0';
+        }, TIMER_TIME);
+      }
+    }
+    const maxTrackPlayTime = Controller.getMaxTrackPlayTime();
+    const widthPixel: number = WidthUtil.getPerPixel((this.audioContext.currentTime - this.prevCurrentTime) * 1000, maxTrackPlayTime);
+
+    const array = new Float32Array(1024);
+    this.analyser.getFloatTimeDomainData(array);
+    if (!volumeBar) return;
+    const colors = ['rgb(153, 194, 198)', 'rgb(110,204,136)', 'rgb(214,171,34)', 'rgb(209,81,16)'];
+    let decibel = AudioUtil.getDecibel(array);
+    if (decibel < -72) {
+      decibel = -72;
+    }
+    const scaledDecibel = (decibel / 72) * 100;
+    const percentage = 100 + scaledDecibel;
+    volumeBar.style.width = `${percentage}%`;
+
+    if (percentage > 98) {
+      volumeBar.style.background = `linear-gradient(to right, ${colors[0]},  ${colors[1]} 70%,  ${colors[2]} 95%,  ${colors[3]} 99%)`;
+    } else if (percentage > 80) {
+      volumeBar.style.background = `linear-gradient(to right, ${colors[0]}, ${colors[1]} 80%,${colors[2]})`;
+    } else {
+      volumeBar.style.background = `linear-gradient(to right, ${colors[0]}, ${colors[1]} 90%)`;
+    }
+
+    Controller.setMarkerWidth(widthPixel);
+    Controller.changePlayStringTime(this.audioContext.currentTime - this.prevCurrentTime);
+    Controller.pauseChangeMarkerNumberTime(this.audioContext.currentTime - this.prevCurrentTime);
+
+    this.prevCurrentTime = this.audioContext.currentTime;
+
+    isRepeat && setTimeout(this.moveMarkerInRepeatState.bind(this), TIMER_TIME);
+  }
+
+  moveMarkerInPlayState() {
+    const volumeBar = document.getElementById('audio-meter-fill');
+    const isPause = Controller.getIsPauseState();
+    const isRepeat = Controller.getIsRepeatState();
+    const isAtMaxPlayTime = this.checkMarkerIsAtMaxPlayTime();
+
+    if (isAtMaxPlayTime) {
+      this.stopAtMaxPlayTime();
+    }
+
+    if (Controller.getIsPauseState()) {
+      if (volumeBar) {
+        setTimeout(() => {
+          volumeBar.style.width = '0';
+        }, TIMER_TIME);
+      }
+    }
+    const maxTrackPlayTime = Controller.getMaxTrackPlayTime();
+    const widthPixel: number = WidthUtil.getPerPixel((this.audioContext.currentTime - this.prevCurrentTime) * 1000, maxTrackPlayTime);
+
+    const array = new Float32Array(1024);
+    this.analyser.getFloatTimeDomainData(array);
+    if (!volumeBar) return;
+    const colors = ['rgb(153, 194, 198)', 'rgb(110,204,136)', 'rgb(214,171,34)', 'rgb(209,81,16)'];
+    let decibel = AudioUtil.getDecibel(array);
+    if (decibel < -72) {
+      decibel = -72;
+    }
+    const scaledDecibel = (decibel / 72) * 100;
+    const percentage = 100 + scaledDecibel;
+    volumeBar.style.width = `${percentage}%`;
+
+    if (percentage > 98) {
+      volumeBar.style.background = `linear-gradient(to right, ${colors[0]},  ${colors[1]} 70%,  ${colors[2]} 95%,  ${colors[3]} 99%)`;
+    } else if (percentage > 80) {
+      volumeBar.style.background = `linear-gradient(to right, ${colors[0]}, ${colors[1]} 80%,${colors[2]})`;
+    } else {
+      volumeBar.style.background = `linear-gradient(to right, ${colors[0]}, ${colors[1]} 90%)`;
+    }
+    Controller.setMarkerWidth(widthPixel);
+    Controller.changePlayStringTime(this.audioContext.currentTime - this.prevCurrentTime);
+    Controller.pauseChangeMarkerNumberTime(this.audioContext.currentTime - this.prevCurrentTime);
+
+    this.prevCurrentTime = this.audioContext.currentTime;
+
+    !isRepeat && !isPause && setTimeout(this.moveMarkerInPlayState.bind(this), TIMER_TIME);
   }
 
   play(): void {
@@ -403,6 +485,8 @@ class PlaybackToolClass {
         const mutedTrackIdx = this.mutedTrackList.indexOf(track.id);
         if (mutedTrackIdx > -1) return;
 
+        const isRepeat = Controller.getIsRepeatState();
+
         track.trackSectionList.forEach((trackSection: TrackSection) => {
           this.updateSourceInfo(trackSection.sourceId, trackSection.trackId, trackSection.id);
           const sourceIdx = this.sourceInfo.length - 1;
@@ -412,27 +496,58 @@ class PlaybackToolClass {
           let playDuration: number = 0;
           let diff: number = 0;
 
-          if (markerTime <= trackSection.trackStartTime) {
-            waitTime = this.audioContext.currentTime + trackSection.trackStartTime - markerTime;
-            audioStartTime = trackSection.channelStartTime;
-            playDuration = trackSection.length;
+          if (isRepeat) {
+            if (trackSection.trackStartTime > this.loopEndTime || trackSection.trackStartTime + trackSection.length < this.loopStartTime) {
+              return;
+            } else if (trackSection.trackStartTime <= this.loopStartTime && trackSection.trackStartTime + trackSection.length >= this.loopEndTime) {
+              waitTime = 0;
+              audioStartTime = trackSection.channelStartTime + (this.loopStartTime - trackSection.trackStartTime);
+              playDuration = this.loopEndTime - this.loopStartTime;
 
-            this.sourceInfo[sourceIdx].bufferSourceNode.start(waitTime, audioStartTime, playDuration);
-          } else if (trackSection.trackStartTime + trackSection.length < markerTime) {
-            //재생되지 않는 부분
+              this.sourceInfo[sourceIdx].bufferSourceNode.start(waitTime, audioStartTime, playDuration);
+            } else if (trackSection.trackStartTime >= this.loopStartTime) {
+              waitTime = trackSection.trackStartTime - this.loopStartTime;
+              audioStartTime = trackSection.channelStartTime;
+
+              if (trackSection.trackStartTime + trackSection.length <= this.loopEndTime) {
+                playDuration = trackSection.length;
+              } else {
+                playDuration = this.loopEndTime - trackSection.trackStartTime;
+              }
+
+              this.sourceInfo[sourceIdx].bufferSourceNode.start(waitTime, audioStartTime, playDuration);
+            } else {
+              waitTime = 0;
+              audioStartTime = trackSection.channelStartTime + (this.loopStartTime - trackSection.trackStartTime);
+              playDuration = trackSection.trackStartTime + trackSection.length - this.loopStartTime;
+
+              this.sourceInfo[sourceIdx].bufferSourceNode.start(waitTime, audioStartTime, playDuration);
+            }
           } else {
-            waitTime = 0;
-            diff = markerTime - trackSection.trackStartTime;
-            audioStartTime = trackSection.channelStartTime + diff;
-            playDuration = trackSection.length - diff;
+            if (markerTime <= trackSection.trackStartTime) {
+              waitTime = this.audioContext.currentTime + trackSection.trackStartTime - markerTime;
+              audioStartTime = trackSection.channelStartTime;
+              playDuration = trackSection.length;
 
-            this.sourceInfo[sourceIdx].bufferSourceNode.start(waitTime, audioStartTime, playDuration);
+              this.sourceInfo[sourceIdx].bufferSourceNode.start(waitTime, audioStartTime, playDuration);
+            } else if (trackSection.trackStartTime + trackSection.length < markerTime) {
+              //재생되지 않는 부분
+            } else {
+              waitTime = 0;
+              diff = markerTime - trackSection.trackStartTime;
+              audioStartTime = trackSection.channelStartTime + diff;
+              playDuration = trackSection.length - diff;
+
+              this.sourceInfo[sourceIdx].bufferSourceNode.start(waitTime, audioStartTime, playDuration);
+            }
           }
         });
       }
     });
     this.audioContext.resume();
     this.createAndConnectAnalyser();
+
+    this.prevCurrentTime = 0;
   }
 
   pause(): void {
@@ -448,28 +563,27 @@ class PlaybackToolClass {
       setTimeout(() => {
         Controller.changeMarkerPlayStringTime(0);
         Controller.changeMarkerNumberTime(0);
-        Controller.setMarkerWidth(0);
+        Controller.initMarkerWidth(0);
 
         if (restart) {
           this.play();
         }
       }, TIMER_TIME + 1);
-
-    }
-    catch (e) {
+    } catch (e) {
       console.log(e);
     }
   }
 
   repeat(): void {
+    const [loopStartTime, loopEndTime] = Controller.getLoopTime();
+    this.loopStartTime = loopStartTime;
+    this.loopEndTime = loopEndTime;
     const maxTrackPlayTime = Controller.getMaxTrackPlayTime();
     const widthPixel = ZoomController.getCurrentPixelPerSecond();
 
-    Controller.setMarkerWidth([widthPixel * this.loopStartTime, 1]);
+    Controller.initMarkerWidth(widthPixel * this.loopStartTime);
     Controller.changeMarkerPlayStringTime(this.loopStartTime);
     Controller.changeMarkerNumberTime(this.loopStartTime);
-
-    this.play();
   }
 
   fastRewind(): void {
@@ -478,13 +592,12 @@ class PlaybackToolClass {
     this.stopAudioSources();
     this.sourceInfo = [];
 
-    this.createAndConnectAnalyser();
-
+    this.prevCurrentTime = 0;
     const maxTrackPlayTime = Controller.getMaxTrackPlayTime();
     const widthPixel = WidthUtil.getPerPixel(QUANTUM * 1000, maxTrackPlayTime);
     Controller.setMarkerWidth(-widthPixel);
     Controller.pauseChangeMarkerNumberTime(-QUANTUM);
-    Controller.changePlayStringTime(-QUANTUM * 1000);
+    Controller.changePlayStringTimeFastPlaying(-QUANTUM);
 
     const isPause = Controller.getIsPauseState();
 
@@ -495,7 +608,6 @@ class PlaybackToolClass {
     this.setMaxPlayTime();
     this.trackList.forEach((track: Track) => {
       if (track.trackSectionList.length !== 0) {
-
         if (this.soloTrackList.length !== 0) {
           const soloTrackIdx = this.soloTrackList.indexOf(track.id);
           if (soloTrackIdx === -1) return;
@@ -551,17 +663,15 @@ class PlaybackToolClass {
 
   fastForward(): void {
     let markerTime = Controller.getMarkerTime();
-
     this.stopAudioSources();
     this.sourceInfo = [];
-
-    this.createAndConnectAnalyser();
-
+    this.prevCurrentTime = 0;
     const maxTrackPlayTime = Controller.getMaxTrackPlayTime();
     const widthPixel = WidthUtil.getPerPixel(QUANTUM * 1000, maxTrackPlayTime);
+
     Controller.setMarkerWidth(widthPixel);
     Controller.pauseChangeMarkerNumberTime(QUANTUM);
-    Controller.changePlayStringTime(QUANTUM * 1000);
+    Controller.changePlayStringTimeFastPlaying(QUANTUM);
 
     const isPause = Controller.getIsPauseState();
     if (isPause) {
@@ -571,7 +681,6 @@ class PlaybackToolClass {
     this.setMaxPlayTime();
     this.trackList.forEach((track: Track) => {
       if (track.trackSectionList.length !== 0) {
-
         if (this.soloTrackList.length !== 0) {
           const soloTrackIdx = this.soloTrackList.indexOf(track.id);
           if (soloTrackIdx === -1) return;
@@ -638,10 +747,8 @@ class PlaybackToolClass {
         Controller.setMarkerWidth([widthPixel * this.maxPlayTime, 1]);
         Controller.changeMarkerPlayStringTime(this.maxPlayTime);
         Controller.changeMarkerNumberTime(this.maxPlayTime);
-
       }, TIMER_TIME + 1);
-    }
-    catch (e) {
+    } catch (e) {
       console.log(e);
     }
   }

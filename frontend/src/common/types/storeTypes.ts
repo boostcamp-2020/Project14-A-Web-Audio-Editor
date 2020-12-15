@@ -32,7 +32,8 @@ enum StoreChannelType {
   TRACK_LIST_CHANNEL = 'TRACK_LIST_CHANNEL',
   SELECT_AUDIO_TRACK = 'SELECT_AUDIO_TRACK',
   FOCUS_LIST_CHANNEL = 'FOCUS_LIST_CHANNEL',
-  ZOOM_RATE_CHANNEL = 'ZOOM_RATE_CHANNEL'
+  ZOOM_RATE_CHANNEL = 'ZOOM_RATE_CHANNEL',
+  RESET_MARKER_POSITION_CHANNEL = 'RESET_MARKER_POSITION_CHANNEL'
 }
 
 interface StoreStateType {
@@ -49,6 +50,7 @@ interface StoreStateType {
   cursorMode: CursorType;
   trackIndex: number;
   sectionIndex: number;
+  effectIndex: number;
   clipBoard: TrackSection | null;
   markerNumberTime: number;
   cursorNumberTime: number;
@@ -61,6 +63,8 @@ interface StoreStateType {
   sectionDragStartData: SectionDragStartData | null;
   selectTrackData: SelectTrackData;
   zoomInfo: ZoomInfoType;
+  loopStartTime: number;
+  loopEndTime: number;
 }
 
 interface StoreObserverData {

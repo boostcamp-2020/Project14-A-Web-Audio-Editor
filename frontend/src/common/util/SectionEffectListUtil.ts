@@ -1,10 +1,12 @@
 const hideEffectList = (): void => {
   const effectListElement = document.querySelector('audi-section-effect-list');
   const sourceListElement = document.querySelector('audi-source-list');
-  if (!effectListElement || !sourceListElement) return;
+  const effectSettingElement = document.querySelector('audi-section-effect-setting');
+  if (!effectListElement || !sourceListElement ||!effectSettingElement) return;
 
   effectListElement.hide();
   sourceListElement.show();
+  effectSettingElement.hide();
 };
 
 const showEffectList = (): void => {

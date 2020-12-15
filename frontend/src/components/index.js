@@ -22,3 +22,4 @@ import './EffectController';
 import './ZoomBar/ZoomBar';
 import './AudioMeter/AudioMeter';
 import './SectionEffectList/SectionEffectList';
+import './SectionEffectSetting/SectionEffectSetting';
