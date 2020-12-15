@@ -1,5 +1,6 @@
 import { Source, Track, TrackSection, SectionDragStartData } from '@model';
 import { store } from '@store';
+import { ZoomController } from '@controllers'
 import { ModalType, FocusInfo, CursorType, SectionDataType } from '@types';
 import { CopyUtil, SectionEffectListUtil, TimeUtil, WidthUtil } from '@util';
 import playbackTool from '@components/PlaybackTools/PlaybackToolClass';
@@ -72,7 +73,7 @@ const getSectionData = (trackId: number, trackSectionId: number): SectionDataTyp
     return {
       sectionChannelData: sectionChannelData,
       duration: channelEndTime - channelStartTime,
-      sectionColor: trackSection.sectionColor 
+      sectionColor: trackSection.sectionColor
     };
   };
 
@@ -280,7 +281,7 @@ const getIsPauseState = (): boolean => {
   return isPause;
 };
 
-const setMarkerWidth = (markerWidth: number|number[]): void => {
+const setMarkerWidth = (markerWidth: number | number[]): void => {
   store.setMarkerWidth(markerWidth);
 };
 
@@ -355,9 +356,11 @@ const getMaxTrackWidth = () => {
   return maxTrackWidth;
 };
 
-const changeMaxTrackPlayTime = (trackSectionList: TrackSection[]): void => {
-  const trackPlaytime = trackSectionList.reduce((acc, trackSection) => acc += trackSection.length, 0);
-  store.setMaxTrackPlayTime(trackPlaytime);
+const changeMaxTrackPlayTime = (maxTrackWidth: number): void => {
+  const pixelPerSecond = ZoomController.getCurrentPixelPerSecond();
+  const newMaxTrackPlayTime = maxTrackWidth / pixelPerSecond;
+
+  store.setMaxTrackPlayTime(newMaxTrackPlayTime);
 };
 
 const getMaxTrackPlayTime = () => {
@@ -377,8 +380,8 @@ const getCurrentScrollAmount = (): number => {
 
 const getCurrentScrollTime = (): number => {
   const { currentScrollAmount, maxTrackWidth, maxTrackPlayTime } = store.getState();
-
-  const secondPerPixel = WidthUtil.getSecondPerPixel(maxTrackWidth, maxTrackPlayTime);
+  const pixelPerSecond = ZoomController.getCurrentPixelPerSecond();
+  const secondPerPixel = 1 / pixelPerSecond;
 
   return secondPerPixel * currentScrollAmount;
 }
@@ -465,7 +468,7 @@ const getSelectTrackData = () => {
   const { selectTrackData } = store.getState();
   return selectTrackData;
 };
-  
+
 const pushTrackWidthIndex = (newTrack: Track): void => {
   const { trackList, trackIndex } = store.getState();
   const newTrackList = trackList.concat(newTrack);
@@ -477,7 +480,7 @@ const pushTrackWidthIndex = (newTrack: Track): void => {
 const popTrackWithIndex = (): Track | undefined => {
   const { trackList, trackIndex } = store.getState();
   const removedTrack = trackList.pop();
-  
+
   store.setTrackList(trackList);
   store.setTrackIndex(trackIndex - 1);
   return removedTrack;
@@ -487,28 +490,33 @@ const removeTrackById = (trackId: number): Track | undefined => {
   const { trackList } = store.getState();
   const trackToRemove = trackList.find((track) => track.id === trackId);
 
-  if(!trackToRemove) return;
+  if (!trackToRemove) return;
   const newTrackList = trackList.filter((track) => track.id !== trackId);
-  
+
   store.setTrackList(newTrackList);
   return trackToRemove;
 };
 
 const insertTrack = (insertIdx: number, trackToInsert: Track): void => {
   const { trackList } = store.getState();
-  
-  const newTrackList = Array(trackList.length + 1).fill(0).map(( _, idx) => {
-    if(idx < insertIdx) return trackList[idx];
-    if(idx > insertIdx) return trackList[idx - 1];
+
+  const newTrackList = Array(trackList.length + 1).fill(0).map((_, idx) => {
+    if (idx < insertIdx) return trackList[idx];
+    if (idx > insertIdx) return trackList[idx - 1];
     return trackToInsert;
   });
 
   store.setTrackList(newTrackList);
 };
 
-const showEffectSetting = (effectIdx:number) => {
+const showEffectSetting = (effectIdx: number) => {
   //sectionEffectList를 hide 시킨 후 idx에 해당하는 effect setting 형태 보여줌.
   console.log(effectIdx);
+}
+
+const getPrevMaxTrackWidth = (): number => {
+  const { prevMaxTrackWidth } = store.getState();
+  return prevMaxTrackWidth;
 }
 
 export default {
@@ -579,5 +587,6 @@ export default {
   pushTrackWidthIndex,
   removeTrackById,
   insertTrack,
-  showEffectSetting
+  showEffectSetting,
+  getPrevMaxTrackWidth
 };
