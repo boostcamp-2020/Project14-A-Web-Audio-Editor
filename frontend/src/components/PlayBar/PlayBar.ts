@@ -1,7 +1,7 @@
 import { TimeUtil, MarkerEventUtil, EventUtil, WidthUtil } from '@util';
 import { EventType, EventKeyType, StoreChannelType } from '@types';
 import { Controller, ZoomController } from '@controllers';
-import { storeChannel } from "@store";
+import { storeChannel } from '@store';
 import './PlayBar.scss';
 
 (() => {
@@ -122,7 +122,7 @@ import './PlayBar.scss';
       const playTimeInterval = ZoomController.getCurrentPlayTimeInterval();
 
       this.playbarTimeElements.forEach((playbarTimeElement, idx) => {
-        const playBarTimeLeftX = (pixelPerSecond * playTimeInterval) * (idx + 1);
+        const playBarTimeLeftX = pixelPerSecond * playTimeInterval * (idx + 1);
         const ratio = playBarTimeLeftX / this.playBarWidth;
 
         playbarTimeElement.style.left = `${100 * ratio}%`;
@@ -160,7 +160,7 @@ import './PlayBar.scss';
       if (!this.trackScrollAreaElement) return;
       const cursorPosition = e.pageX;
       const scrolledCursorPosition = cursorPosition + this.currentScrollAmount;
-      const trackScrollAreaLeft = this.trackScrollAreaElement.getBoundingClientRect().left
+      const trackScrollAreaLeft = this.trackScrollAreaElement.getBoundingClientRect().left;
       const timeOfCursorPosition = TimeUtil.calculateTimeOfCursorPosition(trackScrollAreaLeft, scrolledCursorPosition);
 
       const [minute, second, milsecond] = TimeUtil.splitTime(timeOfCursorPosition);
@@ -170,7 +170,7 @@ import './PlayBar.scss';
       Controller.changeCurrentPosition(offesetOfCursorPosition);
       Controller.changeCursorStringTime(minute, second, milsecond);
       Controller.changeCursorNumberTime(timeOfCursorPosition);
-    };
+    }
 
     dragStartPlayBarMarkerListener(e): void {
       this.markerID = e.target.getAttribute('id').split('-')[2];
@@ -182,7 +182,7 @@ import './PlayBar.scss';
     dragoverPlayBarListener(e): void {
       e.preventDefault();
       if (!this.playbarMarkerBlurZoneElement || !this.playbarMarkerElementRight || !this.playbarMarkerElementLeft) return;
-
+      if (!Controller.getIsPauseState()) return;
       const movingWidth: number = e.pageX - this.playBarLeftX + this.currentScrollAmount;
       const currentX = e.pageX + this.currentScrollAmount;
 
@@ -251,12 +251,8 @@ import './PlayBar.scss';
     windowResizeListener(e) {
       // const zoombarControllerElement = document.querySelector<HTMLDivElement>('.audi-zoombar-cotroller');
       // if (!this.playBarContainerElement || !this.trackScrollAreaElement || !zoombarControllerElement) return;
-
       // this.playBarLeftX = this.playBarContainerElement.getBoundingClientRect().left;
       // this.playBarWidth = this.playBarContainerElement.getBoundingClientRect().right - this.playBarLeftX;
-
-
-
       // this.trackScrollAreaElement.scrollLeft = initScrollAmount;
       // zoombarControllerElement.style.left = `${initScrollAmount}`;
       // this.currentScrollAmount = initScrollAmount;
@@ -305,4 +301,4 @@ import './PlayBar.scss';
 
   customElements.define('audi-playbar', PlayBar);
 })();
-export { };
+export {};
