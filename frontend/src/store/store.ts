@@ -1,4 +1,4 @@
-import { StoreStateType, CursorType } from '@types';
+import { StoreStateType, CursorType, ZoomInfoType } from '@types';
 import { Track, Source, TrackSection, SectionDragStartData, SelectTrackData } from '@model';
 import { StoreChannelType, ModalType, ModalStateType, FocusInfo } from '@types';
 import { storeChannel } from '@store';
@@ -29,11 +29,18 @@ const store = new (class Store {
       cursorNumberTime: 0,
       isPause: true,
       isRepeat: false,
+      prevMaxTrackWidth: 0,
       maxTrackWidth: 0,
       maxTrackPlayTime: 300,
       currentScrollAmount: 0,
       sectionDragStartData: null,
       selectTrackData: new SelectTrackData({ trackId: 0, selectedTime: 0 }),
+      zoomInfo: {
+        rate: 1.0,
+        defaultTrackTime: 300,
+        pixelPerSecond: 0,
+        playTimeInterval: 20
+      }
     };
   }
 
@@ -202,7 +209,7 @@ const store = new (class Store {
     this.state = { ...this.state, isPause: isPauseState };
   }
 
-  setMarkerWidth(newMarkerWidth: number|number[]): void {
+  setMarkerWidth(newMarkerWidth: number | number[]): void {
     storeChannel.publish(StoreChannelType.CURRENT_POSITION_CHANNEL, newMarkerWidth);
   }
 
@@ -252,7 +259,7 @@ const store = new (class Store {
     const { maxTrackWidth } = this.state;
     if (maxTrackWidth >= newMaxTrackWidth) return;
 
-    this.state = { ...this.state, maxTrackWidth: newMaxTrackWidth };
+    this.state = { ...this.state, maxTrackWidth: newMaxTrackWidth, prevMaxTrackWidth: maxTrackWidth };
     storeChannel.publish(StoreChannelType.MAX_TRACK_WIDTH_CHANNEL, newMaxTrackWidth);
   }
 
@@ -285,11 +292,15 @@ const store = new (class Store {
   }
 
   setTrackList(newTrackList: Track[]): void {
-    this.state = {...this.state, trackList: newTrackList};
+    this.state = { ...this.state, trackList: newTrackList };
   }
 
   setTrackIndex(newTrackIndex: number): void {
-    this.state =  {...this.state, trackIndex: newTrackIndex};
+    this.state = { ...this.state, trackIndex: newTrackIndex };
+  }
+
+  setZoomInfo(newZoomInfo: ZoomInfoType): void {
+    this.state = { ...this.state, zoomInfo: newZoomInfo };
   }
 })();
 

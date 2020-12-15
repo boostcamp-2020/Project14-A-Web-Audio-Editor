@@ -1,5 +1,5 @@
 import { Source, Track, AudioSourceInfoInTrack, TrackSection, SectionDragStartData, SelectTrackData } from '@model';
-import { ModalStateType } from '@types';
+import { ModalStateType, ZoomInfoType } from '@types';
 
 enum CursorType {
   SELECT_MODE = 'SELECT_MODE',
@@ -53,11 +53,13 @@ interface StoreStateType {
   cursorNumberTime: number;
   isPause: boolean;
   isRepeat: boolean;
+  prevMaxTrackWidth: number;
   maxTrackWidth: number;
   maxTrackPlayTime: number;
   currentScrollAmount: number;
   sectionDragStartData: SectionDragStartData | null;
   selectTrackData: SelectTrackData;
+  zoomInfo: ZoomInfoType;
 }
 
 interface StoreObserverData {
