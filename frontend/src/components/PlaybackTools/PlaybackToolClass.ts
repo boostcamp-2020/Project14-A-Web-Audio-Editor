@@ -1,5 +1,5 @@
 import { WidthUtil, AudioUtil } from '@util';
-import { EffectTitleType, StoreChannelType } from '@types';
+import { EffectTitleType, StoreChannelType, EffectType } from '@types';
 import { Source, Track, TrackSection, AudioSourceInfoInTrack, Effect } from '@model';
 import { storeChannel } from '@store';
 import { Controller } from '@controllers';
@@ -197,7 +197,7 @@ class PlaybackToolClass {
     const mySection = myTrack?.trackSectionList.find((section: TrackSection)=>{
       return section.id === sectionId;
     })
-    
+
     //test1. gain
     //const tempGain = new GainProperties({gain:4});
     //mySection?.effectList.push(new Effect({name:'gain', properties:tempGain}));
@@ -211,12 +211,12 @@ class PlaybackToolClass {
     //mySection?.effectList.push(new Effect({name:'filter', properties:tempFilter}));
 
     //test4. reverb
-    const tempReverb = new ReverbProperties({});
-    mySection?.effectList.push(new Effect({name:'reverb', properties:tempReverb}));
+    // const tempReverb = new ReverbProperties({});
+    // mySection?.effectList.push(new Effect({name:'reverb', properties:tempReverb}));
 
     mySection?.effectList.forEach((effect)=>{
       switch(effect.name) {
-        case 'gain':
+        case EffectType.gain:
           const gainNode = this.audioContext.createGain();
 
           gainNode.gain.value = effect.properties.getProperty('gain');
@@ -225,7 +225,7 @@ class PlaybackToolClass {
           gainNode.connect(outputNode);
           break;
 
-        case 'compressor':
+        case EffectType.compressor:
           const compressorNode = this.audioContext.createDynamicsCompressor();
 
           compressorNode.threshold.setValueAtTime(effect.properties.getProperty('threshold'), 0);
@@ -238,7 +238,7 @@ class PlaybackToolClass {
           compressorNode.connect(outputNode);
           break;
 
-        case 'filter':
+        case EffectType.filter:
           const filterNode = this.audioContext.createBiquadFilter();
 
           filterNode.type = effect.properties.getType();
@@ -249,7 +249,7 @@ class PlaybackToolClass {
           filterNode.connect(outputNode);
           break;
 
-        case 'reverb':
+        case EffectType.reverb:
           const convolverNode = this.audioContext.createConvolver();
           const wetGainNode = this.audioContext.createGain();
           const dryGainNode = this.audioContext.createGain();
@@ -278,9 +278,6 @@ class PlaybackToolClass {
 
     if(mySection?.effectList.length === 0) {
       bufferSourceNode.connect(outputNode);
-    }
-    else { //삭제
-      mySection?.effectList.pop();
     }
 
     outputNode.connect(this.audioContext.destination);

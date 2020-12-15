@@ -54,8 +54,6 @@ import { EventUtil } from '@util';
     typeListener = (e) => {
       const { target } = e;
 
-      console.log('클릭');
-
       if (!this.typeValue) return;
       this.typeValue.innerText = `${target.value}`;
     }
