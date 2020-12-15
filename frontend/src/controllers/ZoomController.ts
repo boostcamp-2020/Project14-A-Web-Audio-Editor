@@ -22,24 +22,24 @@ const getCurrentDefaultTrackTime = (): number => {
   return currentDefaultTrackTime;
 }
 
-const setZoomRate = (newRate: number): void => {
-  const { zoomInfo } = store.getState();
-  const newZoomInfo = { ...zoomInfo, rate: newRate };
+const getCurrentRate = (): number => {
+  const { zoomInfo: { rate } } = store.getState();
+  return rate;
+}
 
-  store.setZoomInfo(newZoomInfo);
+const setZoomRate = (newRate: number): void => {
+  store.setZoomRate(newRate);
 }
 
 const setPixelPerSecond = (newPixelPerSecond: number): void => {
-  const { zoomInfo } = store.getState();
-  const newZoomInfo = { ...zoomInfo, pixelPerSecond: newPixelPerSecond };
-
-  store.setZoomInfo(newZoomInfo);
+  store.setZoomPixelPerSecond(newPixelPerSecond);
 }
 
 export default {
   getCurrentPixelPerSecond,
   getCurrentPlayTimeInterval,
   getCurrentDefaultTrackTime,
+  getCurrentRate,
   setZoomRate,
   setPixelPerSecond
 }

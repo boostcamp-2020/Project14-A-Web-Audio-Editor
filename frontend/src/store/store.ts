@@ -257,7 +257,7 @@ const store = new (class Store {
 
   setMaxTrackWidth(newMaxTrackWidth: number): void {
     const { maxTrackWidth } = this.state;
-    if (maxTrackWidth >= newMaxTrackWidth) return;
+    if (maxTrackWidth === newMaxTrackWidth) return;
 
     this.state = { ...this.state, maxTrackWidth: newMaxTrackWidth, prevMaxTrackWidth: maxTrackWidth };
     storeChannel.publish(StoreChannelType.MAX_TRACK_WIDTH_CHANNEL, newMaxTrackWidth);
@@ -299,9 +299,17 @@ const store = new (class Store {
     this.state = { ...this.state, trackIndex: newTrackIndex };
   }
 
-  setZoomInfo(newZoomInfo: ZoomInfoType): void {
-    this.state = { ...this.state, zoomInfo: newZoomInfo };
-  }
+  setZoomPixelPerSecond(newPixelPerSecond: number): void {
+    const { zoomInfo } = this.getState();
+    this.state = { ...this.state, zoomInfo: { ...zoomInfo, pixelPerSecond: newPixelPerSecond } };
+  };
+
+  setZoomRate(newZoomRate: number): void {
+    const { zoomInfo } = this.state;
+    this.state = { ...this.state, zoomInfo: { ...zoomInfo, rate: newZoomRate } };
+    storeChannel.publish(StoreChannelType.ZOOM_RATE_CHANNEL, newZoomRate);
+  };
+
 })();
 
 export { store };

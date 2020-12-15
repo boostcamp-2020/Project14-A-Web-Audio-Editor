@@ -42,6 +42,7 @@ import { storeChannel } from "@store";
     }
 
     render(): void {
+      console.log('mainRightContent - render');
       this.innerHTML = `
             <section class="audi-main-audio-track-container" event-key=${EventKeyType.FOCUS_RESET_CLICK}>
                 <div class="audi-main-right-top">
@@ -114,6 +115,7 @@ import { storeChannel } from "@store";
     subscribe(): void {
       storeChannel.subscribe(StoreChannelType.MAX_TRACK_PLAY_TIME_CHANNEL, this.maxTrackPlayTimeObserverCallback, this);
       storeChannel.subscribe(StoreChannelType.CURRENT_SCROLL_AMOUNT_CHANNEL, this.currentScrollAmountObserverCallback, this);
+      storeChannel.subscribe(StoreChannelType.ZOOM_RATE_CHANNEL, this.zoomRateObserverCallback, this);
     }
 
     maxTrackPlayTimeObserverCallback(maxTrackPlayTime: number): void {
@@ -128,6 +130,11 @@ import { storeChannel } from "@store";
     currentScrollAmountObserverCallback(newCurrentScrollAmount: number): void {
       this.currentScrollAmount = newCurrentScrollAmount;
       this.initEvent();
+    }
+
+    zoomRateObserverCallback(newZoomRate) {
+      this.render();
+      this.initElement();
     }
   };
 
