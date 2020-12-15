@@ -64,7 +64,8 @@ class DeleteCommand extends Command {
       trackId: track.id,
       trackSectionList: track.trackSectionList
     });
-    storeChannel.publish(StoreChannelType.TRACK_CHANNEL, track.trackSectionList);
+    const newTrackList = Controller.getTrackList();
+    storeChannel.publish(StoreChannelType.TRACK_CHANNEL, newTrackList);
   }
 }
 

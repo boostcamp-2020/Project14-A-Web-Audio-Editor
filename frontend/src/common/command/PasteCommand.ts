@@ -45,7 +45,8 @@ class PasteCommand extends Command {
       trackSectionList: newTrack.trackSectionList
     });
 
-    storeChannel.publish(StoreChannelType.TRACK_CHANNEL, newTrack.trackSectionList);
+    const newTrackList = Controller.getTrackList();
+    storeChannel.publish(StoreChannelType.TRACK_CHANNEL, newTrackList);
   };
 }
 
