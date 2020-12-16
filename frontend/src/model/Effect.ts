@@ -1,12 +1,12 @@
 import { EffectProperties }  from '@model';
 
 class Effect {
-    public id: Number;
+    public id: number;
     public name: string;
     public properties: EffectProperties;
     
-    constructor({name, properties}){
-        this.id = 0;
+    constructor({id=0, name, properties}){
+        this.id = id;
         this.name = name;
         this.properties = properties;
     }

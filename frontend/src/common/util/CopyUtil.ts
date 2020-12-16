@@ -9,8 +9,8 @@ const copySection = (trackSection: TrackSection): TrackSection => {
     channelStartTime: trackSection.channelStartTime,
     channelEndTime: trackSection.channelEndTime,
     trackStartTime: trackSection.trackStartTime,
-    sectionColor: trackSection.sectionColor
-    // effectList: trackSection.effectList,    // Effect 기능 구현시 추가
+    sectionColor: trackSection.sectionColor,
+    effectList: trackSection.effectList.map((effect:Effect)=>copyEffect(effect))
   });
 
   return newTrackSection;
@@ -32,6 +32,7 @@ const copyTrackList = (trackList: Track[]): Track[] => {
 }
 
 const copyEffect = (effect: Effect): Effect =>{
+  const effectId = effect.id;
   const effectName = effect.name;
   const effectProperties = effect.properties;
   let newEffectProperties:EffectProperties|null= null;
@@ -66,6 +67,7 @@ const copyEffect = (effect: Effect): Effect =>{
   }
   
   const newEffect = new Effect({
+    id:effectId,
     name:effectName,
     properties:newEffectProperties
   });
