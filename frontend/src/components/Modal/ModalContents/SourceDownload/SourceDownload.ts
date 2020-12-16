@@ -1,6 +1,5 @@
-import { EventUtil } from '@util';
-import { EventType, EventKeyType, ModalType, ButtonType, CompressorOption } from '@types';
-import { saveFile } from '@util';
+import { EventUtil, EncodingUtil } from '@util';
+import { EventType, EventKeyType, ModalType, ButtonType, CompressorOption, KeyBoard } from '@types';
 import { Controller } from '@controllers';
 import './SourceDownload.scss';
 
@@ -41,7 +40,7 @@ import './SourceDownload.scss';
               <form class="download-form">
                 <div class="file-name">
                   <h4>파일 이름</h4>
-                  <input id="fileName" type="text" name="fileName" event-key=${EventKeyType.SOURCE_DOWNLOAD_FILE_NAME_KEYUP} />
+                  <input id="fileName" type="text" name="fileName" event-key=${EventKeyType.SOURCE_DOWNLOAD_FILE_NAME_INPUT_MULTIPLE} />
                 </div>
                 <div class="radios">
                   <h4>확장자</h4>
@@ -88,9 +87,9 @@ import './SourceDownload.scss';
 
     initEvent(): void {
       EventUtil.registerEventToRoot({
-        eventTypes: [EventType.keyup],
-        eventKey: EventKeyType.SOURCE_DOWNLOAD_FILE_NAME_KEYUP,
-        listeners: [this.fileNameChangeListener],
+        eventTypes: [EventType.keyup, EventType.keydown],
+        eventKey: EventKeyType.SOURCE_DOWNLOAD_FILE_NAME_INPUT_MULTIPLE,
+        listeners: [this.fileNameKeyUpListener, this.fileNameKeyDownListener],
         bindObj: this
       });
 
@@ -129,7 +128,7 @@ import './SourceDownload.scss';
       this.changeBtnValue('압축 중');
       this.inactiveSaveButton(this.saveButton);
 
-      await saveFile(compressorObject);
+      await EncodingUtil.encodingAudio(compressorObject);
       this.changeBtnValue('저장하기');
 
       this.activeSaveButton(this.saveButton);
@@ -145,7 +144,7 @@ import './SourceDownload.scss';
       Controller.changeModalState(ModalType.download, true);
     }
 
-    fileNameChangeListener(e): void {
+    fileNameKeyUpListener(e): void {
       if (!this.saveButton) return;
       this.saveButtonActivationHandler();
 
@@ -153,6 +152,19 @@ import './SourceDownload.scss';
 
       const fileName = `${this.formElement.fileName.value}.${this.formElement.extention.value}`;
       this.downloadLink.setAttribute('download', fileName);
+    };
+
+    async fileNameKeyDownListener(e) {
+      if (e.which === KeyBoard.ENTER) {
+        e.preventDefault();
+        if (this.saveButton && this.downloadLink && this.saveButton.classList.contains('active')) {
+          if (this.downloadLink.getAttribute('href')) {
+            this.saveButton.click();
+          } else {
+            await this.modalFormSubmitListener(e);
+          }
+        }
+      }
     };
 
     extentionChangeListener(e): void {

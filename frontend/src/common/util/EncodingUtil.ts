@@ -5,7 +5,7 @@ import * as lamejs from 'lamejs';
 const sampleRate = 48000;
 const numberOfChannels = 2;
 
-export const saveFile = async (options: CompressorOption) => {
+export const encodingAudio = async (options: CompressorOption) => {
   const arrayBufferList: ArrayBuffer[] = [];
   const trackList = Controller.getTrackList();
 
