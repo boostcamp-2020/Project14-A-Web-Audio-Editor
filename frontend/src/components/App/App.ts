@@ -38,7 +38,10 @@ import { Controller, CommandController } from "@controllers";
     }
 
     KeyDownListener(e): void {
+      const modalIshidden = Controller.getModalIshidden();
       const isCtrl = Controller.getCtrlIsPressed();
+
+      if (!modalIshidden) return;
 
       if (e.which === KeyBoard.CTRL) {
         Controller.setCtrlIsPressed(true);

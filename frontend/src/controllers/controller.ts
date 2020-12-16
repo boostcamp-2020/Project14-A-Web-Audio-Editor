@@ -102,6 +102,11 @@ const changeModalState = (modalType: ModalType, isHidden: Boolean): void => {
   store.setModalState(modalType, isHidden);
 };
 
+const getModalIshidden = () => {
+  const { modalState } = store.getState();
+  return modalState.isHidden;
+}
+
 const changeCursorStringTime = (minute: number, second: number, milsecond: number): void => {
   const newCursorStringTime = TimeUtil.getStringTime(minute, second, milsecond);
   store.setCursorStringTime(newCursorStringTime);
@@ -555,22 +560,22 @@ const getLoopTime = (): number[] => {
 
   return [loopStartTime, loopEndTime];
 };
-  
-const showEffectSetting = (effectType:string) => {
+
+const showEffectSetting = (effectType: string) => {
   SectionEffectSettingUtil.showEffectSetting(effectType);
 }
 
-const addEffect = (effect:Effect) => {
+const addEffect = (effect: Effect) => {
   const { focusList, trackList, effectIndex } = store.getState();
 
   let newEffectIndex = effectIndex;
 
-  focusList.forEach((focus)=>{
+  focusList.forEach((focus) => {
     const focusedTrackSectionId = focus.trackSection.id;
 
-    trackList.forEach((track)=>{
+    trackList.forEach((track) => {
       track.trackSectionList.forEach((trackSection) => {
-        if(trackSection.id === focusedTrackSectionId) {
+        if (trackSection.id === focusedTrackSectionId) {
           const newEffect = CopyUtil.copyEffect(effect);
           newEffect.id = newEffectIndex++;
           trackSection.effectList.push(newEffect);
@@ -578,7 +583,7 @@ const addEffect = (effect:Effect) => {
       })
     });
   })
-  
+
   store.setTrackSectionEffect();
   store.setEffectIndex(newEffectIndex);
 }
@@ -663,5 +668,6 @@ export default {
   changeLoopEndTime,
   changePlayStringTimeFastPlaying,
   initMarkerWidth,
-  addEffect
+  addEffect,
+  getModalIshidden
 };
