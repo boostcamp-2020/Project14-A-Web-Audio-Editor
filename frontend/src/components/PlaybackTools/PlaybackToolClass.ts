@@ -219,11 +219,11 @@ class PlaybackToolClass {
 
     const outputNode = this.audioContext.createGain();
 
-    const myTrack = this.trackList.find((track: Track) => {
+    const selectedTrack = this.trackList.find((track: Track) => {
       return track.id === trackId;
     });
 
-    const mySection = myTrack?.trackSectionList.find((section: TrackSection) => {
+    const selectedSection = selectedTrack?.trackSectionList.find((section: TrackSection) => {
       return section.id === sectionId;
     })
 
@@ -243,7 +243,7 @@ class PlaybackToolClass {
     // const tempReverb = new ReverbProperties({});
     // mySection?.effectList.push(new Effect({name:'reverb', properties:tempReverb}));
 
-    mySection?.effectList.forEach((effect)=>{
+    selectedSection?.effectList.forEach((effect)=>{
       switch(effect.name) {
         case EffectType.gain:
           const gainNode = this.audioContext.createGain();
@@ -304,7 +304,7 @@ class PlaybackToolClass {
       }
     });
 
-    if (mySection?.effectList.length === 0) {
+    if (selectedSection?.effectList.length === 0) {
       bufferSourceNode.connect(outputNode);
     }
 

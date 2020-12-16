@@ -1,27 +1,24 @@
- const hideEffectSetting = (): void => {
-    const effectSettingElement = document.querySelector('audi-section-effect-setting');
-    const effectListElement = document.querySelector('audi-section-effect-list');
-    // const sourceListElement = document.querySelector('audi-source-list');
-    if (!effectListElement || !effectSettingElement) return;
-  
-    effectListElement.show();
-    effectSettingElement.hide();
-    // sourceListElement.show();
-  };
-  
-  const showEffectSetting = (effectType:string): void => {
-    const effectSettingElement = document.querySelector('audi-section-effect-setting');
-    const effectListElement = document.querySelector('audi-section-effect-list');
-    const sourceListElement = document.querySelector('audi-source-list');
+const hideEffectSetting = (): void => {
+  const effectSettingElement = document.querySelector('audi-section-effect-setting');
+  const effectListElement = document.querySelector('audi-section-effect-list');
+  // const sourceListElement = document.querySelector('audi-source-list');
+  if (!effectListElement || !effectSettingElement) return;
 
-    console.log(effectSettingElement, effectListElement, sourceListElement);
+  effectListElement.show();
+  effectSettingElement.hide();
+  // sourceListElement.show();
+};
 
-    if (!effectListElement || !sourceListElement ||!effectSettingElement) return;
+const showEffectSetting = (effectType:string): void => {
+  const effectSettingElement = document.querySelector('audi-section-effect-setting');
+  const effectListElement = document.querySelector('audi-section-effect-list');
+  const sourceListElement = document.querySelector('audi-source-list');
 
-    effectSettingElement.show(effectType);
-    effectListElement.hide();
-    sourceListElement.hide();
-  };
-  
-  export { hideEffectSetting, showEffectSetting };
-  
+  if (!effectListElement || !sourceListElement ||!effectSettingElement) return;
+
+  effectSettingElement.show(effectType);
+  effectListElement.hide();
+  sourceListElement.hide();
+};
+
+export { hideEffectSetting, showEffectSetting };
