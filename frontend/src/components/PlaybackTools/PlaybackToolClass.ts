@@ -213,6 +213,59 @@ class PlaybackToolClass {
     return impulse;
   }
 
+  connectGainNode(bufferSourceNode:AudioBufferSourceNode, effect:Effect, outputNode:GainNode) {
+    const gainNode = this.audioContext.createGain();
+
+    gainNode.gain.value = effect.properties.getProperty('gain');
+
+    bufferSourceNode.connect(gainNode);
+    gainNode.connect(outputNode);
+  }
+
+  connectCompressorNode(bufferSourceNode:AudioBufferSourceNode, effect:Effect, outputNode:GainNode) {
+    const compressorNode = this.audioContext.createDynamicsCompressor();
+
+    compressorNode.threshold.setValueAtTime(effect.properties.getProperty('threshold'), 0);
+    compressorNode.attack.setValueAtTime(effect.properties.getProperty('attack'), 0);
+    compressorNode.release.setValueAtTime(effect.properties.getProperty('release'), 0);
+    compressorNode.ratio.setValueAtTime(effect.properties.getProperty('ratio'), 0);
+    compressorNode.knee.setValueAtTime(effect.properties.getProperty('knee'), 0);
+
+    bufferSourceNode.connect(compressorNode);
+    compressorNode.connect(outputNode);
+  }
+
+  connectFilterNode(bufferSourceNode:AudioBufferSourceNode, effect:Effect, outputNode:GainNode) {
+    const filterNode = this.audioContext.createBiquadFilter();
+
+    filterNode.type = effect.properties.getType();
+    filterNode.frequency.value = effect.properties.getProperty('frequency');
+    filterNode.Q.value = effect.properties.getProperty('Q');
+
+    bufferSourceNode.connect(filterNode);
+    filterNode.connect(outputNode);
+  }
+
+  connectReverbNode(bufferSourceNode:AudioBufferSourceNode, effect:Effect, outputNode:GainNode) {
+    const convolverNode = this.audioContext.createConvolver();
+    const wetGainNode = this.audioContext.createGain();
+    const dryGainNode = this.audioContext.createGain();
+    const time = effect.properties.getProperty('time');
+    const decay = effect.properties.getProperty('decay');
+    const mix = effect.properties.getProperty('mix');
+
+    bufferSourceNode.connect(dryGainNode);
+    dryGainNode.connect(outputNode);
+    dryGainNode.gain.value = 1 - mix;
+
+    convolverNode.buffer = this.generateImpulseResponse(time, decay);
+
+    bufferSourceNode.connect(convolverNode);
+    convolverNode.connect(wetGainNode);
+    wetGainNode.connect(outputNode);
+    wetGainNode.gain.value = mix;
+  }
+
   updateSourceInfo(sourceId: number, trackId: number, sectionId: number): void {
     const bufferSourceNode = this.audioContext.createBufferSource();
     bufferSourceNode.buffer = this.sourceList[sourceId].buffer;
@@ -246,56 +299,22 @@ class PlaybackToolClass {
     selectedSection?.effectList.forEach((effect)=>{
       switch(effect.name) {
         case EffectType.gain:
-          const gainNode = this.audioContext.createGain();
+          this.connectGainNode(bufferSourceNode, effect, outputNode);
 
-          gainNode.gain.value = effect.properties.getProperty('gain');
-
-          bufferSourceNode.connect(gainNode);
-          gainNode.connect(outputNode);
           break;
 
         case EffectType.compressor:
-          const compressorNode = this.audioContext.createDynamicsCompressor();
-
-          compressorNode.threshold.setValueAtTime(effect.properties.getProperty('threshold'), 0);
-          compressorNode.attack.setValueAtTime(effect.properties.getProperty('attack'), 0);
-          compressorNode.release.setValueAtTime(effect.properties.getProperty('release'), 0);
-          compressorNode.ratio.setValueAtTime(effect.properties.getProperty('ratio'), 0);
-          compressorNode.knee.setValueAtTime(effect.properties.getProperty('knee'), 0);
-
-          bufferSourceNode.connect(compressorNode);
-          compressorNode.connect(outputNode);
+          this.connectCompressorNode(bufferSourceNode, effect, outputNode);
+          
           break;
 
         case EffectType.filter:
-          const filterNode = this.audioContext.createBiquadFilter();
+          this.connectFilterNode(bufferSourceNode, effect, outputNode);
 
-          filterNode.type = effect.properties.getType();
-          filterNode.frequency.value = effect.properties.getProperty('frequency');
-          filterNode.Q.value = effect.properties.getProperty('Q');
-
-          bufferSourceNode.connect(filterNode);
-          filterNode.connect(outputNode);
           break;
 
         case EffectType.reverb:
-          const convolverNode = this.audioContext.createConvolver();
-          const wetGainNode = this.audioContext.createGain();
-          const dryGainNode = this.audioContext.createGain();
-          const time = effect.properties.getProperty('time');
-          const decay = effect.properties.getProperty('decay');
-          const mix = effect.properties.getProperty('mix');
-
-          bufferSourceNode.connect(dryGainNode);
-          dryGainNode.connect(outputNode);
-          dryGainNode.gain.value = 1 - mix;
-
-          convolverNode.buffer = this.generateImpulseResponse(time, decay);
-
-          bufferSourceNode.connect(convolverNode);
-          convolverNode.connect(wetGainNode);
-          wetGainNode.connect(outputNode);
-          wetGainNode.gain.value = mix;
+          this.connectReverbNode(bufferSourceNode, effect, outputNode);
 
           break;
 
