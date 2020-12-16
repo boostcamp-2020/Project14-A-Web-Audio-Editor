@@ -55,75 +55,91 @@ import './SectionEffectSetting.scss';
             `;
     }
 
-    applyEffectListener() {        
-        let effectProperties:EffectProperties|null = null;
-        let newEffect:Effect|null = null;
+    addGainEffect() {
+      const gainElement:HTMLInputElement = document.querySelector('input.gain-percentage-input');
+      if(!gainElement) return;
+      
+      const gain = Number(gainElement.value) / 100;
+      const  effectProperties = new GainProperties({gain:gain});
+      const newEffect = new Effect({name:this.effectType, properties:effectProperties});
+      Controller.addEffect(newEffect); 
+    }
 
+    addCompressorEffect() {
+      const compressorThreshold:HTMLDivElement  = document.querySelector('div.threshold-value');
+      const compressorKnee:HTMLDivElement  = document.querySelector('div.knee-value');
+      const compressorRatio:HTMLDivElement  = document.querySelector('div.ratio-value');
+      const compressorAttack:HTMLDivElement  = document.querySelector('div.attack-value');
+      const compressorRelease:HTMLDivElement  = document.querySelector('div.release-value');
+      if(!compressorThreshold||!compressorKnee||!compressorRatio||!compressorAttack||!compressorRelease) return;
+  
+      const threshold = Number(compressorThreshold.innerText);
+      const knee = Number(compressorKnee.innerText);
+      const ratio = Number(compressorRatio.innerText);
+      const attack = Number(compressorAttack.innerText);
+      const release= Number(compressorRelease.innerText);
+
+      const effectProperties = new CompressorProperties({threshold:threshold, knee:knee, ratio:ratio, attack:attack, release:release});
+      const newEffect = new Effect({name:this.effectType, properties:effectProperties});
+      Controller.addEffect(newEffect);
+    }
+
+    addFilterEffect() {
+      const filterRadios = document.getElementsByName('filter-type');
+      const filterFrequency:HTMLDivElement = document.querySelector('div.frequency-value');
+      const filterQ:HTMLDivElement = document.querySelector('div.Q-value');
+
+      if(!filterRadios||!filterFrequency||!filterQ) return;
+      let type:string='';
+      filterRadios.forEach((radio)=>{
+          if(radio.checked){
+              type = radio.value; 
+          }
+      })
+      const frequency = Number(filterFrequency.innerText);
+      const Q = Number(filterQ.innerText);
+      
+      const effectProperties = new FilterProperties({type:type, frequency:frequency, Q:Q});
+      const newEffect = new Effect({name:this.effectType, properties:effectProperties});
+      Controller.addEffect(newEffect);
+    }
+
+    addReverbEffect() {
+      const reverbMix:HTMLDivElement = document.querySelector('div.mix-ratio-value');
+      const reverbTime:HTMLDivElement = document.querySelector('div.time-value');
+      const reverbDecay:HTMLDivElement = document.querySelector('div.decay-value');
+     
+      if(!reverbMix || !reverbTime || !reverbDecay) return;
+
+      const mix = Number(reverbMix.innerText);
+      const time = Number(reverbTime.innerText);
+      const decay = Number(reverbDecay.innerText);
+
+      const effectProperties = new ReverbProperties({mix:mix, time:time, decay:decay});
+      const newEffect = new Effect({name:this.effectType, properties:effectProperties});
+      Controller.addEffect(newEffect);
+    }
+
+    applyEffectListener() {        
         switch(this.effectType) {
             case EffectType.gain:
-                const gainElement:HTMLInputElement = document.querySelector('input.gain-percentage-input');
-                if(!gainElement) return;
+                this.addGainEffect();
                 
-                const gain = Number(gainElement.value) / 100;
-                effectProperties = new GainProperties({gain:gain});
-                newEffect = new Effect({name:this.effectType, properties:effectProperties});
-                Controller.addEffect(newEffect); 
                 break;
 
             case EffectType.compressor:
-                const compressorThreshold:HTMLDivElement  = document.querySelector('div.threshold-value');
-                const compressorKnee:HTMLDivElement  = document.querySelector('div.knee-value');
-                const compressorRatio:HTMLDivElement  = document.querySelector('div.ratio-value');
-                const compressorAttack:HTMLDivElement  = document.querySelector('div.attack-value');
-                const compressorRelease:HTMLDivElement  = document.querySelector('div.release-value');
-                if(!compressorThreshold||!compressorKnee||!compressorRatio||!compressorAttack||!compressorRelease) return;
-            
-                const threshold = Number(compressorThreshold.innerText);
-                const knee = Number(compressorKnee.innerText);
-                const ratio = Number(compressorRatio.innerText);
-                const attack = Number(compressorAttack.innerText);
-                const release= Number(compressorRelease.innerText);
-
-                effectProperties = new CompressorProperties({threshold:threshold, knee:knee, ratio:ratio, attack:attack, release:release});
-                newEffect = new Effect({name:this.effectType, properties:effectProperties});
-                Controller.addEffect(newEffect);
+              this.addCompressorEffect();
+                
                 break;
 
             case EffectType.filter:
-                const filterRadios = document.getElementsByName('filter-type');
-                const filterFrequency:HTMLDivElement = document.querySelector('div.frequency-value');
-                const filterQ:HTMLDivElement = document.querySelector('div.Q-value');
-
-                if(!filterRadios||!filterFrequency||!filterQ) return;
-                let type:string='';
-                filterRadios.forEach((radio)=>{
-                    if(radio.checked){
-                        type = radio.value; 
-                    }
-                })
-                const frequency = Number(filterFrequency.innerText);
-                const Q = Number(filterQ.innerText);
+              this.addFilterEffect();
                 
-                effectProperties = new FilterProperties({type:type, frequency:frequency, Q:Q});
-                newEffect = new Effect({name:this.effectType, properties:effectProperties});
-                Controller.addEffect(newEffect);
                 break;
 
             case EffectType.reverb:
-                const reverbMix:HTMLDivElement = document.querySelector('div.mix-ratio-value');
-                const reverbTime:HTMLDivElement = document.querySelector('div.time-value');
-                const reverbDecay:HTMLDivElement = document.querySelector('div.decay-value');
-               
-                if(!reverbMix || !reverbTime || !reverbDecay) return;
-
-                const mix = Number(reverbMix.innerText);
-                const time = Number(reverbTime.innerText);
-                const decay = Number(reverbDecay.innerText);
-
-                effectProperties = new ReverbProperties({mix:mix, time:time, decay:decay});
-                newEffect = new Effect({name:this.effectType, properties:effectProperties});
-                Controller.addEffect(newEffect);
-
+              this.addReverbEffect();
+                
                 break;
             default:
                 break;
