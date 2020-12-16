@@ -1,5 +1,4 @@
-//취소
-  const hideEffectSetting = (): void => {
+ const hideEffectSetting = (): void => {
     const effectSettingElement = document.querySelector('audi-section-effect-setting');
     const effectListElement = document.querySelector('audi-section-effect-list');
     // const sourceListElement = document.querySelector('audi-source-list');
