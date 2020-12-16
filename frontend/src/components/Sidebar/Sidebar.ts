@@ -12,12 +12,9 @@ import './Sidebar.scss';
 
     render() {
       this.innerHTML = `
-
         <div id="sidebar">
           <audi-time-info class="sidebar-child sidebar-time-info"></audi-time-info>
-          <audi-source-list class="sidebar-child sidebar-source-list"></audi-source-list>
-          <audi-section-effect-list class="sidebar-child sidebar-source-list hide"></audi-section-effect-list>
-          <audi-section-effect-setting class="sidebar-child sidebar-source-list hide"></audi-section-effect-setting>
+          <audi-sidebar-list-info></audi-sidebar-list-info>
         </div>
       `;
     }
@@ -25,4 +22,4 @@ import './Sidebar.scss';
   customElements.define('audi-side-bar', Sidebar);
 })();
 
-export {};
+export { };

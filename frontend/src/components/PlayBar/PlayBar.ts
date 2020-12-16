@@ -201,9 +201,8 @@ import './PlayBar.scss';
       }
 
       this.playbarMarkerBlurZoneElement.style.left = this.playbarMarkerElementLeft.style.left;
-      this.playbarMarkerBlurZoneElement.style.width = `${
-        Number(this.playbarMarkerElementRight.style.left.split('px')[0]) - Number(this.playbarMarkerElementLeft.style.left.split('px')[0])
-      }px`;
+      this.playbarMarkerBlurZoneElement.style.width = `${Number(this.playbarMarkerElementRight.style.left.split('px')[0]) - Number(this.playbarMarkerElementLeft.style.left.split('px')[0])
+        }px`;
     }
 
     dropPlayBarListener(e): void {
@@ -233,9 +232,8 @@ import './PlayBar.scss';
       }
 
       this.playbarMarkerBlurZoneElement.style.left = this.playbarMarkerElementLeft.style.left;
-      this.playbarMarkerBlurZoneElement.style.width = `${
-        Number(this.playbarMarkerElementRight.style.left.split('px').join('')) - Number(this.playbarMarkerElementLeft.style.left.split('px').join(''))
-      }px`;
+      this.playbarMarkerBlurZoneElement.style.width = `${Number(this.playbarMarkerElementRight.style.left.split('px').join('')) - Number(this.playbarMarkerElementLeft.style.left.split('px').join(''))
+        }px`;
     }
 
     compareCloseMarker(currentPosition: number): boolean {
@@ -287,6 +285,8 @@ import './PlayBar.scss';
     resizePlayBarContainer() {
       if (!this.playBarContainerElement || !this.trackScrollAreaElement) return;
 
+      console.log('this.maxTrackWidth', this.maxTrackWidth);
+
       const scrollAreaWidth = this.trackScrollAreaElement.getBoundingClientRect().right - this.trackScrollAreaElement.getBoundingClientRect().left;
       const ratio = this.maxTrackWidth / scrollAreaWidth;
 
@@ -302,4 +302,4 @@ import './PlayBar.scss';
 
   customElements.define('audi-playbar', PlayBar);
 })();
-export {};
+export { };

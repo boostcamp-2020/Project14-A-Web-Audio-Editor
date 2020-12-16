@@ -1,0 +1,84 @@
+@use '@style/variables.scss' as variables;
+
+.section-effect-list-container {
+  height: 100%;
+  width: 100%;
+  
+  .section-effect-list-title {
+    width:100%;
+    margin-bottom:5px;
+
+    display: flex;
+    justify-content: space-between;
+  }
+}
+
+.section-effect-list-wrap {
+  display: flex;
+  flex-direction: column;
+  height:65%;
+  width:100%;
+  padding: 5% 0;
+
+  background-color: variables.$background-color;
+  border:1px solid variables.$border-color;
+  border-radius:5px;
+
+  overflow-x:hidden;
+  overflow-y: auto;
+}
+
+.section-effect-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  width: 100%;
+  height: 2rem;
+  margin: 8px 0;
+}
+
+.section-effect {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  
+  width: 90%;
+  height: 100%;
+  padding: 0 12px;
+
+  border: none;
+  background-color: variables.$source-color;
+  color:variables.$text-color;
+  border-radius:5px;
+  font-size: 12px;
+  cursor: pointer;
+  
+  > .section-effect-list-effect-name{
+    position: relative;
+    top: -35%;
+    transform: translateY(+50%);
+    vertical-align: top;
+  }
+
+  &:hover {
+    background-color: variables.$darkblue-color;
+  }
+}
+
+.section-effect-list-select-info {
+  padding: 10px;
+  height: 30%;
+  margin-top: 30px;
+  
+  font-size: 12px;
+  border-radius: 5px;
+  background-color: variables.$navy-color;
+  border:1px solid variables.$border-color;
+
+  & .section-effect-list-select-info-item{
+    white-space: nowrap;
+    overflow: hidden; 
+    text-overflow: ellipsis;
+  }
+}

@@ -17,6 +17,7 @@ module.exports = (env) => {
         '@model': path.resolve(__dirname, 'src/model'),
         '@controllers': path.resolve(__dirname, 'src/controllers'),
         '@command': path.resolve(__dirname, 'src/common/command'),
+        '@audio': path.resolve(__dirname, 'src/common/audio'),
       }
     },
     entry: {

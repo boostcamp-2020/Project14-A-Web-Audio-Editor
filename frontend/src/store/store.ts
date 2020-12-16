@@ -1,4 +1,4 @@
-import { StoreStateType, CursorType, ZoomInfoType, StoreChannelType, ModalType, ModalStateType, FocusInfo } from '@types';
+import { StoreStateType, CursorType, ZoomInfoType, StoreChannelType, ModalType, ModalStateType, FocusInfo, SidebarMode, EffectType } from '@types';
 import { Track, Source, TrackSection, SectionDragStartData, SelectTrackData, Effect } from '@model';
 import { storeChannel } from '@store';
 
@@ -42,7 +42,10 @@ const store = new (class Store {
         playTimeInterval: 20
       },
       loopStartTime: 0,
-      loopEndTime: 300
+      loopEndTime: 300,
+      sidebarMode: SidebarMode.SOURCE_LIST,
+      effectOptionType: EffectType.gain,
+      hoverSourceInfo: null
     };
   }
 
@@ -332,6 +335,26 @@ const store = new (class Store {
   setLoopEndTime = (newLoopEndTime: number): void => {
     this.state = { ...this.state, loopEndTime: newLoopEndTime };
   };
+
+  setSidebarMode = (newSidebarMode: SidebarMode): void => {
+    const { sidebarMode } = this.state;
+    if (sidebarMode === newSidebarMode) return;
+
+    this.state = { ...this.state, sidebarMode: newSidebarMode };
+    storeChannel.publish(StoreChannelType.SIDEBAR_MODE_CHANNEL, newSidebarMode);
+  }
+
+  setEffectOptionType = (newEffectOptionType: EffectType): void => {
+    const { effectOptionType } = this.state
+
+    this.state = { ...this.state, effectOptionType: newEffectOptionType };
+    storeChannel.publish(StoreChannelType.EFFECT_OPTION_TYPE_CHANNEL, newEffectOptionType);
+  }
+
+  setHoverSourceInfo = (newSource: Source | null): void => {
+    this.state = { ...this.state, hoverSourceInfo: newSource };
+    storeChannel.publish(StoreChannelType.SOURCELIST_SOURCE_INFO_CHANNEL, newSource);
+  }
 })();
 
 export { store };

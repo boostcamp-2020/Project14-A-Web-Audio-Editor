@@ -12,13 +12,13 @@ import './IconButton.scss';
     constructor() {
       super();
       this.icontype = null;
-      this.color = 'white';
+      this.color = 'rgb(201,209,217)'
       this.size = '20px';
       this.isDoneInit = false;
     }
 
     static get observedAttributes(): string[] {
-      return ['icontype', 'color', 'size', 'data-event-key'];
+      return ['icontype', 'size', 'data-event-key'];
     }
 
     attributeChangedCallback(attrName: string, oldVal: string, newVal: string): void {
@@ -27,9 +27,6 @@ import './IconButton.scss';
       switch (attrName) {
         case 'icontype':
           this.icontype = IconType[newVal];
-          break;
-        case 'color':
-          this.color = newVal;
           break;
         case 'size':
           this.size = newVal;

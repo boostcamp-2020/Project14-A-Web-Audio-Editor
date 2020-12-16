@@ -4,8 +4,6 @@ export * as AudioUtil from './AudioUtil';
 export * as WidthUtil from './WidthUtil';
 export * as MarkerEventUtil from './MarkerEventUtil';
 export * as CopyUtil from './CopyUtil';
-export * as SectionEffectListUtil from './SectionEffectListUtil';
-export * as SectionEffectSettingUtil from './SectionEffectSettingUtil';
 export * as TimeUtil from './TimeUtil';
 export * as EncodingUtil from './EncodingUtil';
 export * as ValidUtil from './ValidUtil';

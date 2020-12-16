@@ -44,6 +44,9 @@
       ],
       "@command": [
         "src/common/command"
+      ],
+      "@audio": [
+        "src/common/audio"
       ]
     }
   },

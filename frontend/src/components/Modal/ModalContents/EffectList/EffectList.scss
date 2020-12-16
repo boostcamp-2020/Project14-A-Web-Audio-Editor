@@ -16,12 +16,12 @@ audi-effect-list{
         width: 100%;
         padding: 7px 5px;
         margin-bottom: 10px;
-        border: 1px solid #ffffff;
+        border: 1px solid variables.$border-color;
         cursor: pointer;
 
         &:hover{
-            color: variables.$green-color;
-            border-color: variables.$green-color;
+            color: variables.$blue-color;
+            border-color: variables.$blue-color;
         }
 
         &:last-of-type{

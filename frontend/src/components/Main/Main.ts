@@ -14,9 +14,11 @@ import './Main.scss';
       this.innerHTML = `
                   <main class="audi-main-container">
                     <div class="audi-main-content">
-                        <audi-main-aside-content></audi-main-aside-content>
-                        <audi-main-middle-content></audi-main-middle-content>
-                        <audi-main-right-content></audi-main-right-content>
+                      <audi-main-aside-content></audi-main-aside-content>
+                      <div class="main-track-content-area">
+                        <audi-main-track-content></audi-main-track-content>
+                        <audi-main-controller-content></audi-main-controller-content>
+                      </div>
                     </div>
                   </main>
               `;

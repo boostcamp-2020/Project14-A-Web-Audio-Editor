@@ -1,3 +1,5 @@
+@use '@style/variables.scss'as variables;
+
 side-bar:not(:defined) {
     display: hidden;
 }
@@ -6,12 +8,11 @@ side-bar:not(:defined) {
     display:flex;
     flex-direction:column;
     align-items:center;
-    padding:1px;
     height:100%;
     width:100%;
 
     border-radius: 5px;
-    background-color: black;
+    background-color: variables.$black-color;
 }
 
 .sidebar-child {
@@ -19,10 +20,12 @@ side-bar:not(:defined) {
 }
 
 .sidebar-source-list {
+    width: 100%;
     height:85%;
 }
 
 .sidebar-time-info {
+    width: 100%;
     height:15%;
 
     margin-bottom: 10px;

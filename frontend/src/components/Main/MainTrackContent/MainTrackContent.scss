@@ -1,0 +1,37 @@
+audi-main-track-content{
+    width: 100%;
+
+    .audi-main-audio-track-container {
+        display: flex;
+        position: relative;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0);
+        overflow: hidden;
+
+        .audi-main-track-left{
+          width: 80px;
+          margin: 0 15px;
+        }
+
+        .audi-main-track-right{
+          width: calc(100% - 110px);
+          height: 90%;
+
+          .audi-main-audio-track-container-event-zone {
+            position: absolute;
+            width: 100%;
+            height: 95%;
+      
+            top: 2rem;
+            left: 0;
+      
+            z-index: 90;
+          }
+        }
+        
+        .audi-main-right-bottom{
+          height: 10%;
+        }
+    }
+}

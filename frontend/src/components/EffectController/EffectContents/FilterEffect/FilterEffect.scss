@@ -1,4 +1,4 @@
-@import '@style/variables';
+@use '@style/variables.scss' as variables;
 
 audi-effect-filter {
   width: 100%;
@@ -35,7 +35,7 @@ audi-effect-filter {
 
     text-align: center;
     line-height: 30px;
-    color: $green-color;
+    color: variables.$blue-color;
   }
 }
 

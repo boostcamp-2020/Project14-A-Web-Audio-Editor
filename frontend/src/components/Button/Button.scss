@@ -2,12 +2,13 @@
 
 .audi-button--modal{
     min-width: 100px;
+    height: 35px;
     padding: 5px 10px;
-    border: 1px solid variables.$white-color;
-    border-radius: 3px;
-    color: variables.$white-color;
+    border: 1px solid variables.$border-color;
+    border-radius: 5px;
+    color: variables.$text-color;
 
     &:hover{
-        background-color: variables.$green-color;
+        background-color: variables.$blue-color;
     }
 }

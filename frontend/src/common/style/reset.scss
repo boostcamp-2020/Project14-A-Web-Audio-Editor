@@ -1,3 +1,4 @@
+@use '@style/variables.scss' as variables;
 @import url(//fonts.googleapis.com/earlyaccess/notosanskr.css);
 
 html,
@@ -95,7 +96,7 @@ input,
 textarea,
 select,
 button {
-    font-family: "Noto Sans KR", sans-serif,  Dotum, '돋움', Helvetica, "Apple SD Gothic Neo",;
+    font-family: "Noto Sans KR", sans-serif,  Dotum, '돋움', Helvetica, "Apple SD Gothic Neo";
 }
 
 blockquote,
@@ -156,4 +157,20 @@ img {
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
+  color: variables.$text-color;
+}
+
+*::-webkit-scrollbar {
+  width: 6px;
+}
+*::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+*::-webkit-scrollbar-thumb {
+  border-radius: 3px;
+  background-color: variables.$darkblue-color;
+}
+*::-webkit-scrollbar-button {
+  width: 0;
+  height: 0;
 }

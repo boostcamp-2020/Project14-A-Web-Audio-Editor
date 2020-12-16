@@ -1,0 +1,16 @@
+@use '@style/variables.scss'as variables;
+
+.edit-tools {
+  display:flex;
+  justify-content: space-around;
+  height: 50px;
+  margin: auto 10px;
+  padding: 0 5px;
+  
+  border: 2px solid variables.$border-color;
+  border-radius: 6px;
+}
+
+.edit-tools > audi-icon-button {
+  margin: auto 5px;
+}
