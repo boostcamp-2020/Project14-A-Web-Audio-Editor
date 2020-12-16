@@ -11,6 +11,7 @@ enum KeyBoard {
   SPACE = 32,
   LEFT_BRACKET = 219,
   RIGHT_BRACKET = 221,
+  ENTER = 13,
 }
 
 export { KeyBoard }
