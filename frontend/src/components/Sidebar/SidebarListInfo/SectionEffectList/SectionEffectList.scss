@@ -3,6 +3,8 @@
 .section-effect-list-container {
   height: 100%;
   width: 100%;
+  display: flex;
+  flex-direction: column;
   
   .section-effect-list-title {
     width:100%;
@@ -16,9 +18,10 @@
 .section-effect-list-wrap {
   display: flex;
   flex-direction: column;
-  height:65%;
+  height:100%;
   width:100%;
   padding: 5% 0;
+  flex:1 1;
 
   background-color: variables.$background-color;
   border:1px solid variables.$border-color;
@@ -68,10 +71,9 @@
 
 .section-effect-list-select-info {
   padding: 10px;
-  height: 30%;
-  margin-top: 30px;
+  margin-top: 20px;
   
-  font-size: 12px;
+  font-size: 14px;
   border-radius: 5px;
   background-color: variables.$navy-color;
   border:1px solid variables.$border-color;

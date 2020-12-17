@@ -22,8 +22,10 @@
 
     .main-track-content-area{
       width: calc(100% - 250px);
+      height: 100%;
       display: flex;
       flex-direction: column;
+      justify-content: space-between  ;
     }
   }
 

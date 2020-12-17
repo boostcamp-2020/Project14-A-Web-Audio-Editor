@@ -44,14 +44,12 @@ import { ZoomController } from '@controllers';
     }
 
     renderScrollAreaContent() {
-      console.log(this.trackScrollAreaElement);
-
       if (!this.trackScrollAreaElement) return;
 
       this.trackScrollAreaElement.innerHTML = `
             <audi-marker></audi-marker>
             <audi-playbar></audi-playbar>
-            <audi-main-track-list-area></audi-main-track-list-area>
+            <audi-main-track-list-area></audi-main-track-list-area> 
         `;
     }
   };

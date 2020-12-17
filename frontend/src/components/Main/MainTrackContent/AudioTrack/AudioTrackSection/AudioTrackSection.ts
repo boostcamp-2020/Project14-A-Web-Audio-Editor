@@ -244,13 +244,13 @@ import './AudioTrackSection.scss';
     }
 
     trackSectionMouseMoveListener(e): void {
-      if (!this.trackContainerElement || this.cursorMode !== CursorType.CUT_MODE) {
+      if (!this.trackScrollAreaElement || this.cursorMode !== CursorType.CUT_MODE) {
         this.hideCutLine();
         return;
       }
       const cursorPosition = e.pageX;
-      const trackContainerLeftX = this.trackContainerElement.getBoundingClientRect().left;
-      const cursorOffset = cursorPosition - trackContainerLeftX;
+      const trackScrollAreaLeftX = this.trackScrollAreaElement?.getBoundingClientRect().left;
+      const cursorOffset = cursorPosition - trackScrollAreaLeftX;
 
       this.showCutLine(cursorOffset + this.currentScrollAmount);
     }
