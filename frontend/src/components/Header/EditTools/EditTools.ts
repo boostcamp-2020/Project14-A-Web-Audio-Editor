@@ -1,9 +1,10 @@
-import { CommandManager } from '@command';
+import { Command } from '@command';
 import { CursorType, StoreChannelType, EventKeyType, EventType, IconType } from "@types";
 import { storeChannel } from '@store';
 import { Controller, CommandController } from '@controllers'
 import { EventUtil } from '@util';
 import './EditTools.scss'
+import { TrackSection } from '@model';
 
 (() => {
   const EditTools = class extends HTMLElement {
@@ -16,7 +17,7 @@ import './EditTools.scss'
     private deleteElement: HTMLElement | null;
     private undoElement: HTMLElement | null;
     private redoElement: HTMLElement | null;
-
+    private clipBoard: TrackSection | null;
     constructor() {
       super();
       this.iconlist = ['cursor', 'blade', 'copy', 'cut', 'paste', 'delete', 'undo', 'redo'];
@@ -28,12 +29,12 @@ import './EditTools.scss'
       this.deleteElement = null;
       this.undoElement = null;
       this.redoElement = null;
+      this.clipBoard = null;
     }
 
     connectedCallback() {
       this.render();
-      this.initElement()
-      this.initState();
+      this.initElement();
       this.initEvent();
       this.subscribe();
     }
@@ -41,7 +42,27 @@ import './EditTools.scss'
     render() {
       this.innerHTML = `
               <div class="edit-tools">
-                ${this.iconlist.reduce((acc, icon) => acc + `<audi-icon-button id="${icon}" icontype="${icon}" class="delegation" size="32px" event-key=${EventKeyType.EDIT_TOOLS_CLICK + icon}></audi-icon-button>`, '')}
+                ${this.iconlist.reduce((acc, icon) => {
+        if (icon === IconType.cursor) {
+          return acc + `<audi-icon-button id="${icon}" 
+                          icontype="${icon}" size="32px"
+                          class="delegation selected"
+                          event-key=${EventKeyType.EDIT_TOOLS_CLICK + icon}>
+                        </audi-icon-button>`
+        } else if (icon === IconType.blade) {
+          return acc + `<audi-icon-button id="${icon}" 
+                            icontype="${icon}" size="32px"
+                            class="delegation"
+                            event-key=${EventKeyType.EDIT_TOOLS_CLICK + icon}>
+                          </audi-icon-button>`
+        } else {
+          return acc + `<audi-icon-button id="${icon}" 
+                            icontype="${icon}" size="32px"
+                            class="delegation disabled"
+                            event-key=${EventKeyType.EDIT_TOOLS_CLICK + icon}>
+                          </audi-icon-button>`
+        }
+      }, '')}
               </div>
             `;
     }
@@ -55,53 +76,6 @@ import './EditTools.scss'
       this.deleteElement = this.querySelector('#delete');
       this.undoElement = this.querySelector('#undo');
       this.redoElement = this.querySelector('#redo');
-    }
-
-    initState() {
-      this.initCursorState();
-      this.initFocusState();
-      this.initClipBoardState();
-      this.initCommandState();
-    }
-
-    initCursorState() {
-      const cursorMode = Controller.getCursorMode();
-      if (cursorMode === CursorType.SELECT_MODE) {
-        this.cursorElement?.classList.add('selected');
-      } else {
-        this.bladeElement?.classList.add('selected');
-      }
-    }
-
-    initFocusState() {
-      const focusList = Controller.getFocusList();
-      if (focusList.length === 0) {
-        this.copyElement?.classList.add('disabled');
-        this.cutElement?.classList.add('disabled');
-        this.deleteElement?.classList.add('disabled');
-      } else if (focusList.length > 1) {
-        this.copyElement?.classList.add('disabled');
-        this.cutElement?.classList.add('disabled');
-      }
-    }
-
-    initClipBoardState() {
-      const clipBoard = Controller.getClipBoard();
-      const focusList = Controller.getFocusList();
-
-      if (focusList.length > 1 || !clipBoard) {
-        this.pasteElement?.classList.add('disabled');
-      }
-    }
-
-    initCommandState() {
-      const { undoList, redoList } = CommandManager;
-      if (undoList.length === 0) {
-        this.undoElement?.classList.add('disabled');
-      }
-      if (redoList.length === 0) {
-        this.redoElement?.classList.add('disabled');
-      }
     }
 
     initEvent() {
@@ -195,14 +169,58 @@ import './EditTools.scss'
     }
 
     subscribe(): void {
-      storeChannel.subscribe(StoreChannelType.EDIT_TOOLS_CHANNEL, this.updateEditTools, this);
-      storeChannel.subscribe(StoreChannelType.CURSOR_MODE_CHANNEL, this.updateEditTools, this);
+      storeChannel.subscribe(StoreChannelType.FOCUS_LIST_CHANNEL, this.focusListObserverCallback, this);
+      storeChannel.subscribe(StoreChannelType.CURSOR_MODE_CHANNEL, this.cursorModeObserverCallback, this);
+      storeChannel.subscribe(StoreChannelType.COMMAND_REDO_UNDO_CHANNEL, this.commandObserverCallback, this);
+      storeChannel.subscribe(StoreChannelType.CLIPBOARD_CHANNEL, this.clipboardObserverCallback, this);
     }
 
-    updateEditTools(): void {
-      this.render();
-      this.initElement();
-      this.initState();
+    cursorModeObserverCallback(newCursorMode: CursorType): void {
+      if (newCursorMode === CursorType.SELECT_MODE) {
+        this.cursorElement?.classList.add('selected');
+        this.bladeElement?.classList.remove('selected');
+      } else {
+        this.bladeElement?.classList.add('selected');
+        this.cursorElement?.classList.add('selected');
+      }
+    }
+
+    focusListObserverCallback(newfocusList): void {
+      if (this.clipBoard) {
+        if (newfocusList.length < 2) {
+          this.pasteElement?.classList.remove('disabled');
+        } else {
+          this.pasteElement?.classList.add('disabled');
+        }
+      }
+
+      if (newfocusList.length === 1) {
+        this.copyElement?.classList.remove('disabled');
+        this.cutElement?.classList.remove('disabled');
+        this.deleteElement?.classList.remove('disabled');
+      } else {
+        this.copyElement?.classList.add('disabled');
+        this.cutElement?.classList.add('disabled');
+        this.deleteElement?.classList.add('disabled');
+      }
+    }
+
+    commandObserverCallback({ undoList, redoList }: { undoList: Command[], redoList: Command[] }): void {
+      if (undoList.length === 0) {
+        this.undoElement?.classList.add('disabled');
+      } else {
+        this.undoElement?.classList.remove('disabled');
+      }
+      if (redoList.length === 0) {
+        this.redoElement?.classList.add('disabled');
+      } else {
+        this.redoElement?.classList.remove('disabled');
+      }
+    }
+
+    clipboardObserverCallback(newClipboard: TrackSection): void {
+      this.clipBoard = newClipboard;
+      this.pasteElement?.classList.remove('disabled');
     }
   };
 

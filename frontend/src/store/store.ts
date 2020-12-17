@@ -128,7 +128,6 @@ const store = new (class Store {
 
   setTrackSectionEffect() {
     storeChannel.publish(StoreChannelType.TRACK_CHANNEL, this.state.trackList);
-    storeChannel.publish(StoreChannelType.EDIT_MENU_CHANNEL, null);
   }
 
   setEffectIndex(effectIndex: number) {
@@ -160,8 +159,8 @@ const store = new (class Store {
       trackSectionList: newTrackSectionList
     });
     storeChannel.publish(StoreChannelType.TRACK_CHANNEL, newTrackList);
-    storeChannel.publish(StoreChannelType.EDIT_MENU_CHANNEL, null);
     storeChannel.publish(StoreChannelType.TOTAL_TIME_CHANNEL, newTrackList);
+    storeChannel.publish(StoreChannelType.FILE_TOOLS_CHANNEL, newTrackList);
   }
 
   setCurrentPosition(newCurrentPosition: number): void {
@@ -181,7 +180,6 @@ const store = new (class Store {
     const newfocusList = focusList.concat(newFocusInfo);
 
     this.state = { ...this.state, focusList: newfocusList };
-    storeChannel.publish(StoreChannelType.EDIT_TOOLS_CHANNEL, null);
     storeChannel.publish(StoreChannelType.FOCUS_LIST_CHANNEL, newfocusList);
   }
 
@@ -190,20 +188,18 @@ const store = new (class Store {
     const newfocusList = [...focusList];
     newfocusList.splice(removeIndex, 1);
     this.state = { ...this.state, focusList: newfocusList };
-    storeChannel.publish(StoreChannelType.EDIT_TOOLS_CHANNEL, null);
     storeChannel.publish(StoreChannelType.FOCUS_LIST_CHANNEL, newfocusList);
   }
 
   resetFocus(): void {
     const newFocusList = [];
     this.state = { ...this.state, focusList: newFocusList };
-    storeChannel.publish(StoreChannelType.EDIT_TOOLS_CHANNEL, null);
     storeChannel.publish(StoreChannelType.FOCUS_LIST_CHANNEL, newFocusList);
   }
 
   setClipBoard(newSection: TrackSection): void {
     this.state.clipBoard = newSection;
-    storeChannel.publish(StoreChannelType.EDIT_TOOLS_CHANNEL, null);
+    storeChannel.publish(StoreChannelType.CLIPBOARD_CHANNEL, newSection);
   }
 
   setMarkerNumberTime(newMarkerNumberTime: number): void {
@@ -262,7 +258,7 @@ const store = new (class Store {
     });
 
     storeChannel.publish(StoreChannelType.TRACK_CHANNEL, newTrackList);
-    storeChannel.publish(StoreChannelType.EDIT_MENU_CHANNEL, null);
+    storeChannel.publish(StoreChannelType.FILE_TOOLS_CHANNEL, newTrackList);
   }
 
   setCursorMode(newCursorMode: CursorType): void {

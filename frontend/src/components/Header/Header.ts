@@ -14,7 +14,14 @@ import './Header.scss'
       this.innerHTML = `
               <div id="header">
                 <audi-logo></audi-logo>
-                <audi-editor-menu></audi-editor-menu>
+                <div id="editor-menu">
+                  <audi-file-tools></audi-file-tools>
+                  <audi-edit-tools></audi-edit-tools>
+                  <audi-playback-tools></audi-playback-tools>
+                  <div class="icon-wrap">
+                    <audi-icon-button id="record" icontype="record" size="32px"></audi-icon-button>
+                  </div>
+                </div>
               </div>
             `;
     }

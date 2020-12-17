@@ -232,6 +232,10 @@ const getCursorMode = (): CursorType => {
 };
 
 const setCursorMode = (newCursorType: CursorType) => {
+  const { cursorMode } = store.getState();
+
+  if (cursorMode === newCursorType) return;
+
   const trackContainerElement = document.querySelector('.audi-main-audio-track-container');
 
   if (!trackContainerElement) return;
