@@ -1,5 +1,5 @@
 import { Controller, ZoomController } from '@controllers';
-import { EventKeyType, EventType, StoreChannelType } from '@types';
+import { CursorType, EventKeyType, EventType, StoreChannelType } from '@types';
 import { EventUtil, WidthUtil, DragUtil, TimeUtil } from '@util';
 import { storeChannel } from '@store';
 import { TrackSection, SectionDragStartData, SelectTrackData } from '@model';
@@ -69,11 +69,12 @@ import './AudioTrack.scss';
                     <div class="audio-track-container" event-key=${EventKeyType.FOCUS_RESET_CLICK + this.trackId}>
                       <div data-track-id=${this.trackId} class="audio-track-area" event-key=${EventKeyType.AUDIO_TRACK_AREA_MULTIPLE + this.trackId}>
                         ${this.getTrackSectionList()}
-                       
-                        <div id="section-cut-line-${this.trackId}" class="cut-line hide"></div>
-                        <div id="afterimage-${this.trackId}" class="audio-track-afterimage" event-key=${
-        EventKeyType.AUDIO_TRACK_AFTERIMAGE_DROP + this.trackId
-      }></div>
+                        <div id="section-cut-line-${this.trackId}" class="cut-line hide">
+                          <div class="cut-line-border">
+                            <div class="cut-line-cursor-time">00:00</div>
+                          </div>
+                        </div>
+                        <div id="afterimage-${this.trackId}" class="audio-track-afterimage" event-key=${EventKeyType.AUDIO_TRACK_AFTERIMAGE_DROP + this.trackId}></div>
                         <div id="track-select-line-${this.trackId}" class="track-select-line"></div>
                       </div>      
                     </div>
@@ -219,7 +220,14 @@ import './AudioTrack.scss';
         const cursorOffset = cursorPosition - trackAreaElementLeftX;
         const selectedTime = cursorOffset / secondPerPixel;
         const selectLine = document.getElementById(`track-select-line-${this.trackId}`);
+        const cursorMode = Controller.getCursorMode();
         if (!selectLine) return;
+
+        if (cursorMode !== CursorType.SELECT_MODE) {
+          Controller.changeSelectTrackData(0, 0);
+          selectLine.style.display = 'none';
+          return;
+        }
         selectLine.style.display = 'block';
         selectLine.style.left = `${cursorOffset}px`;
 
