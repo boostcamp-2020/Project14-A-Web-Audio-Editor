@@ -570,6 +570,8 @@ const addEffect = (effect: Effect) => {
       track.trackSectionList.forEach((trackSection) => {
         if (trackSection.id === focusedTrackSectionId) {
           effect.id = newEffectIndex;
+          effect.trackId = track.id;
+          effect.trackSectionId = trackSection.id;
           const newEffect = CopyUtil.copyEffect(effect);
           // newEffect.id = newEffectIndex++;
           trackSection.effectList.push(newEffect);

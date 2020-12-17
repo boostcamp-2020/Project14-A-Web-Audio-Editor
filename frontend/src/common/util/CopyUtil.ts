@@ -33,6 +33,8 @@ const copyTrackList = (trackList: Track[]): Track[] => {
 
 const copyEffect = (effect: Effect): Effect =>{
   const effectId = effect.id;
+  const effectTrackId = effect.trackId;
+  const effectTrackSectionID = effect.trackSectionId;
   const effectName = effect.name;
   const effectProperties = effect.properties;
   let newEffectProperties:EffectProperties|null= null;
@@ -68,6 +70,8 @@ const copyEffect = (effect: Effect): Effect =>{
   
   const newEffect = new Effect({
     id:effectId,
+    trackId:effectTrackId,
+    trackSectionId:effectTrackSectionID,
     name:effectName,
     properties:newEffectProperties
   });
