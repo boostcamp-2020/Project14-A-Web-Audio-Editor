@@ -119,7 +119,7 @@ import './AudioTrackSection.scss';
       const trackWidth = pixelPerSecond * duration;
       const trackHeight = this.trackAreaElement.clientHeight;
       this.canvasWidth = trackWidth;
-      this.canvasHeight = trackHeight;;
+      this.canvasHeight = trackHeight;
     }
 
     resizeCanvas(): void {
@@ -257,8 +257,12 @@ import './AudioTrackSection.scss';
       const offesetOfCursorPosition = WidthUtil.getDifferenceWidth(trackScrollAreaLeftX, cursorPosition);
 
       if (minute < 0 && second < 0 && milsecond < 0) return;
-      Controller.changeCurrentPosition(offesetOfCursorPosition);
+      
       this.cutLineCursorTimeElement.innerText = `${minute.toString().padStart(2, '0')}:${second.toString().padStart(2, '0')}:${milsecond.toString().substring(0, 2)}`;
+      Controller.changeCurrentPosition(offesetOfCursorPosition);      
+      Controller.changeCursorStringTime(minute, second, milsecond);
+      Controller.changeCursorNumberTime(timeOfCursorPosition);
+   
       if (!this.trackScrollAreaElement || this.cursorMode !== CursorType.CUT_MODE) {
         this.hideCutLine();
         return;
@@ -302,7 +306,7 @@ import './AudioTrackSection.scss';
 
     initState(): void {
       const focusList = Controller.getFocusList();
-      const focusInfo = focusList.find(focus => focus.trackSection.id === this.sectionId);
+      const focusInfo = focusList.find((focus) => focus.trackSection.id === this.sectionId);
       if (!focusInfo || !this.trackCanvasElement) return;
 
       focusInfo.element = this.trackCanvasElement;

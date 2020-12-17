@@ -1,7 +1,7 @@
 import { Command } from '@command';
-import { Controller } from '@controllers'
-import { TrackSection, Track } from '@model'
-import { CopyUtil } from '@util'
+import { Controller } from '@controllers';
+import { TrackSection, Track } from '@model';
+import { CopyUtil } from '@util';
 import { storeChannel } from '@store';
 import { StoreChannelType } from '@types';
 
@@ -22,12 +22,11 @@ class DeleteCommand extends Command {
     if (focusList.length === 0) return;
     const trackIdSet = new Set<number>();
 
-    this.deleteSectionList = focusList.map(focus => {
+    this.deleteSectionList = focusList.map((focus) => {
       const trackSection = focus.trackSection;
       if (!trackIdSet.has(trackSection.trackId)) {
         const track = Controller.getTrack(trackSection.trackId);
-        if (track)
-          this.beforeTrackList.push(CopyUtil.copyTrack(track));
+        if (track) this.beforeTrackList.push(CopyUtil.copyTrack(track));
         trackIdSet.add(trackSection.trackId);
       }
       return CopyUtil.copySection(trackSection);
@@ -36,28 +35,28 @@ class DeleteCommand extends Command {
 
   execute() {
     Controller.resetFocus();
-    const deleteTrackList = this.beforeTrackList.map(track => CopyUtil.copyTrack(track));
+    const deleteTrackList = this.beforeTrackList.map((track) => CopyUtil.copyTrack(track));
 
-    this.deleteSectionList.forEach(deleteSection => {
-      const deleteTrack = deleteTrackList.find(track => deleteSection.trackId === track.id);
+    this.deleteSectionList.forEach((deleteSection) => {
+      const deleteTrack = deleteTrackList.find((track) => deleteSection.trackId === track.id);
       if (!deleteTrack) return;
 
-      const deleteSectionIndex = deleteTrack.trackSectionList.findIndex(section => section.id === deleteSection.id);
+      const deleteSectionIndex = deleteTrack.trackSectionList.findIndex((section) => section.id === deleteSection.id);
       deleteTrack.trackSectionList.splice(deleteSectionIndex, 1);
     });
 
-    deleteTrackList.forEach(track => {
+    deleteTrackList.forEach((track) => {
       Controller.setTrack(track);
       this.publishChannel(track);
-    })
-  };
+    });
+  }
 
   undo() {
-    this.beforeTrackList.forEach(track => {
+    this.beforeTrackList.forEach((track) => {
       Controller.setTrack(track);
       this.publishChannel(track);
-    })
-  };
+    });
+  }
 
   publishChannel(track) {
     storeChannel.publish(StoreChannelType.TRACK_SECTION_LIST_CHANNEL, {
@@ -66,6 +65,7 @@ class DeleteCommand extends Command {
     });
     const newTrackList = Controller.getTrackList();
     storeChannel.publish(StoreChannelType.TRACK_CHANNEL, newTrackList);
+    storeChannel.publish(StoreChannelType.TOTAL_TIME_CHANNEL, newTrackList);
   }
 }
 
