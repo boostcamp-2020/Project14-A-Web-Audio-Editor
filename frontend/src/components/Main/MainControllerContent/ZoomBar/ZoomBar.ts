@@ -8,7 +8,6 @@ import './ZoomBar.scss';
     const ZoomBar = class extends HTMLElement {
         private mouseDownX: number;
         private lastLeft: number;
-        private scrollDistancePerPixel: number;
         private zoombarContainerElement: HTMLDivElement | null;
         private zoombarControllerElement: HTMLDivElement | null;
         private scrollDistanceRatio: number;
@@ -17,15 +16,10 @@ import './ZoomBar.scss';
             super();
             this.mouseDownX = 0;
             this.lastLeft = 0;
-            this.scrollDistancePerPixel = 1;
             this.zoombarContainerElement = null;
             this.zoombarControllerElement = null;
             this.scrollDistanceRatio = 1;
         }
-
-        // static DEFAULT_ZOOMBAR_CONTROLLER_SIZE_PERCENTAGE = 100;
-        // static MIN_ZOOMBAR_CONTROLLER_SIZE_PERCENTAGE = 5;
-        // static = 1.0;
 
         connectedCallback(): void {
             try {
@@ -89,10 +83,12 @@ import './ZoomBar.scss';
                 this.zoombarControllerElement.style.left = mouseMoveX + "px";
 
                 const audioTrackScrollAreaElement = document.querySelector('.audi-main-audio-track-scroll-area');
-                if (!audioTrackScrollAreaElement) return;
+                const playBarScrollAreaElement = document.querySelector('.main-playbar-scroll-area-container');
+                if (!audioTrackScrollAreaElement || !playBarScrollAreaElement) return;
 
                 const scrollAmount = (this.scrollDistanceRatio * mouseMoveX);
                 audioTrackScrollAreaElement.scrollLeft = scrollAmount;
+                playBarScrollAreaElement.scrollLeft = scrollAmount;
 
                 Controller.changeCurrentScrollAmount(scrollAmount);
             }
