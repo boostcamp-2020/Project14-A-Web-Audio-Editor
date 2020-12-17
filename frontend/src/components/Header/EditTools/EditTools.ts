@@ -180,8 +180,8 @@ import { TrackSection } from '@model';
         this.cursorElement?.classList.add('selected');
         this.bladeElement?.classList.remove('selected');
       } else {
+        this.cursorElement?.classList.remove('selected');
         this.bladeElement?.classList.add('selected');
-        this.cursorElement?.classList.add('selected');
       }
     }
 
