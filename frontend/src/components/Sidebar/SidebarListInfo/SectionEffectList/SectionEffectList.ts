@@ -1,8 +1,9 @@
-import { ModalType, EventType, EventKeyType, IconType } from '@types';
+import { ModalType, EventType, EventKeyType, IconType, StoreChannelType } from '@types';
 import { Controller } from '@controllers';
 import { EventUtil } from '@util';
 import { Effect, Source } from '@model';
 import './SectionEffectList.scss';
+import { storeChannel } from '@store';
 
 (() => {
   const SectionEffectList = class extends HTMLElement {
@@ -16,6 +17,7 @@ import './SectionEffectList.scss';
     connectedCallback(): void {
       this.render();
       this.initEvent();
+      this.subscribe();
     }
 
     initEvent(): void {
@@ -25,7 +27,15 @@ import './SectionEffectList.scss';
         listeners: [this.openEffectListModalBtnClickListener],
         bindObj: this
       });
+
+      EventUtil.registerEventToRoot({
+        eventTypes: [EventType.click],
+        eventKey: EventKeyType.EFFECT_DELETE_BTN_CLICK,
+        listeners: [this.deleteEffectBtnClickListener],
+        bindObj: this
+      });
     }
+
     render(): void {
       this.innerHTML = `
                     
@@ -58,13 +68,15 @@ import './SectionEffectList.scss';
         return `${focusList.length}개 Section 선택`;
       }
 
+      const trackSection = focusList[0].trackSection;
+
       return focusList[0].trackSection.effectList.reduce(
         (acc, effect) =>
         (acc += `
           <li class="section-effect-container">
             <div class="section-effect"> 
               <span class="section-effect-list-effect-name">${effect.name}</span>
-              <audi-icon-button icontype=${IconType.delete}></audi-icon-button> 
+              <audi-icon-button icontype=${IconType.delete} data-effect-id="${effect.id}" data-effect-track-id="${trackSection.trackId}" data-effect-track-section-id="${trackSection.id}" class="delegation" event-key="${EventKeyType.EFFECT_DELETE_BTN_CLICK}"></audi-icon-button> 
             </div>
           </li>
         `),
@@ -83,6 +95,19 @@ import './SectionEffectList.scss';
     //   this.effectList = [...this.effectList, newEffect];
     //   this.render();
     // }
+
+    deleteEffectBtnClickListener(e) {
+      const deleteBtn = e.target.closest("audi-icon-button");
+
+      const effectId:number = Number(deleteBtn.dataset.effectId);
+      const effectTrackId:number = Number(deleteBtn.dataset.effectTrackId);
+      const effectTrackSectionId:number = Number(deleteBtn.dataset.effectTrackSectionId);
+      Controller.deleteEffect(effectId, effectTrackId, effectTrackSectionId);
+    }
+
+    subscribe() {
+      storeChannel.subscribe(StoreChannelType.EFFECT_STATE_CHANNEL, this.render, this);
+    }
 
     hide(): void {
       this.classList.add('hide');

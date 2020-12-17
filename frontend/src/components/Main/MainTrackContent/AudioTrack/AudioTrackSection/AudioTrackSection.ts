@@ -22,6 +22,7 @@ import './AudioTrackSection.scss';
     private cutLineElement: HTMLElement | undefined | null;
     private trackContainerWidth: number;
     private trackAfterimageElement: HTMLElement | null;
+    private cutLineCursorTimeElement: HTMLElement | undefined | null;
 
     constructor() {
       super();
@@ -41,6 +42,7 @@ import './AudioTrackSection.scss';
       this.cutLineElement;
       this.trackContainerWidth = 0;
       this.trackAfterimageElement = null;
+      this.cutLineCursorTimeElement;
     }
 
     static get observedAttributes(): string[] {
@@ -92,6 +94,7 @@ import './AudioTrackSection.scss';
       this.trackAreaElement = document.querySelector('.audio-track-area');
       this.trackScrollAreaElement = document.querySelector('.audi-main-audio-track-scroll-area');
       this.trackAfterimageElement = document.querySelector(`#afterimage-${this.trackId}`);
+      this.cutLineCursorTimeElement = this.cutLineElement?.querySelector('.cut-line-cursor-time');
 
       if (this.trackContainerElement) {
         this.trackContainerWidth = this.trackContainerElement.getBoundingClientRect().right - this.trackContainerElement.getBoundingClientRect().left;
@@ -116,7 +119,7 @@ import './AudioTrackSection.scss';
       const trackWidth = pixelPerSecond * duration;
       const trackHeight = this.trackAreaElement.clientHeight;
       this.canvasWidth = trackWidth;
-      this.canvasHeight = trackHeight;;
+      this.canvasHeight = trackHeight;
     }
 
     resizeCanvas(): void {
@@ -244,14 +247,28 @@ import './AudioTrackSection.scss';
     }
 
     trackSectionMouseMoveListener(e): void {
+      if (!this.trackScrollAreaElement || !this.cutLineCursorTimeElement) return;
+      const cursorPosition = e.pageX;
+      const trackScrollAreaLeftX = this.trackScrollAreaElement?.getBoundingClientRect().left;
+      const scrolledCursorPosition = cursorPosition + this.currentScrollAmount;
+      const timeOfCursorPosition = TimeUtil.calculateTimeOfCursorPosition(trackScrollAreaLeftX, scrolledCursorPosition);
+
+      const [minute, second, milsecond] = TimeUtil.splitTime(timeOfCursorPosition);
+      const offesetOfCursorPosition = WidthUtil.getDifferenceWidth(trackScrollAreaLeftX, cursorPosition);
+
+      if (minute < 0 && second < 0 && milsecond < 0) return;
+      
+      this.cutLineCursorTimeElement.innerText = `${minute.toString().padStart(2, '0')}:${second.toString().padStart(2, '0')}:${milsecond.toString().substring(0, 2)}`;
+      Controller.changeCurrentPosition(offesetOfCursorPosition);      
+      Controller.changeCursorStringTime(minute, second, milsecond);
+      Controller.changeCursorNumberTime(timeOfCursorPosition);
+   
       if (!this.trackScrollAreaElement || this.cursorMode !== CursorType.CUT_MODE) {
         this.hideCutLine();
         return;
       }
-      const cursorPosition = e.pageX;
-      const trackScrollAreaLeftX = this.trackScrollAreaElement?.getBoundingClientRect().left;
-      const cursorOffset = cursorPosition - trackScrollAreaLeftX;
 
+      const cursorOffset = cursorPosition - trackScrollAreaLeftX;
       this.showCutLine(cursorOffset + this.currentScrollAmount);
     }
 
@@ -289,7 +306,7 @@ import './AudioTrackSection.scss';
 
     initState(): void {
       const focusList = Controller.getFocusList();
-      const focusInfo = focusList.find(focus => focus.trackSection.id === this.sectionId);
+      const focusInfo = focusList.find((focus) => focus.trackSection.id === this.sectionId);
       if (!focusInfo || !this.trackCanvasElement) return;
 
       focusInfo.element = this.trackCanvasElement;

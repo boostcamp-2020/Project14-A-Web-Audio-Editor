@@ -225,9 +225,10 @@ class AudioManager {
     const gainNode = this.audioContext.createGain();
 
     gainNode.gain.value = effect.properties.getProperty('gain');
-
+    
     bufferSourceNode.connect(gainNode);
-    gainNode.connect(outputNode);
+    gainNode.connect(this.audioContext.destination);
+    // gainNode.connect(outputNode);
   }
 
   connectCompressorNode(bufferSourceNode: AudioBufferSourceNode, effect: Effect, outputNode: GainNode) {
@@ -240,7 +241,8 @@ class AudioManager {
     compressorNode.knee.setValueAtTime(effect.properties.getProperty('knee'), 0);
 
     bufferSourceNode.connect(compressorNode);
-    compressorNode.connect(outputNode);
+    // compressorNode.connect(outputNode);
+    compressorNode.connect(this.audioContext.destination);
   }
 
   connectFilterNode(bufferSourceNode: AudioBufferSourceNode, effect: Effect, outputNode: GainNode) {
@@ -251,7 +253,8 @@ class AudioManager {
     filterNode.Q.value = effect.properties.getProperty('Q');
 
     bufferSourceNode.connect(filterNode);
-    filterNode.connect(outputNode);
+    // filterNode.connect(outputNode);
+    filterNode.connect(this.audioContext.destination);
   }
 
   connectReverbNode(bufferSourceNode: AudioBufferSourceNode, effect: Effect, outputNode: GainNode) {
@@ -263,14 +266,16 @@ class AudioManager {
     const mix = effect.properties.getProperty('mix');
 
     bufferSourceNode.connect(dryGainNode);
-    dryGainNode.connect(outputNode);
+    // dryGainNode.connect(outputNode);
+    dryGainNode.connect(this.audioContext.destination);
     dryGainNode.gain.value = 1 - mix;
 
     convolverNode.buffer = this.generateImpulseResponse(time, decay);
 
     bufferSourceNode.connect(convolverNode);
     convolverNode.connect(wetGainNode);
-    wetGainNode.connect(outputNode);
+    // wetGainNode.connect(outputNode);
+    wetGainNode.connect(this.audioContext.destination);
     wetGainNode.gain.value = mix;
   }
 
@@ -287,22 +292,6 @@ class AudioManager {
     const selectedSection = selectedTrack?.trackSectionList.find((section: TrackSection) => {
       return section.id === sectionId;
     });
-
-    //test1. gain
-    //const tempGain = new GainProperties({gain:4});
-    //mySection?.effectList.push(new Effect({name:'gain', properties:tempGain}));
-
-    //test2. compressor
-    //const tempCompressor = new CompressorProperties({});
-    //mySection?.effectList.push(new Effect({name:'compressor', properties:tempCompressor}));
-
-    //test3. filter
-    //const tempFilter = new FilterProperties({type:'lowpass'});
-    //mySection?.effectList.push(new Effect({name:'filter', properties:tempFilter}));
-
-    //test4. reverb
-    // const tempReverb = new ReverbProperties({});
-    // mySection?.effectList.push(new Effect({name:'reverb', properties:tempReverb}));
 
     selectedSection?.effectList.forEach((effect) => {
       switch (effect.name) {
@@ -328,10 +317,11 @@ class AudioManager {
     });
 
     if (selectedSection?.effectList.length === 0) {
-      bufferSourceNode.connect(outputNode);
+      bufferSourceNode.connect(this.audioContext.destination);
+      // bufferSourceNode.connect(outputNode);
     }
 
-    outputNode.connect(this.audioContext.destination);
+    // outputNode.connect(this.audioContext.destination);
     this.sourceInfo.push({ trackId: trackId, sectionId: sectionId, bufferSourceNode: bufferSourceNode });
   }
 
@@ -757,7 +747,6 @@ class AudioManager {
       this.audioContext = new AudioContext();
       this.audioContext.suspend();
 
-      //loop여부 관계없이 맨 마지막에 멈추게 하는 게 구현은 편할 것.
       this.setMaxPlayTime();
 
       setTimeout(() => {

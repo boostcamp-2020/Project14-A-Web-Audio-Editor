@@ -1,10 +1,6 @@
 @use '@style/variables.scss'as variables;
 
-#editor-menu {
-  display: flex;
-}
-
-.icon-wrap {
+.file-tools {
   display:flex;
   justify-content: space-around;
   height: 50px;
@@ -19,20 +15,10 @@
   }
 }
 
-.icon-wrap > audi-icon-button {
+.file-tools  > audi-icon-button {
   margin: auto 5px;
 }
 
-
-#user-menu{
-  cursor:pointer;
-}
-
-#user-menu:hover {
-  svg > path {
-    fill: #ffffff
-  }
-}
 
 @media screen and (max-width: 1680px) {
   #editor-menu {

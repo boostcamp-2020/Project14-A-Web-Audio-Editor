@@ -5,6 +5,7 @@ const clickMarkerListener = (element: HTMLElement) => (e: Event): void => {
   const [currentPosition, cursorNumberTime] = Controller.getCurrentPosition();
   const isPause = Controller.getIsPauseState();
   const isRepeat = Controller.getIsRepeatState();
+  const currentScrollAmount = Controller.getCurrentScrollAmount();
 
   if (isRepeat) {
     const [loopStartTime, loopEndTime] = Controller.getLoopTime();
@@ -20,7 +21,7 @@ const clickMarkerListener = (element: HTMLElement) => (e: Event): void => {
   }
 
   if (currentPosition < 0) return;
-  element.style.left = `${currentPosition}px`;
+  element.style.left = `${currentPosition + currentScrollAmount}px`;
 };
 
 export { clickMarkerListener };
