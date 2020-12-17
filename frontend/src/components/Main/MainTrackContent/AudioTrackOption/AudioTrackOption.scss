@@ -1,0 +1,54 @@
+@use '@style/variables.scss'as variables;
+
+.audio-track-option-container{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 175px;
+    padding: 10px;
+    margin: 20px 0;
+    border: 1px solid variables.$border-color;
+    border-radius: 5px;
+    color: variables.$text-color;
+    box-sizing: border-box;
+    cursor: pointer;
+
+    &:first-of-type{
+        margin-top: 10px;
+    }
+
+    li{
+        margin-bottom: 10px;
+
+        &.clicked{
+            span{
+                color: variables.$blue-color;
+            }
+        }
+
+        span{
+            &:hover{
+                color: variables.$blue-color;
+            }
+        }
+    }
+}
+
+@media screen and (max-width: 1680px) {
+    .audio-track-option-container{
+        height: 125px;
+        margin: 10px 0;
+        padding: 5px;
+
+        li{
+            span{
+                font-size: 12px;
+            }
+        }
+
+        &:first-of-type{
+            margin-top: 5px;
+        }
+    }
+}

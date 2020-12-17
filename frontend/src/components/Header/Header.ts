@@ -13,7 +13,7 @@ import './Header.scss'
     render() {
       this.innerHTML = `
               <div id="header">
-                <audi-logo color="white"></audi-logo>
+                <audi-logo></audi-logo>
                 <audi-editor-menu></audi-editor-menu>
               </div>
             `;
@@ -22,4 +22,4 @@ import './Header.scss'
   customElements.define('audi-header', Header);
 })()
 
-export {};
+export { };

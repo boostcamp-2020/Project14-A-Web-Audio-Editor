@@ -10,3 +10,4 @@ export { TrackOptionType } from './trackOptionTypes';
 export { SectionDataType } from './trackSectionTypes';
 export { TrackMenuType } from './trackMenuTypes'
 export { ZoomInfoType } from './zoomTypes';
+export { SidebarMode } from './sidebarTypes';

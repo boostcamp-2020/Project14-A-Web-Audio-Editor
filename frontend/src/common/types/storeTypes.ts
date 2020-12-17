@@ -1,5 +1,5 @@
 import { Source, Track, AudioSourceInfoInTrack, TrackSection, SectionDragStartData, SelectTrackData } from '@model';
-import { ModalStateType, ZoomInfoType } from '@types';
+import { ModalStateType, ZoomInfoType, SidebarMode, EffectType } from '@types';
 
 enum CursorType {
   SELECT_MODE = 'SELECT_MODE',
@@ -34,7 +34,10 @@ enum StoreChannelType {
   FOCUS_LIST_CHANNEL = 'FOCUS_LIST_CHANNEL',
   ZOOM_RATE_CHANNEL = 'ZOOM_RATE_CHANNEL',
   RESET_MARKER_POSITION_CHANNEL = 'RESET_MARKER_POSITION_CHANNEL',
-  TOTAL_TIME_CHANNEL = 'TOTAL_TIME_CHANNEL'
+  TOTAL_TIME_CHANNEL = 'TOTAL_TIME_CHANNEL',
+  SIDEBAR_MODE_CHANNEL = 'SIDEBAR_MODE_CHANNEL',
+  EFFECT_OPTION_TYPE_CHANNEL = 'EFFECT_OPTION_TYPE_CHANNEL',
+  SOURCELIST_SOURCE_INFO_CHANNEL = 'SOURCELIST_SOURCE_INFO_CHANNEL'
 }
 
 interface StoreStateType {
@@ -66,6 +69,9 @@ interface StoreStateType {
   zoomInfo: ZoomInfoType;
   loopStartTime: number;
   loopEndTime: number;
+  sidebarMode: SidebarMode;
+  effectOptionType: EffectType;
+  hoverSourceInfo: Source | null;
 }
 
 interface StoreObserverData {

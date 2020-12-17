@@ -1,3 +1,5 @@
+@use '@style/variables.scss'as variables;
+
 .audi-main-container {
   width: 100%;
   height: 90%;
@@ -9,9 +11,22 @@
     width: 100%;
     height: 100%;
     padding: 30px;
-    border: 1px solid #ffffff;
+
+    border: 2px solid variables.$border-color;
     border-radius: 5px;
-    background-color: #000000;
+    background-color: variables.$black-color;
+
+    & audi-main-aside-content{
+      width: 250px;
+    }
+
+    .main-track-content-area{
+      width: calc(100% - 250px);
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between  ;
+    }
   }
 
   .cursor-change {

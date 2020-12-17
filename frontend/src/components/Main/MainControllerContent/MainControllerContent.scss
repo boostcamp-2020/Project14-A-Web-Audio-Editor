@@ -1,0 +1,19 @@
+audi-main-controller-content{
+    width: 100%;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    
+    & audi-track-menu{
+        width: 80px;
+        margin: 0 15px;
+    }
+
+    .audi-main-right-bottom{
+        width: calc(100% - 110px);
+        display: flex;
+        flex-direction: column;
+
+        justify-content: space-between;
+    }
+}

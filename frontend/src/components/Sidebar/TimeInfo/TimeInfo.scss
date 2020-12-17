@@ -1,0 +1,89 @@
+@use '@style/variables.scss'as variables;
+
+@mixin my-flex($f-dir:row) {
+    display:flex;
+    flex-direction:$f-dir;
+    align-items:center;
+    justify-content:left;
+    flex-wrap: nowrap;
+}
+
+.time-info-outer-wrap {
+    @include my-flex();
+    justify-content: center;
+    width: 100%;
+    height:100%;
+    border:1px solid variables.$border-color;
+    border-radius:5px;
+}
+
+.time-info-wrap {
+    @include my-flex();
+    height:100%;
+    width: 90%;
+    justify-content:center;
+    align-items: center;
+    
+    .play-time {
+        width: 100%;
+        flex-basis:50%;
+        font-size: 1.8125rem;
+        margin-right: 1rem;
+        text-align: center;
+        color: variables.$blue-color;
+    }
+
+
+    .other-time {
+        flex-basis:50%;
+        display: flex;
+        flex-wrap: nowrap;
+
+        .other-time-title{
+            font-size: 12px;
+        }
+
+        .other-time-content{
+            font-size: 12px;
+            margin-left:10px;
+        }
+
+    } 
+    color:variables.$white-color;
+}
+
+@media screen and (max-width: 1680px) {
+    .time-info-wrap {
+        .play-time {
+            font-size: 20px; 
+        }
+
+        .other-time {
+            .other-time-title{
+                font-size: 8px;
+            }
+
+            .other-time-content{
+                font-size: 8px;
+            }
+        }
+    }
+}
+
+@media screen and (max-width: 1360px) {
+    .time-info-wrap {
+        .play-time {
+            font-size: 15px; 
+        }
+
+        .other-time {
+            .other-time-title{
+                font-size: 8px;
+            }
+
+            .other-time-content{
+                font-size: 8px;
+            }
+        }
+    }
+}

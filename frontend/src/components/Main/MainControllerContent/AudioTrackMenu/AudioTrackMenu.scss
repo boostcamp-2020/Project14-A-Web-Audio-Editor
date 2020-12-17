@@ -1,0 +1,38 @@
+@use '@style/variables.scss'as variables;
+
+audi-track-menu{
+    width: 80px;
+    
+    .audio-track-menu-container{
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        
+        padding: 10px 0 5px 0;
+        border: 1px solid variables.$border-color;
+        border-radius: 5px;
+
+        .track-menu-area{
+            display: flex;
+            justify-content: center;
+        }
+
+        .zoom-menu-area{
+            display: flex;
+            justify-content: center;
+        }
+      
+        audi-icon-button{
+            margin-right: 5px;
+            &:last-of-type{
+                margin-right: 0;
+            }
+        }
+
+        .color-picker{
+            position: absolute;
+            visibility: hidden;
+        }
+    }
+}

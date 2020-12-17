@@ -1,0 +1,22 @@
+@use '@style/variables.scss'as variables;
+
+.playback-tools {
+  display: flex;
+  justify-content: space-around;
+  height: 50px;
+  margin: auto 10px;
+  padding: 0 5px;
+
+  border: 2px solid variables.$border-color;
+  border-radius: 6px;
+}
+
+.playback-tools > audi-icon-button {
+  margin: auto 5px;
+}
+
+.clicked {
+  path {
+    fill: variables.$blue-color;
+  }
+}

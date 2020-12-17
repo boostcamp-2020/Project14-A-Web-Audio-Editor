@@ -29,7 +29,7 @@ const icons = {
 const iconInfo = {
   play: '재생(Space)',
   pause: '일시정지(Space)',
-  stop: '중지',
+  stop: '정지하기',
   skipNext: '종료 지점( ] )',
   skipPrev: '시작 지점( [ )',
   fastForward: '건너뛰기(→)',

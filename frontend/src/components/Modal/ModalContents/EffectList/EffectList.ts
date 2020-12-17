@@ -1,6 +1,6 @@
 import "./EffectList.scss";
-import { ButtonType, EventKeyType, EventType, ModalType, EffectType } from "@types";
-import { EventUtil, SectionEffectSettingUtil } from "@util";
+import { ButtonType, EventKeyType, EventType, ModalType, EffectType, SidebarMode } from "@types";
+import { EventUtil } from "@util";
 import { Controller } from "@controllers";
 
 (() => {
@@ -10,9 +10,13 @@ import { Controller } from "@controllers";
 
     constructor() {
       super();
-      this.effects = ['Gain', 'Fade in', 'Fade out', 'Compressor', 'Filter', 'Reverb'];
-      this.eventKeyList = [EventKeyType.GAIN_EFFECT_CLICK, EventKeyType.FADE_IN_EFFECT_CLICK, EventKeyType.FADE_OUT_EFFECT_CLICK, EventKeyType.COMPRESSOR_EFFECT_CLICK,
-      EventKeyType.FILTER_EFFECT_CLICK, EventKeyType.REVERB_EFFECT_CLICK];
+      this.effects = ['Gain', 'Compressor', 'Filter', 'Reverb'];
+      this.eventKeyList = [
+        EventKeyType.GAIN_EFFECT_CLICK,
+        EventKeyType.COMPRESSOR_EFFECT_CLICK,
+        EventKeyType.FILTER_EFFECT_CLICK,
+        EventKeyType.REVERB_EFFECT_CLICK
+      ];
     }
 
     connectedCallback() {
@@ -31,12 +35,12 @@ import { Controller } from "@controllers";
               `;
     }
 
-    getEffectList(): string{
-        return this.effects.reduce((acc,effect, idx)=>
-            acc +=`<li class="delegation" event-key="${this.eventKeyList[idx]}"><span>${effect}</span></li>` ,'');
+    getEffectList(): string {
+      return this.effects.reduce((acc, effect, idx) =>
+        acc += `<li class="delegation" event-key="${this.eventKeyList[idx]}"><span event-delegation>${effect}</span></li>`, '');
     }
 
-    initEvent(){
+    initEvent() {
       EventUtil.registerEventToRoot({
         eventTypes: [EventType.click],
         eventKey: EventKeyType.EFFECT_LIST_CLOSE_BTN_CLICK,
@@ -51,77 +55,82 @@ import { Controller } from "@controllers";
         bindObj: this
       });
 
-      EventUtil.registerEventToRoot({
-        eventTypes: [EventType.click],
-        eventKey: EventKeyType.FADE_IN_EFFECT_CLICK,
-        listeners: [this.fadeInEffectClickListener],
-        bindObj: this
-      });   
-      
-      EventUtil.registerEventToRoot({
-        eventTypes: [EventType.click],
-        eventKey: EventKeyType.FADE_OUT_EFFECT_CLICK,
-        listeners: [this.fadeOutEffectClickListener],
-        bindObj: this
-      });    
+      // EventUtil.registerEventToRoot({
+      //   eventTypes: [EventType.click],
+      //   eventKey: EventKeyType.FADE_IN_EFFECT_CLICK,
+      //   listeners: [this.fadeInEffectClickListener],
+      //   bindObj: this
+      // });
+
+      // EventUtil.registerEventToRoot({
+      //   eventTypes: [EventType.click],
+      //   eventKey: EventKeyType.FADE_OUT_EFFECT_CLICK,
+      //   listeners: [this.fadeOutEffectClickListener],
+      //   bindObj: this
+      // });
 
       EventUtil.registerEventToRoot({
         eventTypes: [EventType.click],
         eventKey: EventKeyType.COMPRESSOR_EFFECT_CLICK,
         listeners: [this.compressorEffectClickListener],
         bindObj: this
-      });  
+      });
 
       EventUtil.registerEventToRoot({
         eventTypes: [EventType.click],
         eventKey: EventKeyType.FILTER_EFFECT_CLICK,
         listeners: [this.filterEffectClickListener],
         bindObj: this
-      });  
+      });
 
       EventUtil.registerEventToRoot({
         eventTypes: [EventType.click],
         eventKey: EventKeyType.REVERB_EFFECT_CLICK,
         listeners: [this.reverbEffectClickListener],
         bindObj: this
-      });  
+      });
     }
 
-    closeBtnClickListener(){
+    closeBtnClickListener() {
       Controller.changeModalState(ModalType.effect, true);
     }
 
     gainEffectClickListener() {
       this.closeBtnClickListener();
-      Controller.showEffectSetting(EffectType.gain);
-    }
-    
-    fadeInEffectClickListener() {
-      this.closeBtnClickListener();
+      this.showEffectOption(EffectType.gain);
     }
 
-    fadeOutEffectClickListener() {
-      this.closeBtnClickListener();
-    }
+    // fadeInEffectClickListener() {
+    //   this.closeBtnClickListener();
+    // }
+
+    // fadeOutEffectClickListener() {
+    //   this.closeBtnClickListener();
+    // }
 
     compressorEffectClickListener() {
       this.closeBtnClickListener();
-      Controller.showEffectSetting(EffectType.compressor);
+      this.showEffectOption(EffectType.compressor);
     }
 
     filterEffectClickListener() {
       this.closeBtnClickListener();
-      Controller.showEffectSetting(EffectType.filter);
+      this.showEffectOption(EffectType.filter);
     }
 
     reverbEffectClickListener() {
       this.closeBtnClickListener();
-      Controller.showEffectSetting(EffectType.reverb);
+      this.showEffectOption(EffectType.reverb);
+    }
+
+    showEffectOption(effectType: EffectType): void {
+      Controller.changeSidebarMode(SidebarMode.EFFECT_OPTION);
+      Controller.changeEffectOptionType(effectType);
     }
   };
-  
+
   customElements.define('audi-effect-list', EffectList);
 })();
 
-export {};
+export { };
 

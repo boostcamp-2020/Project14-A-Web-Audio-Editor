@@ -1,0 +1,77 @@
+@use '@style/variables.scss'as variables;
+
+.source-list-container{
+    width: 100%;
+    height: 100%;
+
+    display: flex;
+    flex-direction: column;
+}
+
+.source-list-title {
+    width:100%;
+    margin-bottom:5px;
+    color: variables.$text-color;
+}
+
+.source-list-wrap {
+    height:100%;
+    width:100%;
+    padding: 5% 0;
+    flex:1 1;
+
+    background-color: variables.$background-color;
+    border:1px solid variables.$border-color;
+    border-radius:5px;
+
+    overflow-x:hidden;
+    overflow-y: auto;
+}
+
+.audio-source {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    margin:8px;
+    height:2rem;
+    padding: 0 12px;
+
+    background-color: variables.$source-color;
+    color:variables.$text-color;
+    border-radius:5px;
+
+    cursor: pointer;
+
+    &:hover {
+        background-color: variables.$darkblue-color;
+    }
+
+    & .audio-source-fileName{
+        font-size: 12px;
+
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        pointer-events: none;
+    }
+}
+
+.source-file-info-wrap{
+    margin-top: 20px;
+}
+.source-info {
+    padding: 10px;
+
+    font-size: 14px;
+    border-radius: 5px;
+    background-color: variables.$navy-color;
+    border:1px solid variables.$border-color;
+    & .source-info-item{
+        white-space: nowrap;
+        overflow: hidden; 
+        text-overflow: ellipsis;
+    }
+}
+
+

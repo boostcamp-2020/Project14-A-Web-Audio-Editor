@@ -1,9 +1,9 @@
 import { Source, Track, TrackSection, SectionDragStartData, Effect } from '@model';
 import { store } from '@store';
-import { ZoomController } from '@controllers'
-import { ModalType, FocusInfo, CursorType, SectionDataType } from '@types';
-import { CopyUtil, SectionEffectListUtil, TimeUtil, WidthUtil, SectionEffectSettingUtil } from '@util';
-import playbackTool from '@components/PlaybackTools/PlaybackToolClass';
+import { ZoomController, } from '@controllers'
+import { ModalType, FocusInfo, CursorType, SectionDataType, SidebarMode, EffectType } from '@types';
+import { CopyUtil, TimeUtil, WidthUtil } from '@util';
+import { audioManager } from '@audio';
 
 const getTrackSection = (trackId: number, trackSectionId: number): TrackSection | undefined => {
   const { trackList } = store.getState();
@@ -211,7 +211,6 @@ const addFocus = (trackSection: TrackSection, selectedElement: HTMLCanvasElement
     element: selectedElement
   };
   store.addFocus(newFocusInfo);
-  SectionEffectListUtil.showEffectList();
 };
 
 const removeFocus = (sectionId: number, selectedElement: HTMLElement): void => {
@@ -219,14 +218,12 @@ const removeFocus = (sectionId: number, selectedElement: HTMLElement): void => {
   const index = focusList.findIndex((focus) => focus.trackSection.id === sectionId);
   selectedElement.classList.remove('focused-section');
   store.removeFocus(index);
-  SectionEffectListUtil.hideEffectList();
 };
 
 const resetFocus = (): void => {
   const { focusList } = store.getState();
   focusList.forEach((focus) => focus.element.classList.remove('focused-section'));
   store.resetFocus();
-  SectionEffectListUtil.hideEffectList();
 };
 
 const getCursorMode = (): CursorType => {
@@ -420,22 +417,22 @@ const getCurrentScrollTime = (): number => {
 };
 
 const audioCursorPlay = () => {
-  playbackTool.audioCursorPlay();
+  audioManager.audioCursorPlay();
 };
 
 const audioPlayOrPause = (): void => {
-  const audioPlayType = playbackTool.audioPlayOrPause();
+  const audioPlayType = audioManager.audioPlayOrPause();
   store.changePlayOrPauseIcon(audioPlayType);
 };
 
 const audioStop = (): void => {
   const audioPlayType = 2;
-  playbackTool.audioStop();
+  audioManager.audioStop();
   store.changePlayOrPauseIcon(audioPlayType);
 };
 
 const audioRepeat = (): void => {
-  playbackTool.audioRepeat();
+  audioManager.audioRepeat();
 };
 
 const changeIsRepeatState = (isRepeatState: boolean): void => {
@@ -448,35 +445,35 @@ const getIsRepeatState = (): boolean => {
 };
 
 const audioFastRewind = () => {
-  playbackTool.audioFastRewind();
+  audioManager.audioFastRewind();
 };
 
 const audioFastForward = () => {
-  playbackTool.audioFastForward();
+  audioManager.audioFastForward();
 };
 
 const audioSkipPrev = () => {
-  playbackTool.audioSkipPrev();
+  audioManager.audioSkipPrev();
 };
 
 const audioSkipNext = () => {
-  playbackTool.audioSkipNext();
+  audioManager.audioSkipNext();
 };
 
 const setMute = (trackId: number) => {
-  playbackTool.setMute(trackId);
+  audioManager.setMute(trackId);
 };
 
 const unsetMute = (trackId: number) => {
-  playbackTool.unsetMute(trackId);
+  audioManager.unsetMute(trackId);
 };
 
 const setSolo = (trackId: number) => {
-  playbackTool.setSolo(trackId);
+  audioManager.setSolo(trackId);
 };
 
 const unsetSolo = (trackId: number) => {
-  playbackTool.unsetSolo(trackId);
+  audioManager.unsetSolo(trackId);
 };
 
 const changeSectionDragStartData = (sectionDragStartData: SectionDragStartData): void => {
@@ -561,10 +558,6 @@ const getLoopTime = (): number[] => {
   return [loopStartTime, loopEndTime];
 };
 
-const showEffectSetting = (effectType: string) => {
-  SectionEffectSettingUtil.showEffectSetting(effectType);
-}
-
 const addEffect = (effect: Effect) => {
   const { focusList, trackList, effectIndex } = store.getState();
 
@@ -575,7 +568,7 @@ const addEffect = (effect: Effect) => {
 
     trackList.forEach((track) => {
       track.trackSectionList.forEach((trackSection) => {
-        if(trackSection.id === focusedTrackSectionId) {
+        if (trackSection.id === focusedTrackSectionId) {
           effect.id = newEffectIndex;
           const newEffect = CopyUtil.copyEffect(effect);
           // newEffect.id = newEffectIndex++;
@@ -586,7 +579,7 @@ const addEffect = (effect: Effect) => {
   })
 
   newEffectIndex++;
-  
+
   store.setTrackSectionEffect();
   store.setEffectIndex(newEffectIndex);
 }
@@ -594,6 +587,40 @@ const addEffect = (effect: Effect) => {
 const getPrevMaxTrackWidth = (): number => {
   const { prevMaxTrackWidth } = store.getState();
   return prevMaxTrackWidth;
+}
+
+const getSidebarMode = (): SidebarMode => {
+  const { sidebarMode } = store.getState();
+  return sidebarMode;
+}
+
+const changeSidebarMode = (newSidebarModa: SidebarMode): void => {
+  store.setSidebarMode(newSidebarModa);
+}
+
+const getEffectOptionType = (): EffectType => {
+  const { effectOptionType } = store.getState();
+  return effectOptionType;
+}
+
+const changeEffectOptionType = (newEffectOptionType: EffectType): void => {
+  console.log('changeEffectOptionType', newEffectOptionType);
+
+  store.setEffectOptionType(newEffectOptionType);
+}
+
+const getHoverSource = (): Source | null => {
+  const { hoverSourceInfo } = store.getState();
+
+  return hoverSourceInfo;
+}
+
+const resetHoverSourceInfo = (): void => {
+  store.setHoverSourceInfo(null);
+}
+
+const changeHoverSourceInfo = (newSource: Source): void => {
+  store.setHoverSourceInfo(newSource);
 }
 
 export default {
@@ -664,7 +691,6 @@ export default {
   pushTrackWidthIndex,
   removeTrackById,
   insertTrack,
-  showEffectSetting,
   getPrevMaxTrackWidth,
   getLoopTime,
   changeLoopStartTime,
@@ -672,5 +698,12 @@ export default {
   changePlayStringTimeFastPlaying,
   initMarkerWidth,
   addEffect,
-  getModalIshidden
+  getModalIshidden,
+  getSidebarMode,
+  changeSidebarMode,
+  getEffectOptionType,
+  changeEffectOptionType,
+  getHoverSource,
+  resetHoverSourceInfo,
+  changeHoverSourceInfo
 };

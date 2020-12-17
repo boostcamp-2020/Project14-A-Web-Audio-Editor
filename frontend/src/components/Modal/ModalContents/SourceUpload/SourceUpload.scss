@@ -1,6 +1,4 @@
-$baseColor: #212121;
-$borderColor: #e0e0e0;
-$greenColor: #03c75a;
+@use '@style/variables.scss'as variables;
 
 .source-upload-content {
   display: flex;
@@ -10,12 +8,13 @@ $greenColor: #03c75a;
   width: 100%;
   height: 40vh;
 
-  border: 1px solid $borderColor;
+  border: 1px solid variables.$border-color;
+  // background-color: variables.$black-color;
 
   .source-empty:hover{
     *{
       cursor: pointer;
-      color: $greenColor;
+      color: variables.$blue-color;
     }
   }
 }

@@ -28,10 +28,10 @@ audi-loading {
   transform: translate(-50%, -50%);
   width: 50px;
   height: 50px;
-  border: 10px solid #ffffff;
-  border-top: 10px solid variables.$green-color;
+  border: 10px solid variables.$border-color;
+  border-top: 10px solid variables.$blue-color;
   border-radius: 50em;
-  background-color: variables.$theme-color;
+  background-color: variables.$background-color;
   animation-name: spinCircle;
   animation-duration: 0.8s;
   animation-iteration-count: infinite;
