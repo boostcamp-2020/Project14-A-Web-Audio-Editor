@@ -1,5 +1,5 @@
 import { Controller, ZoomController } from '@controllers';
-import { EventKeyType, EventType, StoreChannelType } from '@types';
+import { CursorType, EventKeyType, EventType, StoreChannelType } from '@types';
 import { EventUtil, WidthUtil, DragUtil } from '@util';
 import { storeChannel } from '@store';
 import { TrackSection, SectionDragStartData, SelectTrackData } from '@model';
@@ -194,7 +194,14 @@ import './AudioTrack.scss';
         const cursorOffset = cursorPosition - trackAreaElementLeftX;
         const selectedTime = cursorOffset / secondPerPixel;
         const selectLine = document.getElementById(`track-select-line-${this.trackId}`);
+        const cursorMode = Controller.getCursorMode();
         if (!selectLine) return;
+
+        if (cursorMode !== CursorType.SELECT_MODE) {
+          Controller.changeSelectTrackData(0, 0);
+          selectLine.style.display = 'none';
+          return;
+        }
         selectLine.style.display = 'block';
         selectLine.style.left = `${cursorOffset}px`;
 
