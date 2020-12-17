@@ -52,6 +52,7 @@ import { storeChannel } from "@store";
                 <audi-main-track-option-list-area></audi-main-track-option-list-area>
               </section>    
               <div class="audi-main-track-right">
+                <audi-marker></audi-marker>
                 <audi-main-playbar-scroll-area></audi-main-playbar-scroll-area> 
                 <audi-main-track-scroll-area></audi-main-track-scroll-area>
                 <div class='audi-main-audio-track-container-event-zone hide' event-key=${EventKeyType.AUDIO_TRACK_CONTAINER_MULTIPLE}></div>

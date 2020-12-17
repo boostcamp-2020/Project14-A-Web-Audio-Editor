@@ -68,7 +68,6 @@ import { ZoomController } from '@controllers';
       if (!this.trackScrollAreaElement) return;
 
       this.trackScrollAreaElement.innerHTML = `
-            <audi-marker></audi-marker>
             <audi-main-track-list-area></audi-main-track-list-area> 
         `;
     }

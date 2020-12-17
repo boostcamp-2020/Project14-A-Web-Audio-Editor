@@ -3,11 +3,12 @@
 .marker {
   position: absolute;
   width: 1px;
-  height: 90%;
+  height: 100%;
 
   left: 0px;
   border-left: 1px dashed variables.$blue-color;
   z-index: 999;
+  box-shadow: 0px 0px 9px variables.$blue-color;
 
   pointer-events: none;
 }
