@@ -3,9 +3,11 @@ audi-main-track-option-list-area{
     height: 90%;
 
     .audi-main-track-option-area{
+        // display: flex;
+        // flex-direction: column;
         width: 80px;
         height: 90%;
-        margin-top: 1.8rem;
+        // margin-top: 1.8rem;
 
         overflow-y: scroll;
         -ms-overflow-style: none; 

@@ -20,8 +20,8 @@ import './MainTrackOptionListArea.scss';
 
     render(): void {
       this.innerHTML = `
-            <div class="audi-main-track-option-area">
-                ${this.getTrackOptions()}
+            <div class="audi-main-track-option-area">  
+              ${this.getTrackOptions()}
             </div>
         `;
     }

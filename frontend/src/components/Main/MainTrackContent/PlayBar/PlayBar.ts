@@ -285,8 +285,6 @@ import './PlayBar.scss';
     resizePlayBarContainer() {
       if (!this.playBarContainerElement || !this.trackScrollAreaElement) return;
 
-      console.log('this.maxTrackWidth', this.maxTrackWidth);
-
       const scrollAreaWidth = this.trackScrollAreaElement.getBoundingClientRect().right - this.trackScrollAreaElement.getBoundingClientRect().left;
       const ratio = this.maxTrackWidth / scrollAreaWidth;
 

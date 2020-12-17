@@ -14,6 +14,7 @@ import { storeChannel } from "@store";
     private mainWidth: number;
     private maxTrackPlayTime: number;
     private currentScrollAmount: number;
+    private mainTrackRightElement: HTMLElement | null;
 
     constructor() {
       super();
@@ -22,8 +23,9 @@ import { storeChannel } from "@store";
       this.markerElement = null;
       this.mainWidth = 0;
       this.maxTrackPlayTime = Controller.getMaxTrackPlayTime();
-      this.mainAudioTrackContainerEventZone = null;
       this.currentScrollAmount = Controller.getCurrentScrollAmount();
+      this.mainAudioTrackContainerEventZone = null;
+      this.mainTrackRightElement = null;
     }
 
     connectedCallback(): void {
@@ -38,6 +40,7 @@ import { storeChannel } from "@store";
       this.render();
       this.initElement();
       this.initEvent();
+      this.renderPlaybarScrollArea();
       this.subscribe();
     }
 
@@ -45,9 +48,12 @@ import { storeChannel } from "@store";
       this.innerHTML = `
             <section class="audi-main-audio-track-container" event-key=${EventKeyType.FOCUS_RESET_CLICK}>
               <section class="audi-main-track-left">
+                <div class="audi-main-before-track-option"></div>
                 <audi-main-track-option-list-area></audi-main-track-option-list-area>
               </section>    
               <div class="audi-main-track-right">
+                <audi-marker></audi-marker>
+                <audi-main-playbar-scroll-area></audi-main-playbar-scroll-area> 
                 <audi-main-track-scroll-area></audi-main-track-scroll-area>
                 <div class='audi-main-audio-track-container-event-zone hide' event-key=${EventKeyType.AUDIO_TRACK_CONTAINER_MULTIPLE}></div>
               </div>
@@ -55,9 +61,22 @@ import { storeChannel } from "@store";
         `;
     }
 
+    renderPlaybarScrollArea(): void {
+      if(!this.mainTrackRightElement) return;
+
+      const mainPlaybarScrollAreaElement = this.querySelector('audi-main-playbar-scroll-area');
+      if(mainPlaybarScrollAreaElement){
+        this.mainTrackRightElement.removeChild(mainPlaybarScrollAreaElement);
+      }
+
+      const playBarScrollAreaElement = document.createElement('audi-main-playbar-scroll-area');
+      this.mainTrackRightElement.prepend(playBarScrollAreaElement);
+    }
+
     initElement(): void {
       const playbarElement = document.querySelector('.playbar');
       this.mainAudioTrackContainerEventZone = document.querySelector('.audi-main-audio-track-container-event-zone');
+      this.mainTrackRightElement = this.querySelector('.audi-main-track-right');
 
       if (!playbarElement || !this.mainAudioTrackContainerEventZone) return;
 
@@ -133,6 +152,7 @@ import { storeChannel } from "@store";
     zoomRateObserverCallback(newZoomRate) {
       this.render();
       this.initElement();
+      this.renderPlaybarScrollArea();
     }
   };
 

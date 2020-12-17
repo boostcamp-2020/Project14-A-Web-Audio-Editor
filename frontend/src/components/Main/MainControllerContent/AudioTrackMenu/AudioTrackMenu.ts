@@ -140,7 +140,7 @@ import './AudioTrackMenu.scss';
     trackZoomInMenuClickListener(e): void {
       try {
         const currentZoomRate = ZoomController.getCurrentRate();
-        if (currentZoomRate < 2.5) {
+        if (currentZoomRate < 3.5) {
           Controller.changeCurrentScrollAmount(0);
           ZoomController.setZoomRate(currentZoomRate + 0.25);
         }

@@ -13,9 +13,14 @@ audi-main-track-content{
         .audi-main-track-left{
           width: 80px;
           margin: 0 15px;
+
+          .audi-main-before-track-option{
+            height: 28.8px;
+          }
         }
 
         .audi-main-track-right{
+          position: relative;
           width: calc(100% - 110px);
           height: 90%;
 

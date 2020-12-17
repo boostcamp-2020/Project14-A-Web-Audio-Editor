@@ -139,7 +139,8 @@ import './SourceUpload.scss';
       const channelData = mergedBuffer.getChannelData(0);
 
       const durationPerMinute = audioBuffer.duration / 60;
-      const peaksPerMinute = 2500;
+      // const peaksPerMinute = 2500;
+      const peaksPerMinute = 4000;
       const pareseChannelDataLength = Math.round(durationPerMinute * peaksPerMinute)
       const parsedChannelData = await AudioUtil.parsePeaks(mergedBuffer, pareseChannelDataLength);
 

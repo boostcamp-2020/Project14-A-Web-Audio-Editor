@@ -316,6 +316,7 @@ const store = new (class Store {
   setZoomPixelPerSecond(newPixelPerSecond: number): void {
     const { zoomInfo } = this.getState();
     this.state = { ...this.state, zoomInfo: { ...zoomInfo, pixelPerSecond: newPixelPerSecond } };
+    storeChannel.publish(StoreChannelType.ZOOM_PIXEL_PER_SECOND_CHANNEL, newPixelPerSecond);
   }
 
   setZoomRate(newZoomRate: number): void {
