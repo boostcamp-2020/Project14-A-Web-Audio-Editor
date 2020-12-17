@@ -624,33 +624,13 @@ const changeHoverSourceInfo = (newSource: Source): void => {
 }
 
 const deleteEffect = (effectId: number, effectTrackId: number, effectTrackSectionId: number): void => {
-  //굳이 안 찾아도 되니까 편하긴 한데...ㅋㅋㅋ
-  //그냥 넘겨주기만 하면 되니까...
-  // console.log('controller deleteEffect');
-  // console.log(effectId, effectTrackId, effectTrackSectionId);
   const { trackList } = store.getState();
-  
-  console.log(trackList, '아니 이럴수가');
-  
-
   const trackIndex = trackList.findIndex((track)=>track.id === effectTrackId);
-  // console.log(trackIndex);
-  // console.log(trackList[trackIndex]);
   const trackSectionIndex = trackList[trackIndex].trackSectionList.findIndex((trackSection)=>trackSection.id===effectTrackSectionId);
   const effectIndex = trackList[trackIndex].trackSectionList[trackSectionIndex].effectList.findIndex((effect)=>effect.id===effectId);
  
   store.deleteEffect(effectIndex, trackIndex, trackSectionIndex);
 }
-
-/*
-const removeFocus = (sectionId: number, selectedElement: HTMLElement): void => {
-  const { focusList } = store.getState();
-  const index = focusList.findIndex((focus) => focus.trackSection.id === sectionId);
-  selectedElement.classList.remove('focused-section');
-  store.removeFocus(index);
-};
-
-*/
 
 export default {
   getTrackSection,
