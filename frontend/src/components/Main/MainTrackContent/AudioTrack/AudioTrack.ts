@@ -68,7 +68,11 @@ import './AudioTrack.scss';
                       <div data-track-id=${this.trackId} class="audio-track-area" event-key=${EventKeyType.AUDIO_TRACK_AREA_MULTIPLE + this.trackId}>
                         ${this.getTrackSectionList()}
                        
-                        <div id="section-cut-line-${this.trackId}" class="cut-line hide"></div>
+                        <div id="section-cut-line-${this.trackId}" class="cut-line hide">
+                          <div class="cut-line-border">
+                            <div class="cut-line-cursor-time">00:00</div>
+                          </div>
+                        </div>
                         <div id="afterimage-${this.trackId}" class="audio-track-afterimage" event-key=${EventKeyType.AUDIO_TRACK_AFTERIMAGE_DROP + this.trackId}></div>
                         <div id="track-select-line-${this.trackId}" class="track-select-line"></div>
                       </div>      
