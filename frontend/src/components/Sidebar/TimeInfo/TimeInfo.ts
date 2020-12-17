@@ -68,8 +68,12 @@ import { TimeUtil } from '@util';
         }, [])
         .map((section) => section.trackStartTime + section.length);
 
+      if (!eachLastTrackList.length) {
+        this.totalTime = '00:00:000';
+        this.render();
+        return;
+      }
       const maxTrackTime = Math.max(...eachLastTrackList);
-
       const [minute, second, milsecond] = TimeUtil.splitTime(maxTrackTime);
       this.totalTime = TimeUtil.getStringTime(minute, second, milsecond);
       this.render();
@@ -79,4 +83,4 @@ import { TimeUtil } from '@util';
   customElements.define('audi-time-info', TimeInfo);
 })();
 
-export { };
+export {};

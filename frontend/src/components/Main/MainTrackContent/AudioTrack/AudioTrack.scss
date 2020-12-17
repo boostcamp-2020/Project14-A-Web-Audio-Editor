@@ -18,23 +18,36 @@ audi-audio-track:not(:defined) {
         padding: 10px 0px;
         position: relative;
         min-height: 175px;
-        border-top: 1px solid variables.$border-color;
-        border-bottom: 1px solid variables.$border-color;
+        border-top: 1px solid variables.$border-color-navy;
+        border-bottom: 1px solid variables.$border-color-navy;
         box-sizing: border-box;
         overflow: visible;
         
         .cut-line {
             position: absolute;
             width: 1px;
-            height: 100%;
+            height: calc(100% - 26px);
 
-            top:0;
+            top:10px;
             left: 0px;
-            border-left: 1px dashed variables.$text-color;
             z-index: 999;
 
             pointer-events: none;
         }
+        .cut-line-border{
+                position: relative;
+                width: 1px;
+                height: 100%;
+                border-left: 1px dashed variables.$text-color;
+            }
+
+        .cut-line-cursor-time{
+                    position: absolute;
+                    font-size: 14px;
+                    bottom: -1.5rem;
+                    text-align: center;
+                    right: -28px;
+                }
 
         .audio-track-afterimage {
             display:none;

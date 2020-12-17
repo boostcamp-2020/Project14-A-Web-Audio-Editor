@@ -1,5 +1,5 @@
 import './EditTools/EditTools';
-import './EditorMenu/EditorMenu';
 import './PlaybackTools/PlaybackTools';
+import './FileTools/FileTools';
 import './Logo/Logo';
 import './Header';

@@ -1,6 +1,6 @@
 import { Controller, ZoomController } from '@controllers';
-import { EventKeyType, EventType, StoreChannelType } from '@types';
-import { EventUtil, WidthUtil, DragUtil } from '@util';
+import { CursorType, EventKeyType, EventType, StoreChannelType } from '@types';
+import { EventUtil, WidthUtil, DragUtil, TimeUtil } from '@util';
 import { storeChannel } from '@store';
 import { TrackSection, SectionDragStartData, SelectTrackData } from '@model';
 import './AudioTrack.scss';
@@ -17,6 +17,7 @@ import './AudioTrack.scss';
     private maxTrackWidth: number;
     private maxTrackPlayTime: number;
     private sectionDragData: SectionDragStartData | null;
+    private currentScrollAmount: number;
 
     constructor() {
       super();
@@ -30,6 +31,7 @@ import './AudioTrack.scss';
       this.maxTrackWidth = 0;
       this.maxTrackPlayTime = 0;
       this.sectionDragData = null;
+      this.currentScrollAmount = 0;
     }
 
     static get observedAttributes(): string[] {
@@ -67,8 +69,11 @@ import './AudioTrack.scss';
                     <div class="audio-track-container" event-key=${EventKeyType.FOCUS_RESET_CLICK + this.trackId}>
                       <div data-track-id=${this.trackId} class="audio-track-area" event-key=${EventKeyType.AUDIO_TRACK_AREA_MULTIPLE + this.trackId}>
                         ${this.getTrackSectionList()}
-                       
-                        <div id="section-cut-line-${this.trackId}" class="cut-line hide"></div>
+                        <div id="section-cut-line-${this.trackId}" class="cut-line hide">
+                          <div class="cut-line-border">
+                            <div class="cut-line-cursor-time">00:00</div>
+                          </div>
+                        </div>
                         <div id="afterimage-${this.trackId}" class="audio-track-afterimage" event-key=${EventKeyType.AUDIO_TRACK_AFTERIMAGE_DROP + this.trackId}></div>
                         <div id="track-select-line-${this.trackId}" class="track-select-line"></div>
                       </div>      
@@ -94,6 +99,7 @@ import './AudioTrack.scss';
       this.trackScrollAreaElement = document.querySelector('.audi-main-audio-track-scroll-area');
       this.afterimageElement = this.querySelector(`#afterimage-${this.trackId}`);
       this.trackAreaWidth = this.calculateTrackWidth();
+      this.trackScrollAreaElement = document.querySelector('.audi-main-audio-track-scroll-area');
     }
 
     calculateTrackWidth(): number {
@@ -106,9 +112,16 @@ import './AudioTrack.scss';
 
     initEvent(): void {
       EventUtil.registerEventToRoot({
-        eventTypes: [EventType.click, EventType.dragover, EventType.dragleave, EventType.drop, EventType.dragenter],
+        eventTypes: [EventType.click, EventType.dragover, EventType.dragleave, EventType.drop, EventType.dragenter, EventType.mousemove],
         eventKey: EventKeyType.AUDIO_TRACK_AREA_MULTIPLE + this.trackId,
-        listeners: [this.trackClickListener, this.dragoverAudioTrackListener, this.dragleaveAudioTrackListener, this.dropAudioTrackListener, this.dragenterAudioTrackListener],
+        listeners: [
+          this.trackClickListener,
+          this.dragoverAudioTrackListener,
+          this.dragleaveAudioTrackListener,
+          this.dropAudioTrackListener,
+          this.dragenterAudioTrackListener,
+          this.trackMousemoveListener
+        ],
         bindObj: this
       });
 
@@ -132,7 +145,7 @@ import './AudioTrack.scss';
         if (!trackSectionElements[idx]) return;
         trackSectionElements[idx].style.marginLeft = `${marginValue}px`;
         prevEndOffset = section.trackStartTime + section.length;
-      })
+      });
     }
 
     dragenterAudioTrackListener(e): void {
@@ -176,6 +189,23 @@ import './AudioTrack.scss';
       DragUtil.dropTrackSection(currentTrackId, currentCursorPosition, this.trackAreaWidth);
     }
 
+    trackMousemoveListener(e): void {
+      if (!this.trackScrollAreaElement) return;
+
+      const cursorPosition = e.pageX;
+      const scrolledCursorPosition = cursorPosition + this.currentScrollAmount;
+      const trackScrollAreaLeft = this.trackScrollAreaElement.getBoundingClientRect().left;
+      const timeOfCursorPosition = TimeUtil.calculateTimeOfCursorPosition(trackScrollAreaLeft, scrolledCursorPosition);
+
+      const [minute, second, milsecond] = TimeUtil.splitTime(timeOfCursorPosition);
+      const offesetOfCursorPosition = WidthUtil.getDifferenceWidth(trackScrollAreaLeft, cursorPosition);
+
+      if (minute < 0 && second < 0) return;
+      Controller.changeCurrentPosition(offesetOfCursorPosition);
+      Controller.changeCursorStringTime(minute, second, milsecond);
+      Controller.changeCursorNumberTime(timeOfCursorPosition);
+    }
+
     trackClickListener(e): void {
       const ctrlIsPressed = Controller.getCtrlIsPressed();
       if (!ctrlIsPressed) {
@@ -190,7 +220,14 @@ import './AudioTrack.scss';
         const cursorOffset = cursorPosition - trackAreaElementLeftX;
         const selectedTime = cursorOffset / secondPerPixel;
         const selectLine = document.getElementById(`track-select-line-${this.trackId}`);
+        const cursorMode = Controller.getCursorMode();
         if (!selectLine) return;
+
+        if (cursorMode !== CursorType.SELECT_MODE) {
+          Controller.changeSelectTrackData(0, 0);
+          selectLine.style.display = 'none';
+          return;
+        }
         selectLine.style.display = 'block';
         selectLine.style.left = `${cursorOffset}px`;
 
@@ -211,6 +248,11 @@ import './AudioTrack.scss';
       storeChannel.subscribe(StoreChannelType.MAX_TRACK_WIDTH_CHANNEL, this.maxTrackWidthObserverCallback, this);
       storeChannel.subscribe(StoreChannelType.MAX_TRACK_PLAY_TIME_CHANNEL, this.maxTrackPlayTimeObserverCallback, this);
       storeChannel.subscribe(StoreChannelType.SELECT_AUDIO_TRACK, this.selectTrackDataObserverCallback, this);
+      storeChannel.subscribe(StoreChannelType.CURRENT_SCROLL_AMOUNT_CHANNEL, this.currentScrollAmountObserverCallback, this);
+    }
+
+    currentScrollAmountObserverCallback(newCurrentScrollAmount: number): void {
+      this.currentScrollAmount = newCurrentScrollAmount;
     }
 
     trackSectionListObserverCallback({ trackId, trackSectionList }): void {

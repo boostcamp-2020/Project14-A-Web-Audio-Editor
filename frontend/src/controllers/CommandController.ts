@@ -1,14 +1,16 @@
-import { store } from '@store';
+import { store, storeChannel } from '@store';
 import { CopyUtil } from '@util';
 import { Controller } from "@controllers";
 import { TrackSection } from '@model';
-import { FocusInfo } from '@types';
+import { FocusInfo, StoreChannelType } from '@types';
 import { CommandManager, DeleteCommand, PasteCommand, SplitCommand, AddTrackCommand, DeleteTrackCommand, MoveCommand, ColorChangeCommand } from '@command';
 
 const executeUndoCommand = () => {
     const { isPause } = store.getState();
     if (CommandManager.undoList.length === 0 || !isPause) return;
     CommandManager.undo();
+    const { undoList, redoList } = CommandManager;
+    storeChannel.publish(StoreChannelType.COMMAND_REDO_UNDO_CHANNEL, { undoList, redoList });
 };
 
 const executeRedoCommand = () => {
@@ -16,6 +18,8 @@ const executeRedoCommand = () => {
     if (CommandManager.redoList.length === 0 || !isPause) return;
 
     CommandManager.redo();
+    const { undoList, redoList } = CommandManager;
+    storeChannel.publish(StoreChannelType.COMMAND_REDO_UNDO_CHANNEL, { undoList, redoList });
 };
 
 const executeDeleteCommand = () => {
@@ -24,6 +28,8 @@ const executeDeleteCommand = () => {
 
     const command = new DeleteCommand();
     CommandManager.execute(command);
+    const { undoList, redoList } = CommandManager;
+    storeChannel.publish(StoreChannelType.COMMAND_REDO_UNDO_CHANNEL, { undoList, redoList });
 };
 
 const executeCutCommand = () => {
@@ -32,6 +38,8 @@ const executeCutCommand = () => {
 
     const command = new DeleteCommand();
     CommandManager.execute(command);
+    const { undoList, redoList } = CommandManager;
+    storeChannel.publish(StoreChannelType.COMMAND_REDO_UNDO_CHANNEL, { undoList, redoList });
 };
 
 const executePasteCommand = () => {
@@ -60,6 +68,9 @@ const executePasteCommand = () => {
     const command = new PasteCommand(copyTrack, copySection);
 
     CommandManager.execute(command);
+
+    const { undoList, redoList } = CommandManager;
+    storeChannel.publish(StoreChannelType.COMMAND_REDO_UNDO_CHANNEL, { undoList, redoList });
 };
 
 const executeSplitCommand = (cursorPosition: number, trackId: number, sectionId: number): void => {
@@ -72,6 +83,8 @@ const executeSplitCommand = (cursorPosition: number, trackId: number, sectionId:
 
     const splitCommand = new SplitCommand(cursorPosition, CopyUtil.copyTrack(track), CopyUtil.copySection(trackSection));
     CommandManager.execute(splitCommand);
+    const { undoList, redoList } = CommandManager;
+    storeChannel.publish(StoreChannelType.COMMAND_REDO_UNDO_CHANNEL, { undoList, redoList });
 };
 
 const executeAddTrackCommand = (): void => {
@@ -80,6 +93,8 @@ const executeAddTrackCommand = (): void => {
 
     const addTrackCommand = new AddTrackCommand();
     CommandManager.execute(addTrackCommand);
+    const { undoList, redoList } = CommandManager;
+    storeChannel.publish(StoreChannelType.COMMAND_REDO_UNDO_CHANNEL, { undoList, redoList });
 };
 
 const executeMoveCommand = (prevTrackId: number, currentTrackId: number, trackSection: TrackSection, movingCursorTime: number, prevCursorTime: number) => {
@@ -92,19 +107,25 @@ const executeMoveCommand = (prevTrackId: number, currentTrackId: number, trackSe
 
     const command = new MoveCommand(CopyUtil.copyTrack(prevTrack), CopyUtil.copyTrack(currentTrack), trackSection, movingCursorTime, prevCursorTime);
     CommandManager.execute(command);
+
+    const { undoList, redoList } = CommandManager;
+    storeChannel.publish(StoreChannelType.COMMAND_REDO_UNDO_CHANNEL, { undoList, redoList });
 };
-  
+
 const executeDeleteTrackCommand = (trackId: number): void => {
     const { isPause } = store.getState();
     if (!isPause) return;
-  
-    if(isMinLengthOfTrackList()) {
+
+    if (isMinLengthOfTrackList()) {
         alert("트랙은 최소 3개 이상 존재해야합니다.");
         return;
     }
-  
+
     const deleteTrackCommand = new DeleteTrackCommand(trackId);
     CommandManager.execute(deleteTrackCommand);
+
+    const { undoList, redoList } = CommandManager;
+    storeChannel.publish(StoreChannelType.COMMAND_REDO_UNDO_CHANNEL, { undoList, redoList });
 };
 
 const isMinLengthOfTrackList = (): Boolean => {
@@ -117,7 +138,10 @@ const isMinLengthOfTrackList = (): Boolean => {
 const executeColorChangeCommand = (focusList: FocusInfo[], color: string): void => {
     const trackList = Controller.getTrackList();
     const colorChangeCommand = new ColorChangeCommand(focusList, color, trackList);
+
     CommandManager.execute(colorChangeCommand);
+    const { undoList, redoList } = CommandManager;
+    storeChannel.publish(StoreChannelType.COMMAND_REDO_UNDO_CHANNEL, { undoList, redoList });
 }
 
 export default {

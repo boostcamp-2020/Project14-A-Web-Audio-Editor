@@ -9,9 +9,9 @@
 #audio-meter-bar {
     display: flex;
     flex-direction: column;
-    height: 12px;
+    height: 16px;
     border: 1px solid variables.$border-color;
-    border-radius: 5px;
+    border-radius: 2px;
     margin: 10px 0;
     background-color: variables.$header-color;
 }
@@ -19,7 +19,7 @@
 #audio-meter-fill {
     margin: auto 0;
     height: 100%;
-    border-radius: 5px;
+    border-radius: 2px;
     width: 0px;
     box-shadow: 0 0 3px rgba(0,0,0,.25),
         inset 1px 1px 1px rgba(255,255,255,.75),
