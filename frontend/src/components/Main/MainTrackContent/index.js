@@ -1,3 +1,6 @@
+import './Marker/Marker';
+import './PlayBar';
+import './MainPlaybarScrollArea/MainPlayBarScrollArea';
 import './AudioTrack';
 import './AudioTrackOption/AudioTrackOption';
 import './MainTrackListArea/MainTrackListArea';
