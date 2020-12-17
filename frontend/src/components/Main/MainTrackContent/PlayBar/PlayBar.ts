@@ -262,7 +262,6 @@ import './PlayBar.scss';
       storeChannel.subscribe(StoreChannelType.MAX_TRACK_WIDTH_CHANNEL, this.maxTrackWidthObserverCallback, this);
       storeChannel.subscribe(StoreChannelType.MAX_TRACK_PLAY_TIME_CHANNEL, this.maxTrackPlayTimeObserverCallback, this);
       storeChannel.subscribe(StoreChannelType.CURRENT_SCROLL_AMOUNT_CHANNEL, this.currentScrollAmountObserverCallback, this);
-      storeChannel.subscribe(StoreChannelType.ZOOM_PIXEL_PER_SECOND_CHANNEL, this.zoomPixelPerSecondObserverCallback, this);
     }
 
     maxTrackWidthObserverCallback(maxTrackWidth: number): void {
@@ -296,16 +295,6 @@ import './PlayBar.scss';
 
     currentScrollAmountObserverCallback(newCurrentScrollAmount: number): void {
       this.currentScrollAmount = newCurrentScrollAmount;
-    }
-
-    zoomPixelPerSecondObserverCallback(newZoomPixelPerSecond: number): void {      
-      this.setPlayBarTimeInfo();
-      this.render();
-      this.initProperty();
-      this.initPlayBarMarkerLocation();
-      this.resizePlayBarContainer();
-      this.spreadPlayTimes();
-      this.initEvent();
     }
   };
 

@@ -14,6 +14,7 @@ import { storeChannel } from "@store";
     private mainWidth: number;
     private maxTrackPlayTime: number;
     private currentScrollAmount: number;
+    private mainTrackRightElement: HTMLElement | null;
 
     constructor() {
       super();
@@ -22,8 +23,9 @@ import { storeChannel } from "@store";
       this.markerElement = null;
       this.mainWidth = 0;
       this.maxTrackPlayTime = Controller.getMaxTrackPlayTime();
-      this.mainAudioTrackContainerEventZone = null;
       this.currentScrollAmount = Controller.getCurrentScrollAmount();
+      this.mainAudioTrackContainerEventZone = null;
+      this.mainTrackRightElement = null;
     }
 
     connectedCallback(): void {
@@ -38,6 +40,7 @@ import { storeChannel } from "@store";
       this.render();
       this.initElement();
       this.initEvent();
+      this.renderPlaybarScrollArea();
       this.subscribe();
     }
 
@@ -57,9 +60,22 @@ import { storeChannel } from "@store";
         `;
     }
 
+    renderPlaybarScrollArea(): void {
+      if(!this.mainTrackRightElement) return;
+
+      const mainPlaybarScrollAreaElement = this.querySelector('audi-main-playbar-scroll-area');
+      if(mainPlaybarScrollAreaElement){
+        this.mainTrackRightElement.removeChild(mainPlaybarScrollAreaElement);
+      }
+
+      const playBarScrollAreaElement = document.createElement('audi-main-playbar-scroll-area');
+      this.mainTrackRightElement.prepend(playBarScrollAreaElement);
+    }
+
     initElement(): void {
       const playbarElement = document.querySelector('.playbar');
       this.mainAudioTrackContainerEventZone = document.querySelector('.audi-main-audio-track-container-event-zone');
+      this.mainTrackRightElement = this.querySelector('.audi-main-track-right');
 
       if (!playbarElement || !this.mainAudioTrackContainerEventZone) return;
 
@@ -135,6 +151,7 @@ import { storeChannel } from "@store";
     zoomRateObserverCallback(newZoomRate) {
       this.render();
       this.initElement();
+      this.renderPlaybarScrollArea();
     }
   };
 
