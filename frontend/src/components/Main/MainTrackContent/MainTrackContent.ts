@@ -45,6 +45,7 @@ import { storeChannel } from "@store";
       this.innerHTML = `
             <section class="audi-main-audio-track-container" event-key=${EventKeyType.FOCUS_RESET_CLICK}>
               <section class="audi-main-track-left">
+                <div class="audi-main-before-track-option"></div>
                 <audi-main-track-option-list-area></audi-main-track-option-list-area>
               </section>    
               <div class="audi-main-track-right">

@@ -4,16 +4,19 @@ import { ZoomController } from '@controllers';
 (() => {
   const MainTrackScrollArea = class extends HTMLElement {
     private trackScrollAreaElement: HTMLDivElement | null;
-
+    private trackOptionListAreaElement: HTMLDivElement | null;
+    
     constructor() {
       super();
       this.trackScrollAreaElement = null;
+      this.trackOptionListAreaElement = null;
     }
 
     connectedCallback(): void {
       try {
         this.render();
         this.initElement();
+        this.initEvent();
         this.calculateCurrentPixelPerSecond();
         this.renderScrollAreaContent();
       } catch (e) {
@@ -30,6 +33,24 @@ import { ZoomController } from '@controllers';
 
     initElement() {
       this.trackScrollAreaElement = this.querySelector('.audi-main-audio-track-scroll-area');
+      this.trackOptionListAreaElement = document.querySelector('.audi-main-track-option-area');
+    }
+
+    initEvent(){
+      if(!this.trackScrollAreaElement) return;
+      this.trackScrollAreaElement.addEventListener('scroll', this.scrollAreaScrollListener.bind(this));
+    }
+
+    scrollAreaScrollListener(e){
+      const scrollAmount = e.target.scrollTop;
+      this.scrollTrackOptionListArea(scrollAmount);
+    }
+
+    scrollTrackOptionListArea(scrollAmount: number){
+      console.log(this.trackOptionListAreaElement);
+      
+      if(!this.trackOptionListAreaElement) return;
+      this.trackOptionListAreaElement.scrollTop = scrollAmount;
     }
 
     calculateCurrentPixelPerSecond() {
