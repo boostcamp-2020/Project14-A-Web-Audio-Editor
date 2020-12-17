@@ -627,6 +627,15 @@ const changeHoverSourceInfo = (newSource: Source): void => {
   store.setHoverSourceInfo(newSource);
 }
 
+const deleteEffect = (effectId: number, effectTrackId: number, effectTrackSectionId: number): void => {
+  const { trackList } = store.getState();
+  const trackIndex = trackList.findIndex((track)=>track.id === effectTrackId);
+  const trackSectionIndex = trackList[trackIndex].trackSectionList.findIndex((trackSection)=>trackSection.id===effectTrackSectionId);
+  const effectIndex = trackList[trackIndex].trackSectionList[trackSectionIndex].effectList.findIndex((effect)=>effect.id===effectId);
+ 
+  store.deleteEffect(effectIndex, trackIndex, trackSectionIndex);
+}
+
 export default {
   getTrackSection,
   getSource,
@@ -709,5 +718,6 @@ export default {
   changeEffectOptionType,
   getHoverSource,
   resetHoverSourceInfo,
-  changeHoverSourceInfo
+  changeHoverSourceInfo,
+  deleteEffect
 };

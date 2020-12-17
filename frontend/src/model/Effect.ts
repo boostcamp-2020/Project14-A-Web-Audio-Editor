@@ -5,7 +5,7 @@ class Effect {
     public name: string;
     public properties: EffectProperties;
     
-    constructor({id=0, name, properties}){
+    constructor({id = 0, name, properties}){
         this.id = id;
         this.name = name;
         this.properties = properties;
