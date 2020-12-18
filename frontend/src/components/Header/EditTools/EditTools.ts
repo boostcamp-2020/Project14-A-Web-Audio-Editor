@@ -198,10 +198,14 @@ import { TrackSection } from '@model';
         this.copyElement?.classList.remove('disabled');
         this.cutElement?.classList.remove('disabled');
         this.deleteElement?.classList.remove('disabled');
-      } else {
+      } else if (newfocusList.length == 0) {
         this.copyElement?.classList.add('disabled');
         this.cutElement?.classList.add('disabled');
         this.deleteElement?.classList.add('disabled');
+      } else {
+        this.copyElement?.classList.add('disabled');
+        this.cutElement?.classList.add('disabled');
+        this.deleteElement?.classList.remove('disabled');
       }
     }
 
