@@ -1,6 +1,7 @@
 import "./ReverbEffect.scss";
 import { EventType, EventKeyType } from '@types';
 import { EventUtil } from '@util';
+import { Controller } from "@controllers";
 
 (() => {
   const ReverbEffect = class extends HTMLElement {
@@ -78,7 +79,25 @@ import { EventUtil } from '@util';
       this.decayValue = document.querySelector('.decay-value');
     }
 
+    setDefaultProperties() {
+      if(Controller.getIsEffectModifyMode()) {
+        const effectIds = Controller.getModifyingEffectInfo();
+        const effect = Controller.getEffect(effectIds.id, effectIds.trackId, effectIds.trackSectionId);
+
+        this.mixRatioCurrentValue = String(effect.properties.getProperty('mix'));
+        this.timeCurrentValue = String(effect.properties.getProperty('time'));
+        this.decayCurrentValue = String(effect.properties.getProperty('decay'));
+      }
+      else {
+        this.mixRatioCurrentValue = '0.5';
+        this.timeCurrentValue = '0.5';
+        this.decayCurrentValue = '0.5';
+      }
+    }
+
     render() {
+      this.setDefaultProperties();
+
       this.innerHTML = `
           <div class="effect-input">
             <div class="effect-option-name">Mix Ratio Value</div>

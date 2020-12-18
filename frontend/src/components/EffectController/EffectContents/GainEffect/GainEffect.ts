@@ -1,6 +1,7 @@
 import "./GainEffect.scss";
 import { EventType, EventKeyType } from '@types';
 import { EventUtil } from '@util';
+import { Controller } from "@controllers";
 
 (() => {
   const GainEffect = class extends HTMLElement {
@@ -55,7 +56,21 @@ import { EventUtil } from '@util';
       this.percentageValue = document.querySelector('.gain-percentage-value');
     }
 
+    setDefaultProperties() {
+      if(Controller.getIsEffectModifyMode()) { //수정 모드면 이전 값이 되도록 하고..
+        const effectIds = Controller.getModifyingEffectInfo();
+        const effect = Controller.getEffect(effectIds.id, effectIds.trackId, effectIds.trackSectionId);
+
+        this.currentValue = String(effect.properties.getProperty('gain')*100);
+      }
+      else {
+        this.currentValue = '100';
+      }
+    }
+
     render() {
+      this.setDefaultProperties();
+
       this.innerHTML = `
           <div class="effect-input">
             <div class="effect-option-name">Gain percentage</div>

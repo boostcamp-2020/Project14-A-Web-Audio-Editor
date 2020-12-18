@@ -1,4 +1,4 @@
-import { ModalType, EventType, EventKeyType, IconType, StoreChannelType } from '@types';
+import { ModalType, EventType, EventKeyType, IconType, StoreChannelType, EffectType, EffectTitleType, SidebarMode } from '@types';
 import { Controller } from '@controllers';
 import { EventUtil } from '@util';
 import { Effect, Source } from '@model';
@@ -32,6 +32,13 @@ import { storeChannel } from '@store';
         eventTypes: [EventType.click],
         eventKey: EventKeyType.EFFECT_DELETE_BTN_CLICK,
         listeners: [this.deleteEffectBtnClickListener],
+        bindObj: this
+      });
+
+      EventUtil.registerEventToRoot({
+        eventTypes: [EventType.click],
+        eventKey: EventKeyType.EFFECT_MODIFY,
+        listeners: [this.modifyEffectListener],
         bindObj: this
       });
     }
@@ -73,10 +80,10 @@ import { storeChannel } from '@store';
       return focusList[0].trackSection.effectList.reduce(
         (acc, effect) =>
         (acc += `
-          <li class="section-effect-container">
-            <div class="section-effect"> 
+          <li class="section-effect-container" data-effect-name="${effect.name}" data-effect-id="${effect.id}" data-effect-track-id="${trackSection.trackId}" data-effect-track-section-id="${trackSection.id}">
+            <div class="section-effect delegation" event-key="${EventKeyType.EFFECT_MODIFY}"> 
               <span class="section-effect-list-effect-name">${effect.name}</span>
-              <audi-icon-button icontype=${IconType.delete} data-effect-id="${effect.id}" data-effect-track-id="${trackSection.trackId}" data-effect-track-section-id="${trackSection.id}" class="delegation" event-key="${EventKeyType.EFFECT_DELETE_BTN_CLICK}"></audi-icon-button> 
+              <audi-icon-button icontype=${IconType.delete}  class="delegation" event-key="${EventKeyType.EFFECT_DELETE_BTN_CLICK}"></audi-icon-button> 
             </div>
           </li>
         `),
@@ -96,13 +103,29 @@ import { storeChannel } from '@store';
     //   this.render();
     // }
 
+    // 중복 리팩토링 필요.
     deleteEffectBtnClickListener(e) {
-      const deleteBtn = e.target.closest("audi-icon-button");
-
-      const effectId: number = Number(deleteBtn.dataset.effectId);
-      const effectTrackId: number = Number(deleteBtn.dataset.effectTrackId);
-      const effectTrackSectionId: number = Number(deleteBtn.dataset.effectTrackSectionId);
+      const effectContainer = e.target.closest(".section-effect-container");
+      const effectId:number = Number(effectContainer.dataset.effectId);
+      const effectTrackId:number = Number(effectContainer.dataset.effectTrackId);
+      const effectTrackSectionId:number = Number(effectContainer.dataset.effectTrackSectionId);
+      
       Controller.deleteEffect(effectId, effectTrackId, effectTrackSectionId);
+    }
+
+    modifyEffectListener(e) {
+      const effectContainer = e.target.closest(".section-effect-container");
+      
+      const effectId:number = Number(effectContainer.dataset.effectId);
+      const effectTrackId:number = Number(effectContainer.dataset.effectTrackId);
+      const effectTrackSectionId:number = Number(effectContainer.dataset.effectTrackSectionId);
+      const effectType = effectContainer.dataset.effectName;
+      
+      Controller.setIsEffectModifyMode(true);
+      Controller.setModifyingEffectInfo({id:effectId, trackId:effectTrackId, trackSectionId:effectTrackSectionId});
+
+      Controller.changeSidebarMode(SidebarMode.EFFECT_OPTION);
+      Controller.changeEffectOptionType(effectType);
     }
 
     subscribe() {
