@@ -9,12 +9,14 @@ import './AudioTrackMenu.scss';
     private focusList: FocusInfo[];
     private colorChangeBtnElement: HTMLElement | null;
     private colorPickerElement: HTMLInputElement | null;
+    private trackScrollAreaElement: HTMLElement | null;
 
     constructor() {
       super();
       this.focusList = [];
       this.colorChangeBtnElement = null;
       this.colorPickerElement = null;
+      this.trackScrollAreaElement = null;
     }
 
     static ICON_SIZE: number = 25;
@@ -73,6 +75,7 @@ import './AudioTrackMenu.scss';
     initElement(): void {
       this.colorChangeBtnElement = this.querySelector('.track-menu__color');
       this.colorPickerElement = this.querySelector('.color-picker');
+      this.trackScrollAreaElement = document.querySelector('.audi-main-audio-track-scroll-area');
     }
 
     initEvent(): void {
@@ -115,6 +118,8 @@ import './AudioTrackMenu.scss';
     trackAddMenuClickListener(e): void {
       try {
         CommandController.executeAddTrackCommand();
+        if (!this.trackScrollAreaElement) return;
+        this.trackScrollAreaElement.scrollLeft = Controller.getCurrentScrollAmount();
       } catch (e) {
         console.log(e);
       }

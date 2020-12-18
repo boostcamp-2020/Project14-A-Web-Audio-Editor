@@ -1,11 +1,14 @@
 import './MainTrackScrollArea.scss';
 import { ZoomController } from '@controllers';
+import { StoreChannelType } from '@types';
+import { storeChannel } from '@store';
+import { Track } from '@model'
 
 (() => {
   const MainTrackScrollArea = class extends HTMLElement {
     private trackScrollAreaElement: HTMLDivElement | null;
     private trackOptionListAreaElement: HTMLDivElement | null;
-    
+
     constructor() {
       super();
       this.trackScrollAreaElement = null;
@@ -19,6 +22,7 @@ import { ZoomController } from '@controllers';
         this.initEvent();
         this.calculateCurrentPixelPerSecond();
         this.renderScrollAreaContent();
+        this.subscribe();
       } catch (e) {
         console.log(e);
       }
@@ -36,21 +40,28 @@ import { ZoomController } from '@controllers';
       this.trackOptionListAreaElement = document.querySelector('.audi-main-track-option-area');
     }
 
-    initEvent(){
-      if(!this.trackScrollAreaElement) return;
+    initEvent() {
+      if (!this.trackScrollAreaElement) return;
       this.trackScrollAreaElement.addEventListener('scroll', this.scrollAreaScrollListener.bind(this));
     }
 
-    scrollAreaScrollListener(e){
+    scrollAreaScrollListener(e) {
       const scrollAmount = e.target.scrollTop;
       this.scrollTrackOptionListArea(scrollAmount);
     }
 
-    scrollTrackOptionListArea(scrollAmount: number){
-      console.log(this.trackOptionListAreaElement);
-      
-      if(!this.trackOptionListAreaElement) return;
+    scrollTrackOptionListArea(scrollAmount: number) {
+      if (!this.trackOptionListAreaElement) return;
       this.trackOptionListAreaElement.scrollTop = scrollAmount;
+    }
+
+    subscribe(): void {
+      storeChannel.subscribe(StoreChannelType.TRACK_LIST_CHANNEL, this.trackListObserverCallback, this);
+    }
+
+    trackListObserverCallback(newTrackList: Track[]): void {
+      this.initElement();
+      this.initEvent()
     }
 
     calculateCurrentPixelPerSecond() {
@@ -68,6 +79,7 @@ import { ZoomController } from '@controllers';
       if (!this.trackScrollAreaElement) return;
 
       this.trackScrollAreaElement.innerHTML = `
+            <audi-marker></audi-marker>
             <audi-main-track-list-area></audi-main-track-list-area> 
         `;
     }

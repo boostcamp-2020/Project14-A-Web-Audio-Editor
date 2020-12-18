@@ -353,14 +353,13 @@ const store = new (class Store {
     storeChannel.publish(StoreChannelType.SOURCELIST_SOURCE_INFO_CHANNEL, newSource);
   }
 
-  deleteEffect = (effectIndex:number, trackIndex:number, trackSectionIndex:number): void => {
+  deleteEffect = (effectIndex: number, trackIndex: number, trackSectionIndex: number): void => {
     const { trackList } = this.state;
     const newTrackList = [...trackList];
     newTrackList[trackIndex].trackSectionList[trackSectionIndex].effectList.splice(effectIndex, 1);
     this.state = { ...this.state, trackList: newTrackList };
 
     storeChannel.publish(StoreChannelType.TRACK_CHANNEL, newTrackList);
-    storeChannel.publish(StoreChannelType.EDIT_MENU_CHANNEL, null);
     storeChannel.publish(StoreChannelType.EFFECT_STATE_CHANNEL, null);
   }
 })();
