@@ -1,7 +1,7 @@
 import { Source, Track, TrackSection, SectionDragStartData, Effect } from '@model';
 import { store } from '@store';
 import { ZoomController, } from '@controllers'
-import { ModalType, FocusInfo, CursorType, SectionDataType, SidebarMode, EffectType } from '@types';
+import { ModalType, FocusInfo, CursorType, SectionDataType, SidebarMode, EffectType, ModifyingEffectInfo } from '@types';
 import { CopyUtil, TimeUtil, WidthUtil } from '@util';
 import { audioManager } from '@audio';
 
@@ -598,8 +598,8 @@ const getSidebarMode = (): SidebarMode => {
   return sidebarMode;
 }
 
-const changeSidebarMode = (newSidebarModa: SidebarMode): void => {
-  store.setSidebarMode(newSidebarModa);
+const changeSidebarMode = (newSidebarMode: SidebarMode): void => {
+  store.setSidebarMode(newSidebarMode);
 }
 
 const getEffectOptionType = (): EffectType => {
@@ -608,8 +608,6 @@ const getEffectOptionType = (): EffectType => {
 }
 
 const changeEffectOptionType = (newEffectOptionType: EffectType): void => {
-  console.log('changeEffectOptionType', newEffectOptionType);
-
   store.setEffectOptionType(newEffectOptionType);
 }
 
@@ -634,6 +632,41 @@ const deleteEffect = (effectId: number, effectTrackId: number, effectTrackSectio
   const effectIndex = trackList[trackIndex].trackSectionList[trackSectionIndex].effectList.findIndex((effect)=>effect.id===effectId);
  
   store.deleteEffect(effectIndex, trackIndex, trackSectionIndex);
+}
+
+const modifyEffect = (newEffect:Effect) : void => { 
+  store.setModifyingEffect(newEffect);
+}
+
+const setIsEffectModifyMode = (mode: boolean) => {
+  const { isEffectModifyMode } = store.getState();
+  if(isEffectModifyMode === mode) return;
+
+  store.setIsEffectModifyMode(mode);
+}
+
+const getIsEffectModifyMode = () : boolean => {
+  const { isEffectModifyMode } = store.getState();
+  return isEffectModifyMode;
+}
+
+const getEffect = (effectId:number, effectTrackId:number, effectTrackSectionId:number) => {
+  const { trackList } = store.getState();
+  const trackIndex = trackList.findIndex((track)=>track.id === effectTrackId);
+  const trackSectionIndex = trackList[trackIndex].trackSectionList.findIndex((trackSection)=>trackSection.id===effectTrackSectionId);
+  const effectIndex = trackList[trackIndex].trackSectionList[trackSectionIndex].effectList.findIndex((effect)=>effect.id===effectId);
+ 
+  const effect = trackList[trackIndex].trackSectionList[trackSectionIndex].effectList[effectIndex];
+  return effect;
+}
+
+const setModifyingEffectInfo = ({id, trackId, trackSectionId}:ModifyingEffectInfo) => {
+  store.setModifyingEffectInfo({id, trackId, trackSectionId});
+}
+
+const getModifyingEffectInfo = () => {
+  const { modifyingEffectInfo } = store.getState();
+  return modifyingEffectInfo;
 }
 
 export default {
@@ -719,5 +752,11 @@ export default {
   getHoverSource,
   resetHoverSourceInfo,
   changeHoverSourceInfo,
-  deleteEffect
+  deleteEffect,
+  modifyEffect,
+  setIsEffectModifyMode,
+  getIsEffectModifyMode,
+  getEffect,
+  setModifyingEffectInfo,
+  getModifyingEffectInfo
 };

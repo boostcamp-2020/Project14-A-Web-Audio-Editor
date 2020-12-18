@@ -124,6 +124,7 @@ import { Controller } from "@controllers";
     }
 
     showEffectOption(effectType: EffectType): void {
+      Controller.setIsEffectModifyMode(false);
       Controller.changeSidebarMode(SidebarMode.EFFECT_OPTION);
       Controller.changeEffectOptionType(effectType);
     }

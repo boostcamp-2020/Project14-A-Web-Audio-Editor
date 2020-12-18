@@ -1,5 +1,5 @@
 import { Source, Track, AudioSourceInfoInTrack, TrackSection, SectionDragStartData, SelectTrackData } from '@model';
-import { ModalStateType, ZoomInfoType, SidebarMode, EffectType } from '@types';
+import { ModalStateType, ZoomInfoType, SidebarMode, EffectType, ModifyingEffectInfo } from '@types';
 
 enum CursorType {
   SELECT_MODE = 'SELECT_MODE',
@@ -77,6 +77,8 @@ interface StoreStateType {
   sidebarMode: SidebarMode;
   effectOptionType: EffectType;
   hoverSourceInfo: Source | null;
+  isEffectModifyMode: boolean;
+  modifyingEffectInfo: ModifyingEffectInfo;
 }
 
 interface StoreObserverData {

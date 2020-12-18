@@ -23,9 +23,16 @@ interface EffectStateType {
   effectType: EffectType;
 }
 
+interface ModifyingEffectInfo {
+  id: number,
+  trackId: number,
+  trackSectionId: number
+}
+
 export {
   EffectStateType,
   EffectType,
   EffectTitleType,
-  EffectContentType
+  EffectContentType,
+  ModifyingEffectInfo
 }
