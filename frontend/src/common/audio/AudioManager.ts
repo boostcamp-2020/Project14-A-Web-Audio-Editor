@@ -750,11 +750,10 @@ class AudioManager {
       this.setMaxPlayTime();
 
       setTimeout(() => {
-        const maxTrackPlayTime = Controller.getMaxTrackPlayTime();
         this.setMaxPlayTime();
 
-        const widthPixel = ZoomController.getCurrentPixelPerSecond();
-        Controller.setMarkerWidth([widthPixel * this.maxPlayTime, 1]);
+        const widthPixel = ZoomController.getCurrentPixelPerSecond(); 
+        Controller.initMarkerWidth(widthPixel * this.maxPlayTime);
         Controller.changeMarkerPlayStringTime(this.maxPlayTime);
         Controller.changeMarkerNumberTime(this.maxPlayTime);
       }, TIMER_TIME + 1);
