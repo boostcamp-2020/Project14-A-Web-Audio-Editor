@@ -87,9 +87,12 @@ import './SectionEffectSetting.scss';
             break;
         }
         Controller.changeSidebarMode(SidebarMode.EFFECT_LIST);
+        Controller.setIsEffectModifyMode(false);
       } catch (e) {
         console.log(e);
       }
+
+      this.render();
     }
 
     addGainEffect(): void {
@@ -99,7 +102,13 @@ import './SectionEffectSetting.scss';
       const gain = Number(gainElement.value) / 100;
       const effectProperties = new GainProperties({ gain: gain });
       const newEffect = new Effect({ name: this.effectType, properties: effectProperties });
-      Controller.addEffect(newEffect);
+      
+      if(!Controller.getIsEffectModifyMode()){
+        Controller.addEffect(newEffect);
+      }
+      else {
+        Controller.modifyEffect(newEffect);
+      }
     }
 
     addCompressorEffect(): void {
@@ -118,7 +127,13 @@ import './SectionEffectSetting.scss';
 
       const effectProperties = new CompressorProperties({ threshold: threshold, knee: knee, ratio: ratio, attack: attack, release: release });
       const newEffect = new Effect({ name: this.effectType, properties: effectProperties });
-      Controller.addEffect(newEffect);
+      
+      if(!Controller.getIsEffectModifyMode()){
+        Controller.addEffect(newEffect);
+      }
+      else {
+        Controller.modifyEffect(newEffect);
+      }
     }
 
     addFilterEffect(): void {
@@ -138,7 +153,13 @@ import './SectionEffectSetting.scss';
 
       const effectProperties = new FilterProperties({ type: type, frequency: frequency, Q: Q });
       const newEffect = new Effect({ name: this.effectType, properties: effectProperties });
-      Controller.addEffect(newEffect);
+      
+      if(!Controller.getIsEffectModifyMode()){
+        Controller.addEffect(newEffect);
+      }
+      else {
+        Controller.modifyEffect(newEffect);
+      }
     }
 
     addReverbEffect(): void {
@@ -154,7 +175,13 @@ import './SectionEffectSetting.scss';
 
       const effectProperties = new ReverbProperties({ mix: mix, time: time, decay: decay });
       const newEffect = new Effect({ name: this.effectType, properties: effectProperties });
-      Controller.addEffect(newEffect);
+      
+      if(!Controller.getIsEffectModifyMode()){
+        Controller.addEffect(newEffect);
+      }
+      else {
+        Controller.modifyEffect(newEffect);
+      }
     }
 
     cancelEffectListener(): void {
