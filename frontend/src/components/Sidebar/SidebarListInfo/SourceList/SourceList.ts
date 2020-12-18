@@ -161,6 +161,15 @@ import './SourceList.scss';
       storeChannel.subscribe(StoreChannelType.SOURCELIST_SOURCE_INFO_CHANNEL, this.hoverSourceObserverCallback, this);
     }
 
+    disconnectedCallback() {
+      this.unsubscribe();
+    }
+
+    unsubscribe(): void {
+      storeChannel.unsubscribe(StoreChannelType.SOURCE_LIST_CHANNEL, this.updateSourceList, this);
+      storeChannel.unsubscribe(StoreChannelType.SOURCELIST_SOURCE_INFO_CHANNEL, this.hoverSourceObserverCallback, this);
+    }
+
     updateSourceList(sourceList: Source[]): void {
       this.sourceList = sourceList;
       this.render();

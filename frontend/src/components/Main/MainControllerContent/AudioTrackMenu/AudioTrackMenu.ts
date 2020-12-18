@@ -171,6 +171,14 @@ import './AudioTrackMenu.scss';
       storeChannel.subscribe(StoreChannelType.FOCUS_LIST_CHANNEL, this.focusListObserverCallback, this);
     }
 
+    disconnectedCallback() {
+      this.unsubscribe();
+    }
+
+    unsubscribe(): void {
+      storeChannel.unsubscribe(StoreChannelType.FOCUS_LIST_CHANNEL, this.focusListObserverCallback, this);
+    }
+
     focusListObserverCallback(newFocusList: FocusInfo[]) {
       try {
         this.trackColorChangeMenuActivationHandler(newFocusList);

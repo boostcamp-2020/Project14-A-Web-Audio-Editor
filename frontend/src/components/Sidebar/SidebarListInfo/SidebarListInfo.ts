@@ -47,6 +47,15 @@ import { Controller } from '@controllers';
       storeChannel.subscribe(StoreChannelType.FOCUS_LIST_CHANNEL, this.focusListObserverCallback, this);
     }
 
+    disconnectedCallback() {
+      this.unsubscribe();
+    }
+
+    unsubscribe(): void {
+      storeChannel.unsubscribe(StoreChannelType.SIDEBAR_MODE_CHANNEL, this.sidebarModeObserverCallback, this);
+      storeChannel.unsubscribe(StoreChannelType.FOCUS_LIST_CHANNEL, this.focusListObserverCallback, this);
+    }
+
     sidebarModeObserverCallback(newSidebarMode: SidebarMode): void {
       this.sidebarMode = newSidebarMode;
       this.render();

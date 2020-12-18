@@ -59,6 +59,14 @@ import { Track } from '@model'
       storeChannel.subscribe(StoreChannelType.TRACK_LIST_CHANNEL, this.trackListObserverCallback, this);
     }
 
+    disconnectedCallback() {
+      this.unsubscribe();
+    }
+
+    unsubscribe(): void {
+      storeChannel.unsubscribe(StoreChannelType.TRACK_LIST_CHANNEL, this.trackListObserverCallback, this);
+    }
+
     trackListObserverCallback(newTrackList: Track[]): void {
       this.initElement();
       this.initEvent()

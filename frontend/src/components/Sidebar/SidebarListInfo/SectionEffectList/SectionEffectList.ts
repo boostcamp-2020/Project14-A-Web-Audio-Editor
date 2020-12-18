@@ -106,7 +106,6 @@ import { storeChannel } from '@store';
     // 중복 리팩토링 필요.
     deleteEffectBtnClickListener(e) {
       const effectContainer = e.target.closest(".section-effect-container");
-
       const effectId:number = Number(effectContainer.dataset.effectId);
       const effectTrackId:number = Number(effectContainer.dataset.effectTrackId);
       const effectTrackSectionId:number = Number(effectContainer.dataset.effectTrackSectionId);
@@ -131,6 +130,14 @@ import { storeChannel } from '@store';
 
     subscribe() {
       storeChannel.subscribe(StoreChannelType.EFFECT_STATE_CHANNEL, this.render, this);
+    }
+
+    disconnectedCallback() {
+      this.unsubscribe();
+    }
+
+    unsubscribe(): void {
+      storeChannel.unsubscribe(StoreChannelType.EFFECT_STATE_CHANNEL, this.render, this);
     }
 
     hide(): void {

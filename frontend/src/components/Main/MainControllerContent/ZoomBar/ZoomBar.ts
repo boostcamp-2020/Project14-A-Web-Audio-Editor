@@ -109,6 +109,14 @@ import './ZoomBar.scss';
             storeChannel.subscribe(StoreChannelType.MAX_TRACK_WIDTH_CHANNEL, this.maxTrackWidthObserverCallback, this);
         }
 
+        disconnectedCallback() {
+            this.unsubscribe();
+        }
+
+        unsubscribe(): void {
+            storeChannel.unsubscribe(StoreChannelType.MAX_TRACK_WIDTH_CHANNEL, this.maxTrackWidthObserverCallback, this);
+        }
+
         maxTrackWidthObserverCallback(maxTrackWidth: number): void {
             this.adjustZoombarController(maxTrackWidth);
         }
