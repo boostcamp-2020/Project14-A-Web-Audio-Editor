@@ -15,7 +15,6 @@ import './AudioTrack.scss';
     private afterimageElement: HTMLDivElement | null;
     private trackAreaWidth: number;
     private maxTrackWidth: number;
-    private maxTrackPlayTime: number;
     private sectionDragData: SectionDragStartData | null;
     private currentScrollAmount: number;
 
@@ -29,7 +28,6 @@ import './AudioTrack.scss';
       this.afterimageElement = null;
       this.trackAreaWidth = 0;
       this.maxTrackWidth = 0;
-      this.maxTrackPlayTime = 0;
       this.sectionDragData = null;
       this.currentScrollAmount = 0;
     }
@@ -93,7 +91,6 @@ import './AudioTrack.scss';
 
     initElement(): void {
       this.maxTrackWidth = Controller.getMaxTrackWidth();
-      this.maxTrackPlayTime = Controller.getMaxTrackPlayTime();
       this.trackMessageElement = this.querySelector('.audio-track-message');
       this.trackAreaElement = this.querySelector('.audio-track-area');
       this.trackScrollAreaElement = document.querySelector('.audi-main-audio-track-scroll-area');
@@ -214,7 +211,7 @@ import './AudioTrack.scss';
         if (!this.trackAreaElement) return;
         const cursorPosition = e.pageX;
         const trackAreaElementLeftX = this.trackAreaElement.getBoundingClientRect().left;
-        this.maxTrackPlayTime = Controller.getMaxTrackPlayTime();
+
         const secondPerPixel = ZoomController.getCurrentPixelPerSecond();
 
         const cursorOffset = cursorPosition - trackAreaElementLeftX;
@@ -246,7 +243,6 @@ import './AudioTrack.scss';
     subscribe(): void {
       storeChannel.subscribe(StoreChannelType.TRACK_SECTION_LIST_CHANNEL, this.trackSectionListObserverCallback, this);
       storeChannel.subscribe(StoreChannelType.MAX_TRACK_WIDTH_CHANNEL, this.maxTrackWidthObserverCallback, this);
-      storeChannel.subscribe(StoreChannelType.MAX_TRACK_PLAY_TIME_CHANNEL, this.maxTrackPlayTimeObserverCallback, this);
       storeChannel.subscribe(StoreChannelType.SELECT_AUDIO_TRACK, this.selectTrackDataObserverCallback, this);
       storeChannel.subscribe(StoreChannelType.CURRENT_SCROLL_AMOUNT_CHANNEL, this.currentScrollAmountObserverCallback, this);
     }
@@ -264,6 +260,7 @@ import './AudioTrack.scss';
       this.initPosition();
 
       const newMaxTrackWidth = this.calculateMaxTrackWidth();
+
       this.updateMaxTrackWidth(newMaxTrackWidth);
       Controller.changeMaxTrackPlayTime(newMaxTrackWidth);
     }
@@ -277,6 +274,7 @@ import './AudioTrack.scss';
 
     calculateMaxTrackWidth(): number {
       const trackSectionListElement: NodeListOf<HTMLElement> = this.querySelectorAll('audi-track-section');
+
 
       if (!this.trackAreaElement || trackSectionListElement.length === 0) {
         return Math.max(this.trackAreaWidth, this.maxTrackWidth);
@@ -314,9 +312,6 @@ import './AudioTrack.scss';
       this.trackAreaElement.style.width = `${100 * ratio}%`;
     }
 
-    maxTrackPlayTimeObserverCallback(maxTrackPlayTime: number): void {
-      this.maxTrackPlayTime = maxTrackPlayTime;
-    }
   };
 
   customElements.define('audi-audio-track', AudioTrack);
