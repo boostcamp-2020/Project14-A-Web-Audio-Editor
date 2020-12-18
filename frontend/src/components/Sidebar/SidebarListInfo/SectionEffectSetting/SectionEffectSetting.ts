@@ -169,6 +169,14 @@ import './SectionEffectSetting.scss';
       storeChannel.subscribe(StoreChannelType.EFFECT_OPTION_TYPE_CHANNEL, this.effectOptionTypeObserverCallback, this);
     }
 
+    disconnectedCallback() {
+      this.unsubscribe();
+    }
+
+    unsubscribe(): void {
+      storeChannel.unsubscribe(StoreChannelType.EFFECT_OPTION_TYPE_CHANNEL, this.effectOptionTypeObserverCallback, this);
+    }
+
     effectOptionTypeObserverCallback(newEffectOptionType): void {
       this.changeEffectOption(newEffectOptionType);
       this.render();

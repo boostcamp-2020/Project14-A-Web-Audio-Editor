@@ -99,14 +99,22 @@ import { storeChannel } from '@store';
     deleteEffectBtnClickListener(e) {
       const deleteBtn = e.target.closest("audi-icon-button");
 
-      const effectId:number = Number(deleteBtn.dataset.effectId);
-      const effectTrackId:number = Number(deleteBtn.dataset.effectTrackId);
-      const effectTrackSectionId:number = Number(deleteBtn.dataset.effectTrackSectionId);
+      const effectId: number = Number(deleteBtn.dataset.effectId);
+      const effectTrackId: number = Number(deleteBtn.dataset.effectTrackId);
+      const effectTrackSectionId: number = Number(deleteBtn.dataset.effectTrackSectionId);
       Controller.deleteEffect(effectId, effectTrackId, effectTrackSectionId);
     }
 
     subscribe() {
       storeChannel.subscribe(StoreChannelType.EFFECT_STATE_CHANNEL, this.render, this);
+    }
+
+    disconnectedCallback() {
+      this.unsubscribe();
+    }
+
+    unsubscribe(): void {
+      storeChannel.unsubscribe(StoreChannelType.EFFECT_STATE_CHANNEL, this.render, this);
     }
 
     hide(): void {

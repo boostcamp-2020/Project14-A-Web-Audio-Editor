@@ -28,6 +28,14 @@ import { storeChannel } from '@store'
       storeChannel.subscribe(StoreChannelType.ZOOM_RATE_CHANNEL, this.zoomRateObserverCallback, this);
     }
 
+    disconnectedCallback() {
+      this.unsubscribe();
+    }
+
+    unsubscribe(): void {
+      storeChannel.unsubscribe(StoreChannelType.ZOOM_RATE_CHANNEL, this.zoomRateObserverCallback, this);
+    }
+
     zoomRateObserverCallback(newZoomRate) {
       this.render();
     }

@@ -257,12 +257,12 @@ import './AudioTrackSection.scss';
       const offesetOfCursorPosition = WidthUtil.getDifferenceWidth(trackScrollAreaLeftX, cursorPosition);
 
       if (minute < 0 && second < 0 && milsecond < 0) return;
-      
+
       this.cutLineCursorTimeElement.innerText = `${minute.toString().padStart(2, '0')}:${second.toString().padStart(2, '0')}:${milsecond.toString().substring(0, 2)}`;
-      Controller.changeCurrentPosition(offesetOfCursorPosition);      
+      Controller.changeCurrentPosition(offesetOfCursorPosition);
       Controller.changeCursorStringTime(minute, second, milsecond);
       Controller.changeCursorNumberTime(timeOfCursorPosition);
-   
+
       if (!this.trackScrollAreaElement || this.cursorMode !== CursorType.CUT_MODE) {
         this.hideCutLine();
         return;
@@ -294,6 +294,15 @@ import './AudioTrackSection.scss';
     subscribe(): void {
       storeChannel.subscribe(StoreChannelType.CURSOR_MODE_CHANNEL, this.cursorModeObserverCallback, this);
       storeChannel.subscribe(StoreChannelType.CURRENT_SCROLL_AMOUNT_CHANNEL, this.currentScrollAmountObserverCallback, this);
+    }
+
+    disconnectedCallback() {
+      this.unsubscribe();
+    }
+
+    unsubscribe(): void {
+      storeChannel.unsubscribe(StoreChannelType.CURSOR_MODE_CHANNEL, this.cursorModeObserverCallback, this);
+      storeChannel.unsubscribe(StoreChannelType.CURRENT_SCROLL_AMOUNT_CHANNEL, this.currentScrollAmountObserverCallback, this);
     }
 
     cursorModeObserverCallback(newCursorMode) {
