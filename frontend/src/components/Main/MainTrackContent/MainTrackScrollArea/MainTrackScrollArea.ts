@@ -43,6 +43,7 @@ import { Track } from '@model'
     initEvent() {
       if (!this.trackScrollAreaElement) return;
       this.trackScrollAreaElement.addEventListener('scroll', this.scrollAreaScrollListener.bind(this));
+
     }
 
     scrollAreaScrollListener(e) {
