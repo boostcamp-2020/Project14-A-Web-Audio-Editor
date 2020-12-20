@@ -169,13 +169,8 @@ import './SectionEffectSetting.scss';
       if (!fadeInLengthElement) return;
 
       const fadeInLength = Number(fadeInLengthElement.innerText);
-
       const effectProperties = new FadeInProperties({ fadeInLength: fadeInLength });
-      console.log(effectProperties, '이상한가봐');
-
       const newEffect = new Effect({ name: this.effectType, properties: effectProperties });
-
-      console.log(newEffect);
 
       this.updateEffectList(newEffect);
     }
