@@ -33,8 +33,6 @@ import { Controller } from "@controllers";
 
     inputFadeInLengthListener = (e) => {
       const { target } = e;
-      console.log(target.value);
-
       if (!this.fadeInLengthValueElement) return;
       this.fadeInLengthValueElement.innerText = `${target.value}`;
     }

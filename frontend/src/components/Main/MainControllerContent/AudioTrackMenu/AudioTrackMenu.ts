@@ -146,6 +146,7 @@ import './AudioTrackMenu.scss';
       try {
         const currentZoomRate = ZoomController.getCurrentRate();
         if (currentZoomRate < 3.5) {
+          Controller.changeCurrentScrollAmount(0);
           ZoomController.setZoomRate(currentZoomRate + 0.25);
         }
       } catch (e) {
@@ -157,6 +158,7 @@ import './AudioTrackMenu.scss';
       try {
         const currentZoomRate = ZoomController.getCurrentRate();
         if (currentZoomRate > 1) {
+          Controller.changeCurrentScrollAmount(0);
           Controller.changeMaxTrackWidth(0);
           ZoomController.setZoomRate(currentZoomRate - 0.25);
         }
