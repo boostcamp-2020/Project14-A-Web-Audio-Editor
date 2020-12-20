@@ -54,7 +54,7 @@ import { Controller } from "@controllers";
         this.fadeInLengthCurrentValue = `${EffectUtil.floorPropertyValue(maxLength, 1)}`;
       }
       else {
-        this.fadeInLengthCurrentValue = '0';
+        this.fadeInLengthCurrentValue = '1';
       }
 
       const focusList = Controller.getFocusList();
@@ -66,7 +66,7 @@ import { Controller } from "@controllers";
           <div class="effect-input">
             <div class="effect-option-name"> Fade in time</div>
             <div class="property-percentage-input">
-              <input class="property-percentage-input" type="range" value="${this.fadeInLengthCurrentValue}" min="0" max="${this.sectionLength}" step="0.1" event-key=${EventKeyType.EFFECT_FADE_IN_INPUT_LENGTH}>
+              <input class="property-percentage-input" type="range" value="${this.fadeInLengthCurrentValue}" min="0.1" max="${this.sectionLength}" step="0.1" event-key=${EventKeyType.EFFECT_FADE_IN_INPUT_LENGTH}>
               <div class="property-percentage-value fade-in-length">${this.fadeInLengthCurrentValue}</div>
             </div>
           </div>
