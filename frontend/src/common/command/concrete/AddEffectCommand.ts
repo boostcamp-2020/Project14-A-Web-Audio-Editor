@@ -77,8 +77,9 @@ class AddEffectCommand extends Command {
         trackSectionList: track.trackSectionList
       });
     })
-    storeChannel.publish(StoreChannelType.TRACK_CHANNEL, trackList);
-    storeChannel.publish(StoreChannelType.TOTAL_TIME_CHANNEL, trackList);
+    const newTrackList = Controller.getTrackList();
+    storeChannel.publish(StoreChannelType.TRACK_CHANNEL, newTrackList);
+    storeChannel.publish(StoreChannelType.TOTAL_TIME_CHANNEL, newTrackList);
     storeChannel.publish(StoreChannelType.FOCUS_LIST_CHANNEL, focusList);
   }
 }
