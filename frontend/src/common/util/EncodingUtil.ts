@@ -1,5 +1,6 @@
 import { Controller } from '@controllers';
 import { CompressorOption } from '@types';
+import { EffectUtil } from '@util';
 import * as lamejs from 'lamejs';
 
 const sampleRate = 48000;
@@ -112,7 +113,26 @@ const getTrackArrayBuffer = async (trackId: number) => {
     const source = offlineCtx.createBufferSource();
 
     source.buffer = audioSource.buffer;
-    source.connect(offlineCtx.destination);
+
+    let inputNode: AudioBufferSourceNode | GainNode = source;
+
+    let outputNode: GainNode | null = null;
+
+    section.effectList.forEach(effect => {
+      const connectedOutputNode = EffectUtil.connectEffect(offlineCtx, inputNode, effect, section);
+      if (!connectedOutputNode) return;
+
+      outputNode = connectedOutputNode;
+      inputNode = outputNode;
+    });
+
+    if (section.effectList.length === 0) {
+      outputNode = offlineCtx.createGain();
+      source.connect(outputNode);
+    }
+
+    if (!outputNode) return;
+    outputNode.connect(offlineCtx.destination);
     source.start(section.trackStartTime, section.channelStartTime, duration);
 
     const renderBuffer = await offlineCtx.startRendering();
