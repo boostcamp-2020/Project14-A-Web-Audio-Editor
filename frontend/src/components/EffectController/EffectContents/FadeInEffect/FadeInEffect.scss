@@ -1,0 +1,35 @@
+@use '@style/variables.scss' as variables;
+
+audi-effect-fade-in {
+  width: 100%;
+}
+
+.effect-input {
+  color: variables.$white-color;
+  width: 100%;
+  padding: 10px;
+
+  input {
+    width: 100%;
+    cursor: pointer;
+  }
+}
+
+.property-percentage-input {
+  display: flex;
+
+  & .property-percentage-value {
+    height: 30px;
+    width: 70px;
+    border: 1px solid variables.$white-color;
+    border-radius: 6px;
+
+    text-align: center;
+    line-height: 30px;
+    color: variables.$blue-color;
+  }
+}
+
+.effect-option-name {
+  margin: 10px 0;
+}

@@ -10,12 +10,14 @@ import { Controller } from "@controllers";
 
     constructor() {
       super();
-      this.effects = ['Gain', 'Compressor', 'Filter', 'Reverb'];
+      this.effects = ['Gain', 'Compressor', 'Filter', 'Reverb', 'Fade In', 'Fade Out'];
       this.eventKeyList = [
         EventKeyType.GAIN_EFFECT_CLICK,
         EventKeyType.COMPRESSOR_EFFECT_CLICK,
         EventKeyType.FILTER_EFFECT_CLICK,
-        EventKeyType.REVERB_EFFECT_CLICK
+        EventKeyType.REVERB_EFFECT_CLICK,
+        EventKeyType.FADE_IN_EFFECT_CLICK,
+        EventKeyType.FADE_OUT_EFFECT_CLICK
       ];
     }
 
@@ -55,20 +57,6 @@ import { Controller } from "@controllers";
         bindObj: this
       });
 
-      // EventUtil.registerEventToRoot({
-      //   eventTypes: [EventType.click],
-      //   eventKey: EventKeyType.FADE_IN_EFFECT_CLICK,
-      //   listeners: [this.fadeInEffectClickListener],
-      //   bindObj: this
-      // });
-
-      // EventUtil.registerEventToRoot({
-      //   eventTypes: [EventType.click],
-      //   eventKey: EventKeyType.FADE_OUT_EFFECT_CLICK,
-      //   listeners: [this.fadeOutEffectClickListener],
-      //   bindObj: this
-      // });
-
       EventUtil.registerEventToRoot({
         eventTypes: [EventType.click],
         eventKey: EventKeyType.COMPRESSOR_EFFECT_CLICK,
@@ -89,6 +77,20 @@ import { Controller } from "@controllers";
         listeners: [this.reverbEffectClickListener],
         bindObj: this
       });
+
+      EventUtil.registerEventToRoot({
+        eventTypes: [EventType.click],
+        eventKey: EventKeyType.FADE_IN_EFFECT_CLICK,
+        listeners: [this.fadeInEffectClickListener],
+        bindObj: this
+      });
+
+      EventUtil.registerEventToRoot({
+        eventTypes: [EventType.click],
+        eventKey: EventKeyType.FADE_OUT_EFFECT_CLICK,
+        listeners: [this.fadeOutEffectClickListener],
+        bindObj: this
+      });
     }
 
     closeBtnClickListener() {
@@ -99,14 +101,6 @@ import { Controller } from "@controllers";
       this.closeBtnClickListener();
       this.showEffectOption(EffectType.gain);
     }
-
-    // fadeInEffectClickListener() {
-    //   this.closeBtnClickListener();
-    // }
-
-    // fadeOutEffectClickListener() {
-    //   this.closeBtnClickListener();
-    // }
 
     compressorEffectClickListener() {
       this.closeBtnClickListener();
@@ -121,6 +115,16 @@ import { Controller } from "@controllers";
     reverbEffectClickListener() {
       this.closeBtnClickListener();
       this.showEffectOption(EffectType.reverb);
+    }
+
+    fadeInEffectClickListener() {
+      this.closeBtnClickListener();
+      this.showEffectOption(EffectType.fadein);
+    }
+
+    fadeOutEffectClickListener() {
+      this.closeBtnClickListener();
+      this.showEffectOption(EffectType.fadeout);
     }
 
     showEffectOption(effectType: EffectType): void {
