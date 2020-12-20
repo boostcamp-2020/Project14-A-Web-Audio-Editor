@@ -1,6 +1,7 @@
 import { Command } from '@command';
 import { storeChannel } from '@store'
 import { StoreChannelType } from '@types'
+import { audioManager } from '@audio';
 
 class CommandManager {
   public undoList: Command[];
@@ -16,6 +17,7 @@ class CommandManager {
     this.undoList.push(command);
     this.redoList = [];
     storeChannel.publish(StoreChannelType.EDIT_TOOLS_CHANNEL, null);
+    audioManager.audioRestart();
   }
 
   undo() {
@@ -25,6 +27,7 @@ class CommandManager {
         this.redoList.push(command);
         command.undo();
         storeChannel.publish(StoreChannelType.EDIT_TOOLS_CHANNEL, null);
+        audioManager.audioRestart();
       }
     }
   }
@@ -36,10 +39,10 @@ class CommandManager {
         this.undoList.push(command);
         command.execute();
         storeChannel.publish(StoreChannelType.EDIT_TOOLS_CHANNEL, null);
+        audioManager.audioRestart();
       }
     }
   }
-
 }
 
 export default new CommandManager();

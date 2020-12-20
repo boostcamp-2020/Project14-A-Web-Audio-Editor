@@ -4,21 +4,18 @@ import { WidthUtil, TimeUtil, ValidUtil } from '@util';
 
 const showAfterimage = (afterimage: HTMLElement, trackId: number, trackContainerWidth: number, currentCursorPosition: number): void => {
   const dragData = Controller.getSectionDragStartData();
-  const isPause = Controller.getIsPauseState();
 
-  if (!dragData || !isPause) return;
+  if (!dragData) return;
 
   const currentPixelPerSecond = ZoomController.getCurrentPixelPerSecond();
   const currentScrollAmount = Controller.getCurrentScrollAmount();
   let { offsetLeft, prevCursorTime } = dragData;
-
 
   if (dragData.trackSection.id === 0) {
     prevCursorTime = currentCursorPosition / currentPixelPerSecond;
     dragData.prevCursorTime = prevCursorTime;
     dragData.trackSection.trackStartTime = prevCursorTime - (dragData.trackSection.length / 2);
   }
-
 
   if (!offsetLeft || !prevCursorTime) return;
   const track = Controller.getTrack(trackId);
@@ -32,7 +29,6 @@ const showAfterimage = (afterimage: HTMLElement, trackId: number, trackContainer
 
   const resultValid = ValidUtil.checkEnterTrack(dragData.trackSection, track.trackSectionList, startTime, endTime);
 
-
   if (resultValid.leftValid || resultValid.rightValid) {
     afterimage.style.display = 'none';
     afterimage.style.left = `0px`;
@@ -41,7 +37,6 @@ const showAfterimage = (afterimage: HTMLElement, trackId: number, trackContainer
   } else {
     afterimage.style.display = 'block';
   }
-
 
   afterimage.style.left = `${(startTime) * currentPixelPerSecond}px`;
   afterimage.style.width = `${dragData.trackSection.length * currentPixelPerSecond}px`;
@@ -56,7 +51,6 @@ const dropTrackSection = (trackId: number, currentCursorPosition: number, trackC
   if (dragData.trackSection.id === 0 && prevCursorTime) {
     dragData.trackSection.trackStartTime = prevCursorTime - (dragData.trackSection.length / 2);
     dragData.trackSection.trackId = trackId;
-
   }
 
   if (!offsetLeft || !prevCursorTime) return;
