@@ -1,17 +1,15 @@
-import { ModalType, EventType, EventKeyType, IconType, StoreChannelType } from '@types';
-import { Controller } from '@controllers';
-import { EventUtil } from '@util';
-import { Effect, Source } from '@model';
+import { ModalType, EventType, EventKeyType, IconType, StoreChannelType, EffectType, EffectTitleType, SidebarMode } from '@types';
+import { Controller, CommandController } from '@controllers';
+import { EventUtil, EffectUtil } from '@util';
+import { Source } from '@model';
 import './SectionEffectList.scss';
 import { storeChannel } from '@store';
 
 (() => {
   const SectionEffectList = class extends HTMLElement {
-    private effectList: Effect[];
 
     constructor() {
       super();
-      this.effectList = [];
     }
 
     connectedCallback(): void {
@@ -34,11 +32,18 @@ import { storeChannel } from '@store';
         listeners: [this.deleteEffectBtnClickListener],
         bindObj: this
       });
+
+      EventUtil.registerEventToRoot({
+        eventTypes: [EventType.click],
+        eventKey: EventKeyType.EFFECT_MODIFY,
+        listeners: [this.modifyEffectListener],
+        bindObj: this
+      });
     }
 
     render(): void {
-      this.innerHTML = `
-                    
+
+      this.innerHTML = `  
                     <div class="section-effect-list-container">
                       <div class="section-effect-list-title">
                         <div>Effect</div>
@@ -49,34 +54,56 @@ import { storeChannel } from '@store';
                       </ul>  
                       <div class='section-effect-list-select-info-wrap'>
                         <ul class="section-effect-list-select-info">
-                            <li class='section-effect-list-select-info-item'>파일명: - </li>
-                            <li class='section-effect-list-select-info-item'>재생시간: - </li>
-                            <li class='section-effect-list-select-info-item'>용량: - </li>
-                            <li class='section-effect-list-select-info-item'>채널 수: - </li>
-                            <li class='section-effect-list-select-info-item'>샘플레이트: - </li>
+                          ${this.getSectionInfo()}
                         </ul>
                       </div>
                     </div>
             `;
     }
 
+    getSectionInfo(): string {
+      const focusList = Controller.getFocusList();
+      const trackSection = focusList[0].trackSection;
+      const source = Controller.getSource(trackSection.trackId, trackSection.id);
+
+      if (!focusList.length) return `
+        <li class='section-effect-list-select-info-item'>파일명: - </li>
+        <li class='section-effect-list-select-info-item'>시작시간: - </li>
+        <li class='section-effect-list-select-info-item'>종료시간: - </li>
+        <li class='section-effect-list-select-info-item'>길이: - </li>
+        `;
+
+      if (focusList.length > 1) {
+        return `
+          <li class='section-effect-list-multi-select-info-item'>${focusList.length}개 Section 선택</li>
+        `;
+      }
+
+      return `
+        <li class='section-effect-list-select-info-item'>파일명: ${source?.fileName} </li>
+        <li class='section-effect-list-select-info-item'>시작시간: ${EffectUtil.roundPropertyValue(trackSection.trackStartTime, 2)}초 </li>
+        <li class='section-effect-list-select-info-item'>종료시간: ${EffectUtil.roundPropertyValue(trackSection.trackStartTime + trackSection.length, 2)}초</li>
+        <li class='section-effect-list-select-info-item'>길이: ${EffectUtil.roundPropertyValue(trackSection.length, 2)}초</li>
+      `
+    }
+
     getEffectList(): string {
       const focusList = Controller.getFocusList();
 
-      if (!focusList.length) return '';
-      if (focusList.length > 1) {
-        return `${focusList.length}개 Section 선택`;
+      if (focusList.length !== 1) {
+        return ``;
       }
 
       const trackSection = focusList[0].trackSection;
+      console.log(trackSection);
 
       return focusList[0].trackSection.effectList.reduce(
         (acc, effect) =>
         (acc += `
-          <li class="section-effect-container">
-            <div class="section-effect"> 
+          <li class="section-effect-container" data-effect-name="${effect.name}" data-effect-id="${effect.id}" data-effect-track-id="${trackSection.trackId}" data-effect-track-section-id="${trackSection.id}">
+            <div class="section-effect delegation" event-key="${EventKeyType.EFFECT_MODIFY}"> 
               <span class="section-effect-list-effect-name">${effect.name}</span>
-              <audi-icon-button icontype=${IconType.delete} data-effect-id="${effect.id}" data-effect-track-id="${trackSection.trackId}" data-effect-track-section-id="${trackSection.id}" class="delegation" event-key="${EventKeyType.EFFECT_DELETE_BTN_CLICK}"></audi-icon-button> 
+              <audi-icon-button icontype=${IconType.deleteEffect}  class="delegation" event-key="${EventKeyType.EFFECT_DELETE_BTN_CLICK}"></audi-icon-button> 
             </div>
           </li>
         `),
@@ -91,22 +118,41 @@ import { storeChannel } from '@store';
     clickSourceObserverCallback(source: Source): void {
       const { fileName, fileSize, sampleRate, duration, numberOfChannels } = source;
     }
-    // updateEffectList(newEffect: Effect): void {
-    //   this.effectList = [...this.effectList, newEffect];
-    //   this.render();
-    // }
 
     deleteEffectBtnClickListener(e) {
-      const deleteBtn = e.target.closest("audi-icon-button");
+      const effectContainer = e.target.closest(".section-effect-container");
+      const effectId: number = Number(effectContainer.dataset.effectId);
 
-      const effectId:number = Number(deleteBtn.dataset.effectId);
-      const effectTrackId:number = Number(deleteBtn.dataset.effectTrackId);
-      const effectTrackSectionId:number = Number(deleteBtn.dataset.effectTrackSectionId);
-      Controller.deleteEffect(effectId, effectTrackId, effectTrackSectionId);
+      CommandController.executeDeleteEffectCommand(effectId);
+    }
+
+    modifyEffectListener(e) {
+      const effectContainer = e.target.closest(".section-effect-container");
+
+      const effectId: number = Number(effectContainer.dataset.effectId);
+      const effectTrackId: number = Number(effectContainer.dataset.effectTrackId);
+      const effectTrackSectionId: number = Number(effectContainer.dataset.effectTrackSectionId);
+      const effectType = effectContainer.dataset.effectName;
+
+      Controller.setIsEffectModifyMode(true);
+      Controller.setModifyingEffectInfo({ id: effectId, trackId: effectTrackId, trackSectionId: effectTrackSectionId });
+
+      Controller.changeSidebarMode(SidebarMode.EFFECT_OPTION);
+      Controller.changeEffectOptionType(effectType);
     }
 
     subscribe() {
       storeChannel.subscribe(StoreChannelType.EFFECT_STATE_CHANNEL, this.render, this);
+      storeChannel.subscribe(StoreChannelType.FOCUS_LIST_CHANNEL, this.render, this);
+    }
+
+    disconnectedCallback() {
+      this.unsubscribe();
+    }
+
+    unsubscribe(): void {
+      storeChannel.unsubscribe(StoreChannelType.EFFECT_STATE_CHANNEL, this.render, this);
+      storeChannel.unsubscribe(StoreChannelType.FOCUS_LIST_CHANNEL, this.render, this);
     }
 
     hide(): void {

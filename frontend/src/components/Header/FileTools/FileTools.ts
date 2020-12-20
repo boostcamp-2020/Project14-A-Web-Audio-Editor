@@ -61,6 +61,14 @@ import { EventUtil } from '@util';
       storeChannel.subscribe(StoreChannelType.FILE_TOOLS_CHANNEL, this.sectionCountObserverCallback, this);
     }
 
+    disconnectedCallback() {
+      this.unsubscribe();
+    }
+
+    unsubscribe(): void {
+      storeChannel.unsubscribe(StoreChannelType.FILE_TOOLS_CHANNEL, this.sectionCountObserverCallback, this);
+    }
+
     sectionCountObserverCallback(newTrackList) {
       if (!this.saveButton) return;
 

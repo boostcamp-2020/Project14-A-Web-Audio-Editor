@@ -1,7 +1,7 @@
 import { Source, Track, TrackSection, SectionDragStartData, Effect } from '@model';
 import { store } from '@store';
 import { ZoomController, } from '@controllers'
-import { ModalType, FocusInfo, CursorType, SectionDataType, SidebarMode, EffectType } from '@types';
+import { ModalType, FocusInfo, CursorType, SectionDataType, SidebarMode, EffectType, ModifyingEffectInfo } from '@types';
 import { CopyUtil, TimeUtil, WidthUtil } from '@util';
 import { audioManager } from '@audio';
 
@@ -562,32 +562,6 @@ const getLoopTime = (): number[] => {
   return [loopStartTime, loopEndTime];
 };
 
-const addEffect = (effect: Effect) => {
-  const { focusList, trackList, effectIndex } = store.getState();
-
-  let newEffectIndex = effectIndex;
-
-  focusList.forEach((focus) => {
-    const focusedTrackSectionId = focus.trackSection.id;
-
-    trackList.forEach((track) => {
-      track.trackSectionList.forEach((trackSection) => {
-        if (trackSection.id === focusedTrackSectionId) {
-          effect.id = newEffectIndex;
-          const newEffect = CopyUtil.copyEffect(effect);
-          // newEffect.id = newEffectIndex++;
-          trackSection.effectList.push(newEffect);
-        }
-      })
-    });
-  })
-
-  newEffectIndex++;
-
-  store.setTrackSectionEffect();
-  store.setEffectIndex(newEffectIndex);
-}
-
 const getPrevMaxTrackWidth = (): number => {
   const { prevMaxTrackWidth } = store.getState();
   return prevMaxTrackWidth;
@@ -598,8 +572,8 @@ const getSidebarMode = (): SidebarMode => {
   return sidebarMode;
 }
 
-const changeSidebarMode = (newSidebarModa: SidebarMode): void => {
-  store.setSidebarMode(newSidebarModa);
+const changeSidebarMode = (newSidebarMode: SidebarMode): void => {
+  store.setSidebarMode(newSidebarMode);
 }
 
 const getEffectOptionType = (): EffectType => {
@@ -608,8 +582,6 @@ const getEffectOptionType = (): EffectType => {
 }
 
 const changeEffectOptionType = (newEffectOptionType: EffectType): void => {
-  console.log('changeEffectOptionType', newEffectOptionType);
-
   store.setEffectOptionType(newEffectOptionType);
 }
 
@@ -627,13 +599,39 @@ const changeHoverSourceInfo = (newSource: Source): void => {
   store.setHoverSourceInfo(newSource);
 }
 
-const deleteEffect = (effectId: number, effectTrackId: number, effectTrackSectionId: number): void => {
+const modifyEffect = (newEffect: Effect): void => {
+  store.setModifyingEffect(newEffect);
+}
+
+const setIsEffectModifyMode = (mode: boolean) => {
+  const { isEffectModifyMode } = store.getState();
+  if (isEffectModifyMode === mode) return;
+
+  store.setIsEffectModifyMode(mode);
+}
+
+const getIsEffectModifyMode = (): boolean => {
+  const { isEffectModifyMode } = store.getState();
+  return isEffectModifyMode;
+}
+
+const getEffect = (effectId: number, effectTrackId: number, effectTrackSectionId: number) => {
   const { trackList } = store.getState();
-  const trackIndex = trackList.findIndex((track)=>track.id === effectTrackId);
-  const trackSectionIndex = trackList[trackIndex].trackSectionList.findIndex((trackSection)=>trackSection.id===effectTrackSectionId);
-  const effectIndex = trackList[trackIndex].trackSectionList[trackSectionIndex].effectList.findIndex((effect)=>effect.id===effectId);
- 
-  store.deleteEffect(effectIndex, trackIndex, trackSectionIndex);
+  const trackIndex = trackList.findIndex((track) => track.id === effectTrackId);
+  const trackSectionIndex = trackList[trackIndex].trackSectionList.findIndex((trackSection) => trackSection.id === effectTrackSectionId);
+  const effectIndex = trackList[trackIndex].trackSectionList[trackSectionIndex].effectList.findIndex((effect) => effect.id === effectId);
+
+  const effect = trackList[trackIndex].trackSectionList[trackSectionIndex].effectList[effectIndex];
+  return effect;
+}
+
+const setModifyingEffectInfo = ({ id, trackId, trackSectionId }: ModifyingEffectInfo) => {
+  store.setModifyingEffectInfo({ id, trackId, trackSectionId });
+}
+
+const getModifyingEffectInfo = () => {
+  const { modifyingEffectInfo } = store.getState();
+  return modifyingEffectInfo;
 }
 
 export default {
@@ -710,7 +708,6 @@ export default {
   changeLoopEndTime,
   changePlayStringTimeFastPlaying,
   initMarkerWidth,
-  addEffect,
   getModalIshidden,
   getSidebarMode,
   changeSidebarMode,
@@ -719,5 +716,10 @@ export default {
   getHoverSource,
   resetHoverSourceInfo,
   changeHoverSourceInfo,
-  deleteEffect
+  modifyEffect,
+  setIsEffectModifyMode,
+  getIsEffectModifyMode,
+  getEffect,
+  setModifyingEffectInfo,
+  getModifyingEffectInfo
 };

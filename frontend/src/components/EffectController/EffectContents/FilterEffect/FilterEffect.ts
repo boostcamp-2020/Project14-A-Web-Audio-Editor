@@ -1,6 +1,7 @@
 import "./FilterEffect.scss";
 import { EventType, EventKeyType } from '@types';
-import { EventUtil } from '@util';
+import { EventUtil, EffectUtil } from '@util';
+import { Controller } from "@controllers";
 
 (() => {
   const FilterEffect = class extends HTMLElement {
@@ -66,10 +67,10 @@ import { EventUtil } from '@util';
     }
 
     inputQListener = (e) => {
-        const { target } = e;
-  
-        if (!this.QValue) return;
-        this.QValue.innerText = `${target.value}`;
+      const { target } = e;
+
+      if (!this.QValue) return;
+      this.QValue.innerText = `${target.value}`;
     }
 
     initElement(): void {
@@ -78,21 +79,39 @@ import { EventUtil } from '@util';
       this.QValue = document.querySelector('.Q-value');
     }
 
+    setDefaultProperties() {
+      if (Controller.getIsEffectModifyMode()) {
+        const effectIds = Controller.getModifyingEffectInfo();
+        const effect = Controller.getEffect(effectIds.id, effectIds.trackId, effectIds.trackSectionId);
+
+        this.typeCurrentValue = effect.properties.getType();
+        this.frequencyCurrentValue = `${EffectUtil.roundPropertyValue(effect.properties.getProperty('frequency'))}`;
+        this.QCurrentValue = `${EffectUtil.roundPropertyValue(effect.properties.getProperty('Q'))}`;
+      }
+      else {
+        this.typeCurrentValue = 'lowpass';
+        this.frequencyCurrentValue = '350';
+        this.QCurrentValue = '1';
+      }
+    }
+
     render() {
+      this.setDefaultProperties();
+
       this.innerHTML = `
           <div class="effect-input">
             <div class="effect-option-name">Type Value</div>
             <div class="effect-input-type-radio-wrap">
-              <input type="radio" name="filter-type" value="lowpass" checked event-key=${EventKeyType.EFFECT_FILTER_TYPE}>lowpass</input> 
+              <input type="radio" name="filter-type" value="lowpass" ${this.typeCurrentValue === 'lowpass' ? 'checked' : ''} event-key=${EventKeyType.EFFECT_FILTER_TYPE}>lowpass</input> 
             </div>
             <div class="effect-input-type-radio-wrap">
-              <input type="radio" name="filter-type" value="highpass" event-key=${EventKeyType.EFFECT_FILTER_TYPE}>highpass</input> 
+              <input type="radio" name="filter-type" value="highpass" ${this.typeCurrentValue === 'highpass' ? 'checked' : ''} event-key=${EventKeyType.EFFECT_FILTER_TYPE}>highpass</input> 
             </div>
             <div class="effect-input-type-radio-wrap">
-              <input type="radio" name="filter-type" value="lowshelf" event-key=${EventKeyType.EFFECT_FILTER_TYPE}>lowshelf</input> 
+              <input type="radio" name="filter-type" value="lowshelf" ${this.typeCurrentValue === 'lowshelf' ? 'checked' : ''} event-key=${EventKeyType.EFFECT_FILTER_TYPE}>lowshelf</input> 
             </div>
             <div class="effect-input-type-radio-wrap">
-              <input type="radio" name="filter-type" value="highshelf" event-key=${EventKeyType.EFFECT_FILTER_TYPE}>highshelf</input> 
+              <input type="radio" name="filter-type" value="highshelf" ${this.typeCurrentValue === 'highshelf' ? 'checked' : ''} event-key=${EventKeyType.EFFECT_FILTER_TYPE}>highshelf</input> 
             </div>
 
             <div class="effect-option-name">Frequency Value</div>
@@ -103,7 +122,7 @@ import { EventUtil } from '@util';
 
             <div class="effect-option-name">Q Value</div>
             <div class="property-percentage-input">
-              <input class="property-percentage-input" type="range" value="${this.QValue}" min="0.1" max="1000" step="0.1" event-key=${EventKeyType.EFFECT_FILTER_INPUT_Q}>
+              <input class="property-percentage-input" type="range" value="${this.QCurrentValue}" min="0.1" max="1000" step="0.1" event-key=${EventKeyType.EFFECT_FILTER_INPUT_Q}>
               <div class="property-percentage-value Q-value">${this.QCurrentValue}</div>
             </div>
           </div>

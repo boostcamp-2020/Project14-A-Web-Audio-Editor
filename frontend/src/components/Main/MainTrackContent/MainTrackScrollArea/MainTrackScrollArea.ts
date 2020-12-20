@@ -43,6 +43,7 @@ import { Track } from '@model'
     initEvent() {
       if (!this.trackScrollAreaElement) return;
       this.trackScrollAreaElement.addEventListener('scroll', this.scrollAreaScrollListener.bind(this));
+
     }
 
     scrollAreaScrollListener(e) {
@@ -57,6 +58,14 @@ import { Track } from '@model'
 
     subscribe(): void {
       storeChannel.subscribe(StoreChannelType.TRACK_LIST_CHANNEL, this.trackListObserverCallback, this);
+    }
+
+    disconnectedCallback() {
+      this.unsubscribe();
+    }
+
+    unsubscribe(): void {
+      storeChannel.unsubscribe(StoreChannelType.TRACK_LIST_CHANNEL, this.trackListObserverCallback, this);
     }
 
     trackListObserverCallback(newTrackList: Track[]): void {

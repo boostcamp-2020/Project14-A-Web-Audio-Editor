@@ -1,5 +1,4 @@
 import './MainTrackContent.scss';
-import { Track } from '@model';
 import { Controller } from '@controllers';
 import { EventUtil, MarkerEventUtil, TimeUtil, WidthUtil } from '@util';
 import { EventType, EventKeyType, StoreChannelType } from '@types';
@@ -7,25 +6,21 @@ import { storeChannel } from "@store";
 
 (() => {
   const MainTrackContent = class extends HTMLElement {
-    private trackList: Track[];
     private mainAudioTrackContainerEventZone: HTMLElement | null;
     private defaultStartX: number;
     private markerElement: HTMLElement | null;
-    private mainWidth: number;
-    private maxTrackPlayTime: number;
     private currentScrollAmount: number;
     private mainTrackRightElement: HTMLElement | null;
+    private resizeTimer: NodeJS.Timeout | null;
 
     constructor() {
       super();
-      this.trackList = Controller.getTrackList();
       this.defaultStartX = 0;
       this.markerElement = null;
-      this.mainWidth = 0;
-      this.maxTrackPlayTime = Controller.getMaxTrackPlayTime();
       this.currentScrollAmount = Controller.getCurrentScrollAmount();
       this.mainAudioTrackContainerEventZone = null;
       this.mainTrackRightElement = null;
+      this.resizeTimer = null;
     }
 
     connectedCallback(): void {
@@ -78,8 +73,6 @@ import { storeChannel } from "@store";
       this.mainTrackRightElement = this.querySelector('.audi-main-track-right');
 
       if (!playbarElement || !this.mainAudioTrackContainerEventZone) return;
-
-      this.mainWidth = playbarElement?.getBoundingClientRect().right - playbarElement?.getBoundingClientRect().left;
       this.defaultStartX = this.mainAudioTrackContainerEventZone?.getBoundingClientRect().left;
       this.markerElement = document.querySelector('.marker');
     }
@@ -103,6 +96,8 @@ import { storeChannel } from "@store";
         ],
         bindObj: this.mainAudioTrackContainerEventZone
       });
+
+      window.addEventListener('resize', this.windowResizeListener.bind(this));
     }
 
     focusResetListener(e): void {
@@ -128,19 +123,32 @@ import { storeChannel } from "@store";
       Controller.changeCursorNumberTime(timeOfCursorPosition);
     };
 
+    windowResizeListener(e) {
+      if (this.resizeTimer) {
+        clearTimeout(this.resizeTimer);
+      }
+
+      this.resizeTimer = setTimeout(() => {
+        Controller.changeMaxTrackWidth(0);
+        this.render();
+        this.initElement();
+        this.initEvent();
+        this.renderPlaybarScrollArea();
+      }, 100);
+    }
+
     subscribe(): void {
-      storeChannel.subscribe(StoreChannelType.MAX_TRACK_PLAY_TIME_CHANNEL, this.maxTrackPlayTimeObserverCallback, this);
       storeChannel.subscribe(StoreChannelType.CURRENT_SCROLL_AMOUNT_CHANNEL, this.currentScrollAmountObserverCallback, this);
       storeChannel.subscribe(StoreChannelType.ZOOM_RATE_CHANNEL, this.zoomRateObserverCallback, this);
     }
 
-    maxTrackPlayTimeObserverCallback(maxTrackPlayTime: number): void {
-      try {
-        this.maxTrackPlayTime = maxTrackPlayTime;
-        this.initEvent();
-      } catch (e) {
-        console.log(e);
-      }
+    disconnectedCallback() {
+      this.unsubscribe();
+    }
+
+    unsubscribe(): void {
+      storeChannel.unsubscribe(StoreChannelType.CURRENT_SCROLL_AMOUNT_CHANNEL, this.currentScrollAmountObserverCallback, this);
+      storeChannel.unsubscribe(StoreChannelType.ZOOM_RATE_CHANNEL, this.zoomRateObserverCallback, this);
     }
 
     currentScrollAmountObserverCallback(newCurrentScrollAmount: number): void {

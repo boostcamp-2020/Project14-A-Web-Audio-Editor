@@ -1,6 +1,7 @@
 import "./GainEffect.scss";
 import { EventType, EventKeyType } from '@types';
-import { EventUtil } from '@util';
+import { EventUtil, EffectUtil } from '@util';
+import { Controller } from "@controllers";
 
 (() => {
   const GainEffect = class extends HTMLElement {
@@ -16,23 +17,6 @@ import { EventUtil } from '@util';
       this.render();
       this.initElement();
       this.initEvent();
-    }
-
-    static get observedAttributes(): string[] {
-      return ['data-percentage'];
-    }
-
-    attributeChangedCallback(attrName: string, oldVal: string, newVal: string): void {
-      if (!newVal) return;
-
-      if (oldVal !== newVal) {
-        switch (attrName) {
-          case 'data-percentage':
-            this.currentValue = newVal;
-            break;
-        }
-        this[attrName] = newVal;
-      }
     }
 
     initEvent(): void {
@@ -55,7 +39,21 @@ import { EventUtil } from '@util';
       this.percentageValue = document.querySelector('.gain-percentage-value');
     }
 
+    setDefaultProperties() {
+      if (Controller.getIsEffectModifyMode()) {
+        const effectIds = Controller.getModifyingEffectInfo();
+        const effect = Controller.getEffect(effectIds.id, effectIds.trackId, effectIds.trackSectionId);
+
+        this.currentValue = `${EffectUtil.roundPropertyValue(effect.properties.getProperty('gain') * 100)}`;
+      }
+      else {
+        this.currentValue = '100';
+      }
+    }
+
     render() {
+      this.setDefaultProperties();
+
       this.innerHTML = `
           <div class="effect-input">
             <div class="effect-option-name">Gain percentage</div>

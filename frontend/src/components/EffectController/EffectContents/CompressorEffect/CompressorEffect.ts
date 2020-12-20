@@ -1,6 +1,7 @@
 import "./CompressorEffect.scss";
 import { EventType, EventKeyType } from '@types';
-import { EventUtil } from '@util';
+import { EventUtil, EffectUtil } from '@util';
+import { Controller } from "@controllers";
 
 (() => {
   const CompressorEffect = class extends HTMLElement {
@@ -89,10 +90,10 @@ import { EventUtil } from '@util';
     }
 
     inputRatioListener = (e) => {
-        const { target } = e;
-  
-        if (!this.ratioValue) return;
-        this.ratioValue.innerText = `${target.value}`;
+      const { target } = e;
+
+      if (!this.ratioValue) return;
+      this.ratioValue.innerText = `${target.value}`;
     }
 
     inputAttackListener = (e) => {
@@ -115,11 +116,31 @@ import { EventUtil } from '@util';
       this.ratioValue = document.querySelector('.ratio-value');
       this.attackValue = document.querySelector('.attack-value');
       this.releaseValue = document.querySelector('.release-value');
+    }
 
-      console.log('init element');
+    setDefaultProperties() {
+      if (Controller.getIsEffectModifyMode()) {
+        const effectIds = Controller.getModifyingEffectInfo();
+        const effect = Controller.getEffect(effectIds.id, effectIds.trackId, effectIds.trackSectionId);
+
+        this.thresholdCurrentValue = `${EffectUtil.roundPropertyValue(effect.properties.getProperty('threshold'))}`;
+        this.kneeCurrentValue = `${EffectUtil.roundPropertyValue(effect.properties.getProperty('knee'))}`;
+        this.ratioCurrentValue = `${EffectUtil.roundPropertyValue((effect.properties.getProperty('ratio')))}`;
+        this.attackCurrentValue = `${EffectUtil.roundPropertyValue(effect.properties.getProperty('attack'), 3)}`;
+        this.releaseCurrentValue = `${EffectUtil.roundPropertyValue(effect.properties.getProperty('release'), 3)}`;
+      }
+      else {
+        this.thresholdCurrentValue = '-24';
+        this.kneeCurrentValue = '-30';
+        this.ratioCurrentValue = '12';
+        this.attackCurrentValue = '0.003';
+        this.releaseCurrentValue = '0.25';
+      }
     }
 
     render() {
+      this.setDefaultProperties();
+
       this.innerHTML = `
           <div class="effect-input">
 
@@ -156,6 +177,8 @@ import { EventUtil } from '@util';
       `;
     }
   };
+
+
   customElements.define('audi-effect-compressor', CompressorEffect);
 })();
 

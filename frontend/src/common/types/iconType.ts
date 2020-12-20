@@ -27,6 +27,8 @@ enum IconType {
     undo = 'undo',
     blade = 'blade',
     link = 'link',
+    deleteEffect = 'deleteEffect',
+    zoomRate = 'zoomRate',
     none = ''
 }
 

@@ -1,6 +1,7 @@
 import { StoreStateType, CursorType, ZoomInfoType, StoreChannelType, ModalType, ModalStateType, FocusInfo, SidebarMode, EffectType } from '@types';
 import { Track, Source, TrackSection, SectionDragStartData, SelectTrackData, Effect } from '@model';
 import { storeChannel } from '@store';
+import { ModifyingEffectInfo } from 'src/common/types/effectTypes';
 
 const store = new (class Store {
   private state: StoreStateType;
@@ -23,7 +24,6 @@ const store = new (class Store {
       sectionIndex: 1,
       effectIndex: 1,
       clipBoard: null,
-      audioSourceInfoInTrackList: [],
       currentPosition: 0,
       markerNumberTime: 0,
       cursorNumberTime: 0,
@@ -45,7 +45,9 @@ const store = new (class Store {
       loopEndTime: 300,
       sidebarMode: SidebarMode.SOURCE_LIST,
       effectOptionType: EffectType.gain,
-      hoverSourceInfo: null
+      hoverSourceInfo: null,
+      isEffectModifyMode: false,
+      modifyingEffectInfo: { id: 0, trackId: 0, trackSectionId: 0 }
     };
   }
 
@@ -124,10 +126,6 @@ const store = new (class Store {
 
       this.state = { ...this.state, trackList: newAudioTrackList };
     }
-  }
-
-  setTrackSectionEffect() {
-    storeChannel.publish(StoreChannelType.TRACK_CHANNEL, this.state.trackList);
   }
 
   setEffectIndex(effectIndex: number) {
@@ -362,6 +360,30 @@ const store = new (class Store {
     storeChannel.publish(StoreChannelType.TRACK_CHANNEL, newTrackList);
     storeChannel.publish(StoreChannelType.EFFECT_STATE_CHANNEL, null);
   }
+
+  setIsEffectModifyMode = (mode: boolean) => {
+    this.state = { ...this.state, isEffectModifyMode: mode };
+  }
+
+  setModifyingEffectInfo = ({ id, trackId, trackSectionId }: ModifyingEffectInfo) => {
+    this.state = { ...this.state, modifyingEffectInfo: { id: id, trackId: trackId, trackSectionId: trackSectionId } };
+  }
+
+  setModifyingEffect = (newEffect: Effect) => {
+    const { trackList, modifyingEffectInfo } = this.state;
+
+    const newTrackList = [...trackList];
+
+    const trackIndex = newTrackList.findIndex((track) => track.id === modifyingEffectInfo.trackId);
+    const trackSectionIndex = newTrackList[trackIndex].trackSectionList.findIndex((trackSection) => trackSection.id === modifyingEffectInfo.trackSectionId);
+    const effectIndex = newTrackList[trackIndex].trackSectionList[trackSectionIndex].effectList.findIndex((effect) => effect.id === modifyingEffectInfo.id);
+
+    newTrackList[trackIndex].trackSectionList[trackSectionIndex].effectList[effectIndex].properties = newEffect.properties;
+    this.state = { ...this.state, trackList: newTrackList };
+
+    storeChannel.publish(StoreChannelType.TRACK_CHANNEL, newTrackList);
+  }
+
 })();
 
 export { store };

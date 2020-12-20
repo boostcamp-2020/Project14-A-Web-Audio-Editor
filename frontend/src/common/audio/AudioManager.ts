@@ -1,4 +1,4 @@
-import { WidthUtil, AudioUtil } from '@util';
+import { WidthUtil, AudioUtil, EffectUtil } from '@util';
 import { StoreChannelType, EffectType } from '@types';
 import { Source, Track, TrackSection, AudioSourceInfoInTrack, Effect } from '@model';
 import { storeChannel } from '@store';
@@ -128,6 +128,12 @@ class AudioManager {
     }
   }
 
+  audioRestart(): void {
+    const isPause = Controller.getIsPauseState();
+    if (isPause) return;
+    this.play();
+  }
+
   audioStop(): void {
     if (this.trackList.length === 0) return;
 
@@ -205,85 +211,12 @@ class AudioManager {
     this.audioContext.suspend();
   }
 
-  generateImpulseResponse(time: number, decay: number) {
-    const sampleRate = this.audioContext.sampleRate;
-    const length = sampleRate * time;
-    const impulse = this.audioContext.createBuffer(2, length, sampleRate);
-
-    const leftImpulse = impulse.getChannelData(0);
-    const rightImpulse = impulse.getChannelData(1);
-
-    for (let i = 0; i < length; i++) {
-      leftImpulse[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / length, decay);
-      rightImpulse[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / length, decay);
-    }
-
-    return impulse;
-  }
-
-  connectGainNode(bufferSourceNode: AudioBufferSourceNode, effect: Effect, outputNode: GainNode) {
-    const gainNode = this.audioContext.createGain();
-
-    gainNode.gain.value = effect.properties.getProperty('gain');
-    
-    bufferSourceNode.connect(gainNode);
-    gainNode.connect(this.audioContext.destination);
-    // gainNode.connect(outputNode);
-  }
-
-  connectCompressorNode(bufferSourceNode: AudioBufferSourceNode, effect: Effect, outputNode: GainNode) {
-    const compressorNode = this.audioContext.createDynamicsCompressor();
-
-    compressorNode.threshold.setValueAtTime(effect.properties.getProperty('threshold'), 0);
-    compressorNode.attack.setValueAtTime(effect.properties.getProperty('attack'), 0);
-    compressorNode.release.setValueAtTime(effect.properties.getProperty('release'), 0);
-    compressorNode.ratio.setValueAtTime(effect.properties.getProperty('ratio'), 0);
-    compressorNode.knee.setValueAtTime(effect.properties.getProperty('knee'), 0);
-
-    bufferSourceNode.connect(compressorNode);
-    // compressorNode.connect(outputNode);
-    compressorNode.connect(this.audioContext.destination);
-  }
-
-  connectFilterNode(bufferSourceNode: AudioBufferSourceNode, effect: Effect, outputNode: GainNode) {
-    const filterNode = this.audioContext.createBiquadFilter();
-
-    filterNode.type = effect.properties.getType();
-    filterNode.frequency.value = effect.properties.getProperty('frequency');
-    filterNode.Q.value = effect.properties.getProperty('Q');
-
-    bufferSourceNode.connect(filterNode);
-    // filterNode.connect(outputNode);
-    filterNode.connect(this.audioContext.destination);
-  }
-
-  connectReverbNode(bufferSourceNode: AudioBufferSourceNode, effect: Effect, outputNode: GainNode) {
-    const convolverNode = this.audioContext.createConvolver();
-    const wetGainNode = this.audioContext.createGain();
-    const dryGainNode = this.audioContext.createGain();
-    const time = effect.properties.getProperty('time');
-    const decay = effect.properties.getProperty('decay');
-    const mix = effect.properties.getProperty('mix');
-
-    bufferSourceNode.connect(dryGainNode);
-    // dryGainNode.connect(outputNode);
-    dryGainNode.connect(this.audioContext.destination);
-    dryGainNode.gain.value = 1 - mix;
-
-    convolverNode.buffer = this.generateImpulseResponse(time, decay);
-
-    bufferSourceNode.connect(convolverNode);
-    convolverNode.connect(wetGainNode);
-    // wetGainNode.connect(outputNode);
-    wetGainNode.connect(this.audioContext.destination);
-    wetGainNode.gain.value = mix;
-  }
-
   updateSourceInfo(sourceId: number, trackId: number, sectionId: number): void {
     const bufferSourceNode = this.audioContext.createBufferSource();
     bufferSourceNode.buffer = this.sourceList[sourceId].buffer;
 
-    const outputNode = this.audioContext.createGain();
+    let inputNode: AudioBufferSourceNode | GainNode = bufferSourceNode;
+    let outputNode: GainNode | null = null;
 
     const selectedTrack = this.trackList.find((track: Track) => {
       return track.id === trackId;
@@ -294,34 +227,20 @@ class AudioManager {
     });
 
     selectedSection?.effectList.forEach((effect) => {
-      switch (effect.name) {
-        case EffectType.gain:
-          this.connectGainNode(bufferSourceNode, effect, outputNode);
+      const connectedOutNode = EffectUtil.connectEffect(this.audioContext, inputNode, effect, selectedSection);
+      if (!connectedOutNode) return;
 
-          break;
-        case EffectType.compressor:
-          this.connectCompressorNode(bufferSourceNode, effect, outputNode);
-
-          break;
-        case EffectType.filter:
-          this.connectFilterNode(bufferSourceNode, effect, outputNode);
-
-          break;
-        case EffectType.reverb:
-          this.connectReverbNode(bufferSourceNode, effect, outputNode);
-
-          break;
-        default:
-          break;
-      }
+      outputNode = connectedOutNode;
+      inputNode = outputNode;
     });
 
     if (selectedSection?.effectList.length === 0) {
-      bufferSourceNode.connect(this.audioContext.destination);
-      // bufferSourceNode.connect(outputNode);
+      outputNode = this.audioContext.createGain();
+      bufferSourceNode.connect(outputNode);
     }
 
-    // outputNode.connect(this.audioContext.destination);
+    if (!outputNode) return;
+    outputNode.connect(this.audioContext.destination);
     this.sourceInfo.push({ trackId: trackId, sectionId: sectionId, bufferSourceNode: bufferSourceNode });
   }
 
@@ -348,10 +267,36 @@ class AudioManager {
   createAndConnectAnalyser(): void {
     this.analyser = this.audioContext.createAnalyser();
     this.analyser.smoothingTimeConstant = 0.3;
-    this.analyser.fftSize = 1024;
+    this.analyser.fftSize = 512;
     this.sourceInfo.forEach((source) => {
       try {
-        source.bufferSourceNode.connect(this.analyser);
+        if (!this.analyser) return;
+
+        const selectedTrack = this.trackList.find((track: Track) => {
+          return track.id === source.trackId;
+        });
+
+        const selectedSection = selectedTrack?.trackSectionList.find((section: TrackSection) => {
+          return section.id === source.sectionId;
+        });
+
+        let inputNode: AudioBufferSourceNode | GainNode = source.bufferSourceNode;
+        let outputNode: GainNode | null = null;
+
+        selectedSection?.effectList.forEach((effect) => {
+          const connectedOutNode = EffectUtil.connectEffect(this.audioContext, inputNode, effect, selectedSection);
+          if (!connectedOutNode) return;
+
+          outputNode = connectedOutNode;
+          inputNode = outputNode;
+        });
+
+        if (selectedSection?.effectList.length === 0) {
+          outputNode = this.audioContext.createGain();
+          source.bufferSourceNode.connect(outputNode);
+        }
+        if (!outputNode) return;
+        outputNode.connect(this.analyser);
       } catch (e) { }
     });
     this.analyser.connect(this.audioContext.destination);
@@ -406,6 +351,7 @@ class AudioManager {
     const widthPixel: number = WidthUtil.getPlayingPixel((this.audioContext.currentTime - this.prevCurrentTime));
 
     const array = new Float32Array(1024);
+    if (!this.analyser) return;
     this.analyser.getFloatTimeDomainData(array);
     if (!volumeBar) return;
     const colors = ['rgb(153, 194, 198)', 'rgb(110,204,136)', 'rgb(214,171,34)', 'rgb(209,81,16)'];
@@ -454,6 +400,7 @@ class AudioManager {
     const widthPixel: number = WidthUtil.getPlayingPixel((this.audioContext.currentTime - this.prevCurrentTime));
 
     const array = new Float32Array(1024);
+    if (!this.analyser) return;
     this.analyser.getFloatTimeDomainData(array);
     if (!volumeBar) return;
     const colors = ['rgb(153, 194, 198)', 'rgb(110,204,136)', 'rgb(214,171,34)', 'rgb(209,81,16)'];
@@ -752,7 +699,7 @@ class AudioManager {
       setTimeout(() => {
         this.setMaxPlayTime();
 
-        const widthPixel = ZoomController.getCurrentPixelPerSecond(); 
+        const widthPixel = ZoomController.getCurrentPixelPerSecond();
         Controller.initMarkerWidth(widthPixel * this.maxPlayTime);
         Controller.changeMarkerPlayStringTime(this.maxPlayTime);
         Controller.changeMarkerNumberTime(this.maxPlayTime);

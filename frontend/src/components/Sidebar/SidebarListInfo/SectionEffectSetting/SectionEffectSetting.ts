@@ -1,7 +1,7 @@
 import { ModalType, EventType, EventKeyType, EffectType, EffectTitleType, EffectContentType, IconType, StoreChannelType, SidebarMode } from '@types';
-import { Controller } from '@controllers';
+import { Controller, CommandController } from '@controllers';
 import { EventUtil } from '@util';
-import { Effect, GainProperties, CompressorProperties, FilterProperties, ReverbProperties, EffectProperties } from '@model';
+import { Effect, GainProperties, CompressorProperties, FilterProperties, ReverbProperties, FadeInProperties, FadeOutProperties, EffectProperties } from '@model';
 import { storeChannel } from "@store";
 import './SectionEffectSetting.scss';
 
@@ -21,18 +21,10 @@ import './SectionEffectSetting.scss';
 
     connectedCallback(): void {
       this.render();
-      // this.initProperty();
       this.initEvent();
       this.subscribe();
     }
 
-    // initProperty(): void {
-    //   const effectOptionType = Controller.getEffectOptionType();
-
-    //   this.effectName = EffectTitleType[`${effectOptionType}`];
-    //   this.effectType = EffectType[`${effectOptionType}`];
-    //   this.effectContentType = EffectContentType[`${effectOptionType}`];
-    // }
 
     render(): void {
       this.innerHTML = `
@@ -83,13 +75,22 @@ import './SectionEffectSetting.scss';
           case EffectType.reverb:
             this.addReverbEffect();
             break;
+          case EffectType.fadein:
+            this.addFadeInEffect();
+            break;
+          case EffectType.fadeout:
+            this.addFadeOutEffect();
+            break;
           default:
             break;
         }
         Controller.changeSidebarMode(SidebarMode.EFFECT_LIST);
+        Controller.setIsEffectModifyMode(false);
       } catch (e) {
         console.log(e);
       }
+
+      this.render();
     }
 
     addGainEffect(): void {
@@ -97,9 +98,11 @@ import './SectionEffectSetting.scss';
       if (!gainElement) return;
 
       const gain = Number(gainElement.value) / 100;
+
       const effectProperties = new GainProperties({ gain: gain });
       const newEffect = new Effect({ name: this.effectType, properties: effectProperties });
-      Controller.addEffect(newEffect);
+
+      this.updateEffectList(newEffect);
     }
 
     addCompressorEffect(): void {
@@ -118,7 +121,8 @@ import './SectionEffectSetting.scss';
 
       const effectProperties = new CompressorProperties({ threshold: threshold, knee: knee, ratio: ratio, attack: attack, release: release });
       const newEffect = new Effect({ name: this.effectType, properties: effectProperties });
-      Controller.addEffect(newEffect);
+
+      this.updateEffectList(newEffect);
     }
 
     addFilterEffect(): void {
@@ -138,7 +142,8 @@ import './SectionEffectSetting.scss';
 
       const effectProperties = new FilterProperties({ type: type, frequency: frequency, Q: Q });
       const newEffect = new Effect({ name: this.effectType, properties: effectProperties });
-      Controller.addEffect(newEffect);
+
+      this.updateEffectList(newEffect);
     }
 
     addReverbEffect(): void {
@@ -154,7 +159,38 @@ import './SectionEffectSetting.scss';
 
       const effectProperties = new ReverbProperties({ mix: mix, time: time, decay: decay });
       const newEffect = new Effect({ name: this.effectType, properties: effectProperties });
-      Controller.addEffect(newEffect);
+
+      this.updateEffectList(newEffect);
+    }
+
+    addFadeInEffect(): void {
+      const fadeInLengthElement: HTMLDivElement | null = document.querySelector('div.fade-in-length');
+
+      if (!fadeInLengthElement) return;
+
+      const fadeInLength = Number(fadeInLengthElement.innerText);
+
+      const effectProperties = new FadeInProperties({ fadeInLength: fadeInLength });
+      console.log(effectProperties, '이상한가봐');
+
+      const newEffect = new Effect({ name: this.effectType, properties: effectProperties });
+
+      console.log(newEffect);
+
+      this.updateEffectList(newEffect);
+    }
+
+    addFadeOutEffect(): void {
+      const fadeOutLengthElement: HTMLDivElement | null = document.querySelector('div.fade-out-length');
+
+      if (!fadeOutLengthElement) return;
+
+      const fadeOutLength = Number(fadeOutLengthElement.innerText);
+
+      const effectProperties = new FadeOutProperties({ fadeOutLength: fadeOutLength });
+      const newEffect = new Effect({ name: this.effectType, properties: effectProperties });
+
+      this.updateEffectList(newEffect);
     }
 
     cancelEffectListener(): void {
@@ -169,6 +205,14 @@ import './SectionEffectSetting.scss';
       storeChannel.subscribe(StoreChannelType.EFFECT_OPTION_TYPE_CHANNEL, this.effectOptionTypeObserverCallback, this);
     }
 
+    disconnectedCallback() {
+      this.unsubscribe();
+    }
+
+    unsubscribe(): void {
+      storeChannel.unsubscribe(StoreChannelType.EFFECT_OPTION_TYPE_CHANNEL, this.effectOptionTypeObserverCallback, this);
+    }
+
     effectOptionTypeObserverCallback(newEffectOptionType): void {
       this.changeEffectOption(newEffectOptionType);
       this.render();
@@ -179,6 +223,18 @@ import './SectionEffectSetting.scss';
       this.effectType = EffectType[`${effectType}`];
       this.effectContentType = EffectContentType[`${effectType}`];
     }
+
+    updateEffectList(newEffect: Effect): void {
+      if (!Controller.getIsEffectModifyMode()) {
+        CommandController.executeAddEffectCommand(newEffect);
+      }
+      else {
+        const { id: modifyEffectId } = Controller.getModifyingEffectInfo();
+        newEffect.id = modifyEffectId;
+        CommandController.executeModifyEffectCommand(newEffect);
+      }
+    }
+
   }
   customElements.define('audi-section-effect-setting', SectionEffectSetting);
 })();

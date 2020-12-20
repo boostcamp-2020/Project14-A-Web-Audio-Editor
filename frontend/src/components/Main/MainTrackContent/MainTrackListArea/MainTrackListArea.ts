@@ -14,16 +14,16 @@ import { storeChannel } from '@store';
     }
 
     connectedCallback(): void {
-        try{
-            this.render();
-            this.subscribe();
-        }catch(e){
-            console.log(e);
-        }
+      try {
+        this.render();
+        this.subscribe();
+      } catch (e) {
+        console.log(e);
+      }
     }
 
     render(): void {
-        this.innerHTML = `
+      this.innerHTML = `
                 ${this.getTrackList()}
         `;
     }
@@ -34,16 +34,24 @@ import { storeChannel } from '@store';
     }
 
     subscribe(): void {
-        storeChannel.subscribe(StoreChannelType.TRACK_LIST_CHANNEL, this.trackListObserverCallback, this);
+      storeChannel.subscribe(StoreChannelType.TRACK_LIST_CHANNEL, this.trackListObserverCallback, this);
+    }
+
+    disconnectedCallback() {
+      this.unsubscribe();
+    }
+
+    unsubscribe(): void {
+      storeChannel.unsubscribe(StoreChannelType.TRACK_LIST_CHANNEL, this.trackListObserverCallback, this);
     }
 
     trackListObserverCallback(newTrackList: Track[]): void {
-        try{
-            this.trackList = newTrackList;
-            this.render();
-        }catch(e){
-            console.log(e);
-        }
+      try {
+        this.trackList = newTrackList;
+        this.render();
+      } catch (e) {
+        console.log(e);
+      }
     }
   };
 

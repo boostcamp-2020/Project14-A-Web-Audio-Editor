@@ -18,9 +18,7 @@ import './Header.scss'
                   <audi-file-tools></audi-file-tools>
                   <audi-edit-tools></audi-edit-tools>
                   <audi-playback-tools></audi-playback-tools>
-                  <div class="icon-wrap">
-                    <audi-icon-button id="record" icontype="record" size="32px"></audi-icon-button>
-                  </div>
+                  <audi-zoom-rate-info></audi-zoom-rate-info>
                 </div>
               </div>
             `;

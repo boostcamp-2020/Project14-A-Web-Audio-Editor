@@ -50,4 +50,15 @@ const calculateTimeOfCursorPosition = (startX: number, currentX: number): number
   return cursorTime;
 };
 
-export { splitTime, getPlayBarTimes, getNumberTime, getStringTime, calculateTimeOfCursorPosition };
+const parsePlayTime = (playTime: number): string => {
+  if (playTime < 60) {
+    const seconds = Math.round(playTime);
+    return `${seconds}초`;
+  }
+
+  const minute = Math.floor(playTime / 60);
+  const seconds = Math.round(playTime % 60);
+  return `${minute}분 ${seconds}초`;
+}
+
+export { splitTime, getPlayBarTimes, getNumberTime, getStringTime, calculateTimeOfCursorPosition, parsePlayTime };

@@ -49,6 +49,16 @@ import { TimeUtil } from '@util';
       storeChannel.subscribe(StoreChannelType.TOTAL_TIME_CHANNEL, this.updateTotalTime, this);
     }
 
+    disconnectedCallback() {
+      this.unsubscribe();
+    }
+
+    unsubscribe(): void {
+      storeChannel.unsubscribe(StoreChannelType.CURSOR_TIME_CHANNEL, this.updateCursorTime, this);
+      storeChannel.unsubscribe(StoreChannelType.PLAY_TIME_CHANNEL, this.updatePlayTime, this);
+      storeChannel.unsubscribe(StoreChannelType.TOTAL_TIME_CHANNEL, this.updateTotalTime, this);
+    }
+
     updateCursorTime(cursorTime) {
       this.cursorTime = cursorTime;
       this.render();
@@ -83,4 +93,4 @@ import { TimeUtil } from '@util';
   customElements.define('audi-time-info', TimeInfo);
 })();
 
-export {};
+export { };

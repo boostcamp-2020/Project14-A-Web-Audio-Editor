@@ -175,6 +175,17 @@ import { TrackSection } from '@model';
       storeChannel.subscribe(StoreChannelType.CLIPBOARD_CHANNEL, this.clipboardObserverCallback, this);
     }
 
+    disconnectedCallback() {
+      this.unsubscribe();
+    }
+
+    unsubscribe(): void {
+      storeChannel.unsubscribe(StoreChannelType.FOCUS_LIST_CHANNEL, this.focusListObserverCallback, this);
+      storeChannel.unsubscribe(StoreChannelType.CURSOR_MODE_CHANNEL, this.cursorModeObserverCallback, this);
+      storeChannel.unsubscribe(StoreChannelType.COMMAND_REDO_UNDO_CHANNEL, this.commandObserverCallback, this);
+      storeChannel.unsubscribe(StoreChannelType.CLIPBOARD_CHANNEL, this.clipboardObserverCallback, this);
+    }
+
     cursorModeObserverCallback(newCursorMode: CursorType): void {
       if (newCursorMode === CursorType.SELECT_MODE) {
         this.cursorElement?.classList.add('selected');

@@ -34,6 +34,16 @@ import { Controller, ZoomController } from '@controllers';
       storeChannel.subscribe(StoreChannelType.CHANGE_TRACK_CHANNEL, this.changeTrackObserverCallback, this);
     }
 
+    disconnectedCallback() {
+      this.unsubscribe();
+    }
+
+    unsubscribe(): void {
+      storeChannel.unsubscribe(StoreChannelType.CURRENT_POSITION_CHANNEL, this.updateMarkerPosition, this);
+      storeChannel.unsubscribe(StoreChannelType.RESET_MARKER_POSITION_CHANNEL, this.changeMarkerPosition, this);
+      storeChannel.unsubscribe(StoreChannelType.CHANGE_TRACK_CHANNEL, this.changeTrackObserverCallback, this);
+    }
+
     initMarkerPosition(): void {
       const markerTime = Controller.getMarkerTime();
       const pixelPerSecond = ZoomController.getCurrentPixelPerSecond();

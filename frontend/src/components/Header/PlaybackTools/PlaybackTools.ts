@@ -135,6 +135,14 @@ import { Controller } from '@controllers';
       storeChannel.subscribe(StoreChannelType.PLAY_OR_PAUSE_CHANNEL, this.changePlayOrPauseIcon, this);
     }
 
+    disconnectedCallback() {
+      this.unsubscribe();
+    }
+
+    unsubscribe(): void {
+      storeChannel.unsubscribe(StoreChannelType.PLAY_OR_PAUSE_CHANNEL, this.changePlayOrPauseIcon, this);
+    }
+
     changePlayOrPauseIcon(iconType: number) {
       if (iconType === 0) {
         return;
