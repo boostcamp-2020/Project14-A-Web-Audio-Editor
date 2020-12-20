@@ -28,22 +28,3 @@
 audi-logo {
   margin: auto auto auto 30px;
 }
-
-.icon-wrap {
-  display:flex;
-  justify-content: space-around;
-  height: 50px;
-  margin: auto 10px;
-  padding: 0 5px;
-  
-  border: 2px solid variables.$border-color;
-  border-radius: 6px;
-  
-  &:last-of-type{
-    margin-right: 20px;
-  }
-}
-
-.icon-wrap  > audi-icon-button {
-  margin: auto 5px;
-}
