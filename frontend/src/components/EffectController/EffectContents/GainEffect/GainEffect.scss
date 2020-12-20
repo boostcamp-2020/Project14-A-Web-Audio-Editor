@@ -5,7 +5,7 @@ audi-effect-gain {
 }
 
 .effect-input {
-  color: white;
+  color: variables.$white-color;
   width: 100%;
   padding: 10px;
 
@@ -21,7 +21,7 @@ audi-effect-gain {
   & .gain-percentage-value {
     height: 30px;
     width: 70px;
-    border: 1px solid white ;
+    border: 1px solid variables.$white-color ;
     border-radius: 6px;
 
     text-align: center;
