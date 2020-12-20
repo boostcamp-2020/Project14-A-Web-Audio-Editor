@@ -31,18 +31,12 @@ class ModifyEffectCommand extends Command {
               }
               return effect;
             })
-            console.log('this.effect', this.effect);
-
-            console.log('newEffectList', newEffectList);
-
             trackSection.effectList = [...newEffectList];
             focus.trackSection = trackSection;
           }
         })
       });
     })
-    console.log('newTrackList', newTrackList);
-
     this.publishChannel(newTrackList);
   }
 

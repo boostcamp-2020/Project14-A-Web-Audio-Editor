@@ -93,9 +93,7 @@ import { storeChannel } from '@store';
       if (focusList.length !== 1) {
         return ``;
       }
-
       const trackSection = focusList[0].trackSection;
-      console.log(trackSection);
 
       return focusList[0].trackSection.effectList.reduce(
         (acc, effect) =>
