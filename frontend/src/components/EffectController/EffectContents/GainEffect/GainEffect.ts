@@ -1,6 +1,6 @@
 import "./GainEffect.scss";
 import { EventType, EventKeyType } from '@types';
-import { EventUtil } from '@util';
+import { EventUtil, EffectUtil } from '@util';
 import { Controller } from "@controllers";
 
 (() => {
@@ -17,23 +17,6 @@ import { Controller } from "@controllers";
       this.render();
       this.initElement();
       this.initEvent();
-    }
-
-    static get observedAttributes(): string[] {
-      return ['data-percentage'];
-    }
-
-    attributeChangedCallback(attrName: string, oldVal: string, newVal: string): void {
-      if (!newVal) return;
-
-      if (oldVal !== newVal) {
-        switch (attrName) {
-          case 'data-percentage':
-            this.currentValue = newVal;
-            break;
-        }
-        this[attrName] = newVal;
-      }
     }
 
     initEvent(): void {
@@ -57,11 +40,11 @@ import { Controller } from "@controllers";
     }
 
     setDefaultProperties() {
-      if(Controller.getIsEffectModifyMode()) { //수정 모드면 이전 값이 되도록 하고..
+      if (Controller.getIsEffectModifyMode()) {
         const effectIds = Controller.getModifyingEffectInfo();
         const effect = Controller.getEffect(effectIds.id, effectIds.trackId, effectIds.trackSectionId);
 
-        this.currentValue = String(effect.properties.getProperty('gain')*100);
+        this.currentValue = `${EffectUtil.roundPropertyValue(effect.properties.getProperty('gain') * 100)}`;
       }
       else {
         this.currentValue = '100';
