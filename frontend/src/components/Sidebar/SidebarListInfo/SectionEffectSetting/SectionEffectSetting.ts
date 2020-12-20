@@ -177,11 +177,9 @@ import './SectionEffectSetting.scss';
 
     addFadeOutEffect(): void {
       const fadeOutLengthElement: HTMLDivElement | null = document.querySelector('div.fade-out-length');
-
       if (!fadeOutLengthElement) return;
 
       const fadeOutLength = Number(fadeOutLengthElement.innerText);
-
       const effectProperties = new FadeOutProperties({ fadeOutLength: fadeOutLength });
       const newEffect = new Effect({ name: this.effectType, properties: effectProperties });
 
