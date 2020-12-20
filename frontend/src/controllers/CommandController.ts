@@ -135,8 +135,9 @@ const executeAddEffectCommand = (effect: Effect) => {
     const { trackList, effectIndex } = store.getState();
     const newTrackList = CopyUtil.copyTrackList(trackList);
     effect.id = effectIndex;
-
-    const addEffectCommand = new AddEffectCommand(newTrackList, effect);
+    const fucusList = Controller.getFocusList();
+    const focusSectionList = fucusList.map(focus => CopyUtil.copySection(focus.trackSection));
+    const addEffectCommand = new AddEffectCommand(newTrackList, focusSectionList, effect);
 
     store.setEffectIndex(effectIndex + 1);
     CommandManager.execute(addEffectCommand);
