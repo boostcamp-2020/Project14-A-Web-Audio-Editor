@@ -100,7 +100,7 @@ import { storeChannel } from '@store';
         (acc += `
           <li class="section-effect-container" data-effect-name="${effect.name}" data-effect-id="${effect.id}" data-effect-track-id="${trackSection.trackId}" data-effect-track-section-id="${trackSection.id}">
             <div class="section-effect delegation" event-key="${EventKeyType.EFFECT_MODIFY}"> 
-              <span class="section-effect-list-effect-name">${effect.name}</span>
+              <span class="section-effect-list-effect-name">${EffectTitleType[effect.name]}</span>
               <audi-icon-button icontype=${IconType.deleteEffect}  class="delegation" event-key="${EventKeyType.EFFECT_DELETE_BTN_CLICK}"></audi-icon-button> 
             </div>
           </li>
