@@ -1,21 +1,19 @@
 import { store, storeChannel } from '@store';
 import { CopyUtil } from '@util';
 import { Controller } from "@controllers";
-import { TrackSection } from '@model';
+import { TrackSection, Effect } from '@model';
 import { FocusInfo, StoreChannelType } from '@types';
-import { CommandManager, DeleteCommand, PasteCommand, SplitCommand, AddTrackCommand, DeleteTrackCommand, MoveCommand, ColorChangeCommand } from '@command';
+import { CommandManager, DeleteCommand, PasteCommand, SplitCommand, AddTrackCommand, DeleteTrackCommand, MoveCommand, ColorChangeCommand, AddEffectCommand, DeleteEffectCommand, ModifyEffectCommand } from '@command';
 
 const executeUndoCommand = () => {
-    const { isPause } = store.getState();
-    if (CommandManager.undoList.length === 0 || !isPause) return;
+    if (CommandManager.undoList.length === 0) return;
     CommandManager.undo();
     const { undoList, redoList } = CommandManager;
     storeChannel.publish(StoreChannelType.COMMAND_REDO_UNDO_CHANNEL, { undoList, redoList });
 };
 
 const executeRedoCommand = () => {
-    const { isPause } = store.getState();
-    if (CommandManager.redoList.length === 0 || !isPause) return;
+    if (CommandManager.redoList.length === 0) return;
 
     CommandManager.redo();
     const { undoList, redoList } = CommandManager;
@@ -23,8 +21,8 @@ const executeRedoCommand = () => {
 };
 
 const executeDeleteCommand = () => {
-    const { focusList, isPause } = store.getState();
-    if (focusList.length === 0 || !isPause) return;
+    const { focusList } = store.getState();
+    if (focusList.length === 0) return;
 
     const command = new DeleteCommand();
     CommandManager.execute(command);
@@ -33,8 +31,7 @@ const executeDeleteCommand = () => {
 };
 
 const executeCutCommand = () => {
-    const { isPause } = store.getState();
-    if (!isPause || !Controller.setClipBoard()) return;
+    if (!Controller.setClipBoard()) return;
 
     const command = new DeleteCommand();
     CommandManager.execute(command);
@@ -43,9 +40,9 @@ const executeCutCommand = () => {
 };
 
 const executePasteCommand = () => {
-    const { focusList, trackList, clipBoard, isPause, selectTrackData } = store.getState();
+    const { focusList, trackList, clipBoard, selectTrackData } = store.getState();
 
-    if (focusList.length > 1 || !isPause || !clipBoard) return;
+    if (focusList.length > 1 || !clipBoard) return;
     if (focusList.length === 0 && selectTrackData.trackId === 0) return;
 
     const trackId = focusList.length === 1 ? focusList[0].trackSection.trackId : selectTrackData.trackId;
@@ -74,9 +71,6 @@ const executePasteCommand = () => {
 };
 
 const executeSplitCommand = (cursorPosition: number, trackId: number, sectionId: number): void => {
-    const { isPause } = store.getState();
-    if (!isPause) return;
-
     const track = Controller.getTrack(trackId);
     const trackSection = track?.trackSectionList.find((section) => section.id === sectionId);
     if (!trackSection || !track) return;
@@ -88,9 +82,6 @@ const executeSplitCommand = (cursorPosition: number, trackId: number, sectionId:
 };
 
 const executeAddTrackCommand = (): void => {
-    const { isPause } = store.getState();
-    if (!isPause) return;
-
     const addTrackCommand = new AddTrackCommand();
     CommandManager.execute(addTrackCommand);
     const { undoList, redoList } = CommandManager;
@@ -98,8 +89,7 @@ const executeAddTrackCommand = (): void => {
 };
 
 const executeMoveCommand = (prevTrackId: number, currentTrackId: number, trackSection: TrackSection, movingCursorTime: number, prevCursorTime: number) => {
-    const { trackList, isPause } = store.getState();
-    if (!isPause) return;
+    const { trackList } = store.getState();
     const prevTrack = trackList.find((track) => track.id === prevTrackId);
     const currentTrack = trackList.find((track) => track.id === currentTrackId);
 
@@ -113,9 +103,6 @@ const executeMoveCommand = (prevTrackId: number, currentTrackId: number, trackSe
 };
 
 const executeDeleteTrackCommand = (trackId: number): void => {
-    const { isPause } = store.getState();
-    if (!isPause) return;
-
     if (isMinLengthOfTrackList()) {
         alert("트랙은 최소 3개 이상 존재해야합니다.");
         return;
@@ -144,6 +131,35 @@ const executeColorChangeCommand = (focusList: FocusInfo[], color: string): void 
     storeChannel.publish(StoreChannelType.COMMAND_REDO_UNDO_CHANNEL, { undoList, redoList });
 }
 
+const executeAddEffectCommand = (effect: Effect) => {
+    const { trackList, effectIndex } = store.getState();
+    const newTrackList = CopyUtil.copyTrackList(trackList);
+    effect.id = effectIndex;
+
+    const addEffectCommand = new AddEffectCommand(newTrackList, effect);
+
+    store.setEffectIndex(effectIndex + 1);
+    CommandManager.execute(addEffectCommand);
+}
+
+const executeDeleteEffectCommand = (effectId: number): void => {
+    const { trackList } = store.getState();
+    const newTrackList = CopyUtil.copyTrackList(trackList);
+
+    const deleteEffectCommand = new DeleteEffectCommand(newTrackList, effectId);
+
+    CommandManager.execute(deleteEffectCommand);
+}
+
+const executeModifyEffectCommand = (effect: Effect) => {
+    const { trackList } = store.getState();
+    const newTrackList = CopyUtil.copyTrackList(trackList);
+
+    const modifyEffectCommand = new ModifyEffectCommand(newTrackList, effect);
+
+    CommandManager.execute(modifyEffectCommand);
+}
+
 export default {
     executeUndoCommand,
     executeRedoCommand,
@@ -154,5 +170,8 @@ export default {
     executeAddTrackCommand,
     executeMoveCommand,
     executeDeleteTrackCommand,
-    executeColorChangeCommand
+    executeColorChangeCommand,
+    executeAddEffectCommand,
+    executeDeleteEffectCommand,
+    executeModifyEffectCommand
 }

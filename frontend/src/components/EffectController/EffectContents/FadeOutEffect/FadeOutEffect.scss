@@ -1,6 +1,6 @@
 @use '@style/variables.scss' as variables;
 
-audi-effect-compressor {
+audi-effect-fade-out {
   width: 100%;
 }
 
@@ -15,7 +15,7 @@ audi-effect-compressor {
   }
 }
 
-.property-percentage-input {
+.fade-out-length-input{
   display: flex;
 
   & .property-percentage-value {

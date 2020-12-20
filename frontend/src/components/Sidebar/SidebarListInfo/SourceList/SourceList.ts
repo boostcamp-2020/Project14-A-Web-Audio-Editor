@@ -1,7 +1,7 @@
 import { EventKeyType, EventType, StoreChannelType } from '@types';
 import { storeChannel } from '@store';
 import { Source, SectionDragStartData } from '@model';
-import { EventUtil } from '@util';
+import { EventUtil, TimeUtil } from '@util';
 import { Controller } from '@controllers';
 import './SourceList.scss';
 
@@ -44,16 +44,7 @@ import './SourceList.scss';
       return `${parsedFileSize}MB`;
     }
 
-    parsePlayTime(playTime: number): string {
-      if (playTime < 60) {
-        const seconds = Math.round(playTime);
-        return `${seconds}초`;
-      }
 
-      const minute = Math.floor(playTime / 60);
-      const seconds = Math.round(playTime % 60);
-      return `${minute}분 ${seconds}초`;
-    }
 
     render(): void {
       this.innerHTML = `
@@ -105,7 +96,7 @@ import './SourceList.scss';
       } else {
         fileInfoElement.innerHTML = `<ul class="source-info">
                 <li class='source-info-item'>파일명: ${this.hoverSource.fileName}</li>
-                <li class='source-info-item'>재생시간: ${this.parsePlayTime(this.hoverSource.duration)}</li>
+                <li class='source-info-item'>재생시간: ${TimeUtil.parsePlayTime(this.hoverSource.duration)}</li>
                 <li class='source-info-item'>용량: ${this.parseFileSize(this.hoverSource.fileSize)}</li>
                 <li class='source-info-item'>채널 수: ${this.hoverSource.numberOfChannels}</li>
                 <li class='source-info-item'>샘플레이트: ${this.hoverSource.sampleRate}</li>

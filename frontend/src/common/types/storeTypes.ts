@@ -52,7 +52,6 @@ interface StoreStateType {
   modalState: ModalStateType;
   isTrackDraggable: Boolean;
   trackList: Track[];
-  audioSourceInfoInTrackList: AudioSourceInfoInTrack[];
   currentPosition: number;
   focusList: FocusInfo[];
   ctrlIsPressed: boolean;

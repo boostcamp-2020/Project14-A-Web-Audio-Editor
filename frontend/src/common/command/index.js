@@ -6,4 +6,7 @@ export { default as SplitCommand } from './concrete/SplitCommand';
 export { default as MoveCommand } from './concrete/MoveCommand';
 export { default as AddTrackCommand } from './concrete/AddTrackCommand';
 export { default as DeleteTrackCommand } from './concrete/DeleteTrackCommand';
-export { default as ColorChangeCommand } from './concrete/ColorChangeCommand'
+export { default as ColorChangeCommand } from './concrete/ColorChangeCommand';
+export { default as AddEffectCommand } from './concrete/AddEffectCommand';
+export { default as DeleteEffectCommand } from './concrete/DeleteEffectCommand';
+export { default as ModifyEffectCommand } from './concrete/ModifyEffectCommand';

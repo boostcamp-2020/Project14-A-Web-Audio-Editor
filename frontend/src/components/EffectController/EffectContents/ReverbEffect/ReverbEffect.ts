@@ -1,6 +1,6 @@
 import "./ReverbEffect.scss";
 import { EventType, EventKeyType } from '@types';
-import { EventUtil } from '@util';
+import { EventUtil, EffectUtil } from '@util';
 import { Controller } from "@controllers";
 
 (() => {
@@ -67,10 +67,10 @@ import { Controller } from "@controllers";
     }
 
     inputDecayListener = (e) => {
-        const { target } = e;
-  
-        if (!this.decayValue) return;
-        this.decayValue.innerText = `${target.value}`;
+      const { target } = e;
+
+      if (!this.decayValue) return;
+      this.decayValue.innerText = `${target.value}`;
     }
 
     initElement(): void {
@@ -80,13 +80,13 @@ import { Controller } from "@controllers";
     }
 
     setDefaultProperties() {
-      if(Controller.getIsEffectModifyMode()) {
+      if (Controller.getIsEffectModifyMode()) {
         const effectIds = Controller.getModifyingEffectInfo();
         const effect = Controller.getEffect(effectIds.id, effectIds.trackId, effectIds.trackSectionId);
 
-        this.mixRatioCurrentValue = String(effect.properties.getProperty('mix'));
-        this.timeCurrentValue = String(effect.properties.getProperty('time'));
-        this.decayCurrentValue = String(effect.properties.getProperty('decay'));
+        this.mixRatioCurrentValue = `${EffectUtil.roundPropertyValue(effect.properties.getProperty('mix'), 3)}`;
+        this.timeCurrentValue = `${EffectUtil.roundPropertyValue(effect.properties.getProperty('time'), 3)}`;
+        this.decayCurrentValue = `${EffectUtil.roundPropertyValue(effect.properties.getProperty('decay'), 3)}`;
       }
       else {
         this.mixRatioCurrentValue = '0.5';

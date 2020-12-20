@@ -1,6 +1,6 @@
 import "./CompressorEffect.scss";
 import { EventType, EventKeyType } from '@types';
-import { EventUtil } from '@util';
+import { EventUtil, EffectUtil } from '@util';
 import { Controller } from "@controllers";
 
 (() => {
@@ -90,10 +90,10 @@ import { Controller } from "@controllers";
     }
 
     inputRatioListener = (e) => {
-        const { target } = e;
-  
-        if (!this.ratioValue) return;
-        this.ratioValue.innerText = `${target.value}`;
+      const { target } = e;
+
+      if (!this.ratioValue) return;
+      this.ratioValue.innerText = `${target.value}`;
     }
 
     inputAttackListener = (e) => {
@@ -119,15 +119,15 @@ import { Controller } from "@controllers";
     }
 
     setDefaultProperties() {
-      if(Controller.getIsEffectModifyMode()) {
+      if (Controller.getIsEffectModifyMode()) {
         const effectIds = Controller.getModifyingEffectInfo();
         const effect = Controller.getEffect(effectIds.id, effectIds.trackId, effectIds.trackSectionId);
 
-        this.thresholdCurrentValue = String(effect.properties.getProperty('threshold'));
-        this.kneeCurrentValue = String(effect.properties.getProperty('knee'));
-        this.ratioCurrentValue = String(effect.properties.getProperty('ratio'));
-        this.attackCurrentValue = String(effect.properties.getProperty('attack'));
-        this.releaseCurrentValue = String(effect.properties.getProperty('release'));
+        this.thresholdCurrentValue = `${EffectUtil.roundPropertyValue(effect.properties.getProperty('threshold'))}`;
+        this.kneeCurrentValue = `${EffectUtil.roundPropertyValue(effect.properties.getProperty('knee'))}`;
+        this.ratioCurrentValue = `${EffectUtil.roundPropertyValue((effect.properties.getProperty('ratio')))}`;
+        this.attackCurrentValue = `${EffectUtil.roundPropertyValue(effect.properties.getProperty('attack'), 3)}`;
+        this.releaseCurrentValue = `${EffectUtil.roundPropertyValue(effect.properties.getProperty('release'), 3)}`;
       }
       else {
         this.thresholdCurrentValue = '-24';
@@ -177,6 +177,8 @@ import { Controller } from "@controllers";
       `;
     }
   };
+
+
   customElements.define('audi-effect-compressor', CompressorEffect);
 })();
 
