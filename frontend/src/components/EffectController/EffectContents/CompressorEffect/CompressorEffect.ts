@@ -26,7 +26,7 @@ import { Controller } from "@controllers";
       this.releaseValue = null;
 
       this.thresholdCurrentValue = '-24';
-      this.kneeCurrentValue = '-30';
+      this.kneeCurrentValue = '30';
       this.ratioCurrentValue = '12';
       this.attackCurrentValue = '0.003';
       this.releaseCurrentValue = '0.25';
@@ -131,7 +131,7 @@ import { Controller } from "@controllers";
       }
       else {
         this.thresholdCurrentValue = '-24';
-        this.kneeCurrentValue = '-30';
+        this.kneeCurrentValue = '30';
         this.ratioCurrentValue = '12';
         this.attackCurrentValue = '0.003';
         this.releaseCurrentValue = '0.25';

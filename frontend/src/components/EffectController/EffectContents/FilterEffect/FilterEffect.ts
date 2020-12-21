@@ -102,16 +102,16 @@ import { Controller } from "@controllers";
           <div class="effect-input">
             <div class="effect-option-name">Type Value</div>
             <div class="effect-input-type-radio-wrap">
-              <input type="radio" name="filter-type" value="lowpass" ${this.typeCurrentValue === 'lowpass' ? 'checked' : ''} event-key=${EventKeyType.EFFECT_FILTER_TYPE}>lowpass</input> 
+              <input class="filter-radio-input" type="radio" name="filter-type" value="lowpass" ${this.typeCurrentValue === 'lowpass' ? 'checked' : ''} event-key=${EventKeyType.EFFECT_FILTER_TYPE}>lowpass</input> 
             </div>
             <div class="effect-input-type-radio-wrap">
-              <input type="radio" name="filter-type" value="highpass" ${this.typeCurrentValue === 'highpass' ? 'checked' : ''} event-key=${EventKeyType.EFFECT_FILTER_TYPE}>highpass</input> 
+              <input class="filter-radio-input" type="radio" name="filter-type" value="highpass" ${this.typeCurrentValue === 'highpass' ? 'checked' : ''} event-key=${EventKeyType.EFFECT_FILTER_TYPE}>highpass</input> 
             </div>
             <div class="effect-input-type-radio-wrap">
-              <input type="radio" name="filter-type" value="lowshelf" ${this.typeCurrentValue === 'lowshelf' ? 'checked' : ''} event-key=${EventKeyType.EFFECT_FILTER_TYPE}>lowshelf</input> 
+              <input class="filter-radio-input" type="radio" name="filter-type" value="lowshelf" ${this.typeCurrentValue === 'lowshelf' ? 'checked' : ''} event-key=${EventKeyType.EFFECT_FILTER_TYPE}>lowshelf</input> 
             </div>
             <div class="effect-input-type-radio-wrap">
-              <input type="radio" name="filter-type" value="highshelf" ${this.typeCurrentValue === 'highshelf' ? 'checked' : ''} event-key=${EventKeyType.EFFECT_FILTER_TYPE}>highshelf</input> 
+              <input class="filter-radio-input" type="radio" name="filter-type" value="highshelf" ${this.typeCurrentValue === 'highshelf' ? 'checked' : ''} event-key=${EventKeyType.EFFECT_FILTER_TYPE}>highshelf</input> 
             </div>
 
             <div class="effect-option-name">Frequency Value</div>

@@ -55,7 +55,7 @@ import { Controller } from "@controllers";
         this.fadeOutLengthCurrentValue = `${EffectUtil.floorPropertyValue(maxLength, 1)}`;
       }
       else {
-        this.fadeOutLengthCurrentValue = '0';
+        this.fadeOutLengthCurrentValue = '1';
       }
 
       const focusList = Controller.getFocusList();
@@ -67,8 +67,8 @@ import { Controller } from "@controllers";
           <div class="effect-input">
             <div class="effect-option-name"> Fade out time</div>
             <div class="fade-out-length-input">
-              <input class="fade-out-length-input" type="range" value="${this.fadeOutLengthCurrentValue}" min="0" max="${this.sectionLength}" step="0.1" event-key=${EventKeyType.EFFECT_FADE_OUT_INPUT_LENGTH}>
-              <div class="property-percentage-value fade-out-length">${this.fadeOutLengthCurrentValue}초</div>
+              <input class="fade-out-length-input" type="range" value="${this.fadeOutLengthCurrentValue}" min="0.1" max="${this.sectionLength}" step="0.1" event-key=${EventKeyType.EFFECT_FADE_OUT_INPUT_LENGTH}>
+              <div class="property-percentage-value fade-out-length">${this.fadeOutLengthCurrentValue}</div>
             </div>
           </div>
       `;
