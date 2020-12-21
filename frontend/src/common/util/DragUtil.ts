@@ -89,13 +89,15 @@ const getRenewTrackTimes = (currentTrack: Track, dragedTrackSection: TrackSectio
   if (newTrackStartTime < 0) {
     newTrackStartTime = 0;
   }
+
   let newTrackEndTime = newTrackStartTime + dragedTrackSection.length;
   let resultValid = ValidUtil.checkEnterTrack(dragedTrackSection, currentTrack.trackSectionList, newTrackStartTime, newTrackEndTime);
+
   if (resultValid.leftValid && !resultValid.rightValid) {
     const prevSection = getPrevTrackSection(currentTrack.id, dragedTrackSection.id, newTrackStartTime);
     if (prevSection) {
       const prevEndTime = prevSection.trackStartTime + prevSection.length
-      if (newTrackStartTime - prevEndTime < prevSection.length / 3) {
+      if (prevEndTime - newTrackStartTime < prevSection.length / 3) {
         newTrackStartTime = prevEndTime;
         newTrackEndTime = newTrackStartTime + dragedTrackSection.length;
       }
@@ -104,7 +106,7 @@ const getRenewTrackTimes = (currentTrack: Track, dragedTrackSection: TrackSectio
     const nextSection = getNextTrackSection(currentTrack.id, dragedTrackSection.id, newTrackStartTime, newTrackEndTime);
     if (nextSection) {
       const nextStartTime = nextSection.trackStartTime;
-      if (newTrackEndTime - nextStartTime < nextSection.length / 3) {
+      if (newTrackEndTime - nextStartTime < nextSection.length / 3 && nextStartTime - dragedTrackSection.length >= 0) {
         newTrackEndTime = nextStartTime;
         newTrackStartTime = newTrackEndTime - dragedTrackSection.length;
       }
