@@ -266,8 +266,8 @@ class AudioManager {
 
   createAndConnectAnalyser(): void {
     this.analyser = this.audioContext.createAnalyser();
-    this.analyser.smoothingTimeConstant = 0.3;
-    this.analyser.fftSize = 512;
+    this.analyser.smoothingTimeConstant = 0.6;
+    this.analyser.fftSize = 1024;
     this.sourceInfo.forEach((source) => {
       try {
         if (!this.analyser) return;
