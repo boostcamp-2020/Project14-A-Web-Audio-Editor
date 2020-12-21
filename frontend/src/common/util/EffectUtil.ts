@@ -131,7 +131,7 @@ const connectFadeInNode = (audioContext: AudioContext | OfflineAudioContext, buf
   return outputNode;
 }
 
-const connectFadeOutNode = (audioContext: AudioContext | OfflineAudioContext, bufferSourceNode: AudioBufferSourceNode | GainNode, effect: Effect, trackStartTime: number, trackEndTime: number, trackLength: number): GainNode => {
+const connectFadeOutNode = (audioContext: AudioContext | OfflineAudioContext, bufferSourceNode: AudioBufferSourceNode | GainNode, effect: Effect, trackEndTime: number, trackLength: number): GainNode => {
   const gainNode = audioContext.createGain();
   const outputNode = audioContext.createGain();
   const fadeOutProperty = effect.properties.getProperty('fadeOutLength');
@@ -180,12 +180,11 @@ const connectEffect = (audioContext: AudioContext | OfflineAudioContext, bufferS
     case EffectType.reverb:
       return connectReverbNode(audioContext, bufferSourceNode, effect);
     case EffectType.fadein:
-      const trackLength = trackSection.length;
       const trackStartTime = trackSection.trackStartTime;
-      return connectFadeInNode(audioContext, bufferSourceNode, effect, trackStartTime, trackLength);
+      return connectFadeInNode(audioContext, bufferSourceNode, effect, trackStartTime, trackSection.length);
     case EffectType.fadeout:
       const trackEndTime = trackSection.trackStartTime + trackSection.length;
-      return connectFadeOutNode(audioContext, bufferSourceNode, effect, trackSection.trackStartTime, trackEndTime, trackLength);
+      return connectFadeOutNode(audioContext, bufferSourceNode, effect, trackEndTime, trackSection.length);
     default:
       break;
   }

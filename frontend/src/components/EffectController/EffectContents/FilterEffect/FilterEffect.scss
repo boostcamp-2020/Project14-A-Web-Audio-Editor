@@ -5,7 +5,7 @@ audi-effect-filter {
 }
 
 .effect-input {
-  color: white;
+  color: variables.$white-color;
   width: 100%;
   padding: 10px;
 
@@ -19,7 +19,7 @@ audi-effect-filter {
   display: flex;
   align-items: center;
 
-  input {
+  .filter-radio-input {
     width: 20%;
   }
 }
@@ -30,7 +30,7 @@ audi-effect-filter {
   & .property-percentage-value {
     height: 30px;
     width: 70px;
-    border: 1px solid white;
+    border: 1px solid variables.$white-color;
     border-radius: 6px;
 
     text-align: center;
