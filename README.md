@@ -21,6 +21,9 @@
 
 [✨지금 바로 편집하러 가보세요!✨](http://www.audi-editor.ml/)
 
+## [🎥유튜브 데모영상 보러가기](https://www.youtube.com/watch?v=KJmMKFirbUs)
+[![Watch the video](https://i.ytimg.com/an_webp/KJmMKFirbUs/mqdefault_6s.webp?du=3000&sqp=CLfzwv8F&rs=AOn4CLCOW3nnlV7lPJH-iXK4q6jF2uVO6A)](https://www.youtube.com/watch?v=KJmMKFirbUs&t=26s)
+
 ## 📚[Tech Stack](https://github.com/boostcamp-2020/Project14-A-Web-Audio-Editor/wiki/Tech-Stack)
 ![](https://ifh.cc/g/XhfrXP.jpg)
 
