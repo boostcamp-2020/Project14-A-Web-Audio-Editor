@@ -19,7 +19,7 @@
 
 언제 어디서나 **웹 브라우저와 네트워크 연결**만 가능하다면 오디오 및 음성 파형 편집을 시작할 수 있습니다!
 
-[✨지금 바로 편집하러 가보세요!✨](http://www.audi-editor.ml/)
+[✨지금 바로 편집하러 가보세요!✨](http://3.23.83.109)
 
 ## [🎥유튜브 데모영상 보러가기](https://www.youtube.com/watch?v=KJmMKFirbUs)
 [![Watch the video](https://i.ytimg.com/an_webp/KJmMKFirbUs/mqdefault_6s.webp?du=3000&sqp=CLfzwv8F&rs=AOn4CLCOW3nnlV7lPJH-iXK4q6jF2uVO6A)](https://www.youtube.com/watch?v=KJmMKFirbUs&t=26s)
@@ -34,7 +34,7 @@
 ## [🥝WIKI](https://github.com/boostcamp-2020/Project14-A-Web-Audio-Editor/wiki)
 저희의 활동이 궁금하시다면 WIKI로 와주세요!
 
-## [🚀프로젝트 배포 링크](http://audi-editor.ml)
+## [🚀프로젝트 배포 링크](http://3.23.83.109)
 
 ## 💻실행방법
 ```
