@@ -34,7 +34,7 @@
 ## [🥝WIKI](https://github.com/boostcamp-2020/Project14-A-Web-Audio-Editor/wiki)
 저희의 활동이 궁금하시다면 WIKI로 와주세요!
 
-## [🚀프로젝트 배포 링크](http://3.23.83.109)
+## [🚀프로젝트 배포 링크](https://audi-editor.herokuapp.com/)
 
 ## 💻실행방법
 ```
