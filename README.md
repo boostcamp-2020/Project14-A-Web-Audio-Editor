@@ -1,13 +1,7 @@
 # 🔊 AUDI(AUdio eDItor)
 > **No 라이브러리! No 프레임워크! Only Vanilla JS!**
 
-<div style="width:100%; display:flex; flex-direction: column; justify-content:center; align-items: center;">
-  <img src="https://ifh.cc/g/jF1w7e.png" width=800/>
-   <p align-"center">
-    <img src="https://img.shields.io/badge/typescript-v4.0.2-blue?logo=typescript&logoColor=007ACC" />
-   </p>
-</div>
-
+<img width="1911" alt="image" src="https://user-images.githubusercontent.com/7006837/200823998-50f0ffcd-afb6-4025-a894-738f1959e8eb.png">
 ## 👩‍💻Members👨‍💻
 
 |           류남광(J064)<br/>[@pieisland](https://github.com/pieisland)<br/>재생 장인          | 송원석(J098)<br/>[@Songwonseok](https://github.com/Songwonseok)<br/>커맨드 장인  | 신우진(J104)<br/> [@wooojini](https://github.com/wooojini)<br/>개발 장인  | 최정은(J206)<br/> [@Jeongeun-Choi](https://github.com/Jeongeun-Choi)<br/>페어프로그래밍 장인          |
